@@ -18,15 +18,12 @@
         >
           <template #right>
             <Badge
-              v-if="
-                !isSidebarCollapsed &&
-                notificationsStore().unreadNotificationsCount
-              "
-              :label="notificationsStore().unreadNotificationsCount"
+              v-if="!isSidebarCollapsed && unreadNotificationsCount"
+              :label="unreadNotificationsCount"
               variant="subtle"
             />
             <div
-              v-else-if="notificationsStore().unreadNotificationsCount"
+              v-else-if="unreadNotificationsCount"
               class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-gray-800 ring-1 ring-white"
             />
           </template>
@@ -74,6 +71,7 @@
         </Section>
       </div>
     </div>
+    <TrialBanner v-if="isFCSite.data" />
     <div class="m-2 flex flex-col gap-1">
       <SidebarLink
         :label="isSidebarCollapsed ? __('Expand') : __('Collapse')"
@@ -92,6 +90,7 @@
       </SidebarLink>
     </div>
     <Notifications />
+    <Settings />
   </div>
 </template>
 
@@ -111,18 +110,22 @@ import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Notifications from '@/components/Notifications.vue'
+import Settings from '@/components/Settings/Settings.vue'
 import { viewsStore } from '@/stores/views'
-import { notificationsStore } from '@/stores/notifications'
-import { FeatherIcon } from 'frappe-ui'
+import {
+  unreadNotificationsCount,
+  notificationsStore,
+} from '@/stores/notifications'
+import { FeatherIcon, TrialBanner, createResource } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
-import { computed, h } from 'vue'
+import { computed, h, provide } from 'vue'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
 
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 
-const links = [
+const links = computed(() => [
   {
     label: 'Leads',
     icon: LeadsIcon,
@@ -153,17 +156,17 @@ const links = [
     icon: TaskIcon,
     to: 'Tasks',
   },
-  {
+  ...(callEnabled.value ? [{
     label: 'Call Logs',
     icon: PhoneIcon,
     to: 'Call Logs',
-  },
+  }] : []),
   {
     label: 'Email Templates',
     icon: Email2Icon,
     to: 'Email Templates',
   },
-]
+])
 
 const allViews = computed(() => {
   let _views = [
@@ -171,7 +174,7 @@ const allViews = computed(() => {
       name: 'All Views',
       hideLabel: true,
       opened: true,
-      views: links,
+      views: links.value,
     },
   ]
   if (getPublicViews().length) {
@@ -226,4 +229,13 @@ function getIcon(routeName, icon) {
       return PinIcon
   }
 }
+
+const isFCSite = createResource({
+  url: 'frappe.integrations.frappe_providers.frappecloud_billing.is_fc_site',
+  cache: 'isFCSite',
+  auto: true,
+  transform: (data) => Boolean(data),
+})
+
+provide('isFCSite', isFCSite)
 </script>

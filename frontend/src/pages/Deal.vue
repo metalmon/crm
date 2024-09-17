@@ -36,11 +36,11 @@
     </template>
   </LayoutHeader>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
-    <Tabs v-model="tabIndex" v-slot="{ tab }" :tabs="tabs">
+    <Tabs v-model="tabIndex" :tabs="tabs">
       <Activities
         ref="activities"
         doctype="CRM Deal"
-        :title="tab.name"
+        :tabs="tabs"
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="deal"
@@ -76,6 +76,25 @@
                 <PhoneIcon class="h-4 w-4" />
               </Button>
             </Tooltip>
+
+            <Tooltip :text="__('Call via phone app')">
+              <Button
+                v-if="primaryContactMobileNo && !callEnabled"
+                size="sm"
+                @click="trackPhoneActivities('phone')"
+              >
+                <PhoneIcon class="h-4 w-4" />
+              </Button>
+            </Tooltip>
+            <Tooltip :text="__('Track WhatsApp activities')">
+              <Button
+                v-if="primaryContactMobileNo"
+                size="sm"
+                @click="trackPhoneActivities('Open WhatsApp')"
+              >
+                <WhatsAppIcon class="h-4 w-4" />
+              </Button>
+            </Tooltip>
             <Tooltip :text="__('Send an email')">
               <Button class="h-7 w-7">
                 <Email2Icon
@@ -100,6 +119,11 @@
                 />
               </Button>
             </Tooltip>
+            <Tooltip :text="__('Attach a file')">
+              <Button class="size-7" @click="showFilesUploader = true">
+                <AttachmentIcon class="size-4" />
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -116,7 +140,7 @@
           <div
             v-for="(section, i) in fieldsLayout.data"
             :key="section.label"
-            class="flex flex-col p-3"
+            class="section flex flex-col p-3"
             :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
           >
             <Section :is-opened="section.opened" :label="section.label">
@@ -299,6 +323,18 @@
     doctype="CRM Deal"
     @reload="() => fieldsLayout.reload()"
   />
+  <FilesUploader
+    v-if="deal.data?.name"
+    v-model="showFilesUploader"
+    doctype="CRM Deal"
+    :docname="deal.data.name"
+    @after="
+      () => {
+        activities?.all_activities?.reload()
+        changeTabTo('attachments')
+      }
+    "
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -317,10 +353,12 @@ import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import SuccessIcon from '@/components/Icons/SuccessIcon.vue'
+import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
 import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
+import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
 import SidePanelModal from '@/components/Settings/SidePanelModal.vue'
@@ -354,6 +392,7 @@ import {
 } from 'frappe-ui'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useActiveTabManager } from '@/composables/useActiveTabManager'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
@@ -376,10 +415,13 @@ const deal = createResource({
   params: { name: props.dealId },
   cache: ['deal', props.dealId],
   onSuccess: async (data) => {
-    organization.update({
-      params: { doctype: 'CRM Organization', name: data.organization },
-    })
-    organization.fetch()
+    if (data.organization) {
+      organization.update({
+        params: { doctype: 'CRM Organization', name: data.organization },
+      })
+      organization.fetch()
+    }
+
     let obj = {
       doc: data,
       $dialog,
@@ -431,6 +473,7 @@ const reload = ref(false)
 const showOrganizationModal = ref(false)
 const showAssignmentModal = ref(false)
 const showSidePanelModal = ref(false)
+const showFilesUploader = ref(false)
 const _organization = ref({})
 
 function updateDeal(fieldname, value, callback) {
@@ -513,7 +556,6 @@ usePageMeta(() => {
   }
 })
 
-const tabIndex = ref(0)
 const tabs = computed(() => {
   let tabOptions = [
     {
@@ -548,6 +590,11 @@ const tabs = computed(() => {
       icon: NoteIcon,
     },
     {
+      name: 'Attachments',
+      label: __('Attachments'),
+      icon: AttachmentIcon,
+    },
+    {
       name: 'WhatsApp',
       label: __('WhatsApp'),
       icon: WhatsAppIcon,
@@ -556,6 +603,7 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
+const { tabIndex } = useActiveTabManager(tabs, 'lastDealTab')
 
 const fieldsLayout = createResource({
   url: 'crm.api.doc.get_sidebar_fields',
@@ -602,7 +650,7 @@ function contactOptions(contact) {
     options.push({
       label: __('Set as Primary Contact'),
       icon: h(SuccessIcon, { class: 'h-4 w-4' }),
-      onClick: () => setPrimaryContact(contact),
+      onClick: () => setPrimaryContact(contact.name),
     })
   }
 
@@ -667,6 +715,22 @@ const dealContacts = createResource({
   },
 })
 
+function trackPhoneActivities(type) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact?.mobile_no) {
+    errorMessage(__('No phone number set'))
+    return
+  }
+  trackCommunication({
+    type,
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContact.mobile_no,
+    activities: activities.value,
+    contactName: primaryContact.name
+  })
+}
+
 function triggerCall() {
   let primaryContact = dealContacts.data?.find((c) => c.is_primary)
   let mobile_no = primaryContact.mobile_no || null
@@ -704,4 +768,17 @@ const activities = ref(null)
 function openEmailBox() {
   activities.value.emailBox.show = true
 }
+
+const primaryContactMobileNo = computed(() => {
+  return dealContacts.data?.find(c => c.is_primary)?.mobile_no
+})
 </script>
+
+<style scoped>
+:deep(.section:has(.section-field.hidden)) {
+  display: none;
+}
+:deep(.section:has(.section-field:not(.hidden))) {
+  display: flex;
+}
+</style>

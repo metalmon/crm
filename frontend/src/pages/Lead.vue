@@ -45,7 +45,6 @@
       <Activities
         ref="activities"
         doctype="CRM Lead"
-        :title="tab.name"
         :tabs="tabs"
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
@@ -127,6 +126,24 @@
                     <PhoneIcon class="h-4 w-4" />
                   </Button>
                 </Tooltip>
+                <Tooltip :text="__('Call via phone app')">
+                  <Button
+                    v-if="lead.data.mobile_no && !callEnabled"
+                    size="sm"
+                    @click="trackPhoneActivities(lead.data.mobile_no, 'phone')"
+                  >
+                    <PhoneIcon class="h-4 w-4" />
+                  </Button>
+                </Tooltip>
+                <Tooltip :text="__('Open WhatsApp')">
+                  <Button
+                    v-if="lead.data.mobile_no"
+                    size="sm"
+                    @click="trackPhoneActivities(lead.data.mobile_no, 'whatsapp')"
+                  >
+                    <WhatsAppIcon class="h-4 w-4" />
+                  </Button>
+                </Tooltip>
                 <Tooltip :text="__('Send an email')">
                   <Button class="h-7 w-7">
                     <Email2Icon
@@ -149,6 +166,11 @@
                           : errorMessage(__('No website set'))
                       "
                     />
+                  </Button>
+                </Tooltip>
+                <Tooltip :text="__('Attach a file')">
+                  <Button class="h-7 w-7" @click="showFilesUploader = true">
+                    <AttachmentIcon class="h-4 w-4" />
                   </Button>
                 </Tooltip>
               </div>
@@ -273,6 +295,18 @@
     v-model="showSidePanelModal"
     @reload="() => fieldsLayout.reload()"
   />
+  <FilesUploader
+    v-if="lead.data?.name"
+    v-model="showFilesUploader"
+    doctype="CRM Lead"
+    :docname="lead.data.name"
+    @after="
+      () => {
+        activities?.all_activities?.reload()
+        changeTabTo('attachments')
+      }
+    "
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -291,9 +325,11 @@ import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
+import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
+import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import SidePanelModal from '@/components/Settings/SidePanelModal.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
@@ -330,6 +366,7 @@ import {
 } from 'frappe-ui'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useActiveTabManager } from '@/composables/useActiveTabManager'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { getContactByName, contacts } = contactsStore()
@@ -382,6 +419,7 @@ onMounted(() => {
 const reload = ref(false)
 const showAssignmentModal = ref(false)
 const showSidePanelModal = ref(false)
+const showFilesUploader = ref(false)
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -463,8 +501,6 @@ usePageMeta(() => {
   }
 })
 
-const tabIndex = ref(0)
-
 const tabs = computed(() => {
   let tabOptions = [
     {
@@ -499,6 +535,11 @@ const tabs = computed(() => {
       icon: NoteIcon,
     },
     {
+      name: 'Attachments',
+      label: __('Attachments'),
+      icon: AttachmentIcon,
+    },
+    {
       name: 'WhatsApp',
       label: __('WhatsApp'),
       icon: WhatsAppIcon,
@@ -507,6 +548,8 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
+
+const { tabIndex, changeTabTo } = useActiveTabManager(tabs, 'lastLeadTab')
 
 watch(tabs, (value) => {
   if (value && route.params.tabName) {
@@ -630,5 +673,16 @@ const activities = ref(null)
 
 function openEmailBox() {
   activities.value.emailBox.show = true
+}
+
+function trackPhoneActivities(phoneNumber, type = 'phone') {
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
 }
 </script>

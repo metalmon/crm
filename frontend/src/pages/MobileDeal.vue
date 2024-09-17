@@ -1,7 +1,7 @@
 <template>
   <LayoutHeader v-if="deal.data">
     <header
-      class="relative flex h-12 items-center justify-between gap-2 py-2.5 pl-5"
+      class="relative flex h-10.5 items-center justify-between gap-2 py-2.5 pl-2"
     >
       <Breadcrumbs :items="breadcrumbs">
         <template #prefix="{ item }">
@@ -207,12 +207,60 @@
               </Section>
             </div>
           </div>
+          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white p-3">
+            <Button
+              v-if="primaryContactMobileNo && callEnabled"
+              size="sm"
+              @click="triggerCall"
+            >
+              <template #prefix>
+                <PhoneIcon class="h-4 w-4" />
+              </template>
+              {{ __('Make Call') }}
+            </Button>
+
+            <Button
+              v-if="primaryContactMobileNo && !callEnabled"
+              size="sm"
+              @click="trackPhoneActivities('phone')"
+            >
+              <template #prefix>
+                <PhoneIcon class="h-4 w-4" />
+              </template>
+              {{ __('Make Call') }}
+            </Button>
+            
+            <Button
+              v-if="primaryContactMobileNo"
+              size="sm"
+              @click="trackPhoneActivities('whatsapp')"
+            >
+              <template #prefix>
+                <WhatsAppIcon class="h-4 w-4" />
+              </template>
+              {{ __('Chat') }}
+            </Button>
+
+            <Button
+              size="sm"
+              @click="
+                deal.data.website
+                  ? openWebsite(deal.data.website)
+                  : errorMessage(__('No website set'))
+              "
+            >
+              <template #prefix>
+                <LinkIcon class="h-4 w-4" />
+              </template>
+              {{ __('Website') }}
+            </Button>
+          </div>
         </div>
       </div>
       <Activities
         v-else
         doctype="CRM Deal"
-        :title="tab.name"
+        :tabs="tabs"
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="deal"
@@ -254,6 +302,7 @@ import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
+import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
@@ -278,6 +327,7 @@ import {
   callEnabled,
   isMobileView,
 } from '@/composables/settings'
+import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import {
   createResource,
   Dropdown,
@@ -288,8 +338,12 @@ import {
 } from 'frappe-ui'
 import { ref, computed, h, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { normalizePhoneNumber } from '@/utils/communicationUtils'
+import { errorMessage, openWebsite } from '@/utils'
+import LinkIcon from '@/components/Icons/LinkIcon.vue'
+import { trackCommunication } from '@/utils/communicationUtils'
 
-const { $dialog, $socket } = globalStore()
+const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
 const route = useRoute()
 const router = useRouter()
@@ -309,10 +363,13 @@ const deal = createResource({
   params: { name: props.dealId },
   cache: ['deal', props.dealId],
   onSuccess: async (data) => {
-    organization.update({
-      params: { doctype: 'CRM Organization', name: data.organization },
-    })
-    organization.fetch()
+    if (data.organization) {
+      organization.update({
+        params: { doctype: 'CRM Organization', name: data.organization },
+      })
+      organization.fetch()
+    }
+
     let obj = {
       doc: data,
       $dialog,
@@ -424,7 +481,6 @@ const breadcrumbs = computed(() => {
   return items
 })
 
-const tabIndex = ref(0)
 const tabs = computed(() => {
   let tabOptions = [
     {
@@ -465,6 +521,11 @@ const tabs = computed(() => {
       icon: NoteIcon,
     },
     {
+      name: 'Attachments',
+      label: __('Attachments'),
+      icon: AttachmentIcon,
+    },
+    {
       name: 'WhatsApp',
       label: __('WhatsApp'),
       icon: WhatsAppIcon,
@@ -473,6 +534,7 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
+const { tabIndex } = useActiveTabManager(tabs, 'lastDealTab')
 
 const fieldsLayout = createResource({
   url: 'crm.api.doc.get_sidebar_fields',
@@ -519,7 +581,7 @@ function contactOptions(contact) {
     options.push({
       label: __('Set as Primary Contact'),
       icon: h(SuccessIcon, { class: 'h-4 w-4' }),
-      onClick: () => setPrimaryContact(contact),
+      onClick: () => setPrimaryContact(contact.name),
     })
   }
 
@@ -609,4 +671,51 @@ async function deleteDeal(name) {
   })
   router.push({ name: 'Deals' })
 }
+
+const activities = ref(null)
+
+function trackPhoneActivities(type) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact?.mobile_no) {
+    errorMessage(__('No phone number set'))
+    return
+  }
+  trackCommunication({
+    type,
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContact.mobile_no,
+    activities: activities.value,
+    contactName: primaryContact.name
+  })
+}
+
+function triggerCall() {
+  const primaryContact = dealContacts.data?.find((c) => c.is_primary)
+  const mobile_no = primaryContact?.mobile_no || null
+
+  if (!primaryContact) {
+    errorMessage(__('No primary contact set'))
+    return
+  }
+
+  if (!mobile_no) {
+    errorMessage(__('No mobile number set'))
+    return
+  }
+
+  makeCall(mobile_no)
+}
+
+
+
+const primaryContactMobileNo = computed(() => {
+  return dealContacts.data?.find(c => c.is_primary)?.mobile_no
+})
 </script>
+
+<style scoped>
+.flex-1 {
+  padding-bottom: 4rem;
+}
+</style>

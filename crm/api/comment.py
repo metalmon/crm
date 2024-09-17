@@ -3,6 +3,7 @@ from collections.abc import Iterable
 import frappe
 from frappe import _
 from bs4 import BeautifulSoup
+from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 
 def on_update(self, method):
     notify_mentions(self)
@@ -17,34 +18,31 @@ def notify_mentions(doc):
     if not content:
         return
     mentions = extract_mentions(content)
+    reference_doc = frappe.get_doc(doc.reference_doctype, doc.reference_name)
     for mention in mentions:
         owner = frappe.get_cached_value("User", doc.owner, "full_name")
         doctype = doc.reference_doctype
         if doctype.startswith("CRM "):
             doctype = doctype[4:].lower()
+        name = reference_doc.lead_name or name if doctype == "lead" else reference_doc.organization or reference_doc.lead_name or name
         notification_text = f"""
             <div class="mb-2 leading-5 text-gray-600">
                 <span class="font-medium text-gray-900">{ owner }</span>
                 <span>{ _('mentioned you in {0}').format(doctype) }</span>
-                <span class="font-medium text-gray-900">{ doc.reference_name }</span>
+                <span class="font-medium text-gray-900">{ name }</span>
             </div>
         """
-        values = frappe._dict(
-            doctype="CRM Notification",
-            from_user=doc.owner,
-            to_user=mention.email,
-            type="Mention",
-            message=doc.content,
-            notification_text=notification_text,
-            notification_type_doctype="Comment",
-            notification_type_doc=doc.name,
-            reference_doctype=doc.reference_doctype,
-            reference_name=doc.reference_name,
-        )
-
-        if frappe.db.exists("CRM Notification", values):
-            return
-        frappe.get_doc(values).insert()
+        notify_user({
+            "owner": doc.owner,
+            "assigned_to": mention.email,
+            "notification_type": "Mention",
+            "message": doc.content,
+            "notification_text": notification_text,
+            "reference_doctype": "Comment",
+            "reference_docname": doc.name,
+            "redirect_to_doctype": doc.reference_doctype,
+            "redirect_to_docname": doc.reference_name,
+        })
 
 
 def extract_mentions(html):

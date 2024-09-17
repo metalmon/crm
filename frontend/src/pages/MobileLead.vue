@@ -1,7 +1,7 @@
 <template>
   <LayoutHeader v-if="lead.data">
     <header
-      class="relative flex h-12 items-center justify-between gap-2 py-2.5 pl-5"
+      class="relative flex h-10.5 items-center justify-between gap-2 py-2.5 pl-2"
     >
       <Breadcrumbs :items="breadcrumbs">
         <template #prefix="{ item }">
@@ -84,12 +84,63 @@
               </Section>
             </div>
           </div>
+          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white p-3">
+            <Button
+              v-if="lead.data.mobile_no && callEnabled"
+              size="sm"
+              @click="
+                lead.data.mobile_no
+                  ? makeCall(lead.data.mobile_no)
+                  : errorMessage(__('No phone number set'))
+              "
+            >
+              <template #prefix>
+                <PhoneIcon class="h-4 w-4" />
+              </template>
+              {{ __('Make Call') }}
+            </Button>
+
+            <Button
+              v-if="lead.data.mobile_no && !callEnabled"
+              size="sm"
+              @click="trackPhoneActivities(lead.data.mobile_no, 'phone')"
+            >
+              <template #prefix>
+                <PhoneIcon class="h-4 w-4" />
+              </template>
+              {{ __('Make Call') }}
+            </Button>
+            
+            <Button
+              v-if="lead.data.mobile_no"
+              size="sm"
+              @click="trackPhoneActivities(lead.data.mobile_no, 'whatsapp')"
+            >
+              <template #prefix>
+                <WhatsAppIcon class="h-4 w-4" />
+              </template>
+              {{ __('Chat') }}
+            </Button>
+
+            <Button
+              size="sm"
+              @click="
+                lead.data.website
+                  ? openWebsite(lead.data.website)
+                  : errorMessage(__('No website set'))
+              "
+            >
+            <template #prefix>
+                <LinkIcon class="h-4 w-4" />
+              </template>
+              {{ __('Website') }}
+            </Button>
+          </div>
         </div>
       </div>
       <Activities
         v-else
         doctype="CRM Lead"
-        :title="tab.name"
         :tabs="tabs"
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
@@ -180,6 +231,7 @@ import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
+import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
@@ -203,6 +255,7 @@ import {
   callEnabled,
   isMobileView,
 } from '@/composables/settings'
+import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import {
   createResource,
   Dropdown,
@@ -213,8 +266,14 @@ import {
 } from 'frappe-ui'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { normalizePhoneNumber } from '@/utils/communicationUtils'
+import { errorMessage } from '@/utils'
+import Email2Icon from '@/components/Icons/Email2Icon.vue'
+import LinkIcon from '@/components/Icons/LinkIcon.vue'
+import { openWebsite } from '@/utils'
+import { trackCommunication } from '@/utils/communicationUtils'
 
-const { $dialog, $socket } = globalStore()
+const { $dialog, $socket, makeCall } = globalStore()
 const { getContactByName, contacts } = contactsStore()
 const { statusOptions, getLeadStatus } = statusesStore()
 const route = useRoute()
@@ -338,8 +397,6 @@ const breadcrumbs = computed(() => {
   return items
 })
 
-const tabIndex = ref(0)
-
 const tabs = computed(() => {
   let tabOptions = [
     {
@@ -380,6 +437,11 @@ const tabs = computed(() => {
       icon: NoteIcon,
     },
     {
+      name: 'Attachments',
+      label: __('Attachments'),
+      icon: AttachmentIcon,
+    },
+    {
       name: 'WhatsApp',
       label: __('WhatsApp'),
       icon: WhatsAppIcon,
@@ -388,6 +450,7 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
+const { tabIndex } = useActiveTabManager(tabs, 'lastLeadTab')
 
 watch(tabs, (value) => {
   if (value && route.params.tabName) {
@@ -498,4 +561,23 @@ async function convertToDeal(updated) {
     }
   }
 }
+
+const activities = ref(null)
+
+function trackPhoneActivities(phoneNumber, type = 'phone') {
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
+}
 </script>
+
+<style scoped>
+.flex-1 {
+  padding-bottom: 4rem;
+}
+</style>

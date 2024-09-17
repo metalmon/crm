@@ -72,7 +72,14 @@ export function taskPriorityOptions(action, data) {
 }
 
 export function openWebsite(url) {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url
+  }
   window.open(url, '_blank')
+}
+
+export function website(url) {
+  return url && url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')
 }
 
 export function htmlToText(html) {
@@ -143,7 +150,7 @@ export async function setupCustomizations(data, obj) {
       statuses = statuses.concat(_script?.statuses || [])
     }
   } else {
-    let _script = await getFromScript(data._form_script, data)
+    let _script = await getFromScript(data._form_script, obj)
     actions = _script?.actions || []
     statuses = _script?.statuses || []
   }
@@ -240,7 +247,7 @@ export function _eval(code, context = {}) {
   }
 }
 
-export function evaluate_depends_on_value(expression, doc) {
+export function evaluateDependsOnValue(expression, doc) {
   if (!expression) return true
   if (!doc) return true
 
@@ -266,4 +273,21 @@ export function evaluate_depends_on_value(expression, doc) {
   }
 
   return out
+}
+
+export function convertSize(size) {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let unitIndex = 0
+  while (size > 1024) {
+    size /= 1024
+    unitIndex++
+  }
+  return `${size?.toFixed(2)} ${units[unitIndex]}`
+}
+
+export function isImage(extention) {
+  if (!extention) return false
+  return ['png', 'jpg', 'jpeg', 'gif', 'svg', 'bmp', 'webp'].includes(
+    extention.toLowerCase(),
+  )
 }

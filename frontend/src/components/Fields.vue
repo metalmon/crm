@@ -48,7 +48,7 @@
             <FormControl
               v-if="field.read_only && field.type !== 'Check'"
               type="text"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               v-model="data[field.name]"
               :disabled="true"
             />
@@ -59,7 +59,7 @@
               :class="field.prefix ? 'prefix' : ''"
               :options="field.options"
               v-model="data[field.name]"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
             >
               <template v-if="field.prefix" #prefix>
                 <IndicatorIcon :class="field.prefix" />
@@ -89,8 +89,9 @@
                 class="form-control flex-1"
                 :value="data[field.name]"
                 :doctype="field.options"
+                :filters="field.filters"
                 @change="(v) => (data[field.name] = v)"
-                :placeholder="__(field.placeholder || field.label)"
+                :placeholder="getPlaceholder(field)"
                 :onCreate="field.create"
               />
               <Button
@@ -110,8 +111,9 @@
               class="form-control"
               :value="getUser(data[field.name]).full_name"
               :doctype="field.options"
+              :filters="field.filters"
               @change="(v) => (data[field.name] = v)"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               :hideMe="true"
             >
               <template #prefix>
@@ -128,65 +130,16 @@
                 </Tooltip>
               </template>
             </Link>
-            <div v-else-if="field.type === 'Dropdown'">
-              <NestedPopover>
-                <template #target="{ open }">
-                  <Button
-                    :label="data[field.name]"
-                    class="dropdown-button flex w-full items-center justify-between rounded border border-gray-100 bg-gray-100 px-2 py-1.5 text-base text-gray-800 placeholder-gray-500 transition-colors hover:border-gray-200 hover:bg-gray-200 focus:border-gray-500 focus:bg-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-gray-400"
-                  >
-                    <div class="truncate">{{ data[field.name] }}</div>
-                    <template #suffix>
-                      <FeatherIcon
-                        :name="open ? 'chevron-up' : 'chevron-down'"
-                        class="h-4 text-gray-600"
-                      />
-                    </template>
-                  </Button>
-                </template>
-                <template #body>
-                  <div
-                    class="my-2 space-y-1.5 divide-y rounded-lg border border-gray-100 bg-white p-1.5 shadow-xl"
-                  >
-                    <div>
-                      <DropdownItem
-                        v-if="field.options?.length"
-                        v-for="option in field.options"
-                        :key="option.name"
-                        :option="option"
-                      />
-                      <div v-else>
-                        <div class="p-1.5 px-7 text-base text-gray-500">
-                          {{ __('No {0} Available', [field.label]) }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="pt-1.5">
-                      <Button
-                        variant="ghost"
-                        class="w-full !justify-start"
-                        :label="__('Create New')"
-                        @click="field.create()"
-                      >
-                        <template #prefix>
-                          <FeatherIcon name="plus" class="h-4" />
-                        </template>
-                      </Button>
-                    </div>
-                  </div>
-                </template>
-              </NestedPopover>
-            </div>
             <DateTimePicker
               v-else-if="field.type === 'Datetime'"
               v-model="data[field.name]"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               input-class="border-none"
             />
             <DatePicker
               v-else-if="field.type === 'Date'"
               v-model="data[field.name]"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               input-class="border-none"
             />
             <FormControl
@@ -194,19 +147,19 @@
                 ['Small Text', 'Text', 'Long Text'].includes(field.type)
               "
               type="textarea"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               v-model="data[field.name]"
             />
             <FormControl
               v-else-if="['Int'].includes(field.type)"
               type="number"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               v-model="data[field.name]"
             />
             <FormControl
               v-else
               type="text"
-              :placeholder="__(field.placeholder || field.label)"
+              :placeholder="getPlaceholder(field)"
               v-model="data[field.name]"
               :disabled="Boolean(field.read_only)"
             />
@@ -219,8 +172,6 @@
 
 <script setup>
 import EditIcon from '@/components/Icons/EditIcon.vue'
-import NestedPopover from '@/components/NestedPopover.vue'
-import DropdownItem from '@/components/DropdownItem.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
@@ -233,6 +184,17 @@ const props = defineProps({
   sections: Array,
   data: Object,
 })
+
+const getPlaceholder = (field) => {
+  if (field.placeholder) {
+    return __(field.placeholder)
+  }
+  if (['Select', 'Link'].includes(field.type)) {
+    return __('Select {0}', [__(field.label)])
+  } else {
+    return __('Enter {0}', [__(field.label)])
+  }
+}
 </script>
 
 <style scoped>

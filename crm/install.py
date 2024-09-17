@@ -9,11 +9,11 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 def before_install():
 	pass
 
-def after_install():
+def after_install(force=False):
 	add_default_lead_statuses()
 	add_default_deal_statuses()
 	add_default_communication_statuses()
-	add_default_fields_layout()
+	add_default_fields_layout(force)
 	add_property_setter()
 	add_email_template_custom_fields()
 	add_default_industries()
@@ -111,7 +111,7 @@ def add_default_communication_statuses():
 		doc.status = status
 		doc.insert()
 
-def add_default_fields_layout():
+def add_default_fields_layout(force=False):
 	quick_entry_layouts = {
 		"CRM Lead-Quick Entry": {
 			"doctype": "CRM Lead",
@@ -144,11 +144,22 @@ def add_default_fields_layout():
 			"doctype": "CRM Deal",
 			"layout": '[{"label":"Contacts","name":"contacts_section","opened":true,"editable":false,"contacts":[]},{"label":"Organization Details","name":"organization_tab","opened":true,"fields":["organization","website","territory","annual_revenue","close_date","probability","next_step","deal_owner"]}]'
 		},
+		"Contact-Side Panel": {
+			"doctype": "Contact",
+			"layout": '[{"label":"Details","name":"details","opened":true,"fields":["salutation","first_name","last_name","email_id","mobile_no","gender","company_name","designation","address"]}]'
+		},
+		"CRM Organization-Side Panel": {
+			"doctype": "CRM Organization",
+			"layout": '[{"label":"Details","name":"details","opened":true,"fields":["organization_name","website","territory","industry","no_of_employees","address"]}]'
+		},
 	}
 
 	for layout in quick_entry_layouts:
 		if frappe.db.exists("CRM Fields Layout", layout):
-			continue
+			if force:
+				frappe.delete_doc("CRM Fields Layout", layout)
+			else:
+				continue
 
 		doc = frappe.new_doc("CRM Fields Layout")
 		doc.type = "Quick Entry"
@@ -158,7 +169,10 @@ def add_default_fields_layout():
 
 	for layout in sidebar_fields_layouts:
 		if frappe.db.exists("CRM Fields Layout", layout):
-			continue
+			if force:
+				frappe.delete_doc("CRM Fields Layout", layout)
+			else:
+				continue
 
 		doc = frappe.new_doc("CRM Fields Layout")
 		doc.type = "Side Panel"
@@ -217,7 +231,6 @@ def add_default_industries():
 
 
 def add_default_lead_sources():
-
 	lead_sources = ["Existing Customer", "Reference", "Advertisement", "Cold Calling", "Exhibition", "Supplier Reference", "Mass Mailing", "Customer's Vendor", "Campaign", "Walk In"]
 
 	for source in lead_sources:
