@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
 "POT-Creation-Date: 2024-09-27 13:11+0000\n"
-"PO-Revision-Date: 2024-09-27 19:40+0400\n"
+"PO-Revision-Date: 2024-09-27 19:58+0400\n"
 "Last-Translator: \n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -521,11 +521,11 @@ msgstr "Выбрать существующий"
 
 #: frontend/src/components/Modals/DealModal.vue:32
 msgid "Choose Existing Contact"
-msgstr "Выберите существующий контакт"
+msgstr "Выбрать существующий контакт"
 
 #: frontend/src/components/Modals/DealModal.vue:28
 msgid "Choose Existing Organization"
-msgstr "Выберите существующую организацию"
+msgstr "Выбрать существующую организацию"
 
 #: frontend/src/components/Controls/Link.vue:48
 msgid "Clear"
@@ -732,7 +732,7 @@ msgstr "Создать Лида"
 #: frontend/src/components/Modals/EmailTemplateSelectorModal.vue:55
 #: frontend/src/components/Modals/WhatsappTemplateSelectorModal.vue:45
 msgid "Create New"
-msgstr "Создать новую"
+msgstr "Создать"
 
 #: frontend/src/components/Activities/Activities.vue:347
 #: frontend/src/components/Modals/NoteModal.vue:18
@@ -1054,7 +1054,7 @@ msgstr "Письмо отправлено на"
 
 #: frontend/src/components/Modals/EmailTemplateSelectorModal.vue:4
 msgid "Email Templates"
-msgstr "Шаблоны электронной почты"
+msgstr "Шаблоны писем"
 
 #: frontend/src/components/EmailEditor.vue:199
 msgid "Email from Lead"
