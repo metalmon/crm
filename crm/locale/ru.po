@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
 "POT-Creation-Date: 2024-09-27 13:11+0000\n"
-"PO-Revision-Date: 2024-09-27 18:32+0400\n"
+"PO-Revision-Date: 2024-09-27 19:40+0400\n"
 "Last-Translator: \n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -1953,7 +1953,7 @@ msgstr "Веб-сайт не установлен"
 
 #: frontend/src/components/Fields.vue:160
 msgid "No {0} Available"
-msgstr "№ {0} Доступно"
+msgstr "{0} - нет доступных"
 
 #: frontend/src/pages/CallLogs.vue:50 frontend/src/pages/Contact.vue:203
 #: frontend/src/pages/Contacts.vue:56 frontend/src/pages/Deals.vue:232
@@ -1961,7 +1961,7 @@ msgstr "№ {0} Доступно"
 #: frontend/src/pages/Notes.vue:92 frontend/src/pages/Organization.vue:213
 #: frontend/src/pages/Organizations.vue:56 frontend/src/pages/Tasks.vue:181
 msgid "No {0} Found"
-msgstr "№ {0} Найдено"
+msgstr "{0} не найдены"
 
 #. Label of a Select field in DocType 'CRM Deal'
 #. Label of a Select field in DocType 'CRM Lead'
