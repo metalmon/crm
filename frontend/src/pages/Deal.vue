@@ -36,11 +36,11 @@
     </template>
   </LayoutHeader>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
-    <Tabs v-model="tabIndex" v-slot="{ tab }" :tabs="tabs">
+    <Tabs v-model="tabIndex" :tabs="tabs">
       <Activities
         ref="activities"
         doctype="CRM Deal"
-        :title="tab.name"
+        :tabs="tabs"
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="deal"
@@ -355,7 +355,6 @@ import {
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
-
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
