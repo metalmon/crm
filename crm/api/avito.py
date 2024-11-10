@@ -257,6 +257,10 @@ def get_avito_messages(reference_doctype, reference_name):
 def get_message_from_avito(
     *args, **kwargs
 ):
+    author_id = kwargs['payload']['value']['author_id']
+    user_id = kwargs['payload']['value']['user_id']
+    if author_id == user_id: return
+
     message = kwargs['payload']['value']['content']['text']
     chat_id = kwargs['payload']['value']['chat_id']
     attach = ''
