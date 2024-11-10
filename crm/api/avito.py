@@ -146,7 +146,7 @@ def get_avito_messages(reference_doctype, reference_name):
         fields=[
             "name",
             "type",
-            "to",
+            "chat_id",
             "from",
             "content_type",
             "message_type",
