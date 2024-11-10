@@ -253,6 +253,16 @@ def get_avito_messages(reference_doctype, reference_name):
     return [message for message in messages if message["content_type"] != "reaction"]
 
 
+@frappe.whitelist(allow_guest=True)
+def get_message_from_avito(
+    *args, **kwargs
+):
+    message = kwargs['payload']['value']['content']['text']
+    chat_id = kwargs['payload']['value']['chat_id']
+    attach = ''
+    create_avito_message("CRM Lead", "CRM-LEAD-2024-00002", message, chat_id,'',None,_type="Incoming")
+
+
 @frappe.whitelist()
 def create_avito_message(
     reference_doctype,
@@ -262,6 +272,7 @@ def create_avito_message(
     attach,
     reply_to,
     content_type="text",
+    _type="Outgoing",
 ):
     doc = frappe.new_doc("Avito Message")
 
@@ -282,6 +293,7 @@ def create_avito_message(
             "chat_id": chat_id, # chat_id to,
             "attach": attach,
             "content_type": content_type,
+            "type": _type,
         }
     )
     doc.insert(ignore_permissions=True)
