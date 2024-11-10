@@ -258,7 +258,7 @@ def create_avito_message(
     reference_doctype,
     reference_name,
     message,
-    to,
+    chat_id,
     attach,
     reply_to,
     content_type="text",
@@ -279,7 +279,7 @@ def create_avito_message(
             "reference_doctype": reference_doctype,
             "reference_name": reference_name,
             "message": message or attach,
-            "to": to,
+            "chat_id": chat_id, # chat_id to,
             "attach": attach,
             "content_type": content_type,
         }

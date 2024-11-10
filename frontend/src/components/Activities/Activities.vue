@@ -8,6 +8,7 @@
     :doc="doc"
     :emailBox="emailBox"
     :whatsappBox="whatsappBox"
+    :avitoBox="avitoBox"
     :modalRef="modalRef"
   />
   <FadedScrollableDiv
@@ -24,7 +25,8 @@
     <div
       v-else-if="
         activities?.length ||
-        (whatsappMessages.data?.length && title == 'WhatsApp')
+        (whatsappMessages.data?.length && title == 'WhatsApp') ||
+        (avitoMessages.data?.length && title == 'Avito')
       "
       class="activities"
     >
@@ -36,8 +38,15 @@
           :messages="whatsappMessages.data"
         />
       </div>
-      <div
-        v-else-if="title == 'Notes'"
+      <div v-else-if="title == 'Avito' && avitoMessages.data?.length">
+        <AvitoArea
+          class="px-3 sm:px-10"
+          v-model="avitoMessages"
+          v-model:reply="replyMessage"
+          :messages="avitoMessages.data"
+        />
+      </div>
+      <div v-else-if="title == 'Notes'"
         class="grid grid-cols-1 gap-4 px-3 pb-3 sm:px-10 sm:pb-5 lg:grid-cols-2 xl:grid-cols-3"
       >
         <div v-for="note in activities" @click="modalRef.showNote(note)">
@@ -95,8 +104,7 @@
           </div>
         </div>
       </div>
-      <div
-        v-else-if="title == 'Attachments'"
+      <div v-else-if="title == 'Attachments'"
         class="px-3 pb-3 sm:px-10 sm:pb-5"
       >
         <AttachmentArea
@@ -422,6 +430,15 @@
       :doctype="doctype"
       @scroll="scroll"
     />
+    <AvitoBox
+      ref="avitoBox"
+      v-if="title == 'Avito'"
+      v-model="doc"
+      v-model:reply="replyMessage"
+      v-model:avito="avitoMessages"
+      :doctype="doctype"
+      @scroll="scroll"
+    />
   </div>
   <WhatsappTemplateSelectorModal
     v-if="whatsappEnabled"
@@ -466,6 +483,9 @@ import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import WhatsAppArea from '@/components/Activities/WhatsAppArea.vue'
 import WhatsAppBox from '@/components/Activities/WhatsAppBox.vue'
+import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
+import AvitoArea from '@/components/Activities/AvitoArea.vue'
+import AvitoBox from '@/components/Activities/AvitoBox.vue'
 import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
@@ -491,7 +511,7 @@ import {
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { contactsStore } from '@/stores/contacts'
-import { whatsappEnabled } from '@/composables/settings'
+import { whatsappEnabled, avitoEnabled } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import { Button, Tooltip, createResource } from 'frappe-ui'
 import { useElementVisibility } from '@vueuse/core'
@@ -599,8 +619,21 @@ const whatsappMessages = createResource({
   onSuccess: () => nextTick(() => scroll()),
 })
 
+const avitoMessages = createResource({
+  url: 'crm.api.avito.get_avito_messages',
+  cache: ['avito_messages', doc.value.data.name],
+  params: {
+    reference_doctype: props.doctype,
+    reference_name: doc.value.data.name,
+  },
+  auto: true,
+  transform: (data) => sortByCreation(data),
+  onSuccess: () => nextTick(() => scroll()),
+})
+
 onBeforeUnmount(() => {
   $socket.off('whatsapp_message')
+  $socket.off('avito_message')
 })
 
 onMounted(() => {
@@ -610,6 +643,15 @@ onMounted(() => {
       data.reference_name === doc.value.data.name
     ) {
       whatsappMessages.reload()
+    }
+  })
+
+  $socket.on('avito_message', (data) => {
+    if (
+      data.reference_doctype === props.doctype &&
+      data.reference_name === doc.value.data.name
+    ) {
+      avitoMessages.reload()
     }
   })
 
@@ -737,6 +779,8 @@ const emptyText = computed(() => {
     text = 'No Attachments'
   } else if (title.value == 'WhatsApp') {
     text = 'No WhatsApp Messages'
+  } else if (title.value == 'Avito') {
+    text = 'No Avito Messages'
   }
   return text
 })
@@ -757,6 +801,8 @@ const emptyTextIcon = computed(() => {
     icon = AttachmentIcon
   } else if (title.value == 'WhatsApp') {
     icon = WhatsAppIcon
+  } else if (title.value == 'Avito') {
+    icon = AvitoIcon
   }
   return h(icon, { class: 'text-gray-500' })
 })
@@ -791,6 +837,8 @@ function timelineIcon(activity_type, is_lead) {
 
 const emailBox = ref(null)
 const whatsappBox = ref(null)
+const avitoBox = ref(null)
+
 
 watch([reload, reload_email], ([reload_value, reload_email_value]) => {
   if (reload_value || reload_email_value) {

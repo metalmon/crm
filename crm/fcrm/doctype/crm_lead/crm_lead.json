@@ -24,6 +24,7 @@
   "last_name",
   "email",
   "mobile_no",
+  "avito_chat_id",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -285,12 +286,18 @@
    "fieldtype": "Table",
    "label": "Status Change Log",
    "options": "CRM Status Change Log"
+  },
+  {
+   "fieldname": "avito_chat_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Avito Chat ID"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-17 18:36:57.289897",
+ "modified": "2024-11-10 06:35:40.764510",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
