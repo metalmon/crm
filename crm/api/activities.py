@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils.caching import redis_cache
 from frappe.desk.form.load import get_docinfo
-from ..utils import get_attachments, prepare_communication_activity
+from ..utils import prepare_communication_activity
 
 @frappe.whitelist()
 def get_activities(name):

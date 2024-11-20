@@ -105,15 +105,6 @@
         />
       </div>
       <div
-        v-else-if="title == 'Attachments'"
-        class="px-3 pb-3 sm:px-10 sm:pb-5"
-      >
-        <AttachmentArea
-          :attachments="activities"
-          @reload="all_activities.reload() && scroll()"
-        />
-      </div>
-      <div
         v-else
         v-for="(activity, i) in activities"
         class="activity px-3 sm:px-10"
