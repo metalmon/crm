@@ -119,6 +119,7 @@ import {
 import { FeatherIcon, TrialBanner, createResource } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
 import { computed, h, provide } from 'vue'
+import { callEnabled } from '@/composables/settings'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
