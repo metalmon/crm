@@ -81,7 +81,7 @@
               <Button
                 v-if="primaryContactMobileNo && !callEnabled"
                 size="sm"
-                @click="trackPhoneActivities('phone')"
+                @click.once="trackPhoneActivities('phone')"
               >
                 <PhoneIcon class="h-4 w-4" />
               </Button>
@@ -90,7 +90,7 @@
               <Button
                 v-if="primaryContactMobileNo"
                 size="sm"
-                @click="trackPhoneActivities('Open WhatsApp')"
+                @click.once="trackPhoneActivities('Open WhatsApp')"
               >
                 <WhatsAppIcon class="h-4 w-4" />
               </Button>
