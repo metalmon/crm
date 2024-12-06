@@ -50,7 +50,7 @@
     class="flex h-full items-center justify-center"
   >
     <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-gray-500"
+      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
     >
       <ContactsIcon class="h-10 w-10" />
       <span>{{ __('No {0} Found', [__('Contacts')]) }}</span>
@@ -81,7 +81,7 @@ import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import ContactsListView from '@/components/ListViews/ContactsListView.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import { organizationsStore } from '@/stores/organizations.js'
-import { dateFormat, dateTooltipFormat, timeAgo } from '@/utils'
+import { formatDate, timeAgo } from '@/utils'
 import { ref, computed } from 'vue'
 
 const { getOrganization } = organizationsStore()
@@ -109,6 +109,18 @@ const rows = computed(() => {
     contacts.value?.data.rows.forEach((row) => {
       _rows[row] = contact[row]
 
+      let fieldType = contacts.value?.data.columns?.find(
+        (col) => (col.key || col.value) == row,
+      )?.type
+
+      if (
+        fieldType &&
+        ['Date', 'Datetime'].includes(fieldType) &&
+        !['modified', 'creation'].includes(row)
+      ) {
+        _rows[row] = formatDate(contact[row], '', true, fieldType == 'Datetime')
+      }
+
       if (row == 'full_name') {
         _rows[row] = {
           label: contact.full_name,
@@ -122,7 +134,7 @@ const rows = computed(() => {
         }
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
-          label: dateFormat(contact[row], dateTooltipFormat),
+          label: formatDate(contact[row]),
           timeAgo: __(timeAgo(contact[row])),
         }
       }

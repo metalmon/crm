@@ -3,7 +3,7 @@
     <div
       v-for="section in sections"
       :key="section.label"
-      class="section first:border-t-0 first:pt-0"
+      class="section first:border-t-0 border-outline-gray-modals first:pt-0"
       :class="section.hideBorder ? '' : 'border-t pt-4'"
     >
       <div
@@ -33,11 +33,11 @@
           >
             <div
               v-if="field.type != 'Check'"
-              class="mb-2 text-sm text-gray-600"
+              class="mb-2 text-sm text-ink-gray-5"
             >
               {{ __(field.label) }}
               <span
-                class="text-red-500"
+                class="text-ink-red-3"
                 v-if="
                   field.mandatory ||
                   (field.mandatory_depends_on && field.mandatory_via_depends_on)
@@ -77,11 +77,11 @@
                 :disabled="Boolean(field.read_only)"
               />
               <label
-                class="text-sm text-gray-600"
+                class="text-sm text-ink-gray-5"
                 @click="data[field.name] = !data[field.name]"
               >
                 {{ __(field.label) }}
-                <span class="text-red-500" v-if="field.mandatory">*</span>
+                <span class="text-ink-red-3" v-if="field.mandatory">*</span>
               </label>
             </div>
             <div class="flex gap-1" v-else-if="field.type === 'Link'">
@@ -133,12 +133,16 @@
             <DateTimePicker
               v-else-if="field.type === 'Datetime'"
               v-model="data[field.name]"
+              icon-left=""
+              :formatter="(date) => getFormat(date, '', true, true)"
               :placeholder="getPlaceholder(field)"
               input-class="border-none"
             />
             <DatePicker
               v-else-if="field.type === 'Date'"
+              icon-left=""
               v-model="data[field.name]"
+              :formatter="(date) => getFormat(date, '', true)"
               :placeholder="getPlaceholder(field)"
               input-class="border-none"
             />
@@ -176,6 +180,7 @@ import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
 import { usersStore } from '@/stores/users'
+import { getFormat } from '@/utils'
 import { Tooltip, DatePicker, DateTimePicker } from 'frappe-ui'
 
 const { getUser } = usersStore()

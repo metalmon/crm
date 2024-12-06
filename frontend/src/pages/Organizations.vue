@@ -50,7 +50,7 @@
     class="flex h-full items-center justify-center"
   >
     <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-gray-500"
+      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
     >
       <OrganizationsIcon class="h-10 w-10" />
       <span>{{ __('No {0} Found', [__('Organizations')]) }}</span>
@@ -78,13 +78,7 @@ import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
 import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import OrganizationsListView from '@/components/ListViews/OrganizationsListView.vue'
 import ViewControls from '@/components/ViewControls.vue'
-import {
-  dateFormat,
-  dateTooltipFormat,
-  timeAgo,
-  website,
-  formatNumberIntoCurrency,
-} from '@/utils'
+import { formatDate, timeAgo, website, formatNumberIntoCurrency } from '@/utils'
 import { ref, computed } from 'vue'
 
 const organizationsListView = ref(null)
@@ -109,6 +103,23 @@ const rows = computed(() => {
     organizations.value?.data.rows.forEach((row) => {
       _rows[row] = organization[row]
 
+      let fieldType = organizations.value?.data.columns?.find(
+        (col) => (col.key || col.value) == row,
+      )?.type
+
+      if (
+        fieldType &&
+        ['Date', 'Datetime'].includes(fieldType) &&
+        !['modified', 'creation'].includes(row)
+      ) {
+        _rows[row] = formatDate(
+          organization[row],
+          '',
+          true,
+          fieldType == 'Datetime',
+        )
+      }
+
       if (row === 'organization_name') {
         _rows[row] = {
           label: organization.organization_name,
@@ -123,7 +134,7 @@ const rows = computed(() => {
         )
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
-          label: dateFormat(organization[row], dateTooltipFormat),
+          label: formatDate(organization[row]),
           timeAgo: __(timeAgo(organization[row])),
         }
       }
