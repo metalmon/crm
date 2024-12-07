@@ -290,9 +290,9 @@ import {
   formatDate,
   timeAgo,
   website,
-  formatNumberIntoCurrency,
   formatTime,
 } from '@/utils'
+import { formatNumberIntoCurrency } from '@/utils/formatters'
 import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import { ref, reactive, computed, h } from 'vue'
