@@ -12,7 +12,7 @@
   />
   <FadedScrollableDiv
     :maskHeight="30"
-    class="flex flex-col flex-1 overflow-y-auto"
+    class="flex flex-col flex-1 overflow-y-auto dark-scrollbar"
   >
     <div
       v-if="all_activities?.loading"
@@ -645,9 +645,7 @@ const activities = computed(() => {
     _activities = get_activities()
   } else if (title.value == 'Emails') {
     if (!all_activities.data?.versions) return []
-    _activities = all_activities.data.versions.filter(
-      (activity) => activity.activity_type === 'communication',
-    )
+    _activities = filterEmailActivities(all_activities.data.versions)
   } else if (title.value == 'Comments') {
     if (!all_activities.data?.versions) return []
     _activities = all_activities.data.versions.filter(

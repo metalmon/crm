@@ -1,4 +1,6 @@
 import './index.css'
+// Import custom scrollbar styles for dark theme
+import './styles/scrollbar.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
