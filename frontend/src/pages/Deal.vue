@@ -86,11 +86,11 @@
                 <PhoneIcon class="h-4 w-4" />
               </Button>
             </Tooltip>
-            <Tooltip :text="__('Track WhatsApp activities')">
+            <Tooltip :text="__('Open WhatsApp')">
               <Button
                 v-if="primaryContactMobileNo"
                 size="sm"
-                @click.once="trackPhoneActivities('Open WhatsApp')"
+                @click.once="trackPhoneActivities('whatsapp')"
               >
                 <WhatsAppIcon class="h-4 w-4" />
               </Button>
@@ -716,7 +716,7 @@ const dealContacts = createResource({
   },
 })
 
-function trackPhoneActivities(type) {
+function trackPhoneActivities(type = 'phone') {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)
   if (!primaryContact?.mobile_no) {
     errorMessage(__('No phone number set'))

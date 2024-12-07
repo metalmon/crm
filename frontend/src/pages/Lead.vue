@@ -130,7 +130,7 @@
                   <Button
                     v-if="lead.data.mobile_no && !callEnabled"
                     size="sm"
-                    @click.once="trackPhoneActivities(lead.data.mobile_no, 'phone')"
+                    @click.once="trackPhoneActivities('phone')"
                   >
                     <PhoneIcon class="h-4 w-4" />
                   </Button>
@@ -139,7 +139,7 @@
                   <Button
                     v-if="lead.data.mobile_no"
                     size="sm"
-                    @click.once="trackPhoneActivities(lead.data.mobile_no, 'whatsapp')"
+                    @click.once="trackPhoneActivities('whatsapp')"
                   >
                     <WhatsAppIcon class="h-4 w-4" />
                   </Button>
@@ -676,12 +676,12 @@ function openEmailBox() {
   activities.value.emailBox.show = true
 }
 
-function trackPhoneActivities(phoneNumber, type = 'phone') {
+function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
     doctype: 'CRM Lead',
     docname: lead.data.name,
-    phoneNumber,
+    phoneNumber: lead.data.mobile_no,
     activities: activities.value,
     contactName: lead.data.lead_name,
   })

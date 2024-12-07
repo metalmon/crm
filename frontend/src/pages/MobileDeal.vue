@@ -207,10 +207,11 @@
               </Section>
             </div>
           </div>
-          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white p-3">
+          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
             <Button
               v-if="primaryContactMobileNo && callEnabled"
               size="sm"
+              class="dark:text-white dark:hover:bg-gray-700"
               @click="triggerCall"
             >
               <template #prefix>
@@ -222,6 +223,7 @@
             <Button
               v-if="primaryContactMobileNo && !callEnabled"
               size="sm"
+              class="dark:text-white dark:hover:bg-gray-700"
               @click="trackPhoneActivities('phone')"
             >
               <template #prefix>
@@ -233,6 +235,7 @@
             <Button
               v-if="primaryContactMobileNo"
               size="sm"
+              class="dark:text-white dark:hover:bg-gray-700"
               @click="trackPhoneActivities('whatsapp')"
             >
               <template #prefix>
@@ -243,6 +246,7 @@
 
             <Button
               size="sm"
+              class="dark:text-white dark:hover:bg-gray-700"
               @click="
                 deal.data.website
                   ? openWebsite(deal.data.website)
@@ -338,7 +342,6 @@ import {
 } from 'frappe-ui'
 import { ref, computed, h, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { normalizePhoneNumber } from '@/utils/communicationUtils'
 import { errorMessage, openWebsite } from '@/utils'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import { trackCommunication } from '@/utils/communicationUtils'

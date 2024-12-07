@@ -84,10 +84,11 @@
               </Section>
             </div>
           </div>
-          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white p-3">
+          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
             <Button
               v-if="lead.data.mobile_no && callEnabled"
               size="sm"
+              class="dark:text-white dark:hover:bg-gray-700"
               @click="
                 lead.data.mobile_no
                   ? makeCall(lead.data.mobile_no)
@@ -103,7 +104,8 @@
             <Button
               v-if="lead.data.mobile_no && !callEnabled"
               size="sm"
-              @click="trackPhoneActivities(lead.data.mobile_no, 'phone')"
+              class="dark:text-white dark:hover:bg-gray-700"
+              @click="trackPhoneActivities('phone')"
             >
               <template #prefix>
                 <PhoneIcon class="h-4 w-4" />
@@ -114,7 +116,8 @@
             <Button
               v-if="lead.data.mobile_no"
               size="sm"
-              @click="trackPhoneActivities(lead.data.mobile_no, 'whatsapp')"
+              class="dark:text-white dark:hover:bg-gray-700" 
+              @click="trackPhoneActivities('whatsapp')"
             >
               <template #prefix>
                 <WhatsAppIcon class="h-4 w-4" />
@@ -124,6 +127,7 @@
 
             <Button
               size="sm"
+              class="dark:text-white dark:hover:bg-gray-700"
               @click="
                 lead.data.website
                   ? openWebsite(lead.data.website)
@@ -266,9 +270,7 @@ import {
 } from 'frappe-ui'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { normalizePhoneNumber } from '@/utils/communicationUtils'
 import { errorMessage } from '@/utils'
-import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import { openWebsite } from '@/utils'
 import { trackCommunication } from '@/utils/communicationUtils'
@@ -564,12 +566,12 @@ async function convertToDeal(updated) {
 
 const activities = ref(null)
 
-function trackPhoneActivities(phoneNumber, type = 'phone') {
+function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
     doctype: 'CRM Lead',
     docname: lead.data.name,
-    phoneNumber,
+    phoneNumber: lead.data.mobile_no,
     activities: activities.value,
     contactName: lead.data.lead_name,
   })
