@@ -642,26 +642,26 @@ function get_activities() {
 
 const activities = computed(() => {
   let _activities = []
-  if (title.value == __('Activity')) {
+  if (title.value == 'Activity') {
     _activities = get_activities()
-  } else if (title.value == __('Emails')) {
+  } else if (title.value == 'Emails') {
     if (!all_activities.data?.versions) return []
     _activities = filterEmailActivities(all_activities.data.versions || [])
-  } else if (title.value == __('Comments')) {
+  } else if (title.value == 'Comments') {
     if (!all_activities.data?.versions) return []
     _activities = (all_activities.data.versions || []).filter(
       (activity) => activity.activity_type === 'comment',
     )
-  } else if (title.value == __('Calls')) {
+  } else if (title.value == 'Calls') {
     if (!all_activities.data?.calls) return []
     return sortByCreation(all_activities.data.calls || [])
-  } else if (title.value == __('Tasks')) {
+  } else if (title.value == 'Tasks') {
     if (!all_activities.data?.tasks) return []
     return sortByCreation(all_activities.data.tasks || [])
-  } else if (title.value == __('Notes')) {
+  } else if (title.value == 'Notes') {
     if (!all_activities.data?.notes) return []
     return sortByCreation(all_activities.data.notes || [])
-  } else if (title.value == __('Attachments')) {
+  } else if (title.value == 'Attachments') {
     if (!all_activities.data?.attachments) return []
     return sortByCreation(all_activities.data.attachments || [])
   }
@@ -737,19 +737,19 @@ const emptyText = computed(() => {
 
 const emptyTextIcon = computed(() => {
   let icon = ActivityIcon
-  if (title.value == __('Emails')) {
+  if (title.value == 'Emails') {
     icon = Email2Icon
-  } else if (title.value == __('Comments')) {
+  } else if (title.value == 'Comments') {
     icon = CommentIcon
-  } else if (title.value == __('Calls')) {
+  } else if (title.value == 'Calls') {
     icon = PhoneIcon
-  } else if (title.value == __('Notes')) {
+  } else if (title.value == 'Notes') {
     icon = NoteIcon
-  } else if (title.value == __('Tasks')) {
+  } else if (title.value == 'Tasks') {
     icon = TaskIcon
-  } else if (title.value == __('Attachments')) {
+  } else if (title.value == 'Attachments') {
     icon = AttachmentIcon
-  } else if (title.value == __('WhatsApp')) {
+  } else if (title.value == 'WhatsApp') {
     icon = WhatsAppIcon
   }
   return h(icon, { class: 'text-ink-gray-4' })
