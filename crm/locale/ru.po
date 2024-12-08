@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2024-12-07 04:31+0000\n"
-"PO-Revision-Date: 2024-12-07 08:36+0400\n"
+"POT-Creation-Date: 2024-12-07 00:52+0000\n"
+"PO-Revision-Date: 2024-12-07 04:57+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -206,11 +206,11 @@ msgstr "Оператор не может ответить на звонок, п�
 
 #: frontend/src/components/Layouts/AppSidebar.vue:175
 msgid "All Views"
-msgstr "Все представления"
+msgstr "Все Представления"
 
 #. Label of a Currency field in DocType 'CRM Deal'
-#: crm/fcrm/doctype/crm_deal/crm_deal.json frontend/src/pages/Contact.vue:675
-#: frontend/src/pages/MobileContact.vue:650
+#: Contact-old.vue:645 crm/fcrm/doctype/crm_deal/crm_deal.json
+#: frontend/src/pages/Contact.vue:675 frontend/src/pages/MobileContact.vue:650
 #: frontend/src/pages/MobileOrganization.vue:504
 #: frontend/src/pages/Organization.vue:539
 msgid "Amount"
@@ -255,7 +255,8 @@ msgstr "Приложения"
 msgid "Are you sure you want to delete this attachment?"
 msgstr "Вы хотите удалить это вложение?"
 
-#: frontend/src/pages/Contact.vue:361 frontend/src/pages/MobileContact.vue:330
+#: Contact-old.vue:331 frontend/src/pages/Contact.vue:361
+#: frontend/src/pages/MobileContact.vue:330
 msgid "Are you sure you want to delete this contact?"
 msgstr "Вы хотите удалить этот контакт?"
 
@@ -552,8 +553,8 @@ msgstr "Захватить"
 msgid "Change Status"
 msgstr "Изменить статус"
 
-#: frontend/src/pages/Contact.vue:41 frontend/src/pages/Lead.vue:83
-#: frontend/src/pages/MobileContact.vue:34
+#: Contact-old.vue:41 frontend/src/pages/Contact.vue:41
+#: frontend/src/pages/Lead.vue:83 frontend/src/pages/MobileContact.vue:34
 #: frontend/src/pages/MobileOrganization.vue:37
 #: frontend/src/pages/Organization.vue:41
 msgid "Change image"
@@ -715,7 +716,7 @@ msgstr "Контакт удален"
 #. Label of a Tab Break field in DocType 'CRM Deal'
 #. Label of a Table field in DocType 'CRM Deal'
 #. Label of a shortcut in the Frappe CRM Workspace
-#: crm/fcrm/doctype/crm_deal/crm_deal.json
+#: Contact-old.vue:281 crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/pages/Contact.vue:311 frontend/src/pages/MobileContact.vue:280
 #: frontend/src/pages/MobileOrganization.vue:383
@@ -857,7 +858,8 @@ msgstr "Статусы сделок"
 msgid "Deal not found"
 msgstr "Сделка не найдена"
 
-#: frontend/src/pages/Contact.vue:695 frontend/src/pages/MobileContact.vue:670
+#: Contact-old.vue:665 frontend/src/pages/Contact.vue:695
+#: frontend/src/pages/MobileContact.vue:670
 #: frontend/src/pages/MobileOrganization.vue:524
 #: frontend/src/pages/Organization.vue:559
 msgid "Deal owner"
@@ -903,6 +905,7 @@ msgstr "Виды по умолчанию"
 msgid "Default statuses, custom fields and layouts restored successfully."
 msgstr "Статусы по умолчанию, пользовательские поля и макеты успешно восстановлены."
 
+#: Contact-old.vue:107 Contact-old.vue:334
 #: frontend/src/components/Activities/AttachmentArea.vue:131
 #: frontend/src/components/Activities/NoteArea.vue:12
 #: frontend/src/components/Activities/TaskArea.vue:53
@@ -942,7 +945,8 @@ msgstr "Удалиить представление"
 msgid "Delete attachment"
 msgstr "Удалить вложение"
 
-#: frontend/src/pages/Contact.vue:360 frontend/src/pages/MobileContact.vue:329
+#: Contact-old.vue:330 frontend/src/pages/Contact.vue:360
+#: frontend/src/pages/MobileContact.vue:329
 msgid "Delete contact"
 msgstr "Удалить контакт"
 
@@ -1001,7 +1005,7 @@ msgstr "ДокТайп"
 
 #: frontend/src/components/UserDropdown.vue:89
 msgid "Docs"
-msgstr "Документы"
+msgstr "Документация"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:32
 msgid "Doctype"
@@ -1128,7 +1132,7 @@ msgstr "Изменить профиль"
 #. Label of a Data field in DocType 'CRM Deal'
 #. Label of a Data field in DocType 'CRM Invitation'
 #. Label of a Data field in DocType 'CRM Lead'
-#: crm/fcrm/doctype/crm_contacts/crm_contacts.json
+#: Contact-old.vue:655 crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:685
@@ -1158,7 +1162,7 @@ msgstr "Электронное письмо от лида"
 msgid "Emails"
 msgstr "Письма"
 
-#: frontend/src/components/ListViews/ListRows.vue:15
+#: frontend/src/components/ListViews/ListRows.vue:12
 msgid "Empty"
 msgstr "Пусто"
 
@@ -1713,7 +1717,8 @@ msgstr "Последняя неделя"
 msgid "Last Year"
 msgstr "Последний год"
 
-#: frontend/src/pages/Contact.vue:700 frontend/src/pages/MobileContact.vue:675
+#: Contact-old.vue:670 frontend/src/pages/Contact.vue:700
+#: frontend/src/pages/MobileContact.vue:675
 #: frontend/src/pages/MobileOrganization.vue:529
 #: frontend/src/pages/MobileOrganization.vue:557
 #: frontend/src/pages/Organization.vue:564
@@ -1838,8 +1843,8 @@ msgstr "Выход"
 msgid "Low"
 msgstr "Низкий"
 
-#: frontend/src/pages/Contact.vue:104 frontend/src/pages/Contact.vue:116
-#: frontend/src/pages/MobileContact.vue:78
+#: Contact-old.vue:96 frontend/src/pages/Contact.vue:104
+#: frontend/src/pages/Contact.vue:116 frontend/src/pages/MobileContact.vue:78
 #: frontend/src/pages/MobileContact.vue:90
 #: frontend/src/pages/MobileDeal.vue:220 frontend/src/pages/MobileDeal.vue:232
 #: frontend/src/pages/MobileLead.vue:101 frontend/src/pages/MobileLead.vue:113
@@ -1928,7 +1933,8 @@ msgstr "Мобильный"
 msgid "Mobile No should be a number"
 msgstr "Мобильный номер должен быть номером"
 
-#: frontend/src/pages/Contact.vue:690 frontend/src/pages/MobileContact.vue:665
+#: Contact-old.vue:660 frontend/src/pages/Contact.vue:690
+#: frontend/src/pages/MobileContact.vue:665
 #: frontend/src/pages/MobileOrganization.vue:519
 #: frontend/src/pages/Organization.vue:554
 msgid "Mobile no"
@@ -2038,48 +2044,16 @@ msgstr "Следующая неделя"
 msgid "Next Year"
 msgstr "Следующий год"
 
-#: frontend/src/components/Activities/Activities.vue:719
-msgid "No Activities"
-msgstr "Нет активности"
-
 #. Option for the 'Status' (Select) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "No Answer"
 msgstr "Нет ответа"
-
-#: frontend/src/components/Activities/Activities.vue:731
-msgid "No Attachments"
-msgstr "Нет вложений"
-
-#: frontend/src/components/Activities/Activities.vue:725
-msgid "No Call Logs"
-msgstr "Нет журнала вызовов"
-
-#: frontend/src/components/Activities/Activities.vue:723
-msgid "No Comments"
-msgstr "Нет комментариев"
-
-#: frontend/src/components/Activities/Activities.vue:721
-msgid "No Email Communications"
-msgstr "Нет сообщений"
-
-#: frontend/src/components/Activities/Activities.vue:727
-msgid "No Notes"
-msgstr "Нет заметок"
-
-#: frontend/src/components/Activities/Activities.vue:729
-msgid "No Tasks"
-msgstr "Нет задач"
 
 #: frontend/src/components/Kanban/KanbanView.vue:105
 #: frontend/src/pages/Deals.vue:106 frontend/src/pages/Leads.vue:122
 #: frontend/src/pages/Tasks.vue:68
 msgid "No Title"
 msgstr "Без заголовка"
-
-#: frontend/src/components/Activities/Activities.vue:733
-msgid "No WhatsApp Messages"
-msgstr "Нет сообщений WhatsApp"
 
 #: frontend/src/pages/Deal.vue:288 frontend/src/pages/MobileDeal.vue:204
 msgid "No contacts added"
@@ -2123,10 +2097,10 @@ msgstr "Веб-сайт не установлен"
 msgid "No {0} Available"
 msgstr "{0} - нет доступных"
 
-#: frontend/src/pages/CallLogs.vue:50 frontend/src/pages/Contact.vue:217
-#: frontend/src/pages/Contacts.vue:56 frontend/src/pages/Deals.vue:232
-#: frontend/src/pages/EmailTemplates.vue:57 frontend/src/pages/Leads.vue:258
-#: frontend/src/pages/MobileContact.vue:196
+#: Contact-old.vue:188 frontend/src/pages/CallLogs.vue:50
+#: frontend/src/pages/Contact.vue:217 frontend/src/pages/Contacts.vue:56
+#: frontend/src/pages/Deals.vue:232 frontend/src/pages/EmailTemplates.vue:57
+#: frontend/src/pages/Leads.vue:258 frontend/src/pages/MobileContact.vue:196
 #: frontend/src/pages/MobileOrganization.vue:158
 #: frontend/src/pages/Notes.vue:92 frontend/src/pages/Organization.vue:178
 #: frontend/src/pages/Organizations.vue:56 frontend/src/pages/Tasks.vue:181
@@ -2237,8 +2211,8 @@ msgstr "Уведомления"
 msgid "Old Parent"
 msgstr "Старый родитель"
 
-#: frontend/src/pages/Contact.vue:344 frontend/src/pages/Lead.vue:569
-#: frontend/src/pages/MobileContact.vue:313
+#: Contact-old.vue:314 frontend/src/pages/Contact.vue:344
+#: frontend/src/pages/Lead.vue:569 frontend/src/pages/MobileContact.vue:313
 #: frontend/src/pages/MobileOrganization.vue:278
 #: frontend/src/pages/Organization.vue:316
 msgid "Only PNG and JPG images are allowed"
@@ -2285,7 +2259,7 @@ msgstr "Сортировать по"
 #. Label of a Link field in DocType 'CRM Deal'
 #. Label of a Tab Break field in DocType 'CRM Deal'
 #. Label of a Data field in DocType 'CRM Lead'
-#: crm/fcrm/doctype/crm_deal/crm_deal.json
+#: Contact-old.vue:640 crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:670
 #: frontend/src/pages/Lead.vue:244 frontend/src/pages/MobileContact.vue:645
 #: frontend/src/pages/MobileLead.vue:179
@@ -2487,7 +2461,7 @@ msgstr "Общие представления"
 
 #: frontend/src/components/Layouts/AppSidebar.vue:183
 msgid "Public views"
-msgstr "Публичные закрепы"
+msgstr "Общие закрепы"
 
 #. Option for the 'Status' (Select) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
@@ -2564,8 +2538,8 @@ msgstr "Удалить"
 msgid "Remove all"
 msgstr "Удалить все"
 
-#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:89
-#: frontend/src/pages/MobileContact.vue:40
+#: Contact-old.vue:47 frontend/src/pages/Contact.vue:47
+#: frontend/src/pages/Lead.vue:89 frontend/src/pages/MobileContact.vue:40
 #: frontend/src/pages/MobileOrganization.vue:43
 #: frontend/src/pages/Organization.vue:47
 msgid "Remove image"
@@ -2899,7 +2873,7 @@ msgstr "Время начала"
 #. Label of a Link field in DocType 'CRM Lead'
 #. Label of a Data field in DocType 'CRM Lead Status'
 #. Label of a Select field in DocType 'CRM Task'
-#: crm/fcrm/doctype/crm_call_log/crm_call_log.json
+#: Contact-old.vue:650 crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_communication_status/crm_communication_status.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
@@ -3221,8 +3195,8 @@ msgstr "Загрузить изображение"
 msgid "Upload Video"
 msgstr "Загрузить видео"
 
-#: frontend/src/pages/Contact.vue:42 frontend/src/pages/Lead.vue:84
-#: frontend/src/pages/MobileContact.vue:35
+#: Contact-old.vue:42 frontend/src/pages/Contact.vue:42
+#: frontend/src/pages/Lead.vue:84 frontend/src/pages/MobileContact.vue:35
 #: frontend/src/pages/MobileOrganization.vue:38
 #: frontend/src/pages/Organization.vue:42
 msgid "Upload image"

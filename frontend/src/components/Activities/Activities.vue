@@ -188,7 +188,7 @@
               class="inline-flex items-center flex-wrap gap-1.5 text-ink-gray-8 font-medium"
             >
               <span class="font-medium">{{ activity.owner_name }}</span>
-              <span class="text-ink-gray-5">{{ activity.data.type }}</span>
+              <span class="text-ink-gray-5">{{ __(activity.data.type) }}</span>
               <a
                 v-if="activity.data.file_url"
                 :href="activity.data.file_url"
@@ -248,14 +248,14 @@
               <span class="font-medium text-ink-gray-8">
                 {{ activity.owner_name }}
               </span>
-              <span v-if="activity.type">{{ activity.type }}</span>
+              <span v-if="activity.type">{{ __(activity.type) }}</span>
               <span
                 v-if="activity.data.field_label"
                 class="max-w-xs truncate font-medium text-ink-gray-8"
               >
-                {{ activity.data.field_label }}
+                {{ __(activity.data.field_label) }}
               </span>
-              <span v-if="activity.value">{{ activity.value }}</span>
+              <span v-if="activity.value">{{ __(activity.value) }}</span>
               <span
                 v-if="activity.data.old_value"
                 class="max-w-xs font-medium text-ink-gray-8"
@@ -310,14 +310,14 @@
                   v-if="activity.data.field_label"
                   class="max-w-xs truncate text-ink-gray-5"
                 >
-                  {{ activity.data.field_label }}
+                  {{ __(activity.data.field_label) }}
                 </span>
                 <FeatherIcon
                   name="arrow-right"
                   class="mx-1 h-4 w-4 text-ink-gray-5"
                 />
                 <span v-if="activity.type">
-                  {{ startCase(activity.type) }}
+                  {{ startCase(__(activity.type)) }}
                 </span>
                 <span
                   v-if="activity.data.old_value"
@@ -369,7 +369,7 @@
       class="flex flex-1 flex-col items-center justify-center gap-3 text-xl font-medium text-ink-gray-4"
     >
       <component :is="emptyTextIcon" class="h-10 w-10" />
-      <span>{{ emptyText }}</span>
+      <span>{{ __(emptyText) }}</span>
       <Button
         v-if="title == 'Calls'"
         :label="__('Make a Call')"
@@ -642,26 +642,26 @@ function get_activities() {
 
 const activities = computed(() => {
   let _activities = []
-  if (title.value == 'Activity') {
+  if (title.value == __('Activity')) {
     _activities = get_activities()
-  } else if (title.value == 'Emails') {
+  } else if (title.value == __('Emails')) {
     if (!all_activities.data?.versions) return []
     _activities = filterEmailActivities(all_activities.data.versions || [])
-  } else if (title.value == 'Comments') {
+  } else if (title.value == __('Comments')) {
     if (!all_activities.data?.versions) return []
     _activities = (all_activities.data.versions || []).filter(
       (activity) => activity.activity_type === 'comment',
     )
-  } else if (title.value == 'Calls') {
+  } else if (title.value == __('Calls')) {
     if (!all_activities.data?.calls) return []
     return sortByCreation(all_activities.data.calls || [])
-  } else if (title.value == 'Tasks') {
+  } else if (title.value == __('Tasks')) {
     if (!all_activities.data?.tasks) return []
     return sortByCreation(all_activities.data.tasks || [])
-  } else if (title.value == 'Notes') {
+  } else if (title.value == __('Notes')) {
     if (!all_activities.data?.notes) return []
     return sortByCreation(all_activities.data.notes || [])
-  } else if (title.value == 'Attachments') {
+  } else if (title.value == __('Attachments')) {
     if (!all_activities.data?.attachments) return []
     return sortByCreation(all_activities.data.attachments || [])
   }
@@ -737,19 +737,19 @@ const emptyText = computed(() => {
 
 const emptyTextIcon = computed(() => {
   let icon = ActivityIcon
-  if (title.value == 'Emails') {
+  if (title.value == __('Emails')) {
     icon = Email2Icon
-  } else if (title.value == 'Comments') {
+  } else if (title.value == __('Comments')) {
     icon = CommentIcon
-  } else if (title.value == 'Calls') {
+  } else if (title.value == __('Calls')) {
     icon = PhoneIcon
-  } else if (title.value == 'Notes') {
+  } else if (title.value == __('Notes')) {
     icon = NoteIcon
-  } else if (title.value == 'Tasks') {
+  } else if (title.value == __('Tasks')) {
     icon = TaskIcon
-  } else if (title.value == 'Attachments') {
+  } else if (title.value == __('Attachments')) {
     icon = AttachmentIcon
-  } else if (title.value == 'WhatsApp') {
+  } else if (title.value == __('WhatsApp')) {
     icon = WhatsAppIcon
   }
   return h(icon, { class: 'text-ink-gray-4' })
