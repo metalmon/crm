@@ -44,14 +44,9 @@
       <CustomActions v-if="customActions" :actions="customActions" />
       <Button
         :label="__('Convert')"
-        :class="{ 'min-w-[90px]': true, 'overflow-hidden': true }"
         variant="solid"
         @click="showConvertToDealModal = true"
-      >
-        <template #default>
-          <span class="truncate">{{ __('Convert') }}</span>
-        </template>
-      </Button>
+      />
     </div>
   </div>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
