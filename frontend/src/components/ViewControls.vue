@@ -60,7 +60,7 @@
   </div>
   <div v-else class="flex items-center justify-between gap-2 px-5 py-4">
     <FadedScrollableDiv
-      class="flex flex-1 items-center overflow-x-auto -ml-1"
+      class="flex flex-1 items-center overflow-hidden -ml-1"
       orientation="horizontal"
     >
       <div
