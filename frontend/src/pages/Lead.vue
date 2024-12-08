@@ -35,9 +35,17 @@
       </Dropdown>
       <Button
         :label="__('Convert to Deal')"
+        :class="{ 'min-w-[90px]': true, 'overflow-hidden': true }"
         variant="solid"
         @click="showConvertToDealModal = true"
-      />
+      >
+        <template #prefix>
+          <FeatherIcon name="plus" class="h-4 w-4" />
+        </template>
+        <template #default>
+          <span class="truncate">{{ __('Convert') }}</span>
+        </template>
+      </Button>
     </template>
   </LayoutHeader>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
