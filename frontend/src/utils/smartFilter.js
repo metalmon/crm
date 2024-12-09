@@ -3,33 +3,78 @@
 /**
  * Detects the type of input and returns appropriate filter parameters
  * @param {string} input - The search input
+ * @param {string} doctype - The document type
  * @returns {Object} Filter parameters object
  */
-export function parseSmartFilter(input) {
+export function parseSmartFilter(input, doctype) {
   if (!input) return null;
 
   // Normalize input
   const normalizedInput = input.trim();
 
-  // Check for phone number (any sequence of digits)
+  // Common patterns
   const phonePattern = /^\d+$/;
-  if (phonePattern.test(normalizedInput)) {
-    return {
-      mobile_no: ['LIKE', `%${normalizedInput}%`]
-    };
-  }
+  const websitePattern = /^[^\s]+\.[^\s]+$/;
+  const emailPattern = /^[^\s@]+@|@[^\s@]+$/;  // Matches either something@... or ...@something
 
-  // Check for email (contains @)
-  if (normalizedInput.includes('@')) {
-    return {
-      email: ['LIKE', `%${normalizedInput}%`]
-    };
-  }
+  // Handle different doctypes
+  switch (doctype) {
+    case 'CRM Organization':
+      if (websitePattern.test(normalizedInput)) {
+        return {
+          website: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      return {
+        industry: ['LIKE', `%${normalizedInput}%`]
+      };
 
-  // Default to searching by lead name
-  return {
-    lead_name: ['LIKE', `%${normalizedInput}%`]
-  };
+    case 'CRM Deal':
+      if (phonePattern.test(normalizedInput)) {
+        return {
+          mobile_no: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      if (normalizedInput.includes('@')) {
+        return {
+          email: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      return {
+        organization: ['LIKE', `%${normalizedInput}%`]
+      };
+
+    case 'Contact':
+      if (phonePattern.test(normalizedInput)) {
+        return {
+          mobile_no: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      if (emailPattern.test(normalizedInput)) {
+        return {
+          email_id: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      return {
+        company_name: ['LIKE', `%${normalizedInput}%`]
+      };
+
+    case 'CRM Lead':
+    default:
+      if (phonePattern.test(normalizedInput)) {
+        return {
+          mobile_no: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      if (normalizedInput.includes('@')) {
+        return {
+          email: ['LIKE', `%${normalizedInput}%`]
+        };
+      }
+      return {
+        lead_name: ['LIKE', `%${normalizedInput}%`]
+      };
+  }
 }
 
 /**
