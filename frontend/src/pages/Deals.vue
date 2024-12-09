@@ -8,6 +8,7 @@
         <SmartFilterField
           v-if="!isMobileView"
           ref="desktopSmartFilter"
+          doctype="CRM Deal"
           @update:filters="handleSmartFilter"
         />
         <CustomActions
@@ -27,6 +28,7 @@
   <div v-if="isMobileView" class="px-3 py-2 border-b">
     <SmartFilterField
       ref="mobileSmartFilter"
+      doctype="CRM Deal"
       @update:filters="handleSmartFilter"
     />
   </div>
@@ -349,22 +351,19 @@ watch(() => deals.value?.params?.filters, (newFilters) => {
 
 function handleSmartFilter(filters) {
   if (!viewControls.value || !filters) return;
-  
   if (isResettingFilters.value) return;
-  
   if (!deals.value || !deals.value.params) return;
-  
-  const existingFilters = deals.value.params.filters || {};
-  const smartFilterKeys = Object.keys(filters);
-  const preservedFilters = Object.entries(existingFilters).reduce((acc, [key, value]) => {
-    if (!smartFilterKeys.includes(key)) {
-      acc[key] = value;
+
+  const currentFilters = deals.value.params.filters || {};
+  const standardFilters = {};
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (!['mobile_no', 'email', 'organization'].includes(key)) {
+      standardFilters[key] = value;
     }
-    return acc;
-  }, {});
+  });
 
   deals.value.params.filters = {
-    ...preservedFilters,
+    ...standardFilters,
     ...filters
   };
   

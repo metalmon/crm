@@ -8,6 +8,7 @@
         <SmartFilterField
           v-if="!isMobileView"
           ref="desktopSmartFilter"
+          doctype="CRM Lead"
           @update:filters="handleSmartFilter"
         />
         <CustomActions
@@ -27,6 +28,7 @@
   <div v-if="isMobileView" class="px-3 py-2 border-b">
     <SmartFilterField
       ref="mobileSmartFilter"
+      doctype="CRM Lead"
       @update:filters="handleSmartFilter"
     />
   </div>
@@ -45,6 +47,7 @@
       <div v-if="isMobileView" class="w-full px-3 py-2 border-b">
         <SmartFilterField
           ref="mobileSmartFilter"
+          doctype="CRM Lead"
           @update:filters="handleSmartFilter"
         />
       </div>
@@ -607,32 +610,22 @@ function handleListFilter(data) {
 
 function handleSmartFilter(filters) {
   if (!viewControls.value || !filters) return;
-  
-  // Skip if we're resetting filters
   if (isResettingFilters.value) return;
-  
-  // Get the current list
   if (!leads.value || !leads.value.params) return;
-  
-  // Merge existing filters with new smart filters
-  // First, get existing filters excluding any that would be overwritten by smart filters
-  const existingFilters = leads.value.params.filters || {};
-  const smartFilterKeys = Object.keys(filters);
-  const preservedFilters = Object.entries(existingFilters).reduce((acc, [key, value]) => {
-    // Keep filters that aren't being set by smart filter
-    if (!smartFilterKeys.includes(key)) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
 
-  // Merge preserved filters with new smart filters
+  const currentFilters = leads.value.params.filters || {};
+  const standardFilters = {};
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (!['mobile_no', 'email', 'lead_name'].includes(key)) {
+      standardFilters[key] = value;
+    }
+  });
+
   leads.value.params.filters = {
-    ...preservedFilters,
+    ...standardFilters,
     ...filters
   };
   
-  // Trigger a reload
   leads.value.reload();
 }
 </script>
