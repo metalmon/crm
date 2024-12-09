@@ -4,19 +4,32 @@
       <ViewBreadcrumbs v-model="viewControls" routeName="Deals" />
     </template>
     <template #right-header>
-      <CustomActions
-        v-if="dealsListView?.customListActions"
-        :actions="dealsListView.customListActions"
-      />
-      <Button
-        variant="solid"
-        :label="__('Create')"
-        @click="showDealModal = true"
-      >
-        <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-      </Button>
+      <div class="flex items-center gap-4">
+        <SmartFilterField
+          v-if="!isMobileView"
+          ref="desktopSmartFilter"
+          @update:filters="handleSmartFilter"
+        />
+        <CustomActions
+          v-if="dealsListView?.customListActions"
+          :actions="dealsListView.customListActions"
+        />
+        <Button
+          variant="solid"
+          :label="__('Create')"
+          @click="showDealModal = true"
+        >
+          <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
+        </Button>
+      </div>
     </template>
   </LayoutHeader>
+  <div v-if="isMobileView" class="px-3 py-2 border-b">
+    <SmartFilterField
+      ref="mobileSmartFilter"
+      @update:filters="handleSmartFilter"
+    />
+  </div>
   <ViewControls
     ref="viewControls"
     v-model="deals"
@@ -295,7 +308,9 @@ import {
 import { formatNumberIntoCurrency } from '@/utils/formatters'
 import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
-import { ref, reactive, computed, h } from 'vue'
+import { ref, reactive, computed, h, watch } from 'vue'
+import SmartFilterField from '@/components/SmartFilterField.vue'
+import { isMobileView } from '@/composables/settings'
 
 const { makeCall } = globalStore()
 const { getUser } = usersStore()
@@ -316,6 +331,45 @@ const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
 const viewControls = ref(null)
+
+const desktopSmartFilter = ref(null)
+const mobileSmartFilter = ref(null)
+const isResettingFilters = ref(false)
+
+watch(() => deals.value?.params?.filters, (newFilters) => {
+  if (isResettingFilters.value) return;
+  
+  if (!newFilters || Object.keys(newFilters).length === 0) {
+    isResettingFilters.value = true;
+    desktopSmartFilter.value?.clearSearch();
+    mobileSmartFilter.value?.clearSearch();
+    isResettingFilters.value = false;
+  }
+}, { deep: true })
+
+function handleSmartFilter(filters) {
+  if (!viewControls.value || !filters) return;
+  
+  if (isResettingFilters.value) return;
+  
+  if (!deals.value || !deals.value.params) return;
+  
+  const existingFilters = deals.value.params.filters || {};
+  const smartFilterKeys = Object.keys(filters);
+  const preservedFilters = Object.entries(existingFilters).reduce((acc, [key, value]) => {
+    if (!smartFilterKeys.includes(key)) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+  deals.value.params.filters = {
+    ...preservedFilters,
+    ...filters
+  };
+  
+  deals.value.reload();
+}
 
 function getRow(name, field) {
   function getValue(value) {
