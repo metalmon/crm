@@ -309,13 +309,6 @@ function applyFilter({ event, idx, column, item, firstColumn }) {
     delete filters[column.key]
   }
 
-  // Remove any filters with undefined keys
-  Object.keys(filters).forEach(key => {
-    if (key === 'undefined' || key === undefined) {
-      delete filters[key]
-    }
-  })
-
   emit('applyFilter', filters)
 }
 
