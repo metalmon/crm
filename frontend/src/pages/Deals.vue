@@ -456,18 +456,18 @@ function parseRows(rows, columns = []) {
         _rows[row] = formatDate(deal[row], '', true, fieldType == 'Datetime')
       }
 
-      if (row == 'organization') {
+      if (row == 'annual_revenue') {
+        _rows[row] = {
+          label: formatNumberIntoCurrency(deal.annual_revenue, deal.currency),
+          value: deal.annual_revenue
+        }
+      } else if (row == 'organization') {
         _rows[row] = {
           label: deal.organization,
           logo: getOrganization(deal.organization)?.organization_logo,
         }
       } else if (row === 'website') {
         _rows[row] = website(deal.website)
-      } else if (row == 'annual_revenue') {
-        _rows[row] = formatNumberIntoCurrency(
-          deal.annual_revenue,
-          deal.currency,
-        )
       } else if (row == 'status') {
         _rows[row] = {
           label: deal.status,
