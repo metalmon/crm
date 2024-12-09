@@ -599,18 +599,10 @@ function showTask(name) {
 }
 
 function handleListFilter(data) {
-  if (!viewControls.value) return;
+  if (!viewControls.value || !leads.value || !leads.value.params) return;
   
-  // Ensure data has the required structure
-  if (!data.fieldname || !data.value) return;
-  
-  const filterData = {
-    fieldname: data.fieldname,
-    value: data.value,
-    type: 'equals'  // Default filter type for list clicks
-  };
-  
-  viewControls.value.applyFilter(filterData);
+  leads.value.params.filters = data;
+  leads.value.reload();
 }
 
 function handleSmartFilter(filters) {
@@ -622,8 +614,23 @@ function handleSmartFilter(filters) {
   // Get the current list
   if (!leads.value || !leads.value.params) return;
   
-  // Update the filters
-  leads.value.params.filters = filters;
+  // Merge existing filters with new smart filters
+  // First, get existing filters excluding any that would be overwritten by smart filters
+  const existingFilters = leads.value.params.filters || {};
+  const smartFilterKeys = Object.keys(filters);
+  const preservedFilters = Object.entries(existingFilters).reduce((acc, [key, value]) => {
+    // Keep filters that aren't being set by smart filter
+    if (!smartFilterKeys.includes(key)) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+  // Merge preserved filters with new smart filters
+  leads.value.params.filters = {
+    ...preservedFilters,
+    ...filters
+  };
   
   // Trigger a reload
   leads.value.reload();
