@@ -74,15 +74,7 @@
       </Button>
     </div>
   </div>
-  <OrganizationModal
-    v-model="showOrganizationModal"
-    v-model:quickEntry="showQuickEntryModal"
-  />
-  <QuickEntryModal
-    v-if="showQuickEntryModal"
-    v-model="showQuickEntryModal"
-    doctype="CRM Organization"
-  />
+  <OrganizationModal v-model="showOrganizationModal" />
 </template>
 <script setup>
 import ViewBreadcrumbs from '@/components/ViewBreadcrumbs.vue'
@@ -90,7 +82,6 @@ import CustomActions from '@/components/CustomActions.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
-import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import OrganizationsListView from '@/components/ListViews/OrganizationsListView.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import { formatDate, timeAgo, website, formatNumberIntoCurrency } from '@/utils'
@@ -100,7 +91,6 @@ import { isMobileView } from '@/composables/settings'
 
 const organizationsListView = ref(null)
 const showOrganizationModal = ref(false)
-const showQuickEntryModal = ref(false)
 
 // organizations data is loaded in the ViewControls component
 const organizations = ref({})
