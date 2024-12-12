@@ -593,7 +593,35 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.leadId],
   params: { doctype: 'CRM Lead', name: props.leadId },
   auto: true,
+  transform: (data) => getParsedFields(data)
 })
+
+function getParsedFields(sections) {
+  if (!sections?.[0]?.sections) return []
+  
+  const sectionList = sections[0].sections
+  sectionList.forEach((section) => {
+    // Convert array of field names to array of field objects if needed
+    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
+      section.fields = section.fields.map(fieldName => ({
+        name: fieldName,
+        label: fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+        type: 'text', // default type
+        all_properties: {}, // required by SidePanelLayout
+      }))
+    }
+
+    section.fields?.forEach((field) => {
+      if (field.name == 'organization') {
+        field.type = 'link'
+        field.doctype = 'CRM Organization'
+      } else if (field.name == 'lead_owner') {
+        field.type = 'User'
+      }
+    })
+  })
+  return sectionList
+}
 
 function updateField(name, value, callback) {
   updateLead(name, value, () => {

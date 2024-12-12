@@ -621,14 +621,30 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.dealId],
   params: { doctype: 'CRM Deal', name: props.dealId },
   auto: true,
-  transform: (data) => getParsedFields(data),
+  transform: (data) => getParsedFields(data)
 })
 
 function getParsedFields(sections) {
-  sections.forEach((section) => {
+  if (!sections?.[0]?.sections) return []
+  
+  const sectionList = sections[0].sections
+  sectionList.forEach((section) => {
     if (section.name == 'contacts_section') return
-    section.fields.forEach((field) => {
+    
+    // Convert array of field names to array of field objects if needed
+    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
+      section.fields = section.fields.map(fieldName => ({
+        name: fieldName,
+        label: fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+        type: 'text', // default type
+        all_properties: {}, // required by SidePanelLayout
+      }))
+    }
+
+    section.fields?.forEach((field) => {
       if (field.name == 'organization') {
+        field.type = 'link'
+        field.doctype = 'CRM Organization'
         field.create = (value, close) => {
           _organization.value.organization_name = value
           showOrganizationModal.value = true
@@ -642,7 +658,7 @@ function getParsedFields(sections) {
       }
     })
   })
-  return sections
+  return sectionList
 }
 
 const showContactModal = ref(false)
