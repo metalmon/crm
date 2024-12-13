@@ -15,18 +15,17 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="whitespace-nowrap hidden sm:inline">{{ __('New Email') }}</span>
+      <span class="btn-text-standard">{{ __('New Email') }}</span>
     </Button>
     <Button
       v-else-if="title == 'Comments'"
       variant="solid"
-      class="shrink-0 px-3"
       @click="emailBox.showComment = true"
     >
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="whitespace-nowrap hidden sm:inline">{{ __('New Comment') }}</span>
+      <span class="btn-text-standard">{{ __('New Comment') }}</span>
     </Button>
     <Button
       v-else-if="title == 'Calls'"
@@ -37,7 +36,7 @@
       <template #prefix>
         <PhoneIcon class="h-4 w-4" />
       </template>
-      <span class="whitespace-nowrap hidden sm:inline">{{ __('Make a Call') }}</span>
+      <span class="btn-text-standard">{{ __('Make a Call') }}</span>
     </Button>
     <Button
       v-else-if="title == 'Notes'"
@@ -48,7 +47,7 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="whitespace-nowrap hidden sm:inline">{{ __('New Note') }}</span>
+      <span class="btn-text-standard">{{ __('New Note') }}</span>
     </Button>
     <Button
       v-else-if="title == 'Tasks'"
@@ -59,7 +58,7 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="whitespace-nowrap hidden sm:inline">{{ __('New Task') }}</span>
+      <span class="btn-text-standard">{{ __('New Task') }}</span>
     </Button>
     <Button
       v-else-if="title == 'Attachments'"
@@ -70,7 +69,7 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="whitespace-nowrap hidden sm:inline">{{ __('Upload Attachment') }}</span>
+      <span class="btn-text-standard">{{ __('Upload Attachment') }}</span>
     </Button>
     <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
       <Button
@@ -80,13 +79,13 @@
         <template #prefix>
           <FeatherIcon name="plus" class="h-4 w-4" />
         </template>
-        <span class="whitespace-nowrap hidden sm:inline">{{ __('Send Template') }}</span>
+        <span class="btn-text-standard">{{ __('Send Template') }}</span>
       </Button>
       <Button variant="solid" class="shrink-0" @click="whatsappBox.show()">
         <template #prefix>
           <FeatherIcon name="plus" class="h-4 w-4" />
         </template>
-        <span class="whitespace-nowrap hidden sm:inline">{{ __('New Message') }}</span>
+        <span class="btn-text-standard">{{ __('New Message') }}</span>
       </Button>
     </div>
     <Dropdown v-else :options="defaultActions" @click.stop>
@@ -95,7 +94,7 @@
           <template #prefix>
             <FeatherIcon name="plus" class="h-4 w-4" />
           </template>
-          <span class="whitespace-nowrap hidden sm:inline">{{ __('New') }}</span>
+          <span class="btn-text-standard">{{ __('New') }}</span>
           <template #suffix>
             <FeatherIcon
               :name="open ? 'chevron-up' : 'chevron-down'"

@@ -59,6 +59,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { capture } from '@/telemetry'
 import { Dialog, Badge, Switch, call, createResource } from 'frappe-ui'
 import { ref, watch, onMounted, nextTick } from 'vue'
+import { __ } from '@/translation'
 
 const props = defineProps({
   doctype: {

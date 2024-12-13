@@ -3,12 +3,12 @@ import './index.css'
 import './styles/scrollbar.css'
 import './utils/dayjs'
 
-import { createApp } from 'vue'
+import { createApp, watch } from 'vue'
 import { createPinia } from 'pinia'
 import { createDialog } from './utils/dialogs'
 import { initSocket } from './socket'
 import router from './router'
-import translationPlugin from './translation'
+import translationPlugin, { translationsReady, __ } from './translation'
 import { posthogPlugin } from './telemetry'
 import App from './App.vue'
 
@@ -47,8 +47,26 @@ let app = createApp(App)
 setConfig('resourceFetcher', frappeRequest)
 app.use(FrappeUI)
 app.use(pinia)
-app.use(router)
 app.use(translationPlugin)
+
+// Make __ available globally
+window.__ = __
+
+// Wait for translations to be ready before initializing router
+await new Promise(resolve => {
+  if (translationsReady.value) {
+    resolve();
+  } else {
+    const unwatch = watch(translationsReady, (ready) => {
+      if (ready) {
+        unwatch();
+        resolve();
+      }
+    });
+  }
+});
+
+app.use(router)
 app.use(posthogPlugin)
 for (let key in globalComponents) {
   app.component(key, globalComponents[key])

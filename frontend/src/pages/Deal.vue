@@ -44,6 +44,7 @@
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="deal"
+        :doc="deal"
       />
     </Tabs>
     <Resizer side="right" class="flex flex-col justify-between border-l">
@@ -81,7 +82,7 @@
               <Button
                 v-if="primaryContactMobileNo && !callEnabled"
                 size="sm"
-                @click.once="trackPhoneActivities('phone')"
+                @click="trackPhoneActivities('phone')"
               >
                 <PhoneIcon class="h-4 w-4" />
               </Button>
@@ -90,7 +91,7 @@
               <Button
                 v-if="primaryContactMobileNo"
                 size="sm"
-                @click.once="trackPhoneActivities('whatsapp')"
+                @click="trackPhoneActivities('whatsapp')"
               >
                 <WhatsAppIcon class="h-4 w-4" />
               </Button>
@@ -299,11 +300,12 @@
     </Resizer>
   </div>
   <OrganizationModal
+    v-if="showOrganizationModal"
     v-model="showOrganizationModal"
     v-model:organization="_organization"
     :options="{
       redirect: false,
-      afterInsert: (doc) => updateField('organization', doc.name),
+      afterInsert: (doc) => updateField('organization', doc.name)
     }"
   />
   <ContactModal
@@ -339,6 +341,15 @@
       }
     "
   />
+  <QuickEntryModal
+    v-if="showQuickEntryModal"
+    v-model="showQuickEntryModal"
+    doctype="CRM Organization"
+    :options="{
+      redirect: false,
+      afterInsert: (doc) => updateField('organization', doc.name),
+    }"
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -372,6 +383,7 @@ import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
+import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import {
   openWebsite,
   createToast,
@@ -394,6 +406,7 @@ import {
   Breadcrumbs,
   call,
   usePageMeta,
+  createDocumentResource,
 } from 'frappe-ui'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -480,11 +493,11 @@ const showOrganizationModal = ref(false)
 const showAssignmentModal = ref(false)
 const showSidePanelModal = ref(false)
 const showFilesUploader = ref(false)
+const showQuickEntryModal = ref(false)
 const _organization = ref({})
+const _contact = ref({})
 
-function updateDeal(fieldname, value, callback) {
-  value = Array.isArray(fieldname) ? '' : value
-
+function updateField(fieldname, value) {
   if (validateRequired(fieldname, value)) return
 
   createResource({
@@ -504,7 +517,7 @@ function updateDeal(fieldname, value, callback) {
         icon: 'check',
         iconClasses: 'text-ink-green-3',
       })
-      callback?.()
+      
     },
     onError: (err) => {
       createToast({
@@ -633,36 +646,90 @@ function getParsedFields(sections) {
     
     // Convert array of field names to array of field objects if needed
     if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
-      section.fields = section.fields.map(fieldName => ({
-        name: fieldName,
-        label: fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-        type: 'text', // default type
-        all_properties: {}, // required by SidePanelLayout
-      }))
-    }
-
-    section.fields?.forEach((field) => {
-      if (field.name == 'organization') {
-        field.type = 'link'
-        field.doctype = 'CRM Organization'
-        field.create = (value, close) => {
-          _organization.value.organization_name = value
-          showOrganizationModal.value = true
-          close()
+      section.fields = section.fields.map(fieldName => {
+        // Try to get field metadata from both the API response and fields_meta
+        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
+                     (deal.data?.fields_meta && deal.data.fields_meta[fieldName]) || {}
+        
+        // Get translated field label
+        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+        
+        // Determine placeholder verb based on field type
+        const getPlaceholderVerb = (fieldtype) => {
+          switch(fieldtype?.toLowerCase()) {
+            case 'select':
+            case 'link':
+              return __('Select')
+            case 'date':
+            case 'datetime':
+              return __('Set')
+            default:
+              return __('Enter')
+          }
         }
-        field.link = (org) =>
-          router.push({
-            name: 'Organization',
-            params: { organizationId: org },
-          })
-      }
-    })
+
+        // Base field data with translations
+        const fieldData = {
+          name: fieldName,
+          label: translatedLabel,
+          type: field.fieldtype || 'text',
+          all_properties: field || {},
+          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
+        }
+
+        // Handle field types that need special treatment
+        switch (field.fieldtype?.toLowerCase()) {
+          case 'select':
+            // Convert select fields to use Link component for better UX
+            fieldData.type = 'link'
+            if (field.options) {
+              fieldData.options = field.options.split('\n').map(option => ({
+                label: __(option),
+                value: option
+              }))
+              if (!fieldData.options.find(opt => opt.value === '')) {
+                fieldData.options.unshift({ label: '', value: '' })
+              }
+            }
+            break
+
+          case 'link':
+            fieldData.type = 'link'
+            fieldData.doctype = field.options
+            // Add create/link handlers if needed based on doctype
+            if (field.options === 'CRM Organization') {
+              fieldData.create = (value, close) => {
+                _organization.value = { organization_name: value }
+                showOrganizationModal.value = true
+                close()
+              }
+              fieldData.link = (org) =>
+                router.push({
+                  name: 'Organization',
+                  params: { organizationId: org },
+                })
+            }
+            break
+
+          case 'date':
+            fieldData.type = 'Date'
+            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            break
+
+          case 'datetime':
+            fieldData.type = 'Datetime'
+            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            break
+        }
+
+        return fieldData
+      })
+    }
   })
   return sectionList
 }
 
 const showContactModal = ref(false)
-const _contact = ref({})
 
 function contactOptions(contact) {
   let options = [
@@ -773,13 +840,6 @@ function triggerCall() {
   }
 
   makeCall(mobile_no)
-}
-
-function updateField(name, value, callback) {
-  updateDeal(name, value, () => {
-    deal.data[name] = value
-    callback?.()
-  })
 }
 
 async function deleteDeal(name) {

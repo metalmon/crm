@@ -111,15 +111,28 @@
                     </label>
                   </div>
                   <div class="flex gap-1" v-else-if="field.type === 'Link'">
-                    <Link
-                      class="form-control flex-1 truncate"
-                      :value="data[field.name]"
-                      :doctype="field.options"
-                      :filters="field.filters"
-                      @change="(v) => (data[field.name] = v)"
-                      :placeholder="getPlaceholder(field)"
-                      :onCreate="field.create"
-                    />
+                    <template v-if="field.options === 'Country'">
+                      <CountryLink
+                        class="form-control flex-1 truncate"
+                        :value="data[field.name]"
+                        :doctype="field.options"
+                        :filters="field.filters"
+                        @change="(v) => (data[field.name] = v)"
+                        :placeholder="getPlaceholder(field)"
+                        :onCreate="field.create"
+                      />
+                    </template>
+                    <template v-else>
+                      <Link
+                        class="form-control flex-1 truncate"
+                        :value="data[field.name]"
+                        :doctype="field.options"
+                        :filters="field.filters"
+                        @change="(v) => (data[field.name] = v)"
+                        :placeholder="getPlaceholder(field)"
+                        :onCreate="field.create"
+                      />
+                    </template>
                     <Button
                       v-if="data[field.name] && field.edit"
                       class="shrink-0"
@@ -160,21 +173,19 @@
                       </Tooltip>
                     </template>
                   </Link>
-                  <DateTimePicker
-                    v-else-if="field.type === 'Datetime'"
-                    v-model="data[field.name]"
-                    icon-left=""
-                    :formatter="(date) => getFormat(date, '', true, true)"
-                    :placeholder="getPlaceholder(field)"
-                    input-class="border-none"
-                  />
-                  <DatePicker
+                  <input
                     v-else-if="field.type === 'Date'"
-                    icon-left=""
+                    type="date"
+                    class="form-input w-full"
                     v-model="data[field.name]"
-                    :formatter="(date) => getFormat(date, '', true)"
-                    :placeholder="getPlaceholder(field)"
-                    input-class="border-none"
+                    :placeholder="__('Set date')"
+                  />
+                  <input
+                    v-else-if="field.type === 'Datetime'"
+                    type="datetime-local"
+                    class="form-input w-full"
+                    v-model="data[field.name]"
+                    :placeholder="__('Set date and time')"
                   />
                   <FormControl
                     v-else-if="
@@ -213,6 +224,7 @@ import EditIcon from '@/components/Icons/EditIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
+import CountryLink from '@/components/Controls/CountryLink.vue'
 import { usersStore } from '@/stores/users'
 import { getFormat } from '@/utils'
 import { Tabs, Tooltip, DatePicker, DateTimePicker } from 'frappe-ui'

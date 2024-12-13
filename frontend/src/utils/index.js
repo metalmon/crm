@@ -2,7 +2,6 @@ import TaskStatusIcon from '@/components/Icons/TaskStatusIcon.vue'
 import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import { usersStore } from '@/stores/users'
 import { gemoji } from 'gemoji'
-import { useTimeAgo } from '@vueuse/core'
 import { toast, dayjsLocal, dayjs } from 'frappe-ui'
 import { h } from 'vue'
 
@@ -71,7 +70,8 @@ export function getFormat(
 }
 
 export function timeAgo(date) {
-  return useTimeAgo(date).value
+  if (!date) return ''
+  return dayjs(date).fromNow()
 }
 
 export function taskStatusOptions(action, data) {

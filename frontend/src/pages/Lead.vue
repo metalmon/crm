@@ -57,6 +57,7 @@
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="lead"
+        :doc="lead"
       />
     </Tabs>
     <Resizer class="flex flex-col justify-between border-l" side="right">
@@ -208,14 +209,35 @@
               :label="section.label"
               :opened="section.opened"
             >
-              <SidePanelLayout
-                :fields="section.fields"
-                :isLastSection="i == fieldsLayout.data.length - 1"
-                v-model="lead.data"
-                @update="updateField"
-              />
-              <template v-if="i == 0 && isManager()" #actions>
+              <template #actions>
+                <div v-if="section.contacts" class="pr-2">
+                  <Link
+                    value=""
+                    doctype="Contact"
+                    @change="(e) => addContact(e)"
+                    :onCreate="
+                      (value, close) => {
+                        _contact = {
+                          first_name: value,
+                          company_name: lead.data.organization,
+                        }
+                        showContactModal = true
+                        close()
+                      }
+                    "
+                  >
+                    <template #target="{ togglePopover }">
+                      <Button
+                        class="h-7 px-3"
+                        variant="ghost"
+                        icon="plus"
+                        @click="togglePopover()"
+                      />
+                    </template>
+                  </Link>
+                </div>
                 <Button
+                  v-else-if="((!section.contacts && i == 1) || i == 0) && isManager()"
                   variant="ghost"
                   class="w-7 mr-2"
                   @click="showSidePanelModal = true"
@@ -223,6 +245,13 @@
                   <EditIcon class="h-4 w-4" />
                 </Button>
               </template>
+              <SidePanelLayout
+                v-if="section.fields"
+                :fields="section.fields"
+                :isLastSection="i == fieldsLayout.data.length - 1"
+                v-model="lead.data"
+                @update="updateField"
+              />
             </Section>
           </div>
         </div>
@@ -305,6 +334,7 @@
   <SidePanelModal
     v-if="showSidePanelModal"
     v-model="showSidePanelModal"
+    doctype="CRM Lead"
     @reload="() => fieldsLayout.reload()"
   />
   <FilesUploader
@@ -318,6 +348,14 @@
         changeTabTo('attachments')
       }
     "
+  />
+  <ContactModal
+    v-model="showContactModal"
+    :contact="_contact"
+    :options="{
+      redirect: false,
+      afterInsert: (doc) => addContact(doc.name),
+    }"
   />
 </template>
 <script setup>
@@ -381,6 +419,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
+import ContactModal from '@/components/Modals/ContactModal.vue'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { getContactByName, contacts } = contactsStore()
@@ -434,6 +473,8 @@ const reload = ref(false)
 const showAssignmentModal = ref(false)
 const showSidePanelModal = ref(false)
 const showFilesUploader = ref(false)
+const showContactModal = ref(false)
+const _contact = ref({})
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -603,20 +644,80 @@ function getParsedFields(sections) {
   sectionList.forEach((section) => {
     // Convert array of field names to array of field objects if needed
     if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
-      section.fields = section.fields.map(fieldName => ({
-        name: fieldName,
-        label: fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-        type: 'text', // default type
-        all_properties: {}, // required by SidePanelLayout
-      }))
+      section.fields = section.fields.map(fieldName => {
+        // Try to get field metadata from both the API response and fields_meta
+        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
+                     (lead.data?.fields_meta && lead.data.fields_meta[fieldName]) || {}
+        
+        // Get translated field label
+        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+        
+        // Determine placeholder verb based on field type
+        const getPlaceholderVerb = (fieldtype) => {
+          switch(fieldtype?.toLowerCase()) {
+            case 'select':
+            case 'link':
+              return __('Select')
+            case 'date':
+            case 'datetime':
+              return __('Set')
+            default:
+              return __('Enter')
+          }
+        }
+
+        // Base field data with translations
+        const fieldData = {
+          name: fieldName,
+          label: translatedLabel,
+          type: field.fieldtype || 'text',
+          all_properties: field || {},
+          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
+        }
+
+        // Handle field types that need special treatment
+        switch (field.fieldtype?.toLowerCase()) {
+          case 'select':
+            // Convert select fields to use Link component for better UX
+            fieldData.type = 'link'
+            if (field.options) {
+              fieldData.options = field.options.split('\n').map(option => ({
+                label: __(option),
+                value: option
+              }))
+              if (!fieldData.options.find(opt => opt.value === '')) {
+                fieldData.options.unshift({ label: '', value: '' })
+              }
+            }
+            break
+
+          case 'link':
+            fieldData.type = 'link'
+            fieldData.doctype = field.options
+            break
+
+          case 'date':
+            fieldData.type = 'Date'
+            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            break
+
+          case 'datetime':
+            fieldData.type = 'Datetime'
+            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            break
+        }
+
+        return fieldData
+      })
     }
 
+    // Special handling for lead_owner field
     section.fields?.forEach((field) => {
-      if (field.name == 'organization') {
-        field.type = 'link'
-        field.doctype = 'CRM Organization'
-      } else if (field.name == 'lead_owner') {
-        field.type = 'User'
+      if (field.name == 'lead_owner') {
+        field.type = 'lead_owner'
+        field.filters = {
+          ignore_user_type: 1
+        }
       }
     })
   })
@@ -731,5 +832,20 @@ function trackPhoneActivities(type = 'phone') {
     activities: activities.value,
     contactName: lead.data.lead_name,
   })
+}
+
+async function addContact(contact) {
+  let d = await call('crm.fcrm.doctype.crm_lead.crm_lead.add_contact', {
+    lead: props.leadId,
+    contact,
+  })
+  if (d) {
+    fieldsLayout.reload()
+    createToast({
+      title: __('Contact added'),
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  }
 }
 </script>

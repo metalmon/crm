@@ -10,6 +10,7 @@
           ref="desktopSmartFilter"
           doctype="CRM Deal"
           @update:filters="handleSmartFilter"
+          class="w-80"
         />
         <CustomActions
           v-if="dealsListView?.customListActions"
@@ -30,6 +31,7 @@
       ref="mobileSmartFilter"
       doctype="CRM Deal"
       @update:filters="handleSmartFilter"
+      class="w-full"
     />
   </div>
   <ViewControls

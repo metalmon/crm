@@ -10,6 +10,7 @@
           ref="desktopSmartFilter"
           doctype="CRM Lead"
           @update:filters="handleSmartFilter"
+          class="w-80"
         />
         <CustomActions
           v-if="leadsListView?.customListActions"
@@ -30,6 +31,7 @@
       ref="mobileSmartFilter"
       doctype="CRM Lead"
       @update:filters="handleSmartFilter"
+      class="w-full"
     />
   </div>
   <ViewControls
@@ -49,6 +51,7 @@
           ref="mobileSmartFilter"
           doctype="CRM Lead"
           @update:filters="handleSmartFilter"
+          class="w-full"
         />
       </div>
     </template>

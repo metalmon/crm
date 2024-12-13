@@ -89,12 +89,11 @@
               </Tooltip>
             </template>
           </Link>
-          <DateTimePicker
-            class="datepicker w-36"
+          <input
+            type="date"
+            class="form-input w-36"
             v-model="_task.due_date"
-            :placeholder="__('01/04/2024 11:30 PM')"
-            :formatter="(date) => getFormat(date, '', true, true)"
-            input-class="border-none"
+            :placeholder="__('Set due date')"
           />
           <Dropdown :options="taskPriorityOptions(updateTaskPriority)">
             <Button :label="_task.priority" class="w-full justify-between">
@@ -118,7 +117,7 @@ import Link from '@/components/Controls/Link.vue'
 import { taskStatusOptions, taskPriorityOptions, getFormat } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
-import { TextEditor, Dropdown, Tooltip, call, DateTimePicker } from 'frappe-ui'
+import { TextEditor, Dropdown, Tooltip, call } from 'frappe-ui'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -184,7 +183,16 @@ async function updateTask() {
     let d = await call('frappe.client.set_value', {
       doctype: 'CRM Task',
       name: _task.value.name,
-      fieldname: _task.value,
+      fieldname: {
+        subject: _task.value.subject,
+        description: _task.value.description,
+        status: _task.value.status,
+        priority: _task.value.priority,
+        due_date: _task.value.due_date,
+        assigned_to: _task.value.assigned_to,
+        reference_doctype: _task.value.reference_doctype,
+        reference_docname: _task.value.reference_docname
+      }
     })
     if (d.name) {
       tasks.value.reload()

@@ -150,7 +150,7 @@
                               />
                             </div>
                             <div class="flex items-center">
-                              <Dropdown :options="contactOptions(contact.name)">
+                              <Dropdown :options="contactOptions(contact)">
                                 <Button
                                   icon="more-horizontal"
                                   class="text-ink-gray-5"
@@ -263,11 +263,13 @@
       </div>
       <Activities
         v-else
+        ref="activities"
         doctype="CRM Deal"
         :tabs="tabs"
         v-model:reload="reload"
         v-model:tabIndex="tabIndex"
         v-model="deal"
+        :doc="deal.data"
       />
     </Tabs>
   </div>
@@ -553,25 +555,97 @@ const fieldsLayout = createResource({
 })
 
 function getParsedFields(sections) {
-  sections.forEach((section) => {
+  if (!sections?.[0]?.sections) return []
+  
+  const sectionList = sections[0].sections
+  sectionList.forEach((section) => {
     if (section.name == 'contacts_section') return
-    section.fields.forEach((field) => {
-      if (field.name == 'organization') {
-        field.create = (value, close) => {
-          _organization.value.organization_name = value
-          showOrganizationModal.value = true
-          close()
+    
+    // Convert array of field names to array of field objects if needed
+    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
+      section.fields = section.fields.map(fieldName => {
+        // Try to get field metadata from both the API response and fields_meta
+        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
+                     (deal.data?.fields_meta && deal.data.fields_meta[fieldName]) || {}
+        
+        // Get translated field label
+        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+        
+        // Determine placeholder verb based on field type
+        const getPlaceholderVerb = (fieldtype) => {
+          switch(fieldtype?.toLowerCase()) {
+            case 'select':
+            case 'link':
+              return __('Select')
+            case 'date':
+            case 'datetime':
+              return __('Set')
+            default:
+              return __('Enter')
+          }
         }
-        field.link = (org) =>
-          router.push({
-            name: 'Organization',
-            params: { organizationId: org },
-          })
-      }
-    })
+
+        // Base field data with translations
+        const fieldData = {
+          name: fieldName,
+          label: translatedLabel,
+          type: field.fieldtype || 'text',
+          all_properties: field || {},
+          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
+        }
+
+        // Handle field types that need special treatment
+        switch (field.fieldtype?.toLowerCase()) {
+          case 'select':
+            // Convert select fields to use Link component for better UX
+            fieldData.type = 'link'
+            if (field.options) {
+              fieldData.options = field.options.split('\n').map(option => ({
+                label: __(option),
+                value: option
+              }))
+              if (!fieldData.options.find(opt => opt.value === '')) {
+                fieldData.options.unshift({ label: '', value: '' })
+              }
+            }
+            break
+
+          case 'link':
+            fieldData.type = 'link'
+            fieldData.doctype = field.options
+            // Add create/link handlers if needed based on doctype
+            if (field.options === 'CRM Organization') {
+              fieldData.create = (value, close) => {
+                _organization.value = { organization_name: value }
+                showOrganizationModal.value = true
+                close()
+              }
+              fieldData.link = (org) =>
+                router.push({
+                  name: 'Organization',
+                  params: { organizationId: org },
+                })
+            }
+            break
+
+          case 'date':
+            fieldData.type = 'Date'
+            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            break
+
+          case 'datetime':
+            fieldData.type = 'Datetime'
+            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            break
+        }
+
+        return fieldData
+      })
+    }
   })
-  return sections
+  return sectionList
 }
+
 
 const showContactModal = ref(false)
 const _contact = ref({})
@@ -579,9 +653,9 @@ const _contact = ref({})
 function contactOptions(contact) {
   let options = [
     {
-      label: __('Delete'),
+      label: __('Remove'),
       icon: 'trash-2',
-      onClick: () => removeContact(contact),
+      onClick: () => removeContact(contact.name),
     },
   ]
 
@@ -629,7 +703,7 @@ async function removeContact(contact) {
 async function setPrimaryContact(contact) {
   let d = await call('crm.fcrm.doctype.crm_deal.crm_deal.set_primary_contact', {
     deal: props.dealId,
-    contact,
+    contact: contact
   })
   if (d) {
     dealContacts.reload()

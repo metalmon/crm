@@ -375,31 +375,40 @@
       <span>{{ __(emptyText) }}</span>
       <Button
         v-if="title == 'Calls'"
+        size="sm"
+        class="min-w-[90px] whitespace-nowrap"
         :label="__('Make a Call')"
         @click="makeCall(doc.data.mobile_no)"
       />
       <Button
         v-else-if="title == 'Notes'"
+        size="sm"
+        class="min-w-[90px] whitespace-nowrap"
         :label="__('Create Note')"
         @click="modalRef.showNote()"
       />
       <Button
         v-else-if="title == 'Emails'"
+        size="sm"
+        class="min-w-[90px] whitespace-nowrap"
         :label="__('New Email')"
         @click="emailBox.show = true"
       />
       <Button
         v-else-if="title == 'Comments'"
+        size="sm"
         :label="__('New Comment')"
         @click="emailBox.showComment = true"
       />
       <Button
         v-else-if="title == 'Tasks'"
+        size="sm"
         :label="__('Create Task')"
         @click="modalRef.showTask()"
       />
       <Button
         v-else-if="title == 'Attachments'"
+        size="sm"
         :label="__('Upload Attachment')"
         @click="showFilesUploader = true"
       />
@@ -512,12 +521,16 @@ const { getContact, getLeadContact } = contactsStore()
 const props = defineProps({
   doctype: {
     type: String,
-    default: 'CRM Lead',
+    required: true
   },
   tabs: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
+  doc: {
+    type: Object,
+    required: true
+  }
 })
 
 const route = useRoute()

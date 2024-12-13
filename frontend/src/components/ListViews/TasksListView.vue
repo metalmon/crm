@@ -137,6 +137,7 @@
       <template #actions="{ selections, unselectAll }">
         <Dropdown
           :options="listBulkActionsRef.bulkActions(selections, unselectAll)"
+          placement="bottom-end"
         >
           <Button icon="more-horizontal" variant="ghost" />
         </Dropdown>
@@ -175,11 +176,12 @@ import {
   ListHeaderItem,
   ListRows,
   ListRow,
-  ListSelectBanner,
   ListRowItem,
   ListFooter,
-  Dropdown,
   Tooltip,
+  Dropdown,
+  Button,
+  ListSelectBanner,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
