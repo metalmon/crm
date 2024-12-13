@@ -52,46 +52,50 @@ app.use(translationPlugin)
 // Make __ available globally
 window.__ = __
 
-// Wait for translations to be ready before initializing router
-await new Promise(resolve => {
-  if (translationsReady.value) {
-    resolve();
-  } else {
-    const unwatch = watch(translationsReady, (ready) => {
-      if (ready) {
-        unwatch();
-        resolve();
-      }
-    });
+async function initApp() {
+  // Wait for translations to be ready before initializing router
+  await new Promise(resolve => {
+    if (translationsReady.value) {
+      resolve();
+    } else {
+      const unwatch = watch(translationsReady, (ready) => {
+        if (ready) {
+          unwatch();
+          resolve();
+        }
+      });
+    }
+  });
+
+  app.use(router)
+  app.use(posthogPlugin)
+  for (let key in globalComponents) {
+    app.component(key, globalComponents[key])
   }
-});
 
-app.use(router)
-app.use(posthogPlugin)
-for (let key in globalComponents) {
-  app.component(key, globalComponents[key])
+  app.config.globalProperties.$dialog = createDialog
+
+  let socket
+  if (import.meta.env.DEV) {
+    frappeRequest({ url: '/api/method/crm.www.crm.get_context_for_dev' }).then(
+      (values) => {
+        for (let key in values) {
+          window[key] = values[key]
+        }
+        socket = initSocket()
+        app.config.globalProperties.$socket = socket
+        app.mount('#app')
+      },
+    )
+  } else {
+    socket = initSocket()
+    app.config.globalProperties.$socket = socket
+    app.mount('#app')
+  }
+
+  if (import.meta.env.DEV) {
+    window.$dialog = createDialog
+  }
 }
 
-app.config.globalProperties.$dialog = createDialog
-
-let socket
-if (import.meta.env.DEV) {
-  frappeRequest({ url: '/api/method/crm.www.crm.get_context_for_dev' }).then(
-    (values) => {
-      for (let key in values) {
-        window[key] = values[key]
-      }
-      socket = initSocket()
-      app.config.globalProperties.$socket = socket
-      app.mount('#app')
-    },
-  )
-} else {
-  socket = initSocket()
-  app.config.globalProperties.$socket = socket
-  app.mount('#app')
-}
-
-if (import.meta.env.DEV) {
-  window.$dialog = createDialog
-}
+initApp();
