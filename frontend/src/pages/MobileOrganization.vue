@@ -155,7 +155,7 @@
         >
           <div class="flex flex-col items-center justify-center space-y-3">
             <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
+            <div>{{ __(`No ${tab.label} Found`) }}</div>
           </div>
         </div>
       </template>

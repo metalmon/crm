@@ -161,13 +161,30 @@ const tabs = createResource({
         tab.sections = tab.sections.map(section => {
           if (section.fields) {
             section.fields = section.fields.map(field => {
-              if (field.name === 'country') {
-                return {
-                  ...field,
-                  placeholder: __('Select Country')
+              // Get translated field label
+              const translatedLabel = __(field.label || field.name.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+
+              // Determine placeholder verb based on field type
+              const getPlaceholderVerb = (fieldtype) => {
+                switch(fieldtype?.toLowerCase()) {
+                  case 'select':
+                  case 'link':
+                    return __('Select')
+                  case 'date':
+                  case 'datetime':
+                    return __('Set')
+                  default:
+                    return __('Enter')
                 }
               }
-              return field
+
+              const verb = getPlaceholderVerb(field.fieldtype)
+              return {
+                ...field,
+                placeholder: `${verb} ${translatedLabel}`,
+                mandatory: field.name === 'address_type' ? false : field.mandatory
+              }
             })
           }
           return section
@@ -225,7 +242,6 @@ const createAddress = createResource({
 
     // Get original country name from translation map
     const originalCountry = countryMap.data?.[_address.value.country] || _address.value.country
-    console.log('Saving address with country:', originalCountry)
 
     // Create default address title from city and address line 1
     const defaultTitle = _address.value.city ? 
@@ -273,8 +289,6 @@ watch(
     if (!value) return
     editMode.value = false
     
-    console.log('Modal opened, defaultCountry.data:', defaultCountry.data)
-    
     // Wait for both resources to load if needed
     if (!defaultCountry.data) {
       await defaultCountry.reload()
@@ -290,7 +304,6 @@ watch(
       
       // For new address, convert country code to full name and translate
       if (isNewAddress && defaultCountry.data) {
-        console.log('Country map data:', countryMap.data)
         const originalValue = countryMap.data?.[defaultCountry.data] || 
                             countryCodeMap[defaultCountry.data] || 
                             'Russian Federation'
@@ -300,28 +313,12 @@ watch(
         countryValue = __(doc.value.country)
       }
       
-      console.log('Setting country value:', {
-        isNewAddress,
-        existingCountry: doc.value.country,
-        defaultCountry: defaultCountry.data,
-        mappedCountry: countryMap.data?.[defaultCountry.data],
-        directMapped: countryCodeMap[defaultCountry.data],
-        finalValue: countryValue
-      })
-      
       _address.value = { 
         ...doc.value,
         country: countryValue || ''
       }
     })
   },
-)
-
-watch(
-  () => _address.value.country,
-  (newVal) => {
-    console.log('Country value changed:', newVal)
-  }
 )
 
 const showQuickEntryModal = ref(false)

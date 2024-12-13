@@ -261,9 +261,9 @@ const getPlaceholder = (field) => {
     return __(field.placeholder)
   }
   if (['Select', 'Link'].includes(field.type)) {
-    return __('Select {0}', [__(field.label)])
+    return `${__('Select')} ${__(field.label)}`
   } else {
-    return __('Enter {0}', [__(field.label)])
+    return `${__('Enter')} ${__(field.label)}`
   }
 }
 </script>

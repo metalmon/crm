@@ -18,6 +18,7 @@ def after_install(force=False):
 	add_email_template_custom_fields()
 	add_default_industries()
 	add_default_lead_sources()
+	add_default_task_statuses()
 	frappe.db.commit()
 
 
@@ -332,4 +333,44 @@ def add_default_lead_sources():
 
 		doc = frappe.new_doc("CRM Lead Source")
 		doc.source_name = source
+		doc.insert()
+
+
+def add_default_task_statuses():
+	task_statuses = [
+		{
+			"status": _("Backlog"),
+			"color": "gray",
+			"position": 1,
+		},
+		{
+			"status": _("Todo"),
+			"color": "blue",
+			"position": 2,
+		},
+		{
+			"status": _("In Progress"),
+			"color": "orange",
+			"position": 3,
+		},
+		{
+			"status": _("Done"),
+			"color": "green",
+			"position": 4,
+		},
+		{
+			"status": _("Canceled"),
+			"color": "red",
+			"position": 5,
+		},
+	]
+
+	for status in task_statuses:
+		if frappe.db.exists("CRM Task Status", status["status"]):
+			continue
+
+		doc = frappe.new_doc("CRM Task Status")
+		doc.status = status["status"]
+		doc.color = status["color"]
+		doc.position = status["position"]
 		doc.insert()

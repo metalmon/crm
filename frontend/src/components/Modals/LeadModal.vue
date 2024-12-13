@@ -78,6 +78,13 @@ const tabs = createResource({
             field.prefix = getLeadStatus(lead.status).iconColorClass
           } else if (field.name == 'lead_owner') {
             field.type = 'User'
+          } else if (field.name == 'gender') {
+            field.type = 'Select'
+            field.options = [
+              { label: __('Male'), value: 'Male' },
+              { label: __('Female'), value: 'Female' }
+            ]
+            field.placeholder = `${__('Select')} ${__(field.label)}`
           }
         })
       })

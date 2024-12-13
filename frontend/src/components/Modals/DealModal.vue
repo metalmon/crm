@@ -115,6 +115,13 @@ const tabs = createResource({
             field.prefix = getDealStatus(deal.status).iconColorClass
           } else if (field.name == 'deal_owner') {
             field.type = 'User'
+          } else if (field.name == 'gender') {
+            field.type = 'Select'
+            field.options = [
+              { label: __('Male'), value: 'Male' },
+              { label: __('Female'), value: 'Female' }
+            ]
+            field.placeholder = `${__('Select')} ${__(field.label)}`
           }
         })
       })

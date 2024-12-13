@@ -68,7 +68,7 @@
       class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
     >
       <ContactsIcon class="h-10 w-10" />
-      <span>{{ __('No {0} Found', [__('Contacts')]) }}</span>
+      <span>{{ __('No Contacts Found') }}</span>
       <Button :label="__('Create')" @click="showContactModal = true">
         <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
       </Button>
