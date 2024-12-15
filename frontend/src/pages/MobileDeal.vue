@@ -12,7 +12,7 @@
         <Dropdown :options="statusOptions('deal', updateField, customStatuses)">
           <template #default="{ open }">
             <Button
-              :label="deal.data.status"
+              :label="translateDealStatus(deal.data.status)"
               :class="getDealStatus(deal.data.status).colorClass"
             >
               <template #prefix>
@@ -106,102 +106,110 @@
                   @update="updateField"
                 />
                 <div v-else>
-                  <div
-                    v-if="
-                      dealContacts?.loading && dealContacts?.data?.length == 0
-                    "
-                    class="flex min-h-20 flex-1 items-center justify-center gap-3 text-base text-ink-gray-4"
-                  >
-                    <LoadingIndicator class="h-4 w-4" />
-                    <span>{{ __('Loading...') }}</span>
-                  </div>
-                  <div
-                    v-else-if="section.contacts.length"
-                    v-for="(contact, i) in section.contacts"
-                    :key="contact.name"
-                  >
+                  <div v-if="section.contacts">
                     <div
-                      class="px-2 pb-2.5"
-                      :class="[i == 0 ? 'pt-5' : 'pt-2.5']"
+                      v-if="dealContacts.loading"
+                      class="flex min-h-20 flex-1 items-center justify-center gap-3 text-base text-ink-gray-4"
                     >
-                      <Section :opened="contact.opened">
-                        <template #header="{ opened, toggle }">
-                          <div
-                            class="flex cursor-pointer items-center justify-between gap-2 pr-1 text-base leading-5 text-ink-gray-7"
-                          >
-                            <div
-                              class="flex h-7 items-center gap-2 truncate"
-                              @click="toggle()"
-                            >
-                              <Avatar
-                                :label="contact.full_name"
-                                :image="contact.image"
-                                size="md"
-                              />
-                              <div class="truncate">
-                                {{ contact.full_name }}
-                              </div>
-                              <Badge
-                                v-if="contact.is_primary"
-                                class="ml-2"
-                                variant="outline"
-                                :label="__('Primary')"
-                                theme="green"
-                              />
-                            </div>
-                            <div class="flex items-center">
-                              <Dropdown :options="contactOptions(contact)">
-                                <Button
-                                  icon="more-horizontal"
-                                  class="text-ink-gray-5"
-                                  variant="ghost"
-                                />
-                              </Dropdown>
-                              <Button
-                                variant="ghost"
-                                @click="
-                                  router.push({
-                                    name: 'Contact',
-                                    params: { contactId: contact.name },
-                                  })
-                                "
-                              >
-                                <ArrowUpRightIcon class="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" @click="toggle()">
-                                <FeatherIcon
-                                  name="chevron-right"
-                                  class="h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
-                                  :class="{ 'rotate-90': opened }"
-                                />
-                              </Button>
-                            </div>
-                          </div>
-                        </template>
-                        <div
-                          class="flex flex-col gap-1.5 text-base text-ink-gray-8"
-                        >
-                          <div class="flex items-center gap-3 pb-1.5 pl-1 pt-4">
-                            <Email2Icon class="h-4 w-4" />
-                            {{ contact.email }}
-                          </div>
-                          <div class="flex items-center gap-3 p-1 py-1.5">
-                            <PhoneIcon class="h-4 w-4" />
-                            {{ contact.mobile_no }}
-                          </div>
-                        </div>
-                      </Section>
+                      <LoadingIndicator class="h-4 w-4" />
+                      <span>{{ __('Loading...') }}</span>
                     </div>
                     <div
-                      v-if="i != section.contacts.length - 1"
-                      class="mx-2 h-px border-t border-outline-gray-modals"
-                    />
-                  </div>
-                  <div
-                    v-else
-                    class="flex h-20 items-center justify-center text-base text-ink-gray-5"
-                  >
-                    {{ __('No contacts added') }}
+                      v-else-if="dealContacts.error"
+                      class="flex min-h-20 flex-1 items-center justify-center gap-3 text-base text-ink-red-4"
+                    >
+                      {{ __('Error loading contacts') }}
+                    </div>
+                    <div v-else>
+                      <div
+                        v-if="section.contacts.length"
+                        v-for="(contact, i) in section.contacts"
+                        :key="contact.name"
+                      >
+                        <div
+                          class="px-2 pb-2.5"
+                          :class="[i == 0 ? 'pt-5' : 'pt-2.5']"
+                        >
+                          <Section :opened="contact.opened">
+                            <template #header="{ opened, toggle }">
+                              <div
+                                class="flex cursor-pointer items-center justify-between gap-2 pr-1 text-base leading-5 text-ink-gray-7"
+                              >
+                                <div
+                                  class="flex h-7 items-center gap-2 truncate"
+                                  @click="toggle()"
+                                >
+                                  <Avatar
+                                    :label="contact.full_name"
+                                    :image="contact.image"
+                                    size="md"
+                                  />
+                                  <div class="truncate">
+                                    {{ contact.full_name }}
+                                  </div>
+                                  <Badge
+                                    v-if="contact.is_primary"
+                                    class="ml-2"
+                                    variant="outline"
+                                    :label="__('Primary')"
+                                    theme="green"
+                                  />
+                                </div>
+                                <div class="flex items-center">
+                                  <Dropdown :options="contactOptions(contact)">
+                                    <Button
+                                      icon="more-horizontal"
+                                      class="text-ink-gray-5"
+                                      variant="ghost"
+                                    />
+                                  </Dropdown>
+                                  <Button
+                                    variant="ghost"
+                                    @click="
+                                      router.push({
+                                        name: 'Contact',
+                                        params: { contactId: contact.name },
+                                      })
+                                    "
+                                  >
+                                    <ArrowUpRightIcon class="h-4 w-4" />
+                                  </Button>
+                                  <Button variant="ghost" @click="toggle()">
+                                    <FeatherIcon
+                                      name="chevron-right"
+                                      class="h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
+                                      :class="{ 'rotate-90': opened }"
+                                    />
+                                  </Button>
+                                </div>
+                              </div>
+                            </template>
+                            <div
+                              class="flex flex-col gap-1.5 text-base text-ink-gray-8"
+                            >
+                              <div class="flex items-center gap-3 pb-1.5 pl-1 pt-4">
+                                <Email2Icon class="h-4 w-4" />
+                                {{ contact.email }}
+                              </div>
+                              <div class="flex items-center gap-3 p-1 py-1.5">
+                                <PhoneIcon class="h-4 w-4" />
+                                {{ contact.mobile_no }}
+                              </div>
+                            </div>
+                          </Section>
+                        </div>
+                        <div
+                          v-if="i != section.contacts.length - 1"
+                          class="mx-2 h-px border-t border-outline-gray-modals"
+                        />
+                      </div>
+                      <div
+                        v-else
+                        class="flex h-20 items-center justify-center text-base text-ink-gray-5"
+                      >
+                        {{ __('No contacts added') }}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Section>
@@ -342,11 +350,13 @@ import {
   Breadcrumbs,
   call,
 } from 'frappe-ui'
-import { ref, computed, h, onMounted } from 'vue'
+import { ref, computed, h, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { errorMessage, openWebsite } from '@/utils'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import { trackCommunication } from '@/utils/communicationUtils'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import { getParsedFields } from '@/utils/getParsedFields'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
@@ -480,7 +490,7 @@ const breadcrumbs = computed(() => {
   }
 
   items.push({
-    label: organization.data?.name || __('Untitled'),
+    label: deal.data?.organization || deal.data?.contact_person || __('Untitled'),
     route: { name: 'Deal', params: { dealId: deal.data.name } },
   })
   return items
@@ -544,108 +554,27 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
-const { tabIndex } = useActiveTabManager(tabs, 'lastDealTab')
+const { tabIndex } = useActiveTabManager(tabs, 'lastDealTab', 0)
 
 const fieldsLayout = createResource({
   url: 'crm.api.doc.get_sidebar_fields',
   cache: ['fieldsLayout', props.dealId],
   params: { doctype: 'CRM Deal', name: props.dealId },
   auto: true,
-  transform: (data) => getParsedFields(data),
-})
-
-function getParsedFields(sections) {
-  if (!sections?.[0]?.sections) return []
-  
-  const sectionList = sections[0].sections
-  sectionList.forEach((section) => {
-    if (section.name == 'contacts_section') return
-    
-    // Convert array of field names to array of field objects if needed
-    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
-      section.fields = section.fields.map(fieldName => {
-        // Try to get field metadata from both the API response and fields_meta
-        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
-                     (deal.data?.fields_meta && deal.data.fields_meta[fieldName]) || {}
-        
-        // Get translated field label
-        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
-        
-        // Determine placeholder verb based on field type
-        const getPlaceholderVerb = (fieldtype) => {
-          switch(fieldtype?.toLowerCase()) {
-            case 'select':
-            case 'link':
-              return __('Select')
-            case 'date':
-            case 'datetime':
-              return __('Set')
-            default:
-              return __('Enter')
-          }
-        }
-
-        // Base field data with translations
-        const fieldData = {
-          name: fieldName,
-          label: translatedLabel,
-          type: field.fieldtype || 'text',
-          all_properties: field || {},
-          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
-        }
-
-        // Handle field types that need special treatment
-        switch (field.fieldtype?.toLowerCase()) {
-          case 'select':
-            // Convert select fields to use Link component for better UX
-            fieldData.type = 'link'
-            if (field.options) {
-              fieldData.options = field.options.split('\n').map(option => ({
-                label: __(option),
-                value: option
-              }))
-              if (!fieldData.options.find(opt => opt.value === '')) {
-                fieldData.options.unshift({ label: '', value: '' })
-              }
-            }
-            break
-
-          case 'link':
-            fieldData.type = 'link'
-            fieldData.doctype = field.options
-            // Add create/link handlers if needed based on doctype
-            if (field.options === 'CRM Organization') {
-              fieldData.create = (value, close) => {
-                _organization.value = { organization_name: value }
-                showOrganizationModal.value = true
-                close()
-              }
-              fieldData.link = (org) =>
-                router.push({
-                  name: 'Organization',
-                  params: { organizationId: org },
-                })
-            }
-            break
-
-          case 'date':
-            fieldData.type = 'Date'
-            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            break
-
-          case 'datetime':
-            fieldData.type = 'Datetime'
-            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            break
-        }
-
-        return fieldData
+  transform: (data) => getParsedFields(data, 'CRM Deal', deal.data, {
+    organization: {
+      create: (value, close) => {
+        _organization.value = { organization_name: value }
+        showOrganizationModal.value = true
+        close()
+      },
+      link: (org) => router.push({
+        name: 'Organization',
+        params: { organizationId: org },
       })
     }
   })
-  return sectionList
-}
-
+})
 
 const showContactModal = ref(false)
 const _contact = ref({})
@@ -719,24 +648,37 @@ const dealContacts = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
   params: { name: props.dealId },
   cache: ['deal_contacts', props.dealId],
-  auto: true,
+  auto: false,
   onSuccess: (data) => {
-    let contactSection = fieldsLayout.data?.find(
+    if (!fieldsLayout.data) return
+    
+    let contactSection = fieldsLayout.data.find(
       (section) => section.name == 'contacts_section',
     )
     if (!contactSection) return
-    contactSection.contacts = data.map((contact) => {
-      return {
-        name: contact.name,
-        full_name: contact.full_name,
-        email: contact.email,
-        mobile_no: contact.mobile_no,
-        image: contact.image,
-        is_primary: contact.is_primary,
-        opened: false,
-      }
-    })
+    
+    contactSection.contacts = data.map((contact) => ({
+      name: contact.name,
+      full_name: contact.full_name,
+      email: contact.email,
+      mobile_no: contact.mobile_no,
+      image: contact.image,
+      is_primary: contact.is_primary,
+      opened: false,
+    }))
   },
+})
+
+watch(() => fieldsLayout.data, (newValue) => {
+  if (newValue && props.dealId) {
+    dealContacts.fetch()
+  }
+}, { immediate: true })
+
+watch(() => props.dealId, (newValue) => {
+  if (newValue && fieldsLayout.data) {
+    dealContacts.fetch()
+  }
 })
 
 function updateField(name, value, callback) {

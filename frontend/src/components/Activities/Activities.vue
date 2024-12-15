@@ -513,6 +513,8 @@ import {
 } from 'vue'
 import { useRoute } from 'vue-router'
 import { filterEmailActivities } from '@/utils/activity_filters'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 
 const { makeCall, $socket } = globalStore()
 const { getUser } = usersStore()
@@ -730,6 +732,19 @@ function update_activities_details(activity) {
     activity.type = 'changed'
     activity.value = 'from'
     activity.to = 'to'
+    
+    if (activity.data?.field_label === 'Status') {
+      if (activity.data.old_value) {
+        activity.data.old_value = props.doctype === 'CRM Deal' 
+          ? translateDealStatus(activity.data.old_value)
+          : translateLeadStatus(activity.data.old_value)
+      }
+      if (activity.data.value) {
+        activity.data.value = props.doctype === 'CRM Deal'
+          ? translateDealStatus(activity.data.value)
+          : translateLeadStatus(activity.data.value)
+      }
+    }
   }
 }
 

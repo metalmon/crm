@@ -1,6 +1,8 @@
 import './index.css'
 // Import custom scrollbar styles for dark theme
 import './styles/scrollbar.css'
+// Import dark mode styles
+import './styles/dark-mode.css'
 import './utils/dayjs'
 
 import { createApp, watch } from 'vue'
@@ -11,6 +13,7 @@ import router from './router'
 import translationPlugin, { translationsReady, __ } from './translation'
 import { posthogPlugin } from './telemetry'
 import App from './App.vue'
+import { setLocale } from './utils/translation'
 
 import {
   FrappeUI,
@@ -66,6 +69,10 @@ async function initApp() {
       });
     }
   });
+
+  // Initialize locale after translations are ready
+  const locale = window.frappe?.boot?.lang || window.navigator.language || 'en'
+  await setLocale(locale)
 
   app.use(router)
   app.use(posthogPlugin)

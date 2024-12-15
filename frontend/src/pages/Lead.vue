@@ -18,7 +18,7 @@
       <Dropdown :options="statusOptions('lead', updateField, customStatuses)">
         <template v-slot:default="{ open }">
           <Button
-            :label="lead.data.status"
+            :label="translateLeadStatus(lead.data.status)"
             :class="getLeadStatus(lead.data.status).colorClass"
           >
             <template #prefix>
@@ -405,10 +405,12 @@ import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
 import ContactModal from '@/components/Modals/ContactModal.vue'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import { getParsedFields } from '@/utils/getParsedFields'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { getContactByName, contacts } = contactsStore()
-const { statusOptions, getLeadStatus } = statusesStore()
+const { statusOptions, getLeadStatus, getStatusLabel } = statusesStore()
 const { isManager } = usersStore()
 const route = useRoute()
 const router = useRouter()
@@ -619,118 +621,8 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.leadId],
   params: { doctype: 'CRM Lead', name: props.leadId },
   auto: true,
-  transform: (data) => getParsedFields(data)
+  transform: (data) => getParsedFields(data, 'CRM Lead', lead.data)
 })
-
-function getParsedFields(sections) {
-  if (!sections?.[0]?.sections) return []
-  
-  const sectionList = sections[0].sections
-  sectionList.forEach((section) => {
-    // Convert array of field names to array of field objects if needed
-    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
-      section.fields = section.fields.map(fieldName => {
-        // Try to get field metadata from both the API response and fields_meta
-        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
-                     (lead.data?.fields_meta && lead.data.fields_meta[fieldName]) || {}
-        
-        // Get translated field label
-        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
-        
-        // Determine placeholder verb based on field type
-        const getPlaceholderVerb = (fieldtype) => {
-          switch(fieldtype?.toLowerCase()) {
-            case 'select':
-            case 'link':
-              return __('Select')
-            case 'date':
-            case 'datetime':
-              return __('Set')
-            default:
-              return __('Enter')
-          }
-        }
-
-        // Base field data with translations
-        const fieldData = {
-          name: fieldName,
-          label: translatedLabel,
-          type: field.fieldtype || 'text',
-          all_properties: field || {},
-          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
-        }
-
-        // Handle special case for source field
-        if (fieldName === 'source') {
-          return {
-            ...fieldData,
-            type: 'link',
-            doctype: 'CRM Lead Source',
-            placeholder: `${__('Select')} ${translatedLabel}`
-          }
-        }
-
-        // Handle special case for gender field
-        if (fieldName === 'gender') {
-          return {
-            ...fieldData,
-            type: 'select',
-            options: [
-              { label: __('Male'), value: 'Male' },
-              { label: __('Female'), value: 'Female' }
-            ],
-            placeholder: `${__('Select')} ${translatedLabel}`
-          }
-        }
-
-        // Handle field types that need special treatment
-        switch (field.fieldtype?.toLowerCase()) {
-          case 'select':
-            // Convert select fields to use Link component for better UX
-            fieldData.type = 'link'
-            if (field.options) {
-              fieldData.options = field.options.split('\n').map(option => ({
-                label: __(option),
-                value: option
-              }))
-              if (!fieldData.options.find(opt => opt.value === '')) {
-                fieldData.options.unshift({ label: '', value: '' })
-              }
-            }
-            break
-
-          case 'link':
-            fieldData.type = 'link'
-            fieldData.doctype = field.options
-            break
-
-          case 'date':
-            fieldData.type = 'Date'
-            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            break
-
-          case 'datetime':
-            fieldData.type = 'Datetime'
-            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            break
-        }
-
-        return fieldData
-      })
-    }
-
-    // Special handling for lead_owner field
-    section.fields?.forEach((field) => {
-      if (field.name == 'lead_owner') {
-        field.type = 'lead_owner'
-        field.filters = {
-          ignore_user_type: 1
-        }
-      }
-    })
-  })
-  return sectionList
-}
 
 function updateField(name, value, callback) {
   if (name === 'source') {

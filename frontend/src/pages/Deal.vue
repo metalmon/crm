@@ -18,7 +18,7 @@
       <Dropdown :options="statusOptions('deal', updateField, customStatuses)">
         <template #default="{ open }">
           <Button
-            :label="deal.data.status"
+            :label="translateDealStatus(deal.data.status)"
             :class="getDealStatus(deal.data.status).colorClass"
           >
             <template #prefix>
@@ -60,15 +60,15 @@
             <Avatar
               size="3xl"
               class="size-12"
-              :label="organization.data?.name || __('Untitled')"
+              :label="displayName"
               :image="organization.data?.organization_logo"
             />
           </div>
         </Tooltip>
         <div class="flex flex-col gap-2.5 truncate text-ink-gray-9">
-          <Tooltip :text="organization.data?.name || __('Set an organization')">
+          <Tooltip :text="displayName">
             <div class="truncate text-2xl font-medium">
-              {{ organization.data?.name || __('Untitled') }}
+              {{ displayName }}
             </div>
           </Tooltip>
           <div class="flex gap-1.5">
@@ -412,6 +412,8 @@ import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import { getParsedFields } from '@/utils/getParsedFields'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
@@ -544,6 +546,23 @@ function validateRequired(fieldname, value) {
   return false
 }
 
+const displayName = computed(() => {
+  if (!deal.data) return __('Loading...')
+  
+  if (organization.data?.name) {
+    return organization.data.name
+  }
+  
+  if (dealContacts.data) {
+    const primaryContact = dealContacts.data.find(c => c.is_primary)
+    if (primaryContact?.full_name) {
+      return primaryContact.full_name
+    }
+  }
+  
+  return __('Untitled')
+})
+
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Deals'), route: { name: 'Deals' } }]
 
@@ -563,17 +582,15 @@ const breadcrumbs = computed(() => {
   }
 
   items.push({
-    label: organization.data?.name || __('Untitled'),
+    label: displayName.value,
     route: { name: 'Deal', params: { dealId: deal.data.name } },
   })
   return items
 })
 
-usePageMeta(() => {
-  return {
-    title: organization.data?.name || deal.data?.name,
-  }
-})
+usePageMeta(() => ({
+  title: displayName.value,
+}))
 
 const tabs = computed(() => {
   let tabOptions = [
@@ -634,100 +651,20 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.dealId],
   params: { doctype: 'CRM Deal', name: props.dealId },
   auto: true,
-  transform: (data) => getParsedFields(data)
-})
-
-function getParsedFields(sections) {
-  if (!sections?.[0]?.sections) return []
-  
-  const sectionList = sections[0].sections
-  sectionList.forEach((section) => {
-    if (section.name == 'contacts_section') return
-    
-    // Convert array of field names to array of field objects if needed
-    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
-      section.fields = section.fields.map(fieldName => {
-        // Try to get field metadata from both the API response and fields_meta
-        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
-                     (deal.data?.fields_meta && deal.data.fields_meta[fieldName]) || {}
-        
-        // Get translated field label
-        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
-        
-        // Determine placeholder verb based on field type
-        const getPlaceholderVerb = (fieldtype) => {
-          switch(fieldtype?.toLowerCase()) {
-            case 'select':
-            case 'link':
-              return __('Select')
-            case 'date':
-            case 'datetime':
-              return __('Set')
-            default:
-              return __('Enter')
-          }
-        }
-
-        // Base field data with translations
-        const fieldData = {
-          name: fieldName,
-          label: translatedLabel,
-          type: field.fieldtype || 'text',
-          all_properties: field || {},
-          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
-        }
-
-        // Handle field types that need special treatment
-        switch (field.fieldtype?.toLowerCase()) {
-          case 'select':
-            // Convert select fields to use Link component for better UX
-            fieldData.type = 'link'
-            if (field.options) {
-              fieldData.options = field.options.split('\n').map(option => ({
-                label: __(option),
-                value: option
-              }))
-              if (!fieldData.options.find(opt => opt.value === '')) {
-                fieldData.options.unshift({ label: '', value: '' })
-              }
-            }
-            break
-
-          case 'link':
-            fieldData.type = 'link'
-            fieldData.doctype = field.options
-            // Add create/link handlers if needed based on doctype
-            if (field.options === 'CRM Organization') {
-              fieldData.create = (value, close) => {
-                _organization.value = { organization_name: value }
-                showOrganizationModal.value = true
-                close()
-              }
-              fieldData.link = (org) =>
-                router.push({
-                  name: 'Organization',
-                  params: { organizationId: org },
-                })
-            }
-            break
-
-          case 'date':
-            fieldData.type = 'Date'
-            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            break
-
-          case 'datetime':
-            fieldData.type = 'Datetime'
-            fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            break
-        }
-
-        return fieldData
+  transform: (data) => getParsedFields(data, 'CRM Deal', deal.data, {
+    organization: {
+      create: (value, close) => {
+        _organization.value = { organization_name: value }
+        showOrganizationModal.value = true
+        close()
+      },
+      link: (org) => router.push({
+        name: 'Organization',
+        params: { organizationId: org },
       })
     }
   })
-  return sectionList
-}
+})
 
 const showContactModal = ref(false)
 

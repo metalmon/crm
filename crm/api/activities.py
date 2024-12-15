@@ -38,11 +38,11 @@ def get_deal_activities(name):
 	notes = []
 	tasks = []
 	attachments = []
-	creation_text = "created this deal"
+	creation_text = _("created this deal")
 
 	if lead:
 		activities, calls, notes, tasks, attachments = get_lead_activities(lead)
-		creation_text = "converted the lead to this deal"
+		creation_text = _("converted the lead to this deal")
 
 	activities.append({
 		"activity_type": "creation",
@@ -178,7 +178,7 @@ def get_lead_activities(name):
 		"activity_type": "creation",
 		"creation": doc[0],
 		"owner": doc[1],
-		"data": "created this lead",
+		"data": _("created this lead"),
 		"is_lead": True,
 	}]
 

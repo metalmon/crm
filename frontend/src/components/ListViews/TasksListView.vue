@@ -53,10 +53,10 @@
         <ListRowItem v-else :item="item">
           <template #prefix>
             <div v-if="column.key === 'status'">
-              <TaskStatusIcon :status="item" />
+              <TaskStatusIcon :status="item.value" />
             </div>
             <div v-else-if="column.key === 'priority'">
-              <TaskPriorityIcon :priority="item" />
+              <TaskPriorityIcon :priority="item.value" />
             </div>
             <div v-else-if="column.key === 'assigned_to'">
               <Avatar

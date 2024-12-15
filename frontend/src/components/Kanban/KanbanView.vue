@@ -52,7 +52,7 @@
                   </div>
                 </template>
               </NestedPopover>
-              <div class="text-ink-gray-9">{{ column.column.name }}</div>
+              <div class="text-ink-gray-9">{{ __(column.column.name) }}</div>
             </div>
             <div class="flex">
               <Dropdown :options="actions(column)">
@@ -84,7 +84,7 @@
               <template #item="{ element: fields }">
                 <component
                   :is="options.getRoute ? 'router-link' : 'div'"
-                  class="pt-3 px-3.5 pb-2.5 rounded-lg border bg-surface-white text-base flex flex-col text-ink-gray-9"
+                  class="pt-3 px-3.5 pb-2.5 rounded-lg border bg-surface-white text-base flex flex-col text-ink-gray-9 shadow-sm hover:shadow-md transition-all duration-200 dark:bg-surface-gray-1 dark:border-surface-gray-3 hover:border-gray-300 dark:hover:border-surface-gray-4 dark:hover:bg-surface-gray-2 dark:hover:shadow-lg dark:hover:shadow-gray-900/30"
                   :data-name="fields.name"
                   v-bind="{
                     to: options.getRoute ? options.getRoute(fields) : undefined,

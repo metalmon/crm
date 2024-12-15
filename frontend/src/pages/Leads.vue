@@ -342,7 +342,7 @@ import { ref, computed, reactive, h, watch } from 'vue'
 
 const { makeCall } = globalStore()
 const { getUser } = usersStore()
-const { getLeadStatus } = statusesStore()
+const { getLeadStatus, getStatusLabel } = statusesStore()
 
 const route = useRoute()
 
@@ -474,7 +474,8 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(lead.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: lead.status,
+          label: getStatusLabel('lead', lead.status),
+          value: lead.status,
           color: getLeadStatus(lead.status)?.iconColorClass,
         }
       } else if (row == 'sla_status') {

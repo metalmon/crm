@@ -219,6 +219,7 @@ import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { getView } from '@/utils/view'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import {
   formatDate,
   timeAgo,
@@ -555,7 +556,7 @@ function getDealRowObject(deal) {
       deal.currency,
     ),
     status: {
-      label: deal.status,
+      label: translateDealStatus(deal.status),
       color: getDealStatus(deal.status)?.iconColorClass,
     },
     email: deal.email,

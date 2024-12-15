@@ -315,11 +315,12 @@ import { useRoute } from 'vue-router'
 import { ref, reactive, computed, h, watch } from 'vue'
 import SmartFilterField from '@/components/SmartFilterField.vue'
 import { isMobileView } from '@/composables/settings'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
 
 const { makeCall } = globalStore()
 const { getUser } = usersStore()
 const { getOrganization } = organizationsStore()
-const { getDealStatus } = statusesStore()
+const { getDealStatus, getStatusLabel } = statusesStore()
 
 const route = useRoute()
 
@@ -372,14 +373,84 @@ function handleSmartFilter(filters) {
   deals.value.reload();
 }
 
-function getRow(name, field) {
-  function getValue(value) {
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return value
+function getRow(itemName, row) {
+  let deal = deals.value?.data?.data?.find((d) => d.name === itemName)
+  if (!deal) return {}
+
+  let _rows = {}
+  Object.keys(deal).forEach((row) => {
+    if (row === 'status') {
+      _rows[row] = {
+        label: getStatusLabel('deal', deal[row]),
+        value: deal[row],
+        color: getDealStatus(deal[row])?.iconColorClass,
+      }
+    } else if (row === 'organization') {
+      let primaryContact = deal.contacts?.find(c => c.is_primary)
+      _rows[row] = {
+        label: deal.organization || (primaryContact?.full_name || __('Untitled')),
+        logo: deal.organization ? getOrganization(deal.organization)?.organization_logo : null,
+      }
+    } else if (row === 'website') {
+      _rows[row] = website(deal.website)
+    } else if (row === 'sla_status') {
+      let value = deal.sla_status
+      let tooltipText = value
+      let color =
+        deal.sla_status == 'Failed'
+          ? 'red'
+          : deal.sla_status == 'Fulfilled'
+            ? 'green'
+            : 'orange'
+      if (value == 'First Response Due') {
+        value = __(timeAgo(deal.response_by))
+        tooltipText = formatDate(deal.response_by)
+        if (new Date(deal.response_by) < new Date()) {
+          color = 'red'
+        }
+      }
+      _rows[row] = {
+        label: tooltipText,
+        value: value,
+        color: color,
+      }
+    } else if (row === 'deal_owner') {
+      _rows[row] = {
+        label: deal.deal_owner && getUser(deal.deal_owner).full_name,
+        ...(deal.deal_owner && getUser(deal.deal_owner)),
+      }
+    } else if (row === '_assign') {
+      let assignees = JSON.parse(deal._assign || '[]')
+      if (!assignees.length && deal.deal_owner) {
+        assignees = [deal.deal_owner]
+      }
+      _rows[row] = assignees.map((user) => ({
+        name: user,
+        image: getUser(user).user_image,
+        label: getUser(user).full_name,
+      }))
+    } else if (['modified', 'creation'].includes(row)) {
+      _rows[row] = {
+        label: formatDate(deal[row]),
+        timeAgo: __(timeAgo(deal[row])),
+      }
+    } else if (
+      ['first_response_time', 'first_responded_on', 'response_by'].includes(
+        row,
+      )
+    ) {
+      let field = row == 'response_by' ? 'response_by' : 'first_responded_on'
+      _rows[row] = {
+        label: deal[field] ? formatDate(deal[field]) : '',
+        timeAgo: deal[row]
+          ? row == 'first_response_time'
+            ? formatTime(deal[row])
+            : __(timeAgo(deal[row]))
+          : '',
+      }
     }
-    return { label: value }
-  }
-  return getValue(rows.value?.find((row) => row.name == name)[field])
+  })
+  return _rows[row] || {}
 }
 
 // Rows
@@ -471,7 +542,8 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(deal.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: deal.status,
+          label: getStatusLabel('deal', deal.status),
+          value: deal.status,
           color: getDealStatus(deal.status)?.iconColorClass,
         }
       } else if (row == 'sla_status') {

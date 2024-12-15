@@ -255,6 +255,7 @@ import { usersStore } from '@/stores/users.js'
 import { organizationsStore } from '@/stores/organizations.js'
 import { statusesStore } from '@/stores/statuses'
 import { callEnabled } from '@/composables/settings'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import {
   Breadcrumbs,
   Avatar,
@@ -697,7 +698,7 @@ async function updateField(fieldname, value) {
     value,
   })
   createToast({
-    title: 'Contact updated',
+    title: __('Contact updated'),
     icon: 'check',
     iconClasses: 'text-ink-green-3',
   })
@@ -719,7 +720,7 @@ function getDealRowObject(deal) {
       deal.currency,
     ),
     status: {
-      label: deal.status,
+      label: translateDealStatus(deal.status),
       color: getDealStatus(deal.status)?.iconColorClass,
     },
     email: deal.email,
