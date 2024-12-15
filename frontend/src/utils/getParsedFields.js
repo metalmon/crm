@@ -61,18 +61,18 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
           }
         }
 
-        // Handle common special cases
-        //if (fieldName === 'gender') {
-        //  return {
-        //    ...fieldData,
-        //    type: 'select',
-        //    options: [
-        //      { label: __('Male'), value: 'Male' },
-        //      { label: __('Female'), value: 'Female' }
-        //    ],
-        //    placeholder: `${__('Select')} ${translatedLabel}`
-        //  }
-        //}
+        // Handle gender field
+        if (fieldName === 'gender') {
+          return {
+            ...fieldData,
+            type: 'select',
+            options: [
+              { label: __('Male'), value: 'Male' },
+              { label: __('Female'), value: 'Female' }
+            ],
+            placeholder: `${__('Select')} ${translatedLabel}`
+          }
+        }
 
         // Handle field types that need special treatment
         switch (field.fieldtype?.toLowerCase()) {

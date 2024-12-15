@@ -84,13 +84,16 @@
                     :disabled="true"
                   />
                   <FormControl
-                    v-else-if="field.type === 'Select'"
+                    v-else-if="field.type === 'Select' || field.name === 'gender'"
                     type="select"
                     class="form-control"
                     :class="[
                       field.prefix || field.prefixFn ? 'prefix' : ''
                     ]"
-                    :options="field.options"
+                    :options="field.name === 'gender' ? [
+                      { label: __('Male'), value: 'Male' },
+                      { label: __('Female'), value: 'Female' }
+                    ] : field.options"
                     v-model="data[field.name]"
                     :placeholder="getPlaceholder(field)"
                   >
@@ -292,6 +295,40 @@ const getPlaceholder = (field) => {
   } else {
     return `${__('Enter')} ${__(field.label)}`
   }
+}
+
+function getFieldData(field) {
+  // Handle special case for gender field
+  if (field.fieldname === 'gender') {
+    return {
+      ...field,
+      type: 'select',
+      options: [
+        { label: __('Male'), value: 'Male' },
+        { label: __('Female'), value: 'Female' }
+      ],
+      placeholder: `${__('Select')} ${__(field.label)}`
+    }
+  }
+
+  // Handle field types that need special treatment
+  switch (field.fieldtype?.toLowerCase()) {
+    case 'select':
+      // Convert select fields to use Link component for better UX
+      field.type = 'link'
+      if (field.options) {
+        field.options = field.options.split('\n').map(option => ({
+          label: __(option),
+          value: option
+        }))
+        if (!field.options.find(opt => opt.value === '')) {
+          field.options.unshift({ label: '', value: '' })
+        }
+      }
+      break
+  }
+
+  return field
 }
 </script>
 

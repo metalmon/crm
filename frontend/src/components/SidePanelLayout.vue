@@ -287,6 +287,21 @@ const _fields = computed(() => {
   let all_fields = []
   props.fields?.forEach((field) => {
     let df = field?.all_properties
+
+    // Handle special case for gender field
+    if (field.name === 'gender') {
+      all_fields.push({
+        ...field,
+        type: 'select',
+        options: [
+          { label: __('Male'), value: 'Male' },
+          { label: __('Female'), value: 'Female' }
+        ],
+        placeholder: `${__('Select')} ${__(field.label)}`
+      })
+      return
+    }
+
     if (df?.depends_on) evaluate_depends_on(df.depends_on, field)
     all_fields.push({
       ...field,
