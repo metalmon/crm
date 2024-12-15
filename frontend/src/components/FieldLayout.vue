@@ -344,4 +344,12 @@ function getFieldData(field) {
 .section:has(.settings-field) {
   display: block;
 }
+
+:deep(:has(> .dropdown-button)) {
+  width: 100%;
+}
+
+:deep(.flex-col.overflow-y-auto) {
+  overflow: visible !important;
+}
 </style>
