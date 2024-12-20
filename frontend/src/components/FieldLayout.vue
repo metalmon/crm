@@ -297,39 +297,6 @@ const getPlaceholder = (field) => {
   }
 }
 
-function getFieldData(field) {
-  // Handle special case for gender field
-  if (field.fieldname === 'gender') {
-    return {
-      ...field,
-      type: 'select',
-      options: [
-        { label: __('Male'), value: 'Male' },
-        { label: __('Female'), value: 'Female' }
-      ],
-      placeholder: `${__('Select')} ${__(field.label)}`
-    }
-  }
-
-  // Handle field types that need special treatment
-  switch (field.fieldtype?.toLowerCase()) {
-    case 'select':
-      // Convert select fields to use Link component for better UX
-      field.type = 'link'
-      if (field.options) {
-        field.options = field.options.split('\n').map(option => ({
-          label: __(option),
-          value: option
-        }))
-        if (!field.options.find(opt => opt.value === '')) {
-          field.options.unshift({ label: '', value: '' })
-        }
-      }
-      break
-  }
-
-  return field
-}
 </script>
 
 <style scoped>

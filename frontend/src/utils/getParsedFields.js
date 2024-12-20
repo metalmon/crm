@@ -4,8 +4,13 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
   // Handle both array and object data structures
   let sectionList
   if (Array.isArray(data)) {
-    // Modal data structure
-    sectionList = data[0]?.sections || []
+    // Check if data is already the sections list
+    if (data[0]?.fields || data[0]?.contacts) {
+      sectionList = data
+    } else {
+      // Modal data structure
+      sectionList = data[0]?.sections || []
+    }
   } else {
     // Regular data structure
     sectionList = data?.sections?.[0]?.sections || []

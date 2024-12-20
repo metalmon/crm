@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2024-12-15 02:47+0000\n"
-"PO-Revision-Date: 2024-12-15 02:47+0000\n"
+"POT-Creation-Date: 2024-12-20 14:57+0000\n"
+"PO-Revision-Date: 2024-12-20 14:57+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -107,15 +107,15 @@ msgstr ""
 msgid "A Lead requires either a person's name or an organization's name"
 msgstr ""
 
-#. Label of a Data field in DocType 'ERPNext CRM Settings'
-#. Label of a Data field in DocType 'Twilio Settings'
+#. Label of the api_key (Data) field in DocType 'ERPNext CRM Settings'
+#. Label of the api_key (Data) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "API Key"
 msgstr ""
 
-#. Label of a Password field in DocType 'ERPNext CRM Settings'
-#. Label of a Password field in DocType 'Twilio Settings'
+#. Label of the api_secret (Password) field in DocType 'ERPNext CRM Settings'
+#. Label of the api_secret (Password) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "API Secret"
@@ -134,18 +134,14 @@ msgstr ""
 msgid "Accepted"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Invitation'
+#. Label of the accepted_at (Datetime) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 msgid "Accepted At"
 msgstr ""
 
-#. Label of a Data field in DocType 'Twilio Settings'
+#. Label of the account_sid (Data) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "Account SID"
-msgstr ""
-
-#: crm/install.py:254
-msgid "Accounting"
 msgstr ""
 
 #: frontend/src/components/CustomActions.vue:73
@@ -153,7 +149,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:599 frontend/src/pages/Lead.vue:550
+#: frontend/src/pages/Deal.vue:604 frontend/src/pages/Lead.vue:550
 #: frontend/src/pages/MobileDeal.vue:509 frontend/src/pages/MobileLead.vue:419
 msgid "Activity"
 msgstr ""
@@ -161,6 +157,10 @@ msgstr ""
 #: frontend/src/components/ColumnSettings.vue:63
 #: frontend/src/components/Kanban/KanbanView.vue:160
 msgid "Add Column"
+msgstr ""
+
+#: frontend/src/pages/Contact.vue:461 frontend/src/pages/Contact.vue:466
+msgid "Add Email Address..."
 msgstr ""
 
 #: frontend/src/components/FieldLayoutEditor.vue:156
@@ -171,6 +171,10 @@ msgstr ""
 
 #: frontend/src/components/Filter.vue:138
 msgid "Add Filter"
+msgstr ""
+
+#: frontend/src/pages/Contact.vue:514 frontend/src/pages/Contact.vue:519
+msgid "Add Mobile No..."
 msgstr ""
 
 #: frontend/src/components/FieldLayoutEditor.vue:180
@@ -186,7 +190,8 @@ msgstr ""
 msgid "Add Tab"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Holiday List'
+#. Label of the add_weekly_holidays_section (Section Break) field in DocType
+#. 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Add Weekly Holidays"
 msgstr ""
@@ -195,12 +200,12 @@ msgstr ""
 msgid "Add column"
 msgstr ""
 
-#. Label of a Button field in DocType 'CRM Holiday List'
+#. Label of the add_to_holidays (Button) field in DocType 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Add to Holidays"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Organization'
+#. Label of the address (Link) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 msgid "Address"
 msgstr ""
@@ -209,37 +214,17 @@ msgstr ""
 msgid "Address Line 1 is mandatory"
 msgstr ""
 
-#: crm/install.py:320
-msgid "Advertisement"
-msgstr ""
-
-#: crm/install.py:255
-msgid "Advertising"
-msgstr ""
-
-#: crm/install.py:256
-msgid "Aerospace"
-msgstr ""
-
 #: crm/integrations/twilio/twilio_handler.py:148
 msgid "Agent is unavailable to take the call, please call after some time."
-msgstr ""
-
-#: crm/install.py:257
-msgid "Agriculture"
-msgstr ""
-
-#: crm/install.py:258
-msgid "Airline"
 msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:175
 msgid "All Views"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:745 frontend/src/pages/MobileContact.vue:718
+#: frontend/src/pages/Contact.vue:637 frontend/src/pages/MobileContact.vue:718
 #: frontend/src/pages/MobileOrganization.vue:555
-#: frontend/src/pages/Organization.vue:602
+#: frontend/src/pages/Organization.vue:603
 msgid "Amount"
 msgstr ""
 
@@ -247,9 +232,9 @@ msgstr ""
 msgid "And"
 msgstr ""
 
-#. Label of a Currency field in DocType 'CRM Deal'
-#. Label of a Currency field in DocType 'CRM Lead'
-#. Label of a Currency field in DocType 'CRM Organization'
+#. Label of the annual_revenue (Currency) field in DocType 'CRM Deal'
+#. Label of the annual_revenue (Currency) field in DocType 'CRM Lead'
+#. Label of the annual_revenue (Currency) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
@@ -261,21 +246,17 @@ msgstr ""
 msgid "Annual Revenue should be a number"
 msgstr ""
 
-#: crm/install.py:259
-msgid "Apparel & Accessories"
-msgstr ""
-
 #: frontend/src/components/Kanban/KanbanSettings.vue:107
 #: frontend/src/components/Kanban/KanbanView.vue:48
 msgid "Apply"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Service Level Agreement'
+#. Label of the apply_on (Link) field in DocType 'CRM Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Apply On"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Form Script'
+#. Label of the view (Select) field in DocType 'CRM Form Script'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 msgid "Apply To"
 msgstr ""
@@ -288,12 +269,12 @@ msgstr ""
 msgid "Are you sure you want to delete this attachment?"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:362 frontend/src/pages/MobileContact.vue:330
+#: frontend/src/pages/Contact.vue:364 frontend/src/pages/MobileContact.vue:330
 msgid "Are you sure you want to delete this contact?"
 msgstr ""
 
 #: frontend/src/pages/MobileOrganization.vue:317
-#: frontend/src/pages/Organization.vue:355
+#: frontend/src/pages/Organization.vue:356
 msgid "Are you sure you want to delete this organization?"
 msgstr ""
 
@@ -310,7 +291,7 @@ msgstr ""
 msgid "Assign To"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Task'
+#. Label of the assigned_to (Link) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 msgid "Assigned To"
 msgstr ""
@@ -338,18 +319,14 @@ msgstr ""
 msgid "Attach a file"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:635 frontend/src/pages/Lead.vue:586
+#: frontend/src/pages/Deal.vue:640 frontend/src/pages/Lead.vue:586
 #: frontend/src/pages/MobileDeal.vue:545 frontend/src/pages/MobileLead.vue:455
 msgid "Attachments"
 msgstr ""
 
-#. Label of a Password field in DocType 'Twilio Settings'
+#. Label of the auth_token (Password) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "Auth Token"
-msgstr ""
-
-#: crm/install.py:260
-msgid "Automotive"
 msgstr ""
 
 #: frontend/src/components/Activities/EmailArea.vue:72
@@ -368,37 +345,17 @@ msgid "Back to file upload"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
-#: crm/fcrm/doctype/crm_task/crm_task.json crm/install.py:342
+#: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/utils/taskStatusTranslations.js:6
 msgid "Backlog"
-msgstr ""
-
-#: crm/install.py:261
-msgid "Banking"
 msgstr ""
 
 #: frontend/src/components/Filter.vue:354
 msgid "Between"
 msgstr ""
 
-#: crm/install.py:278
-msgid "Beverage & Tobacco"
-msgstr ""
-
 #: frontend/src/components/UserDropdown.vue:105
 msgid "Billing"
-msgstr ""
-
-#: crm/install.py:262
-msgid "Biotechnology"
-msgstr ""
-
-#: crm/install.py:263
-msgid "Broadcasting"
-msgstr ""
-
-#: crm/install.py:264
-msgid "Brokerage"
 msgstr ""
 
 #: frontend/src/components/Modals/EditValueModal.vue:2
@@ -421,9 +378,7 @@ msgid "CRM"
 msgstr ""
 
 #. Name of a DocType
-#. Linked DocType in FCRM Note's connections
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
-#: crm/fcrm/doctype/fcrm_note/fcrm_note.json
 msgid "CRM Call Log"
 msgstr ""
 
@@ -554,7 +509,7 @@ msgstr ""
 msgid "Call Details"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Call Log'
+#. Label of the receiver (Link) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "Call Received By"
 msgstr ""
@@ -572,7 +527,7 @@ msgstr ""
 msgid "Call with John Doe"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Call Log'
+#. Label of the caller (Link) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "Caller"
 msgstr ""
@@ -581,17 +536,13 @@ msgstr ""
 msgid "Calling..."
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:619 frontend/src/pages/Lead.vue:570
+#: frontend/src/pages/Deal.vue:624 frontend/src/pages/Lead.vue:570
 #: frontend/src/pages/MobileDeal.vue:529 frontend/src/pages/MobileLead.vue:439
 msgid "Calls"
 msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploaderArea.vue:51
 msgid "Camera"
-msgstr ""
-
-#: crm/install.py:326
-msgid "Campaign"
 msgstr ""
 
 #: frontend/src/components/CallUI.vue:76
@@ -605,7 +556,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'CRM Call Log'
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
-#: crm/fcrm/doctype/crm_task/crm_task.json crm/install.py:362
+#: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/utils/taskStatusTranslations.js:10
 msgid "Canceled"
 msgstr ""
@@ -632,10 +583,6 @@ msgstr ""
 
 #: frontend/src/utils/communicationUtils.js:54
 msgid "Chat initiated with {0}"
-msgstr ""
-
-#: crm/install.py:265
-msgid "Chemical"
 msgstr ""
 
 #: frontend/src/pages/Lead.vue:274 frontend/src/pages/Lead.vue:301
@@ -665,7 +612,7 @@ msgstr ""
 msgid "Clear Sort"
 msgstr ""
 
-#. Label of a Button field in DocType 'CRM Holiday List'
+#. Label of the clear_table (Button) field in DocType 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Clear Table"
 msgstr ""
@@ -678,13 +625,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#. Label of a Date field in DocType 'CRM Deal'
+#. Label of the close_date (Date) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Close Date"
-msgstr ""
-
-#: crm/install.py:321
-msgid "Cold Calling"
 msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:77
@@ -695,39 +638,39 @@ msgstr ""
 msgid "Collapsible"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Deal Status'
-#. Label of a Select field in DocType 'CRM Lead Status'
+#. Label of the color (Select) field in DocType 'CRM Deal Status'
+#. Label of the color (Select) field in DocType 'CRM Lead Status'
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "Color"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM View Settings'
+#. Label of the column_field (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/Kanban/KanbanSettings.vue:15
 msgid "Column Field"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM View Settings'
+#. Label of the columns (Code) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/ColumnSettings.vue:4
 msgid "Columns"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Notification'
+#. Label of the comment (Link) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: frontend/src/components/CommentBox.vue:80
 #: frontend/src/components/CommunicationArea.vue:17
 msgid "Comment"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:609 frontend/src/pages/Lead.vue:560
+#: frontend/src/pages/Deal.vue:614 frontend/src/pages/Lead.vue:560
 #: frontend/src/pages/MobileDeal.vue:519 frontend/src/pages/MobileLead.vue:429
 msgid "Comments"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Lead'
+#. Label of the communication_status (Link) field in DocType 'CRM Deal'
+#. Label of the communication_status (Link) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Communication Status"
@@ -738,7 +681,7 @@ msgstr ""
 msgid "Communication Statuses"
 msgstr ""
 
-#. Label of a Data field in DocType 'ERPNext CRM Settings'
+#. Label of the erpnext_company (Data) field in DocType 'ERPNext CRM Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 msgid "Company in ERPNext Site"
 msgstr ""
@@ -749,25 +692,17 @@ msgid "Completed"
 msgstr ""
 
 #. Option for the 'Device' (Select) field in DocType 'Twilio Agents'
-#: crm/fcrm/doctype/twilio_agents/twilio_agents.json crm/install.py:266
+#: crm/fcrm/doctype/twilio_agents/twilio_agents.json
 msgid "Computer"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM Service Level Agreement'
+#. Label of the condition (Code) field in DocType 'CRM Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Condition"
 msgstr ""
 
-#: crm/install.py:267
-msgid "Consulting"
-msgstr ""
-
-#: crm/install.py:268
-msgid "Consumer Products"
-msgstr ""
-
-#. Label of a Link field in DocType 'CRM Contacts'
-#. Label of a Link field in DocType 'CRM Deal'
+#. Label of the contact (Link) field in DocType 'CRM Contacts'
+#. Label of the contact (Link) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json frontend/src/pages/Lead.vue:297
 #: frontend/src/pages/MobileLead.vue:211
@@ -778,8 +713,8 @@ msgstr ""
 msgid "Contact Already Exists"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:638 frontend/src/pages/Contact.vue:655
-#: frontend/src/pages/Contact.vue:669 frontend/src/pages/Contact.vue:685
+#: frontend/src/pages/Contact.vue:691 frontend/src/pages/Contact.vue:708
+#: frontend/src/pages/Contact.vue:722 frontend/src/pages/Contact.vue:738
 #: frontend/src/pages/MobileContact.vue:613
 #: frontend/src/pages/MobileContact.vue:631
 #: frontend/src/pages/MobileContact.vue:645
@@ -791,7 +726,7 @@ msgstr ""
 msgid "Contact Us"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:699 frontend/src/pages/Lead.vue:760
+#: frontend/src/pages/Deal.vue:709 frontend/src/pages/Lead.vue:760
 #: frontend/src/pages/MobileDeal.vue:610
 msgid "Contact added"
 msgstr ""
@@ -804,11 +739,11 @@ msgstr ""
 msgid "Contact not found"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:714 frontend/src/pages/MobileDeal.vue:625
+#: frontend/src/pages/Deal.vue:724 frontend/src/pages/MobileDeal.vue:625
 msgid "Contact removed"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:700
+#: frontend/src/pages/Contact.vue:592
 msgid "Contact updated"
 msgstr ""
 
@@ -816,17 +751,17 @@ msgstr ""
 msgid "Contacted"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM Deal'
-#. Label of a Table field in DocType 'CRM Deal'
+#. Label of the contacts_tab (Tab Break) field in DocType 'CRM Deal'
+#. Label of the contacts (Table) field in DocType 'CRM Deal'
 #. Label of a shortcut in the Frappe CRM Workspace
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
-#: frontend/src/pages/Contact.vue:312 frontend/src/pages/MobileContact.vue:280
+#: frontend/src/pages/Contact.vue:314 frontend/src/pages/MobileContact.vue:280
 #: frontend/src/pages/MobileOrganization.vue:434
 msgid "Contacts"
 msgstr ""
 
-#. Label of a Text Editor field in DocType 'FCRM Note'
+#. Label of the content (Text Editor) field in DocType 'FCRM Note'
 #: crm/fcrm/doctype/fcrm_note/fcrm_note.json
 #: frontend/src/components/Modals/EmailTemplateModal.vue:61
 #: frontend/src/components/Modals/EmailTemplateModal.vue:74
@@ -851,17 +786,13 @@ msgstr ""
 msgid "Convert to Deal"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Lead'
+#. Label of the converted (Check) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Converted"
 msgstr ""
 
 #: frontend/src/components/ListBulkActions.vue:79
 msgid "Converted successfully"
-msgstr ""
-
-#: crm/install.py:269
-msgid "Cosmetics"
 msgstr ""
 
 #: frontend/src/components/Modals/AddressModal.vue:143
@@ -918,7 +849,8 @@ msgstr ""
 msgid "Create View"
 msgstr ""
 
-#. Label of a Check field in DocType 'ERPNext CRM Settings'
+#. Label of the create_customer_on_status_change (Check) field in DocType
+#. 'ERPNext CRM Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 msgid "Create customer on status change"
 msgstr ""
@@ -927,23 +859,19 @@ msgstr ""
 msgid "Create lead"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Organization'
+#. Label of the currency (Link) field in DocType 'CRM Deal'
+#. Label of the currency (Link) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 msgid "Currency"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:476
+#: frontend/src/pages/Deal.vue:479
 msgid "Customer created successfully"
 msgstr ""
 
-#: crm/install.py:325
-msgid "Customer's Vendor"
-msgstr ""
-
 #: frontend/src/components/Activities/DataFields.vue:6
-#: frontend/src/pages/Deal.vue:614 frontend/src/pages/Lead.vue:565
+#: frontend/src/pages/Deal.vue:619 frontend/src/pages/Lead.vue:565
 #: frontend/src/pages/MobileDeal.vue:524 frontend/src/pages/MobileLead.vue:434
 msgid "Data"
 msgstr ""
@@ -957,7 +885,7 @@ msgstr ""
 msgid "Data Updated"
 msgstr ""
 
-#. Label of a Date field in DocType 'CRM Holiday'
+#. Label of the date (Date) field in DocType 'CRM Holiday'
 #: crm/fcrm/doctype/crm_holiday/crm_holiday.json
 msgid "Date"
 msgstr ""
@@ -966,12 +894,12 @@ msgstr ""
 msgid "Deal"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
+#. Label of the deal_owner (Link) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Deal Owner"
 msgstr ""
 
-#. Label of a Link field in DocType 'ERPNext CRM Settings'
+#. Label of the deal_status (Link) field in DocType 'ERPNext CRM Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 msgid "Deal Status"
 msgstr ""
@@ -981,19 +909,19 @@ msgstr ""
 msgid "Deal Statuses"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:765 frontend/src/pages/MobileContact.vue:738
+#: frontend/src/pages/Contact.vue:657 frontend/src/pages/MobileContact.vue:738
 #: frontend/src/pages/MobileOrganization.vue:575
-#: frontend/src/pages/Organization.vue:622
+#: frontend/src/pages/Organization.vue:623
 msgid "Deal owner"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:518 frontend/src/pages/MobileDeal.vue:443
+#: frontend/src/pages/Deal.vue:523 frontend/src/pages/MobileDeal.vue:443
 msgid "Deal updated"
 msgstr ""
 
 #. Label of a shortcut in the Frappe CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
-#: frontend/src/pages/Deal.vue:567 frontend/src/pages/MobileContact.vue:358
+#: frontend/src/pages/Deal.vue:572 frontend/src/pages/MobileContact.vue:358
 #: frontend/src/pages/MobileDeal.vue:475
 #: frontend/src/pages/MobileOrganization.vue:428
 msgid "Deals"
@@ -1003,12 +931,13 @@ msgstr ""
 msgid "Dear {{ lead_name }}, \\n\\nThis is a reminder for the payment of {{ grand_total }}. \\n\\nThanks, \\nFrappé"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Service Level Agreement'
+#. Label of the default (Check) field in DocType 'CRM Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Default"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Service Level Priority'
+#. Label of the default_priority (Check) field in DocType 'CRM Service Level
+#. Priority'
 #: crm/fcrm/doctype/crm_service_level_priority/crm_service_level_priority.json
 msgid "Default Priority"
 msgstr ""
@@ -1027,10 +956,6 @@ msgstr ""
 msgid "Default statuses, custom fields and layouts restored successfully."
 msgstr ""
 
-#: crm/install.py:270
-msgid "Defense"
-msgstr ""
-
 #: frontend/src/components/Activities/AttachmentArea.vue:131
 #: frontend/src/components/Activities/NoteArea.vue:12
 #: frontend/src/components/Activities/TaskArea.vue:53
@@ -1042,12 +967,12 @@ msgstr ""
 #: frontend/src/components/ViewControls.vue:943
 #: frontend/src/components/ViewControls.vue:954
 #: frontend/src/pages/Contact.vue:131 frontend/src/pages/Contact.vue:141
-#: frontend/src/pages/Contact.vue:365 frontend/src/pages/MobileContact.vue:107
+#: frontend/src/pages/Contact.vue:367 frontend/src/pages/MobileContact.vue:107
 #: frontend/src/pages/MobileContact.vue:333
 #: frontend/src/pages/MobileOrganization.vue:72
 #: frontend/src/pages/MobileOrganization.vue:320
 #: frontend/src/pages/Notes.vue:40 frontend/src/pages/Organization.vue:83
-#: frontend/src/pages/Organization.vue:358 frontend/src/pages/Tasks.vue:361
+#: frontend/src/pages/Organization.vue:359 frontend/src/pages/Tasks.vue:361
 msgid "Delete"
 msgstr ""
 
@@ -1069,12 +994,12 @@ msgstr ""
 msgid "Delete attachment"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:361 frontend/src/pages/MobileContact.vue:329
+#: frontend/src/pages/Contact.vue:363 frontend/src/pages/MobileContact.vue:329
 msgid "Delete contact"
 msgstr ""
 
 #: frontend/src/pages/MobileOrganization.vue:316
-#: frontend/src/pages/Organization.vue:354
+#: frontend/src/pages/Organization.vue:355
 msgid "Delete organization"
 msgstr ""
 
@@ -1086,12 +1011,8 @@ msgstr ""
 msgid "Demo/Making"
 msgstr ""
 
-#: crm/install.py:271
-msgid "Department Stores"
-msgstr ""
-
-#. Label of a Text Editor field in DocType 'CRM Holiday'
-#. Label of a Text Editor field in DocType 'CRM Task'
+#. Label of the description (Text Editor) field in DocType 'CRM Holiday'
+#. Label of the description (Text Editor) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_holiday/crm_holiday.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/components/Modals/TaskModal.vue:48
@@ -1102,8 +1023,8 @@ msgstr ""
 msgid "Desk"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM Lead'
-#. Label of a Text Editor field in DocType 'CRM Lead Source'
+#. Label of the details (Tab Break) field in DocType 'CRM Lead'
+#. Label of the details (Text Editor) field in DocType 'CRM Lead Source'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_lead_source/crm_lead_source.json
 #: frontend/src/pages/MobileContact.vue:353
@@ -1112,7 +1033,7 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
-#. Label of a Select field in DocType 'Twilio Agents'
+#. Label of the call_receiving_device (Select) field in DocType 'Twilio Agents'
 #: crm/fcrm/doctype/twilio_agents/twilio_agents.json
 #: frontend/src/components/FilesUploader/FilesUploaderArea.vue:39
 msgid "Device"
@@ -1127,8 +1048,8 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Form Script'
-#. Label of a Link field in DocType 'CRM View Settings'
+#. Label of the dt (Link) field in DocType 'CRM Form Script'
+#. Label of the dt (Link) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "DocType"
@@ -1142,7 +1063,7 @@ msgstr ""
 msgid "Doctype"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Fields Layout'
+#. Label of the dt (Link) field in DocType 'CRM Fields Layout'
 #: crm/fcrm/doctype/crm_fields_layout/crm_fields_layout.json
 msgid "Document Type"
 msgstr ""
@@ -1152,7 +1073,7 @@ msgid "Document not found"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
-#: crm/fcrm/doctype/crm_task/crm_task.json crm/install.py:357
+#: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/utils/taskStatusTranslations.js:9
 msgid "Done"
 msgstr ""
@@ -1170,7 +1091,7 @@ msgstr ""
 msgid "Drop files here"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Task'
+#. Label of the due_date (Datetime) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 msgid "Due Date"
 msgstr ""
@@ -1184,8 +1105,8 @@ msgstr ""
 msgid "Duplicate View"
 msgstr ""
 
-#. Label of a Duration field in DocType 'CRM Call Log'
-#. Label of a Duration field in DocType 'CRM Status Change Log'
+#. Label of the duration (Duration) field in DocType 'CRM Call Log'
+#. Label of the duration (Duration) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 msgid "Duration"
@@ -1208,7 +1129,7 @@ msgstr ""
 msgid "ERPNext Settings updated"
 msgstr ""
 
-#. Label of a Data field in DocType 'ERPNext CRM Settings'
+#. Label of the erpnext_site_url (Data) field in DocType 'ERPNext CRM Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 msgid "ERPNext Site URL"
 msgstr ""
@@ -1222,7 +1143,7 @@ msgstr ""
 msgid "ERPNext is not integrated with the CRM"
 msgstr ""
 
-#: frontend/src/components/FieldLayout.vue:154
+#: frontend/src/components/FieldLayout.vue:157
 #: frontend/src/components/FieldLayoutEditor.vue:252
 #: frontend/src/components/FieldLayoutEditor.vue:274
 #: frontend/src/components/ListBulkActions.vue:179
@@ -1266,31 +1187,23 @@ msgstr ""
 msgid "Edit profile"
 msgstr ""
 
-#: crm/install.py:272
-msgid "Education"
-msgstr ""
-
-#: crm/install.py:273
-msgid "Electronics"
-msgstr ""
-
-#. Label of a Data field in DocType 'CRM Contacts'
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Invitation'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the email (Data) field in DocType 'CRM Contacts'
+#. Label of the email (Data) field in DocType 'CRM Deal'
+#. Label of the email (Data) field in DocType 'CRM Invitation'
+#. Label of the email (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
-#: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:457
-#: frontend/src/pages/Contact.vue:755 frontend/src/pages/MobileContact.vue:728
+#: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:647
+#: frontend/src/pages/MobileContact.vue:728
 #: frontend/src/pages/MobileOrganization.vue:565
 #: frontend/src/pages/MobileOrganization.vue:593
-#: frontend/src/pages/Organization.vue:612
-#: frontend/src/pages/Organization.vue:640
+#: frontend/src/pages/Organization.vue:613
+#: frontend/src/pages/Organization.vue:641
 msgid "Email"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Invitation'
+#. Label of the email_sent_at (Datetime) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 msgid "Email Sent At"
 msgstr ""
@@ -1303,7 +1216,7 @@ msgstr ""
 msgid "Email from Lead"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:604 frontend/src/pages/Lead.vue:555
+#: frontend/src/pages/Deal.vue:609 frontend/src/pages/Lead.vue:555
 #: frontend/src/pages/MobileDeal.vue:514 frontend/src/pages/MobileLead.vue:424
 msgid "Emails"
 msgstr ""
@@ -1324,10 +1237,10 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Form Script'
-#. Label of a Check field in DocType 'CRM Service Level Agreement'
-#. Label of a Check field in DocType 'ERPNext CRM Settings'
-#. Label of a Check field in DocType 'Twilio Settings'
+#. Label of the enabled (Check) field in DocType 'CRM Form Script'
+#. Label of the enabled (Check) field in DocType 'CRM Service Level Agreement'
+#. Label of the enabled (Check) field in DocType 'ERPNext CRM Settings'
+#. Label of the enabled (Check) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
@@ -1336,38 +1249,29 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#. Label of a Date field in DocType 'CRM Service Level Agreement'
+#. Label of the end_date (Date) field in DocType 'CRM Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "End Date"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Call Log'
-#. Label of a Time field in DocType 'CRM Service Day'
+#. Label of the end_time (Datetime) field in DocType 'CRM Call Log'
+#. Label of the end_time (Time) field in DocType 'CRM Service Day'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_service_day/crm_service_day.json
 msgid "End Time"
 msgstr ""
 
-#: crm/install.py:274
-msgid "Energy"
-msgstr ""
-
-#: frontend/src/components/FieldLayout.vue:293
+#: frontend/src/components/FieldLayout.vue:296
 #: frontend/src/components/Modals/AddressModal.vue:178
-#: frontend/src/pages/Contact.vue:438 frontend/src/pages/Contact.vue:466
-#: frontend/src/pages/Contact.vue:532 frontend/src/pages/MobileContact.vue:406
+#: frontend/src/pages/Contact.vue:574 frontend/src/pages/MobileContact.vue:406
 #: frontend/src/pages/MobileContact.vue:435
 #: frontend/src/pages/MobileContact.vue:497
 #: frontend/src/pages/MobileContact.vue:594
 #: frontend/src/pages/MobileOrganization.vue:411
-#: frontend/src/pages/Organization.vue:452
-#: frontend/src/pages/Organization.vue:469
-#: frontend/src/utils/getParsedFields.js:40
+#: frontend/src/pages/Organization.vue:453
+#: frontend/src/pages/Organization.vue:470
+#: frontend/src/utils/getParsedFields.js:45
 msgid "Enter"
-msgstr ""
-
-#: crm/install.py:275
-msgid "Entertainment & Leisure, Executive Search"
 msgstr ""
 
 #: frontend/src/components/Filter.vue:67 frontend/src/components/Filter.vue:100
@@ -1388,7 +1292,7 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:539 frontend/src/pages/MobileDeal.vue:464
+#: frontend/src/pages/Deal.vue:544 frontend/src/pages/MobileDeal.vue:464
 msgid "Error Updating Deal"
 msgstr ""
 
@@ -1400,7 +1304,7 @@ msgstr ""
 msgid "Error loading contacts"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:526 frontend/src/pages/MobileDeal.vue:451
+#: frontend/src/pages/Deal.vue:531 frontend/src/pages/MobileDeal.vue:451
 msgid "Error updating deal"
 msgstr ""
 
@@ -1423,14 +1327,6 @@ msgstr ""
 #: frontend/src/components/ViewControls.vue:189
 #: frontend/src/components/ViewControls.vue:198
 msgid "Excel"
-msgstr ""
-
-#: crm/install.py:322
-msgid "Exhibition"
-msgstr ""
-
-#: crm/install.py:318
-msgid "Existing Customer"
 msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:77
@@ -1482,7 +1378,10 @@ msgstr ""
 msgid "Failed to update Twilio call status"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:515 frontend/src/pages/MobileContact.vue:417
+#: frontend/src/components/FieldLayout.vue:95
+#: frontend/src/components/SidePanelLayout.vue:298
+#: frontend/src/pages/MobileContact.vue:417
+#: frontend/src/utils/getParsedFields.js:76
 msgid "Female"
 msgstr ""
 
@@ -1506,18 +1405,14 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM View Settings'
-#. Label of a Tab Break field in DocType 'CRM View Settings'
+#. Label of the filters (Code) field in DocType 'CRM View Settings'
+#. Label of the filters_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Filters"
 msgstr ""
 
-#: crm/install.py:276
-msgid "Financial Services"
-msgstr ""
-
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the first_name (Data) field in DocType 'CRM Deal'
+#. Label of the first_name (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: frontend/src/components/ColumnSettings.vue:106
@@ -1531,8 +1426,8 @@ msgstr ""
 msgid "First Name is mandatory"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Deal'
-#. Label of a Datetime field in DocType 'CRM Lead'
+#. Label of the first_responded_on (Datetime) field in DocType 'CRM Deal'
+#. Label of the first_responded_on (Datetime) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "First Responded On"
@@ -1545,13 +1440,14 @@ msgstr ""
 msgid "First Response Due"
 msgstr ""
 
-#. Label of a Duration field in DocType 'CRM Service Level Priority'
+#. Label of the first_response_time (Duration) field in DocType 'CRM Service
+#. Level Priority'
 #: crm/fcrm/doctype/crm_service_level_priority/crm_service_level_priority.json
 msgid "First Response TIme"
 msgstr ""
 
-#. Label of a Duration field in DocType 'CRM Deal'
-#. Label of a Duration field in DocType 'CRM Lead'
+#. Label of the first_response_time (Duration) field in DocType 'CRM Deal'
+#. Label of the first_response_time (Duration) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "First Response Time"
@@ -1559,10 +1455,6 @@ msgstr ""
 
 #: frontend/src/components/Filter.vue:131
 msgid "First name"
-msgstr ""
-
-#: crm/install.py:277
-msgid "Food"
 msgstr ""
 
 #. Option for the 'Apply To' (Select) field in DocType 'CRM Form Script'
@@ -1586,21 +1478,21 @@ msgstr ""
 msgid "Friday"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Call Log'
-#. Label of a Data field in DocType 'CRM Status Change Log'
+#. Label of the from (Data) field in DocType 'CRM Call Log'
+#. Label of the from (Data) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 msgid "From"
 msgstr ""
 
-#. Label of a Date field in DocType 'CRM Holiday List'
-#. Label of a Datetime field in DocType 'CRM Status Change Log'
+#. Label of the from_date (Date) field in DocType 'CRM Holiday List'
+#. Label of the from_date (Datetime) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 msgid "From Date"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Notification'
+#. Label of the from_user (Link) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "From User"
 msgstr ""
@@ -1612,16 +1504,16 @@ msgstr ""
 msgid "Fulfilled"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Contacts'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the full_name (Data) field in DocType 'CRM Contacts'
+#. Label of the lead_name (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Full Name"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Contacts'
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Lead'
+#. Label of the gender (Link) field in DocType 'CRM Contacts'
+#. Label of the gender (Link) field in DocType 'CRM Deal'
+#. Label of the gender (Link) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
@@ -1632,28 +1524,20 @@ msgstr ""
 msgid "Go to website"
 msgstr ""
 
-#: crm/install.py:279
-msgid "Grocery"
-msgstr ""
-
-#. Label of a Tab Break field in DocType 'CRM View Settings'
+#. Label of the group_by_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/ViewControls.vue:290
 #: frontend/src/components/ViewControls.vue:509 frontend/src/utils/view.js:16
 msgid "Group By"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM View Settings'
+#. Label of the group_by_field (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Group By Field"
 msgstr ""
 
 #: frontend/src/components/GroupBy.vue:8
 msgid "Group By: "
-msgstr ""
-
-#: crm/install.py:280
-msgid "Health Care"
 msgstr ""
 
 #: frontend/src/components/CommunicationArea.vue:58
@@ -1688,34 +1572,36 @@ msgstr ""
 msgid "High"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Service Level Agreement'
+#. Label of the holiday_list (Link) field in DocType 'CRM Service Level
+#. Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Holiday List"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Holiday List'
+#. Label of the holiday_list_name (Data) field in DocType 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Holiday List Name"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Holiday List'
-#. Label of a Table field in DocType 'CRM Holiday List'
+#. Label of the holidays_section (Section Break) field in DocType 'CRM Holiday
+#. List'
+#. Label of the holidays (Table) field in DocType 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Holidays"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Call Log'
+#. Label of the id (Data) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: frontend/src/components/ViewControls.vue:596
 msgid "ID"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM View Settings'
+#. Label of the icon (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Icon"
 msgstr ""
 
-#. Label of a Attach Image field in DocType 'CRM Lead'
+#. Label of the image (Attach Image) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Image"
 msgstr ""
@@ -1731,7 +1617,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'CRM Call Log'
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
-#: crm/fcrm/doctype/crm_task/crm_task.json crm/install.py:352
+#: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/utils/taskStatusTranslations.js:8
 msgid "In Progress"
 msgstr ""
@@ -1758,10 +1644,10 @@ msgstr ""
 msgid "Industries"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Industry'
-#. Label of a Link field in DocType 'CRM Lead'
-#. Label of a Link field in DocType 'CRM Organization'
+#. Label of the industry (Link) field in DocType 'CRM Deal'
+#. Label of the industry (Data) field in DocType 'CRM Industry'
+#. Label of the industry (Link) field in DocType 'CRM Lead'
+#. Label of the industry (Link) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_industry/crm_industry.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
@@ -1782,10 +1668,6 @@ msgstr ""
 msgid "Integrations"
 msgstr ""
 
-#: crm/install.py:281
-msgid "Internet Publishing"
-msgstr ""
-
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.py:33
 msgid "Invalid Account SID or Auth Token."
 msgstr ""
@@ -1793,10 +1675,6 @@ msgstr ""
 #: frontend/src/components/Modals/DealModal.vue:231
 #: frontend/src/components/Modals/LeadModal.vue:163
 msgid "Invalid Email"
-msgstr ""
-
-#: crm/install.py:282
-msgid "Investment Banking"
 msgstr ""
 
 #: frontend/src/components/Settings/Settings.vue:83
@@ -1811,7 +1689,7 @@ msgstr ""
 msgid "Invite by email"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Invitation'
+#. Label of the invited_by (Link) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 msgid "Invited By"
 msgstr ""
@@ -1826,33 +1704,34 @@ msgstr ""
 msgid "Is"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM View Settings'
+#. Label of the is_default (Check) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Is Default"
 msgstr ""
 
-#. Label of a Check field in DocType 'ERPNext CRM Settings'
+#. Label of the is_erpnext_in_different_site (Check) field in DocType 'ERPNext
+#. CRM Settings'
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 msgid "Is ERPNext installed on a different site?"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Territory'
+#. Label of the is_group (Check) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Is Group"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Contacts'
+#. Label of the is_primary (Check) field in DocType 'CRM Contacts'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 msgid "Is Primary"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Form Script'
+#. Label of the is_standard (Check) field in DocType 'CRM Form Script'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 msgid "Is Standard"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the job_title (Data) field in DocType 'CRM Deal'
+#. Label of the job_title (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Job Title"
@@ -1868,19 +1747,19 @@ msgstr ""
 msgid "Junk"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM View Settings'
+#. Label of the kanban_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/ViewControls.vue:295
 #: frontend/src/components/ViewControls.vue:498 frontend/src/utils/view.js:20
 msgid "Kanban"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM View Settings'
+#. Label of the kanban_columns (Code) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Kanban Columns"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM View Settings'
+#. Label of the kanban_fields (Code) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Kanban Fields"
 msgstr ""
@@ -1890,12 +1769,12 @@ msgstr ""
 msgid "Kanban Settings"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Invitation'
+#. Label of the key (Data) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 msgid "Key"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM View Settings'
+#. Label of the label (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/ColumnSettings.vue:103
 msgid "Label"
@@ -1913,8 +1792,8 @@ msgstr ""
 msgid "Last Month"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the last_name (Data) field in DocType 'CRM Deal'
+#. Label of the last_name (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Last Name"
@@ -1924,7 +1803,8 @@ msgstr ""
 msgid "Last Quarter"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Status Change Log'
+#. Label of the last_status_change_log (Link) field in DocType 'CRM Status
+#. Change Log'
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 msgid "Last Status Change Log"
 msgstr ""
@@ -1937,35 +1817,35 @@ msgstr ""
 msgid "Last Year"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:770 frontend/src/pages/MobileContact.vue:743
+#: frontend/src/pages/Contact.vue:662 frontend/src/pages/MobileContact.vue:743
 #: frontend/src/pages/MobileOrganization.vue:580
 #: frontend/src/pages/MobileOrganization.vue:608
-#: frontend/src/pages/Organization.vue:627
-#: frontend/src/pages/Organization.vue:655
+#: frontend/src/pages/Organization.vue:628
+#: frontend/src/pages/Organization.vue:656
 msgid "Last modified"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM Fields Layout'
+#. Label of the layout (Code) field in DocType 'CRM Fields Layout'
 #: crm/fcrm/doctype/crm_fields_layout/crm_fields_layout.json
 msgid "Layout"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
+#. Label of the lead (Link) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json frontend/src/pages/Tasks.vue:132
 msgid "Lead"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM Deal'
+#. Label of the lead_details_tab (Tab Break) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Lead Details"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Deal'
+#. Label of the lead_name (Data) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Lead Name"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Lead'
+#. Label of the lead_owner (Link) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Lead Owner"
 msgstr ""
@@ -1994,13 +1874,9 @@ msgstr ""
 msgid "Leads"
 msgstr ""
 
-#. Label of a Int field in DocType 'CRM Territory'
+#. Label of the lft (Int) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Left"
-msgstr ""
-
-#: crm/install.py:283
-msgid "Legal"
 msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploaderArea.vue:43
@@ -2020,7 +1896,7 @@ msgid "Link"
 msgstr ""
 
 #. Option for the 'Apply To' (Select) field in DocType 'CRM Form Script'
-#. Label of a Tab Break field in DocType 'CRM View Settings'
+#. Label of the list_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/ViewControls.vue:285
@@ -2032,7 +1908,8 @@ msgstr ""
 msgid "Listen"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM View Settings'
+#. Label of the load_default_columns (Check) field in DocType 'CRM View
+#. Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Load Default Columns"
 msgstr ""
@@ -2043,13 +1920,13 @@ msgstr ""
 
 #: frontend/src/components/Activities/Activities.vue:22
 #: frontend/src/components/Activities/DataFields.vue:32
-#: frontend/src/pages/Deal.vue:205 frontend/src/pages/Deal.vue:550
+#: frontend/src/pages/Deal.vue:206 frontend/src/pages/Deal.vue:555
 #: frontend/src/pages/MobileDeal.vue:115
 msgid "Loading..."
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM Deal'
-#. Label of a Tab Break field in DocType 'CRM Lead'
+#. Label of the log_tab (Tab Break) field in DocType 'CRM Deal'
+#. Label of the log_tab (Tab Break) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Log"
@@ -2112,7 +1989,10 @@ msgstr ""
 msgid "Make {0}"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:514 frontend/src/pages/MobileContact.vue:416
+#: frontend/src/components/FieldLayout.vue:94
+#: frontend/src/components/SidePanelLayout.vue:297
+#: frontend/src/pages/MobileContact.vue:416
+#: frontend/src/utils/getParsedFields.js:75
 msgid "Male"
 msgstr ""
 
@@ -2121,21 +2001,13 @@ msgstr ""
 msgid "Manager Access"
 msgstr ""
 
-#: crm/install.py:284
-msgid "Manufacturing"
-msgstr ""
-
 #: frontend/src/components/Notifications.vue:19
 #: frontend/src/pages/MobileNotification.vue:11
 #: frontend/src/pages/MobileNotification.vue:14
 msgid "Mark all as read"
 msgstr ""
 
-#: crm/install.py:324
-msgid "Mass Mailing"
-msgstr ""
-
-#. Label of a Data field in DocType 'CRM Call Log'
+#. Label of the medium (Data) field in DocType 'CRM Call Log'
 #. Option for the 'Priority' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
@@ -2148,19 +2020,19 @@ msgstr ""
 msgid "Mention"
 msgstr ""
 
-#. Label of a HTML Editor field in DocType 'CRM Notification'
+#. Label of the message (HTML Editor) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Message"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the middle_name (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Middle Name"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Contacts'
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the mobile_no (Data) field in DocType 'CRM Contacts'
+#. Label of the mobile_no (Data) field in DocType 'CRM Deal'
+#. Label of the mobile_no (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
@@ -2172,9 +2044,9 @@ msgstr ""
 msgid "Mobile No should be a number"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:760 frontend/src/pages/MobileContact.vue:733
+#: frontend/src/pages/Contact.vue:652 frontend/src/pages/MobileContact.vue:733
 #: frontend/src/pages/MobileOrganization.vue:570
-#: frontend/src/pages/Organization.vue:617
+#: frontend/src/pages/Organization.vue:618
 msgid "Mobile no"
 msgstr ""
 
@@ -2185,10 +2057,6 @@ msgstr ""
 msgid "Monday"
 msgstr ""
 
-#: crm/install.py:285
-msgid "Motion Picture & Video"
-msgstr ""
-
 #: frontend/src/components/FieldLayoutEditor.vue:333
 msgid "Move to next tab"
 msgstr ""
@@ -2197,21 +2065,17 @@ msgstr ""
 msgid "Move to previous tab"
 msgstr ""
 
-#: crm/install.py:286
-msgid "Music"
-msgstr ""
-
 #: frontend/src/components/Modals/ViewModal.vue:40
 msgid "My Open Deals"
 msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:24
 #: frontend/src/pages/MobileOrganization.vue:588
-#: frontend/src/pages/Organization.vue:635
+#: frontend/src/pages/Organization.vue:636
 msgid "Name"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Deal'
+#. Label of the naming_series (Select) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Naming Series"
 msgstr ""
@@ -2282,10 +2146,6 @@ msgstr ""
 msgid "New organization will be created based on the data in details section"
 msgstr ""
 
-#: crm/install.py:287
-msgid "Newspaper Publishers"
-msgstr ""
-
 #: frontend/src/components/Filter.vue:665
 msgid "Next 6 Months"
 msgstr ""
@@ -2298,7 +2158,7 @@ msgstr ""
 msgid "Next Quarter"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Deal'
+#. Label of the next_step (Data) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Next Step"
 msgstr ""
@@ -2390,7 +2250,7 @@ msgstr ""
 msgid "No WhatsApp Messages"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:293 frontend/src/pages/MobileDeal.vue:210
+#: frontend/src/pages/Deal.vue:294 frontend/src/pages/MobileDeal.vue:210
 msgid "No contacts added"
 msgstr ""
 
@@ -2398,7 +2258,7 @@ msgstr ""
 msgid "No email set"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:775 frontend/src/pages/MobileDeal.vue:727
+#: frontend/src/pages/Deal.vue:785 frontend/src/pages/MobileDeal.vue:727
 msgid "No mobile number set"
 msgstr ""
 
@@ -2407,14 +2267,14 @@ msgstr ""
 msgid "No new notifications"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:778 frontend/src/pages/Deal.vue:752
+#: frontend/src/pages/Contact.vue:670 frontend/src/pages/Deal.vue:762
 #: frontend/src/pages/Lead.vue:771 frontend/src/pages/MobileContact.vue:751
 #: frontend/src/pages/MobileDeal.vue:704 frontend/src/pages/MobileLead.vue:97
 #: frontend/src/utils/communicationUtils.js:21
 msgid "No phone number set"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:770 frontend/src/pages/MobileDeal.vue:722
+#: frontend/src/pages/Deal.vue:780 frontend/src/pages/MobileDeal.vue:722
 msgid "No primary contact set"
 msgstr ""
 
@@ -2436,9 +2296,9 @@ msgstr ""
 msgid "No {0} Available"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Deal'
-#. Label of a Select field in DocType 'CRM Lead'
-#. Label of a Select field in DocType 'CRM Organization'
+#. Label of the no_of_employees (Select) field in DocType 'CRM Deal'
+#. Label of the no_of_employees (Select) field in DocType 'CRM Lead'
+#. Label of the no_of_employees (Select) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
@@ -2497,12 +2357,12 @@ msgstr ""
 msgid "Not allowed to set primary contact for Deal"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Call Log'
+#. Label of the note (Link) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "Note"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:630 frontend/src/pages/Lead.vue:581
+#: frontend/src/pages/Deal.vue:635 frontend/src/pages/Lead.vue:581
 #: frontend/src/pages/MobileDeal.vue:540 frontend/src/pages/MobileLead.vue:450
 msgid "Notes"
 msgstr ""
@@ -2515,17 +2375,19 @@ msgstr ""
 msgid "Notification"
 msgstr ""
 
-#. Label of a Text field in DocType 'CRM Notification'
+#. Label of the notification_text (Text) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Notification Text"
 msgstr ""
 
-#. Label of a Dynamic Link field in DocType 'CRM Notification'
+#. Label of the notification_type_doc (Dynamic Link) field in DocType 'CRM
+#. Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Notification Type Doc"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Notification'
+#. Label of the notification_type_doctype (Link) field in DocType 'CRM
+#. Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Notification Type Doctype"
 msgstr ""
@@ -2545,19 +2407,15 @@ msgstr ""
 msgid "Office"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Territory'
+#. Label of the old_parent (Link) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Old Parent"
 msgstr ""
 
-#: crm/install.py:288
-msgid "Online Auctions"
-msgstr ""
-
-#: frontend/src/pages/Contact.vue:345 frontend/src/pages/Lead.vue:615
+#: frontend/src/pages/Contact.vue:347 frontend/src/pages/Lead.vue:615
 #: frontend/src/pages/MobileContact.vue:313
 #: frontend/src/pages/MobileOrganization.vue:300
-#: frontend/src/pages/Organization.vue:338
+#: frontend/src/pages/Organization.vue:339
 msgid "Only PNG and JPG images are allowed"
 msgstr ""
 
@@ -2593,38 +2451,40 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM View Settings'
-#. Label of a Code field in DocType 'CRM View Settings'
+#. Label of the order_by_tab (Tab Break) field in DocType 'CRM View Settings'
+#. Label of the order_by (Code) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Order By"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Tab Break field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the organization (Link) field in DocType 'CRM Deal'
+#. Label of the organization_tab (Tab Break) field in DocType 'CRM Deal'
+#. Label of the organization (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
-#: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:740
+#: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:632
 #: frontend/src/pages/Lead.vue:270 frontend/src/pages/MobileContact.vue:713
 #: frontend/src/pages/MobileLead.vue:184
 #: frontend/src/pages/MobileOrganization.vue:550
 #: frontend/src/pages/MobileOrganization.vue:603
-#: frontend/src/pages/Organization.vue:597
-#: frontend/src/pages/Organization.vue:650
+#: frontend/src/pages/Organization.vue:598
+#: frontend/src/pages/Organization.vue:651
 msgid "Organization"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Deal'
+#. Label of the organization_details_section (Section Break) field in DocType
+#. 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Organization Details"
 msgstr ""
 
-#. Label of a Attach Image field in DocType 'CRM Organization'
+#. Label of the organization_logo (Attach Image) field in DocType 'CRM
+#. Organization'
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 msgid "Organization Logo"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Organization'
+#. Label of the organization_name (Data) field in DocType 'CRM Deal'
+#. Label of the organization_name (Data) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 msgid "Organization Name"
@@ -2635,18 +2495,18 @@ msgid "Organization logo"
 msgstr ""
 
 #: frontend/src/pages/MobileOrganization.vue:253
-#: frontend/src/pages/Organization.vue:291
+#: frontend/src/pages/Organization.vue:292
 msgid "Organization updated"
 msgstr ""
 
 #. Label of a shortcut in the Frappe CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/pages/MobileOrganization.vue:260
-#: frontend/src/pages/Organization.vue:298
+#: frontend/src/pages/Organization.vue:299
 msgid "Organizations"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM Lead'
+#. Label of the organization_tab (Tab Break) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Others"
 msgstr ""
@@ -2660,12 +2520,12 @@ msgstr ""
 msgid "Outgoing"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Status Change Log'
+#. Label of the log_owner (Link) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 msgid "Owner"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Territory'
+#. Label of the parent_crm_territory (Link) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Parent CRM Territory"
 msgstr ""
@@ -2692,32 +2552,23 @@ msgstr ""
 msgid "Pending Invites"
 msgstr ""
 
-#: crm/install.py:289
-msgid "Pension Funds"
-msgstr ""
-
-#. Label of a Section Break field in DocType 'CRM Deal'
-#. Label of a Tab Break field in DocType 'CRM Lead'
+#. Label of the person_section (Section Break) field in DocType 'CRM Deal'
+#. Label of the person_tab (Tab Break) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Person"
 msgstr ""
 
-#: crm/install.py:290
-msgid "Pharmaceuticals"
-msgstr ""
-
-#. Label of a Data field in DocType 'CRM Contacts'
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
+#. Label of the phone (Data) field in DocType 'CRM Contacts'
+#. Label of the phone (Data) field in DocType 'CRM Deal'
+#. Label of the phone (Data) field in DocType 'CRM Lead'
 #. Option for the 'Device' (Select) field in DocType 'Twilio Agents'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/twilio_agents/twilio_agents.json
-#: frontend/src/pages/Contact.vue:523
 #: frontend/src/pages/MobileOrganization.vue:598
-#: frontend/src/pages/Organization.vue:645
+#: frontend/src/pages/Organization.vue:646
 msgid "Phone"
 msgstr ""
 
@@ -2729,7 +2580,7 @@ msgstr ""
 msgid "Pin View"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM View Settings'
+#. Label of the pinned (Check) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Pinned"
 msgstr ""
@@ -2762,28 +2613,29 @@ msgstr ""
 msgid "Please select an existing organization"
 msgstr ""
 
-#. Label of a Int field in DocType 'CRM Deal Status'
-#. Label of a Int field in DocType 'CRM Lead Status'
+#. Label of the position (Int) field in DocType 'CRM Deal Status'
+#. Label of the position (Int) field in DocType 'CRM Lead Status'
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "Position"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:237 frontend/src/pages/MobileDeal.vue:154
+#: frontend/src/pages/Deal.vue:238 frontend/src/pages/MobileDeal.vue:154
 msgid "Primary"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:729 frontend/src/pages/MobileDeal.vue:640
+#: frontend/src/pages/Deal.vue:739 frontend/src/pages/MobileDeal.vue:640
 msgid "Primary contact set"
 msgstr ""
 
-#. Label of a Table field in DocType 'CRM Service Level Agreement'
+#. Label of the priorities (Table) field in DocType 'CRM Service Level
+#. Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Priorities"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Service Level Priority'
-#. Label of a Select field in DocType 'CRM Task'
+#. Label of the priority (Link) field in DocType 'CRM Service Level Priority'
+#. Label of the priority (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_service_level_priority/crm_service_level_priority.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
 msgid "Priority"
@@ -2793,11 +2645,7 @@ msgstr ""
 msgid "Private"
 msgstr ""
 
-#: crm/install.py:291
-msgid "Private Equity"
-msgstr ""
-
-#. Label of a Percent field in DocType 'CRM Deal'
+#. Label of the probability (Percent) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Probability"
 msgstr ""
@@ -2810,7 +2658,7 @@ msgstr ""
 msgid "Proposal/Quotation"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM View Settings'
+#. Label of the public (Check) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Public"
 msgstr ""
@@ -2821,10 +2669,6 @@ msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:183
 msgid "Public views"
-msgstr ""
-
-#: crm/install.py:292
-msgid "Publishing"
 msgstr ""
 
 #: frontend/src/utils/dealStatusTranslations.js:6
@@ -2845,7 +2689,7 @@ msgstr ""
 msgid "Quick Entry"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Notification'
+#. Label of the read (Check) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Read"
 msgstr ""
@@ -2854,48 +2698,42 @@ msgstr ""
 msgid "Ready to Close"
 msgstr ""
 
-#: crm/install.py:293
-msgid "Real Estate"
-msgstr ""
-
-#. Label of a Check field in DocType 'Twilio Settings'
+#. Label of the record_calls (Check) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "Record Calls"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Call Log'
+#. Label of the recording_url (Data) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "Recording URL"
 msgstr ""
 
-#: crm/install.py:319
-msgid "Reference"
-msgstr ""
-
-#. Label of a Dynamic Link field in DocType 'CRM Notification'
-#. Label of a Dynamic Link field in DocType 'CRM Task'
-#. Label of a Dynamic Link field in DocType 'FCRM Note'
+#. Label of the reference_name (Dynamic Link) field in DocType 'CRM
+#. Notification'
+#. Label of the reference_docname (Dynamic Link) field in DocType 'CRM Task'
+#. Label of the reference_docname (Dynamic Link) field in DocType 'FCRM Note'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: crm/fcrm/doctype/fcrm_note/fcrm_note.json
 msgid "Reference Doc"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Notification'
+#. Label of the reference_doctype (Link) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Reference Doctype"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Call Log'
-#. Label of a Link field in DocType 'CRM Task'
-#. Label of a Link field in DocType 'FCRM Note'
+#. Label of the reference_doctype (Link) field in DocType 'CRM Call Log'
+#. Label of the reference_doctype (Link) field in DocType 'CRM Task'
+#. Label of the reference_doctype (Link) field in DocType 'FCRM Note'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: crm/fcrm/doctype/fcrm_note/fcrm_note.json
 msgid "Reference Document Type"
 msgstr ""
 
-#. Label of a Dynamic Link field in DocType 'CRM Call Log'
+#. Label of the reference_docname (Dynamic Link) field in DocType 'CRM Call
+#. Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "Reference Name"
 msgstr ""
@@ -2914,7 +2752,7 @@ msgstr ""
 msgid "Reject"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:674 frontend/src/pages/MobileDeal.vue:585
+#: frontend/src/pages/Deal.vue:684 frontend/src/pages/MobileDeal.vue:585
 msgid "Remove"
 msgstr ""
 
@@ -2968,21 +2806,24 @@ msgstr ""
 msgid "Reset to Default"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Deal'
-#. Label of a Datetime field in DocType 'CRM Lead'
+#. Label of the response_by (Datetime) field in DocType 'CRM Deal'
+#. Label of the response_by (Datetime) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Response By"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Deal'
-#. Label of a Section Break field in DocType 'CRM Lead'
+#. Label of the response_details_section (Section Break) field in DocType 'CRM
+#. Deal'
+#. Label of the response_details_section (Section Break) field in DocType 'CRM
+#. Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Response Details"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Service Level Agreement'
+#. Label of the section_break_ufaf (Section Break) field in DocType 'CRM
+#. Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Response and Follow Up"
 msgstr ""
@@ -2991,14 +2832,10 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
-#. Label of a Button field in DocType 'FCRM Settings'
+#. Label of the restore_defaults (Button) field in DocType 'FCRM Settings'
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.js:13
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
 msgid "Restore Defaults"
-msgstr ""
-
-#: crm/install.py:294
-msgid "Retail & Wholesale"
 msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploader.vue:54
@@ -3009,7 +2846,7 @@ msgstr ""
 msgid "Rich Text"
 msgstr ""
 
-#. Label of a Int field in DocType 'CRM Territory'
+#. Label of the rgt (Int) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Right"
 msgstr ""
@@ -3023,25 +2860,25 @@ msgstr ""
 msgid "Ringing..."
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Invitation'
+#. Label of the role (Select) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 msgid "Role"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM View Settings'
+#. Label of the route_name (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Route Name"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM View Settings'
+#. Label of the rows (Code) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "Rows"
 msgstr ""
 
-#. Label of a Tab Break field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Tab Break field in DocType 'CRM Lead'
-#. Label of a Link field in DocType 'CRM Lead'
+#. Label of the sla_tab (Tab Break) field in DocType 'CRM Deal'
+#. Label of the sla (Link) field in DocType 'CRM Deal'
+#. Label of the sla_tab (Tab Break) field in DocType 'CRM Lead'
+#. Label of the sla (Link) field in DocType 'CRM Lead'
 #. Label of a shortcut in the Frappe CRM Workspace
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
@@ -3049,20 +2886,20 @@ msgstr ""
 msgid "SLA"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Deal'
-#. Label of a Datetime field in DocType 'CRM Lead'
+#. Label of the sla_creation (Datetime) field in DocType 'CRM Deal'
+#. Label of the sla_creation (Datetime) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "SLA Creation"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Service Level Agreement'
+#. Label of the sla_name (Data) field in DocType 'CRM Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "SLA Name"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Deal'
-#. Label of a Select field in DocType 'CRM Lead'
+#. Label of the sla_status (Select) field in DocType 'CRM Deal'
+#. Label of the sla_status (Select) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "SLA Status"
@@ -3117,8 +2954,8 @@ msgstr ""
 msgid "Sales User"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Lead'
+#. Label of the salutation (Link) field in DocType 'CRM Deal'
+#. Label of the salutation (Link) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Salutation"
@@ -3153,7 +2990,7 @@ msgstr ""
 msgid "Saved Views"
 msgstr ""
 
-#. Label of a Code field in DocType 'CRM Form Script'
+#. Label of the script (Code) field in DocType 'CRM Form Script'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 msgid "Script"
 msgstr ""
@@ -3171,24 +3008,22 @@ msgstr ""
 msgid "Search by website or industry..."
 msgstr ""
 
-#: crm/install.py:295
-msgid "Securities & Commodity Exchanges"
-msgstr ""
-
-#: frontend/src/components/FieldLayout.vue:291
+#: frontend/src/components/FieldLayout.vue:294
 #: frontend/src/components/Modals/AddressModal.vue:173
-#: frontend/src/pages/Contact.vue:433 frontend/src/pages/Contact.vue:517
+#: frontend/src/components/SidePanelLayout.vue:300
+#: frontend/src/pages/Contact.vue:428 frontend/src/pages/Contact.vue:566
 #: frontend/src/pages/MobileContact.vue:419
 #: frontend/src/pages/MobileOrganization.vue:374
 #: frontend/src/pages/MobileOrganization.vue:404
-#: frontend/src/pages/Organization.vue:415
-#: frontend/src/pages/Organization.vue:445
-#: frontend/src/pages/Organization.vue:464
-#: frontend/src/utils/getParsedFields.js:35
+#: frontend/src/pages/Organization.vue:416
+#: frontend/src/pages/Organization.vue:446
+#: frontend/src/pages/Organization.vue:465
+#: frontend/src/utils/getParsedFields.js:40
+#: frontend/src/utils/getParsedFields.js:78
 msgid "Select"
 msgstr ""
 
-#: frontend/src/components/SidePanelLayout.vue:305
+#: frontend/src/components/SidePanelLayout.vue:320
 msgid "Select {0}"
 msgstr ""
 
@@ -3212,18 +3047,14 @@ msgstr ""
 msgid "Send an email"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Lead'
+#. Label of the naming_series (Select) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Series"
 msgstr ""
 
-#: crm/install.py:296
-msgid "Service"
-msgstr ""
-
 #: frontend/src/components/Modals/AddressModal.vue:176
-#: frontend/src/pages/Contact.vue:436 frontend/src/pages/Organization.vue:467
-#: frontend/src/utils/getParsedFields.js:38
+#: frontend/src/pages/Organization.vue:468
+#: frontend/src/utils/getParsedFields.js:43
 msgid "Set"
 msgstr ""
 
@@ -3235,16 +3066,16 @@ msgstr ""
 msgid "Set all as public"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:682 frontend/src/pages/MobileDeal.vue:593
+#: frontend/src/pages/Deal.vue:692 frontend/src/pages/MobileDeal.vue:593
 msgid "Set as Primary Contact"
 msgstr ""
 
-#: frontend/src/components/FieldLayout.vue:196
+#: frontend/src/components/FieldLayout.vue:199
 #: frontend/src/components/Modals/EditValueModal.vue:164
 msgid "Set date"
 msgstr ""
 
-#: frontend/src/components/FieldLayout.vue:203
+#: frontend/src/components/FieldLayout.vue:206
 msgid "Set date and time"
 msgstr ""
 
@@ -3291,62 +3122,51 @@ msgstr ""
 msgid "Simple Python Expression, Example: doc.status == 'Open' and doc.lead_source == 'Ads'"
 msgstr ""
 
-#: crm/install.py:297
-msgid "Soap & Detergent"
-msgstr ""
-
-#: crm/install.py:298
-msgid "Software"
-msgstr ""
-
 #: frontend/src/components/SortBy.vue:10 frontend/src/components/SortBy.vue:22
 #: frontend/src/components/SortBy.vue:242
 msgid "Sort"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Lead'
+#. Label of the source (Link) field in DocType 'CRM Deal'
+#. Label of the source (Link) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: frontend/src/components/Modals/EditValueModal.vue:10
 msgid "Source"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Lead Source'
+#. Label of the source_name (Data) field in DocType 'CRM Lead Source'
 #: crm/fcrm/doctype/crm_lead_source/crm_lead_source.json
 msgid "Source Name"
-msgstr ""
-
-#: crm/install.py:299
-msgid "Sports"
 msgstr ""
 
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.js:15
 msgid "Standard Form Scripts can not be modified, duplicate the Form Script instead."
 msgstr ""
 
-#. Label of a Date field in DocType 'CRM Service Level Agreement'
-#. Label of a Date field in DocType 'CRM Task'
+#. Label of the start_date (Date) field in DocType 'CRM Service Level
+#. Agreement'
+#. Label of the start_date (Date) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
 msgid "Start Date"
 msgstr ""
 
-#. Label of a Datetime field in DocType 'CRM Call Log'
-#. Label of a Time field in DocType 'CRM Service Day'
+#. Label of the start_time (Datetime) field in DocType 'CRM Call Log'
+#. Label of the start_time (Time) field in DocType 'CRM Service Day'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_service_day/crm_service_day.json
 msgid "Start Time"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Call Log'
-#. Label of a Data field in DocType 'CRM Communication Status'
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Deal Status'
-#. Label of a Select field in DocType 'CRM Invitation'
-#. Label of a Link field in DocType 'CRM Lead'
-#. Label of a Data field in DocType 'CRM Lead Status'
-#. Label of a Select field in DocType 'CRM Task'
+#. Label of the status (Select) field in DocType 'CRM Call Log'
+#. Label of the status (Data) field in DocType 'CRM Communication Status'
+#. Label of the status (Link) field in DocType 'CRM Deal'
+#. Label of the deal_status (Data) field in DocType 'CRM Deal Status'
+#. Label of the status (Select) field in DocType 'CRM Invitation'
+#. Label of the status (Link) field in DocType 'CRM Lead'
+#. Label of the lead_status (Data) field in DocType 'CRM Lead Status'
+#. Label of the status (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_communication_status/crm_communication_status.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
@@ -3354,15 +3174,15 @@ msgstr ""
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
-#: crm/fcrm/doctype/crm_task/crm_task.json frontend/src/pages/Contact.vue:750
+#: crm/fcrm/doctype/crm_task/crm_task.json frontend/src/pages/Contact.vue:642
 #: frontend/src/pages/MobileContact.vue:723
 #: frontend/src/pages/MobileOrganization.vue:560
-#: frontend/src/pages/Organization.vue:607
+#: frontend/src/pages/Organization.vue:608
 msgid "Status"
 msgstr ""
 
-#. Label of a Table field in DocType 'CRM Deal'
-#. Label of a Table field in DocType 'CRM Lead'
+#. Label of the status_change_log (Table) field in DocType 'CRM Deal'
+#. Label of the status_change_log (Table) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Status Change Log"
@@ -3392,10 +3212,6 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
-#: crm/install.py:323
-msgid "Supplier Reference"
-msgstr ""
-
 #: frontend/src/components/UserDropdown.vue:84
 msgid "Support"
 msgstr ""
@@ -3423,21 +3239,9 @@ msgstr ""
 msgid "Task"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:625 frontend/src/pages/Lead.vue:576
+#: frontend/src/pages/Deal.vue:630 frontend/src/pages/Lead.vue:576
 #: frontend/src/pages/MobileDeal.vue:535 frontend/src/pages/MobileLead.vue:445
 msgid "Tasks"
-msgstr ""
-
-#: crm/install.py:300
-msgid "Technology"
-msgstr ""
-
-#: crm/install.py:301
-msgid "Telecommunications"
-msgstr ""
-
-#: crm/install.py:302
-msgid "Television"
 msgstr ""
 
 #. Label of a shortcut in the Frappe CRM Workspace
@@ -3445,21 +3249,21 @@ msgstr ""
 msgid "Territories"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Deal'
-#. Label of a Link field in DocType 'CRM Lead'
-#. Label of a Link field in DocType 'CRM Organization'
+#. Label of the territory (Link) field in DocType 'CRM Deal'
+#. Label of the territory (Link) field in DocType 'CRM Lead'
+#. Label of the territory (Link) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 msgid "Territory"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Territory'
+#. Label of the territory_manager (Link) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Territory Manager"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Territory'
+#. Label of the territory_name (Data) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
 msgid "Territory Name"
 msgstr ""
@@ -3507,8 +3311,8 @@ msgstr ""
 msgid "Timespan"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Task'
-#. Label of a Data field in DocType 'FCRM Note'
+#. Label of the title (Data) field in DocType 'CRM Task'
+#. Label of the title (Data) field in DocType 'FCRM Note'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: crm/fcrm/doctype/fcrm_note/fcrm_note.json
 #: frontend/src/components/Modals/NoteModal.vue:41
@@ -3516,28 +3320,28 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM View Settings'
+#. Label of the title_field (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/Kanban/KanbanSettings.vue:32
 msgid "Title Field"
 msgstr ""
 
-#. Label of a Data field in DocType 'CRM Call Log'
-#. Label of a Data field in DocType 'CRM Status Change Log'
+#. Label of the to (Data) field in DocType 'CRM Call Log'
+#. Label of the to (Data) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 #: frontend/src/components/Activities/EmailArea.vue:63
 msgid "To"
 msgstr ""
 
-#. Label of a Date field in DocType 'CRM Holiday List'
-#. Label of a Datetime field in DocType 'CRM Status Change Log'
+#. Label of the to_date (Date) field in DocType 'CRM Holiday List'
+#. Label of the to_date (Datetime) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
 msgid "To Date"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM Notification'
+#. Label of the to_user (Link) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "To User"
 msgstr ""
@@ -3547,7 +3351,7 @@ msgid "Today"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
-#: crm/fcrm/doctype/crm_task/crm_task.json crm/install.py:347
+#: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/utils/taskStatusTranslations.js:7
 msgid "Todo"
 msgstr ""
@@ -3569,13 +3373,9 @@ msgstr ""
 msgid "Took a call with John Doe and discussed the new project."
 msgstr ""
 
-#. Label of a Int field in DocType 'CRM Holiday List'
+#. Label of the total_holidays (Int) field in DocType 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Total Holidays"
-msgstr ""
-
-#: crm/install.py:303
-msgid "Transportation"
 msgstr ""
 
 #. Option for the 'Weekly Off' (Select) field in DocType 'CRM Holiday List'
@@ -3585,7 +3385,7 @@ msgstr ""
 msgid "Tuesday"
 msgstr ""
 
-#. Label of a Data field in DocType 'Twilio Settings'
+#. Label of the twiml_sid (Data) field in DocType 'Twilio Settings'
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "TwiML SID"
 msgstr ""
@@ -3604,7 +3404,7 @@ msgstr ""
 msgid "Twilio Agents"
 msgstr ""
 
-#. Label of a Data field in DocType 'Twilio Agents'
+#. Label of the twilio_number (Data) field in DocType 'Twilio Agents'
 #: crm/fcrm/doctype/twilio_agents/twilio_agents.json
 msgid "Twilio Number"
 msgstr ""
@@ -3614,10 +3414,10 @@ msgstr ""
 msgid "Twilio Settings"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Call Log'
-#. Label of a Select field in DocType 'CRM Fields Layout'
-#. Label of a Select field in DocType 'CRM Notification'
-#. Label of a Select field in DocType 'CRM View Settings'
+#. Label of the type (Select) field in DocType 'CRM Call Log'
+#. Label of the type (Select) field in DocType 'CRM Fields Layout'
+#. Label of the type (Select) field in DocType 'CRM Notification'
+#. Label of the type (Select) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_fields_layout/crm_fields_layout.json
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
@@ -3656,7 +3456,7 @@ msgstr ""
 #: frontend/src/components/Modals/OrganizationModal.vue:8
 #: frontend/src/components/Section.vue:15
 #: frontend/src/components/SidePanelLayoutEditor.vue:19
-#: frontend/src/pages/Deal.vue:563 frontend/src/pages/Deals.vue:391
+#: frontend/src/pages/Deal.vue:568 frontend/src/pages/Deals.vue:391
 #: frontend/src/pages/Lead.vue:80 frontend/src/pages/Lead.vue:121
 #: frontend/src/pages/Lead.vue:534 frontend/src/pages/MobileDeal.vue:493
 #: frontend/src/pages/MobileLead.vue:403
@@ -3706,19 +3506,20 @@ msgstr ""
 msgid "Upload image"
 msgstr ""
 
-#. Label of a Link field in DocType 'CRM View Settings'
-#. Label of a Link field in DocType 'Twilio Agents'
+#. Label of the user (Link) field in DocType 'CRM View Settings'
+#. Label of the user (Link) field in DocType 'Twilio Agents'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: crm/fcrm/doctype/twilio_agents/twilio_agents.json
 msgid "User"
 msgstr ""
 
-#. Label of a Data field in DocType 'Twilio Agents'
+#. Label of the user_name (Data) field in DocType 'Twilio Agents'
 #: crm/fcrm/doctype/twilio_agents/twilio_agents.json
 msgid "User Name"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Service Level Agreement'
+#. Label of the section_break_nevd (Section Break) field in DocType 'CRM
+#. Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Validity"
 msgstr ""
@@ -3727,21 +3528,13 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: crm/install.py:304
-msgid "Venture Capital"
-msgstr ""
-
 #: frontend/src/components/Modals/ViewModal.vue:25
 msgid "View Name"
 msgstr ""
 
-#: crm/install.py:327
-msgid "Walk In"
-msgstr ""
-
-#. Label of a Data field in DocType 'CRM Deal'
-#. Label of a Data field in DocType 'CRM Lead'
-#. Label of a Data field in DocType 'CRM Organization'
+#. Label of the website (Data) field in DocType 'CRM Deal'
+#. Label of the website (Data) field in DocType 'CRM Lead'
+#. Label of the website (Data) field in DocType 'CRM Organization'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
@@ -3750,7 +3543,7 @@ msgid "Website"
 msgstr ""
 
 #: frontend/src/pages/MobileOrganization.vue:339
-#: frontend/src/pages/Organization.vue:381
+#: frontend/src/pages/Organization.vue:382
 msgid "Website not found"
 msgstr ""
 
@@ -3761,8 +3554,8 @@ msgstr ""
 msgid "Wednesday"
 msgstr ""
 
-#. Label of a Check field in DocType 'CRM Holiday'
-#. Label of a Select field in DocType 'CRM Holiday List'
+#. Label of the weekly_off (Check) field in DocType 'CRM Holiday'
+#. Label of the weekly_off (Select) field in DocType 'CRM Holiday List'
 #: crm/fcrm/doctype/crm_holiday/crm_holiday.json
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Weekly Off"
@@ -3775,7 +3568,7 @@ msgstr ""
 #. Option for the 'Type' (Select) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: frontend/src/components/Settings/Settings.vue:99
-#: frontend/src/pages/Deal.vue:640 frontend/src/pages/Lead.vue:591
+#: frontend/src/pages/Deal.vue:645 frontend/src/pages/Lead.vue:591
 #: frontend/src/pages/MobileDeal.vue:550 frontend/src/pages/MobileLead.vue:460
 msgid "WhatsApp"
 msgstr ""
@@ -3804,13 +3597,15 @@ msgstr ""
 msgid "Won"
 msgstr ""
 
-#. Label of a Select field in DocType 'CRM Service Day'
+#. Label of the workday (Select) field in DocType 'CRM Service Day'
 #: crm/fcrm/doctype/crm_service_day/crm_service_day.json
 msgid "Workday"
 msgstr ""
 
-#. Label of a Section Break field in DocType 'CRM Service Level Agreement'
-#. Label of a Table field in DocType 'CRM Service Level Agreement'
+#. Label of the section_break_rmgo (Section Break) field in DocType 'CRM
+#. Service Level Agreement'
+#. Label of the working_hours (Table) field in DocType 'CRM Service Level
+#. Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
 msgid "Working Hours"
 msgstr ""
@@ -4001,7 +3796,7 @@ msgstr ""
 msgid "{0} assigned a {1} {2} to you"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:540 frontend/src/pages/Lead.vue:506
+#: frontend/src/pages/Deal.vue:545 frontend/src/pages/Lead.vue:506
 #: frontend/src/pages/MobileDeal.vue:465 frontend/src/pages/MobileLead.vue:375
 msgid "{0} is a required field"
 msgstr ""

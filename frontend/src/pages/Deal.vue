@@ -651,31 +651,35 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.dealId],
   params: { doctype: 'CRM Deal', name: props.dealId },
   auto: true,
-  transform: (data) => getParsedFields(data, 'CRM Deal', deal.data, {
-    organization: {
-      create: (value, close) => {
-        _organization.value = { organization_name: value }
-        showOrganizationModal.value = true
-        close()
+  transform: (data) => {
+    const transformed = getParsedFields(data, 'CRM Deal', deal.data, {
+      organization: {
+        create: (value, close) => {
+          _organization.value = { organization_name: value }
+          showOrganizationModal.value = true
+          close()
+        },
+        link: (org) => router.push({
+          name: 'Organization',
+          params: { organizationId: org },
+        })
       },
-      link: (org) => router.push({
-        name: 'Organization',
-        params: { organizationId: org },
-      })
-    }
-  })
+      contact: {
+        link: (contact) => router.push({
+          name: 'Contact',
+          params: { contactId: contact },
+        }),
+        onChange: (contact) => addContact(contact)
+      }
+    });
+    return transformed;
+  }
 })
 
 const showContactModal = ref(false)
 
 function contactOptions(contact) {
-  let options = [
-    {
-      label: __('Remove'),
-      icon: 'trash-2',
-      onClick: () => removeContact(contact.name),
-    },
-  ]
+  let options = []
 
   if (!contact.is_primary) {
     options.push({
@@ -695,23 +699,9 @@ async function addContact(contact) {
   })
   if (d) {
     dealContacts.reload()
+    fieldsLayout.reload()
     createToast({
       title: __('Contact added'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
-  }
-}
-
-async function removeContact(contact) {
-  let d = await call('crm.fcrm.doctype.crm_deal.crm_deal.remove_contact', {
-    deal: props.dealId,
-    contact,
-  })
-  if (d) {
-    dealContacts.reload()
-    createToast({
-      title: __('Contact removed'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })

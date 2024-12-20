@@ -270,6 +270,7 @@ import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { normalizePhoneNumber } from '@/utils/communicationUtils'
 import { trackCommunication } from '@/utils/communicationUtils'
+import { getParsedFields } from '@/utils/getParsedFields'
 
 const { $dialog, makeCall } = globalStore()
 
@@ -408,287 +409,177 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.contactId],
   params: { doctype: 'Contact', name: props.contactId },
   auto: true,
-  transform: (data) => getParsedFields(data),
-})
+  transform: (data) => {
+    return data.map((section) => {
+      return {
+        ...section,
+        fields: computed(() =>
+          section.fields.map((field) => {
+            // Get translated field label
+            const translatedLabel = __(field.label || field.name.split('_').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
 
-function getParsedFields(data) {
-  if (!data?.[0]?.sections) return []
-  
-  const sectionList = data[0].sections
-  sectionList.forEach((section) => {
-    // Convert array of field names to array of field objects if needed
-    if (Array.isArray(section.fields) && typeof section.fields[0] === 'string') {
-      section.fields = section.fields.map(fieldName => {
-        // Try to get field metadata from both the API response and fields_meta
-        const field = (typeof section.fields_meta === 'object' && section.fields_meta[fieldName]) || 
-                     (contact.data?.fields_meta && contact.data.fields_meta[fieldName]) || {}
-        
-        // Get translated field label
-        const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
-        
-        // Determine placeholder verb based on field type
-        const getPlaceholderVerb = (fieldtype) => {
-          switch(fieldtype?.toLowerCase()) {
-            case 'select':
-            case 'link':
-              return __('Select')
-            case 'date':
-            case 'datetime':
-              return __('Set')
-            default:
-              return __('Enter')
-          }
-        }
+            // Handle link fields
+            if (field.type === 'link') {
+              const baseField = {
+                ...field,
+                doctype: field.options || field.doctype,
+                options: field.options,
+                placeholder: `${__('Select')} ${translatedLabel}`,
+                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+              }
 
-        // Base field data with translations
-        const fieldData = {
-          name: fieldName,
-          label: translatedLabel,
-          type: field.fieldtype || 'text',
-          all_properties: field || {},
-          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`,
-          create: (value, close) => {
-            showContactModal.value = true
-            close?.()
-          }
-        }
-
-        // Handle special case for email_id field
-        if (fieldName === 'email_id') {
-          const translatedLabel = __('Email')
-          return {
-            ...fieldData,
-            type: 'dropdown',
-            options: computed(() => 
-              contact.data?.email_ids?.map((email) => ({
-                name: email.name,
-                value: email.email_id,
-                selected: email.email_id === contact.data.email_id,
-                placeholder: `${__('Enter')} ${translatedLabel}`,
-                isNew: email.isNew,
-                onClick: () => {
-                  _contact.value.email_id = email.email_id
-                  setAsPrimary('email', email.email_id)
-                },
-                onSave: (option, isNew) => {
-                  if (isNew) {
-                    createNew('email', option.value)
-                    if (contact.data.email_ids.length === 1) {
-                      _contact.value.email_id = option.value
-                    }
-                  } else {
-                    editOption('email', option.name, option.value)
-                  }
-                },
-                onDelete: () => {
-                  if (email.isNew) {
-                    contact.data.email_ids = contact.data.email_ids.filter(e => e.name !== email.name)
-                    if (_contact.value.email_id === email.email_id) {
-                      _contact.value.email_id = contact.data.email_ids.find(e => e.is_primary)?.email_id || ''
-                    }
-                  } else {
-                    deleteOption('email', email.name)
+              // Special handling for address field
+              if (field.name === 'address') {
+                return {
+                  ...baseField,
+                  doctype: 'Address',
+                  create: (value, close) => {
+                    _address.value = { address_title: value }
+                    showAddressModal.value = true
+                    close()
+                  },
+                  edit: async (addr) => {
+                    _address.value = await call('frappe.client.get', {
+                      doctype: 'Address',
+                      name: addr,
+                    })
+                    showAddressModal.value = true
                   }
                 }
-              })) || []
-            ),
-            create: () => {
-              contact.data.email_ids = contact.data.email_ids || []
-              const newEmail = {
-                name: 'new-1',
-                email_id: '',
-                is_primary: contact.data.email_ids.length === 0,
-                selected: false,
-                isNew: true,
               }
-              contact.data.email_ids.push(newEmail)
+
+              return baseField
             }
-          }
-        }
 
-        // Handle special case for gender field
-        if (fieldName === 'gender') {
-          return {
-            ...fieldData,
-            type: 'select',
-            options: [
-              { label: __('Male'), value: 'Male' },
-              { label: __('Female'), value: 'Female' }
-            ],
-            placeholder: `${__('Select')} ${translatedLabel}`
-          }
-        }
-
-        // Handle special case for mobile_no field
-        if (fieldName === 'mobile_no') {
-          const translatedLabel = __('Phone')
-          return {
-            ...fieldData,
-            type: 'dropdown',
-            options: computed(() => 
-              contact.data?.phone_nos?.map((phone) => ({
-                name: phone.name,
-                value: phone.phone,
-                selected: phone.phone === contact.data.actual_mobile_no,
-                placeholder: `${__('Enter')} ${translatedLabel}`,
-                isNew: phone.isNew,
-                onClick: () => {
-                  _contact.value.actual_mobile_no = phone.phone
-                  _contact.value.mobile_no = phone.phone
-                  setAsPrimary('mobile_no', phone.phone)
-                },
-                onSave: (option, isNew) => {
-                  if (isNew) {
-                    createNew('phone', option.value)
-                    if (contact.data.phone_nos.length === 1) {
-                      _contact.value.actual_mobile_no = option.value
+            // Handle email_id field
+            if (field.name === 'email_id') {
+              return {
+                ...field,
+                type: 'dropdown',
+                fieldtype: 'data',
+                placeholder: __('Add Email Address...'),
+                options: contact.data?.email_ids?.map((email) => ({
+                  name: email.name,
+                  value: email.email_id,
+                  selected: email.email_id === contact.data.email_id,
+                  placeholder: __('Add Email Address...'),
+                  isNew: email.isNew,
+                  onClick: () => {
+                    _contact.value.email_id = email.email_id
+                    setAsPrimary('email', email.email_id)
+                  },
+                  onSave: (option, isNew) => {
+                    if (isNew) {
+                      createNew('email', option.value)
+                      if (contact.data.email_ids.length === 1) {
+                        _contact.value.email_id = option.value
+                      }
+                    } else {
+                      editOption('email', option.name, option.value)
                     }
-                  } else {
-                    editOption('phone', option.name, option.value)
-                  }
-                },
-                onDelete: () => {
-                  if (phone.isNew) {
-                    contact.data.phone_nos = contact.data.phone_nos.filter(p => p.name !== phone.name)
-                    if (_contact.value.actual_mobile_no === phone.phone) {
-                      _contact.value.actual_mobile_no = contact.data.phone_nos.find(p => p.is_primary_mobile_no)?.phone || ''
+                  },
+                  onDelete: () => {
+                    if (email.isNew) {
+                      contact.data.email_ids = contact.data.email_ids.filter(e => e.name !== email.name)
+                      if (_contact.value.email_id === email.email_id) {
+                        _contact.value.email_id = contact.data.email_ids.find(e => e.is_primary)?.email_id || ''
+                      }
+                    } else {
+                      deleteOption('email', email.name)
                     }
-                  } else {
-                    deleteOption('phone', phone.name)
                   }
-                }
-              })) || []
-            ),
-            create: () => {
-              contact.data.phone_nos = contact.data.phone_nos || []
-              const newPhone = {
-                name: 'new-1',
-                phone: '',
-                is_primary_mobile_no: contact.data.phone_nos.length === 0,
-                selected: false,
-                isNew: true,
-              }
-              contact.data.phone_nos.push(newPhone)
-            }
-          }
-        }
-
-        // Handle special case for address field
-        if (fieldName === 'address') {
-          return {
-            ...fieldData,
-            type: 'link',
-            doctype: 'Address',
-            create: (value, close) => {
-              _address.value = { address_title: value }
-              showAddressModal.value = true
-              close()
-            },
-            edit: async (addr) => {
-              _address.value = await call('frappe.client.get', {
-                doctype: 'Address',
-                name: addr,
-              })
-              showAddressModal.value = true
-            }
-          }
-        }
-
-        // Handle field types that need special treatment
-        switch (field.fieldtype?.toLowerCase()) {
-          case 'select':
-            // Convert select fields to use Link component for better UX
-            fieldData.type = 'link'
-            if (field.options) {
-              fieldData.options = field.options.split('\n').map(option => ({
-                label: __(option),
-                value: option
-              }))
-              if (!fieldData.options.find(opt => opt.value === '')) {
-                fieldData.options.unshift({ label: '', value: '' })
+                })) || [],
+                create: () => {
+                  contact.data.email_ids = contact.data.email_ids || []
+                  const newEmail = {
+                    name: 'new-1',
+                    email_id: '',
+                    is_primary: contact.data.email_ids.length === 0,
+                    selected: false,
+                    isNew: true,
+                  }
+                  contact.data.email_ids.push(newEmail)
+                },
+                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
               }
             }
-            break
 
-          case 'link':
-            fieldData.type = 'link'
-            fieldData.doctype = field.options
-            break
+            // Handle mobile_no field
+            if (field.name === 'mobile_no') {
+              return {
+                ...field,
+                type: 'dropdown',
+                fieldtype: 'data',
+                placeholder: __('Add Mobile No...'),
+                options: contact.data?.phone_nos?.map((phone) => ({
+                  name: phone.name,
+                  value: phone.phone,
+                  selected: phone.phone === contact.data.actual_mobile_no,
+                  placeholder: __('Add Mobile No...'),
+                  isNew: phone.isNew,
+                  onClick: () => {
+                    _contact.value.actual_mobile_no = phone.phone
+                    _contact.value.mobile_no = phone.phone
+                    setAsPrimary('mobile_no', phone.phone)
+                  },
+                  onSave: (option, isNew) => {
+                    if (isNew) {
+                      createNew('phone', option.value)
+                      if (contact.data.phone_nos.length === 1) {
+                        _contact.value.actual_mobile_no = option.value
+                      }
+                    } else {
+                      editOption('phone', option.name, option.value)
+                    }
+                  },
+                  onDelete: () => {
+                    if (phone.isNew) {
+                      contact.data.phone_nos = contact.data.phone_nos.filter(p => p.name !== phone.name)
+                      if (_contact.value.actual_mobile_no === phone.phone) {
+                        _contact.value.actual_mobile_no = contact.data.phone_nos.find(p => p.is_primary_mobile_no)?.phone || ''
+                      }
+                    } else {
+                      deleteOption('phone', phone.name)
+                    }
+                  }
+                })) || [],
+                create: () => {
+                  contact.data.phone_nos = contact.data.phone_nos || []
+                  const newPhone = {
+                    name: 'new-1',
+                    phone: '',
+                    is_primary_mobile_no: contact.data.phone_nos.length === 0,
+                    selected: false,
+                    isNew: true,
+                  }
+                  contact.data.phone_nos.push(newPhone)
+                },
+                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+              }
+            }
 
-          case 'date':
-            fieldData.type = 'Date'
-            break
-        }
+            // Handle select fields
+            if (field.type === 'select') {
+              return {
+                ...field,
+                placeholder: `${__('Select')} ${translatedLabel}`,
+                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+              }
+            }
 
-        return fieldData
-      })
-    }
-  })
-  
-  return sectionList
-}
-
-async function setAsPrimary(type, value) {
-  await call('crm.api.contact.set_as_primary', {
-    contact: contact.data.name,
-    field: type,
-    value,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function editOption(type, name, value) {
-  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
-  const fieldname = type === 'email' ? 'email_id' : 'phone'
-  await call('frappe.client.set_value', {
-    doctype,
-    name,
-    fieldname,
-    value,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function deleteOption(type, name) {
-  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
-  await call('frappe.client.delete', {
-    doctype,
-    name,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function createNew(type, value) {
-  if (!value) return
-  let d = await call('crm.api.contact.create_new', {
-    contact: contact.data.name,
-    field: type,
-    value,
-  })
-  if (d) {
-    contact.reload()
-    createToast({
-      title: __('Contact Updated'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
+            // Default field handling
+            return {
+              ...field,
+              placeholder: `${__('Enter')} ${translatedLabel}`,
+              class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
+            }
+          }),
+        ),
+      }
     })
   }
-}
+})
 
 async function updateField(fieldname, value) {
   await call('frappe.client.set_value', {
@@ -787,5 +678,80 @@ function trackPhoneActivities(type = 'phone') {
     activities: null,
     contactName: contact.data.full_name
   })
+}
+
+async function setAsPrimary(type, value) {
+  await call('crm.api.contact.set_as_primary', {
+    contact: contact.data.name,
+    field: type,
+    value,
+  })
+  await contact.reload()
+  createToast({
+    title: __('Contact Updated'),
+    icon: 'check',
+    iconClasses: 'text-ink-green-3',
+  })
+}
+
+async function editOption(type, name, value) {
+  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
+  const fieldname = type === 'email' ? 'email_id' : 'phone'
+  await call('frappe.client.set_value', {
+    doctype,
+    name,
+    fieldname,
+    value,
+  })
+  await contact.reload()
+  createToast({
+    title: __('Contact Updated'),
+    icon: 'check',
+    iconClasses: 'text-ink-green-3',
+  })
+}
+
+async function deleteOption(type, name) {
+  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
+  await call('frappe.client.delete', {
+    doctype,
+    name,
+  })
+  await contact.reload()
+  createToast({
+    title: __('Contact Updated'),
+    icon: 'check',
+    iconClasses: 'text-ink-green-3',
+  })
+}
+
+async function createNew(type, value) {
+  if (!value) return
+  let d = await call('crm.api.contact.create_new', {
+    contact: contact.data.name,
+    field: type,
+    value,
+  })
+  if (d) {
+    contact.reload()
+    createToast({
+      title: __('Contact Updated'),
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  }
+}
+
+function getPlaceholderVerb(fieldtype) {
+  switch(fieldtype?.toLowerCase()) {
+    case 'select':
+    case 'link':
+      return __('Select')
+    case 'date':
+    case 'datetime':
+      return __('Set')
+    default:
+      return __('Enter')
+  }
 }
 </script>

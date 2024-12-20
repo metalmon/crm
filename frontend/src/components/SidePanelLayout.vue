@@ -155,7 +155,7 @@
           <input
             v-else-if="field.type === 'Date'"
             type="date"
-            :class="field.class"
+            class="form-input w-full"
             :value="data[field.name]"
             @input="handleChange(field.name, $event.target.value)"
             :placeholder="field.placeholder"
@@ -163,7 +163,7 @@
           <input
             v-else-if="field.type === 'Datetime'"
             type="datetime-local"
-            :class="field.class"
+            class="form-input w-full"
             :value="data[field.name]"
             @input="handleChange(field.name, $event.target.value)"
             :placeholder="field.placeholder"
