@@ -597,8 +597,6 @@ function openEmailBox() {
 }
 
 function trackPhoneActivities(type = 'phone') {
-  if (!activities.value) return
-  
   trackCommunication({
     type,
     doctype: 'CRM Lead',

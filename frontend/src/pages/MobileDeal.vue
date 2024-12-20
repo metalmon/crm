@@ -349,10 +349,11 @@ import {
   Tabs,
   Breadcrumbs,
   call,
+  Tooltip,
 } from 'frappe-ui'
 import { ref, computed, h, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { errorMessage, openWebsite } from '@/utils'
+import { errorMessage, openWebsite, copyToClipboard } from '@/utils'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
@@ -471,6 +472,23 @@ function validateRequired(fieldname, value) {
   return false
 }
 
+const displayName = computed(() => {
+  if (!deal.data) return __('Loading...')
+  
+  if (organization.data?.name) {
+    return organization.data.name
+  }
+  
+  if (dealContacts.data) {
+    const primaryContact = dealContacts.data.find(c => c.is_primary)
+    if (primaryContact?.full_name) {
+      return primaryContact.full_name
+    }
+  }
+  
+  return __('Untitled')
+})
+
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Deals'), route: { name: 'Deals' } }]
 
@@ -490,7 +508,7 @@ const breadcrumbs = computed(() => {
   }
 
   items.push({
-    label: deal.data?.organization || deal.data?.contact_person || __('Untitled'),
+    label: displayName.value,
     route: { name: 'Deal', params: { dealId: deal.data.name } },
   })
   return items
