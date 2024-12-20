@@ -134,7 +134,7 @@
       v-model="tabIndex"
       :tabs="tabs"
       tablistClass="!px-4"
-      class="overflow-auto"
+      class="h-full flex flex-col"
     >
       <template #tab="{ tab, selected }">
         <button
@@ -156,44 +156,53 @@
         </button>
       </template>
       <template #default="{ tab }">
-        <div v-if="tab.name == 'Details'">
-          <div
-            v-if="fieldsLayout.data"
-            class="flex flex-1 flex-col justify-between overflow-hidden"
-          >
-            <div class="flex flex-col overflow-y-auto">
-              <div
-                v-for="(section, i) in fieldsLayout.data"
-                :key="section.label"
-                class="flex flex-col px-2 py-3 sm:p-3"
-                :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-              >
-                <Section :label="section.label" :opened="section.opened">
-                  <SidePanelLayout
-                    :fields="section.fields"
-                    :isLastSection="i == fieldsLayout.data.length - 1"
-                    v-model="contact.data"
-                    @update="updateField"
-                  />
-                </Section>
+        <div class="flex-1 relative">
+          <div v-if="tab.name == 'Details'">
+            <div
+              v-if="fieldsLayout.data"
+              class="flex flex-1 flex-col justify-between overflow-hidden"
+            >
+              <div class="flex flex-col overflow-y-auto">
+                <div
+                  v-for="(section, i) in fieldsLayout.data"
+                  :key="section.label"
+                  class="flex flex-col px-2 py-3 sm:p-3"
+                  :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
+                >
+                  <Section :label="section.label" :opened="section.opened">
+                    <SidePanelLayout
+                      :fields="section.fields"
+                      :isLastSection="i == fieldsLayout.data.length - 1"
+                      v-model="contact.data"
+                      @update="updateField"
+                    />
+                  </Section>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <DealsListView
-          v-if="tab.name === 'Deals' && rows.length"
-          class="mt-4"
-          :rows="rows"
-          :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
-        />
-        <div
-          v-if="tab.name === 'Deals' && !rows.length"
-          class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
-        >
-          <div class="flex flex-col items-center justify-center space-y-3">
-            <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __('No Deals Found') }}</div>
+          <div 
+            v-else-if="tab.name === 'Deals'" 
+            class="absolute inset-0 overflow-auto"
+          >
+            <div class="min-w-max">
+              <DealsListView
+                v-if="rows.length"
+                class="mt-4"
+                :rows="rows"
+                :columns="columns"
+                :options="{ selectable: false, showTooltip: false }"
+              />
+              <div
+                v-else
+                class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
+              >
+                <div class="flex flex-col items-center justify-center space-y-3">
+                  <component :is="tab.icon" class="!h-10 !w-10" />
+                  <div>{{ __('No Deals Found') }}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -666,37 +675,37 @@ const dealColumns = [
   {
     label: __('Organization'),
     key: 'organization',
-    width: '11rem',
+    width: '150px',
   },
   {
     label: __('Amount'),
     key: 'annual_revenue',
-    width: '9rem',
+    width: '120px',
   },
   {
     label: __('Status'),
     key: 'status',
-    width: '10rem',
+    width: '120px',
   },
   {
     label: __('Email'),
     key: 'email',
-    width: '12rem',
+    width: '180px',
   },
   {
     label: __('Mobile no'),
     key: 'mobile_no',
-    width: '11rem',
+    width: '130px',
   },
   {
     label: __('Deal owner'),
     key: 'deal_owner',
-    width: '10rem',
+    width: '150px',
   },
   {
     label: __('Last modified'),
     key: 'modified',
-    width: '8rem',
+    width: '130px',
   },
 ]
 
@@ -723,5 +732,22 @@ function trackPhoneActivities(type = 'phone') {
 
 :deep(.flex-col.overflow-y-auto) {
   overflow: visible !important;
+}
+
+:deep(.table-container) {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+:deep(table) {
+  width: auto;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+:deep(th),
+:deep(td) {
+  white-space: nowrap;
 }
 </style>

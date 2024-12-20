@@ -111,51 +111,60 @@
         </button>
       </template>
       <template #default="{ tab }">
-        <div v-if="tab.name == 'Details'">
-          <div
-            v-if="fieldsLayout.data"
-            class="flex flex-1 flex-col justify-between overflow-hidden"
-          >
-            <div class="flex flex-col overflow-y-auto">
-              <div
-                v-for="(section, i) in fieldsLayout.data"
-                :key="section.label"
-                class="flex flex-col px-2 py-3 sm:p-3"
-                :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-              >
-                <Section :label="section.label" :opened="section.opened">
-                  <SidePanelLayout
-                    :fields="section.fields"
-                    :isLastSection="i == fieldsLayout.data.length - 1"
-                    v-model="organization.doc"
-                    @update="updateField"
-                  />
-                </Section>
+        <div class="flex-1 relative">
+          <div v-if="tab.name === 'Details'">
+            <div
+              v-if="fieldsLayout.data"
+              class="flex flex-1 flex-col justify-between overflow-hidden"
+            >
+              <div class="flex flex-col overflow-y-auto">
+                <div
+                  v-for="(section, i) in fieldsLayout.data"
+                  :key="section.label"
+                  class="flex flex-col px-2 py-3 sm:p-3"
+                  :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
+                >
+                  <Section :label="section.label" :opened="section.opened">
+                    <SidePanelLayout
+                      :fields="section.fields"
+                      :isLastSection="i == fieldsLayout.data.length - 1"
+                      v-model="organization.doc"
+                      @update="updateField"
+                    />
+                  </Section>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <DealsListView
-          class="mt-4"
-          v-if="tab.label === 'Deals' && rows.length"
-          :rows="rows"
-          :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
-        />
-        <ContactsListView
-          class="mt-4"
-          v-if="tab.label === 'Contacts' && rows.length"
-          :rows="rows"
-          :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
-        />
-        <div
-          v-if="!rows.length && tab.name !== 'Details'"
-          class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
-        >
-          <div class="flex flex-col items-center justify-center space-y-3">
-            <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __(`No ${tab.label} Found`) }}</div>
+          <div 
+            v-else
+            class="absolute inset-0 overflow-auto"
+          >
+            <div class="min-w-max h-full">
+              <DealsListView
+                v-if="tab.name === 'Deals' && rows.length"
+                class="mt-4"
+                :rows="rows"
+                :columns="columns"
+                :options="{ selectable: false, showTooltip: false }"
+              />
+              <ContactsListView
+                v-if="tab.name === 'Contacts' && rows.length"
+                class="mt-4"
+                :rows="rows"
+                :columns="columns"
+                :options="{ selectable: false, showTooltip: false }"
+              />
+              <div
+                v-if="!rows.length"
+                class="h-[calc(100vh-200px)] flex items-center justify-center text-xl font-medium text-ink-gray-4"
+              >
+                <div class="flex flex-col items-center justify-center space-y-3">
+                  <component :is="tab.icon" class="!h-10 !w-10" />
+                  <div>{{ __('Not Found') }}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -202,7 +211,7 @@ import {
   usePageMeta,
   createResource,
 } from 'frappe-ui'
-import { h, computed, ref } from 'vue'
+import { h, computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -473,27 +482,31 @@ const contacts = createListResource({
     'company_name',
     'modified',
   ],
-  filters: {
-    company_name: props.organizationId,
-  },
+  filters: [
+    ['company_name', 'like', `%${props.organizationId}%`]
+  ],
   orderBy: 'modified desc',
   pageLength: 20,
   auto: true,
 })
 
 const rows = computed(() => {
-  let list = []
-  list = !tabIndex.value ? deals : contacts
-
-  if (!list.data) return []
-
-  return list.data.map((row) => {
-    return !tabIndex.value ? getDealRowObject(row) : getContactRowObject(row)
-  })
+  if (tabIndex.value === 0) return [] // Details tab
+  
+  const currentTab = tabs[tabIndex.value]
+  if (currentTab.name === 'Deals') {
+    if (!deals.data) return []
+    return deals.data.map(getDealRowObject)
+  } else if (currentTab.name === 'Contacts') {
+    if (!contacts.data) return []
+    return contacts.data.map(getContactRowObject)
+  }
+  return []
 })
 
 const columns = computed(() => {
-  return tabIndex.value === 0 ? dealColumns : contactColumns
+  const currentTab = tabs[tabIndex.value]
+  return currentTab.name === 'Deals' ? dealColumns : contactColumns
 })
 
 function getDealRowObject(deal) {
