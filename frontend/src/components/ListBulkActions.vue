@@ -25,7 +25,6 @@ import { capture } from '@/telemetry'
 import { call } from 'frappe-ui'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { __ } from '@/translation'
 
 const props = defineProps({
   doctype: {
@@ -61,7 +60,7 @@ function editValues(selections, unselectAll) {
 function convertToDeal(selections, unselectAll) {
   $dialog({
     title: __('Convert to Deal'),
-    message: __('Are you sure you want to convert %s Lead(s) to Deal(s)?', selections.size),
+    message: __('Are you sure you want to convert') + ' ' + selections.size + ' ' + __('Lead(s) to Deal(s)'),
     variant: 'solid',
     theme: 'blue',
     actions: [
@@ -93,7 +92,7 @@ function convertToDeal(selections, unselectAll) {
 function deleteValues(selections, unselectAll) {
   $dialog({
     title: __('Delete'),
-    message: __('Are you sure you want to delete %s item(s)?', selections.size),
+    message: __('Are you sure you want to delete') + ' ' + selections.size + ' ' + __('item(s)'),
     variant: 'solid',
     theme: 'red',
     actions: [
@@ -134,7 +133,7 @@ function assignValues(selections, unselectAll) {
 function clearAssignemnts(selections, unselectAll) {
   $dialog({
     title: __('Clear Assignment'),
-    message: __('Are you sure you want to clear assignment for %s item(s)?', selections.size),
+    message: __('Are you sure you want to clear assignment for') + ' ' + selections.size + ' ' + __('item(s)'),
     variant: 'solid',
     theme: 'red',
     actions: [

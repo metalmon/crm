@@ -171,7 +171,7 @@
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
-          :options="listBulkActionsRef.bulkActions(selections, unselectAll)"
+          :options="listBulkActionsRef?.bulkActions(selections, unselectAll) || []"
           placement="bottom-end"
         >
           <Button icon="more-horizontal" variant="ghost" />
