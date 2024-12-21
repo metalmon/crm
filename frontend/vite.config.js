@@ -25,6 +25,7 @@ export default defineConfig({
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',
         start_url: '/crm',
+        scope: '/crm/',
         description:
           'Modern & 100% Open-source CRM tool to supercharge your sales operations',
         icons: [
