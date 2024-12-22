@@ -32,19 +32,6 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
         // Get translated field label
         const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
         
-        // Determine placeholder verb based on field type
-        const getPlaceholderVerb = (fieldtype) => {
-          switch(fieldtype?.toLowerCase()) {
-            case 'select':
-            case 'link':
-              return __('Select')
-            case 'date':
-            case 'datetime':
-              return __('Set')
-            default:
-              return __('Enter')
-          }
-        }
 
         // Base field data with translations
         const fieldData = {
@@ -52,7 +39,6 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
           label: translatedLabel,
           type: field.fieldtype || 'text',
           all_properties: field || {},
-          placeholder: field.placeholder || `${getPlaceholderVerb(field.fieldtype)} ${translatedLabel}`
         }
 
         // Handle owner fields (lead_owner and deal_owner)

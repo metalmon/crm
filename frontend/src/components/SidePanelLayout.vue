@@ -101,7 +101,7 @@
             class="form-control"
             :type="field.type"
             :value="data[field.name]"
-            :placeholder="field.placeholder"
+            :placeholder="getPlaceholder(field)"
             :debounce="500"
             @change.stop="handleChange(field.name, $event.target.value)"
           />
@@ -111,7 +111,7 @@
             type="select"
             v-model="data[field.name]"
             :options="field.options"
-            :placeholder="field.placeholder"
+            :placeholder="getPlaceholder(field)"
             @change.stop="handleChange(field.name, $event.target.value)"
           >
             <template v-if="field.prefix" #prefix>
@@ -125,7 +125,7 @@
             doctype="User"
             :filters="field.filters"
             @change="(data) => handleChange(field.name, data)"
-            :placeholder="'Select' + ' ' + field.label + '...'"
+            :placeholder="getPlaceholder(field)"
             :hideMe="true"
           >
             <template v-if="data[field.name]" #prefix>
@@ -148,7 +148,7 @@
             :value="data[field.name]"
             :doctype="field.doctype"
             :filters="field.filters"
-            :placeholder="field.placeholder"
+            :placeholder="getPlaceholder(field)"
             @change="(data) => handleChange(field.name, data)"
             :onCreate="field.create"
           />
@@ -158,7 +158,7 @@
             class="form-input w-full"
             :value="data[field.name]"
             @input="handleChange(field.name, $event.target.value)"
-            :placeholder="field.placeholder"
+            :placeholder="getPlaceholder(field)"
           />
           <input
             v-else-if="field.type === 'Datetime'"
@@ -166,14 +166,14 @@
             class="form-input w-full"
             :value="data[field.name]"
             @input="handleChange(field.name, $event.target.value)"
-            :placeholder="field.placeholder"
+            :placeholder="getPlaceholder(field)"
           />
           <FormControl
             v-else
             class="form-control"
             type="text"
             :value="data[field.name]"
-            :placeholder="field.placeholder"
+            :placeholder="getPlaceholder(field)"
             :debounce="500"
             @change.stop="handleChange(field.name, $event.target.value)"
           />
@@ -297,7 +297,6 @@ const _fields = computed(() => {
           { label: __('Male'), value: 'Male' },
           { label: __('Female'), value: 'Female' }
         ],
-        placeholder: `${__('Select')} ${__(field.label)}`
       })
       return
     }
@@ -306,21 +305,10 @@ const _fields = computed(() => {
     all_fields.push({
       ...field,
       filters: df?.link_filters && JSON.parse(df.link_filters),
-      placeholder: getPlaceholder(field),
     })
   })
   return all_fields
 })
-
-function getPlaceholder(field) {
-  if (field.placeholder) {
-    return __(field.placeholder)
-  }
-  if (['select', 'link'].includes(field.type?.toLowerCase())) {
-    return __('Select {0}', [__(field.label)])
-  }
-  return field.label
-}
 
 function evaluate_depends_on(expression, field) {
   if (expression.substr(0, 5) == 'eval:') {
@@ -346,6 +334,17 @@ function evaluate(code, context = {}) {
     console.log('Error evaluating the following expression:')
     console.error(code)
     throw error
+  }
+}
+
+const getPlaceholder = (field) => {
+  if (field.placeholder) {
+    return __(field.placeholder)
+  }
+  if (['select', 'link'].includes(field.type)) {
+    return `${__('Select')} ${__(field.label)}`
+  } else {
+    return `${__('Enter')} ${__(field.label)}`
   }
 }
 </script>
