@@ -10,10 +10,33 @@ export function initSocket() {
   let protocol = port ? 'http' : 'https'
   let url = `${protocol}://${host}${port}/${siteName}`
 
+  console.log('Initializing socket connection to:', url)
+
   let socket = io(url, {
     withCredentials: true,
-    reconnectionAttempts: 5,
+    reconnectionAttempts: 5
   })
+
+  socket.on('connect', () => {
+    console.log('Socket connected successfully')
+    console.log('Transport type:', socket.io.engine.transport.name)
+  })
+
+  socket.io.engine.on("upgrade", () => {
+    console.log('Transport upgraded to:', socket.io.engine.transport.name)
+  })
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error)
+  })
+
+  socket.on('disconnect', (reason) => {
+    console.log('Socket disconnected:', reason)
+    if (socket.io?.engine?.transport) {
+      console.log('Last transport type:', socket.io.engine.transport.name)
+    }
+  })
+
   socket.on('refetch_resource', (data) => {
     if (data.cache_key) {
       let resource =

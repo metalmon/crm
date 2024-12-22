@@ -89,8 +89,10 @@ const tabs = createResource({
               label: translateLeadStatus(status.value),
               value: status.value
             }))
+            field.doctype = 'CRM Lead'
           } else if (field.name == 'lead_owner') {
-            field.type = 'User'
+            field.type = 'Link'
+            field.options = 'User'
           }
         })
       })

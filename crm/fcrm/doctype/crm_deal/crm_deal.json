@@ -234,7 +234,7 @@
   {
    "fieldname": "job_title",
    "fieldtype": "Data",
-   "label": "Job Title"
+   "label": "Designation"
   },
   {
    "fieldname": "phone",
@@ -338,7 +338,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-12-11 14:31:41.058895",
+ "modified": "2024-12-22 21:15:56.959871",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal",

@@ -106,11 +106,18 @@
             @change.stop="handleChange(field.name, $event.target.value)"
           />
           <FormControl
-            v-else-if="field.type === 'select'"
-            class="form-control cursor-pointer [&_select]:cursor-pointer truncate"
+          v-else-if="field.type === 'Select' || field.name === 'gender'"
             type="select"
+            class="form-control"
+            :class="[
+              field.prefix || field.prefixFn ? 'prefix' : '',
+              field.name === 'status' ? 'status-select' : ''
+            ]"
+            :options="field.name === 'gender' ? [
+              { label: __('Male'), value: 'Male' },
+              { label: __('Female'), value: 'Female' }
+            ] : field.options"
             v-model="data[field.name]"
-            :options="field.options"
             :placeholder="getPlaceholder(field)"
             @change.stop="handleChange(field.name, $event.target.value)"
           >
@@ -136,14 +143,14 @@
             </template>
             <template #item-label="{ option }">
               <Tooltip :text="option.value">
-                <div class="cursor-pointer">
+                <div class="cursor-pointer text-ink-gray-8 dark:text-gray-500">
                   {{ getUser(option.value).full_name }}
                 </div>
               </Tooltip>
             </template>
           </Link>
           <Link
-            v-else-if="field.type === 'link'"
+            v-else-if="field.type === 'Link'"
             class="form-control select-text"
             :value="data[field.name]"
             :doctype="field.doctype"
@@ -154,7 +161,7 @@
           />
           <input
             v-else-if="field.type === 'Date'"
-            type="date"
+            type="Date"
             class="form-input w-full"
             :value="data[field.name]"
             @input="handleChange(field.name, $event.target.value)"
@@ -180,12 +187,12 @@
         </div>
         <div class="ml-1">
           <ArrowUpRightIcon
-            v-if="field.type === 'link' && field.link && data[field.name]"
+            v-if="field.type === 'Link' && field.link && data[field.name]"
             class="h-4 w-4 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
             @click.stop="field.link(data[field.name])"
           />
           <EditIcon
-            v-if="field.type === 'link' && field.edit && data[field.name]"
+            v-if="field.type === 'Link' && field.edit && data[field.name]"
             class="size-3.5 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
             @click.stop="field.edit(data[field.name])"
           />
@@ -287,19 +294,6 @@ const _fields = computed(() => {
   let all_fields = []
   props.fields?.forEach((field) => {
     let df = field?.all_properties
-
-    // Handle special case for gender field
-    if (field.name === 'gender') {
-      all_fields.push({
-        ...field,
-        type: 'select',
-        options: [
-          { label: __('Male'), value: 'Male' },
-          { label: __('Female'), value: 'Female' }
-        ],
-      })
-      return
-    }
 
     if (df?.depends_on) evaluate_depends_on(df.depends_on, field)
     all_fields.push({

@@ -113,27 +113,25 @@ const tabs = createResource({
   params: { doctype: 'CRM Deal', type: 'Quick Entry' },
   auto: true,
   transform: (_tabs) => {
-    // First transform the data using the common function
-    const transformedTabs = _tabs.map(tab => ({
-      ...tab,
-      sections: getParsedFields(_tabs, 'CRM Deal', deal, {
-        organization: {
-          create: (value, close) => {
-            _organization.value = { organization_name: value }
-            showOrganizationModal.value = true
-            close()
-          },
-          link: (org) => router.push({
-            name: 'Organization',
-            params: { organizationId: org },
-          })
-        }
-      })
-    }))
+    return _tabs.map(tab => {
+      const newTab = {
+        ...tab,
+        sections: getParsedFields(_tabs, 'CRM Deal', deal, {
+          organization: {
+            create: (value, close) => {
+              _organization.value = { organization_name: value }
+              showOrganizationModal.value = true
+              close()
+            },
+            link: (org) => router.push({
+              name: 'Organization',
+              params: { organizationId: org },
+            })
+          }
+        })
+      }
 
-    // Then apply any modal-specific transformations
-    transformedTabs.forEach((tab) => {
-      tab.sections.forEach((section) => {
+      newTab.sections.forEach((section) => {
         section.fields?.forEach((field) => {
           if (field.name == 'status') {
             field.type = 'Select'
@@ -145,14 +143,16 @@ const tabs = createResource({
               label: translateDealStatus(status.value),
               value: status.value
             }))
+            field.doctype = 'CRM Deal'
           } else if (field.name == 'deal_owner') {
-            field.type = 'User'
+            field.type = 'Link'
+            field.options = 'User'
           }
         })
       })
-    })
 
-    return transformedTabs
+      return newTab
+    })
   },
 })
 

@@ -174,7 +174,7 @@
   {
    "fieldname": "job_title",
    "fieldtype": "Data",
-   "label": "Job Title"
+   "label": "Designation"
   },
   {
    "fieldname": "organization_tab",
@@ -290,7 +290,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-17 18:36:57.289897",
+ "modified": "2024-12-22 21:14:59.103082",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

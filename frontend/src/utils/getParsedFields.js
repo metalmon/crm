@@ -32,43 +32,29 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
         // Get translated field label
         const translatedLabel = __(field.label || fieldName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
         
-
         // Base field data with translations
         const fieldData = {
           name: fieldName,
           label: translatedLabel,
-          type: field.fieldtype || 'text',
+          type: field.fieldtype ? capitalizeFieldType(field.fieldtype) : 'Text',
           all_properties: field || {},
         }
 
-        // Handle owner fields (lead_owner and deal_owner)
+        // Handle owner fields
         if (fieldName.endsWith('_owner')) {
-          return {
-            ...fieldData,
-            type: fieldName,
-            filters: {
-              ignore_user_type: 1
-            }
+          fieldData.type = 'Link'
+          fieldData.options = 'User'
+          fieldData.filters = {
+            ignore_user_type: 1
           }
-        }
-
-        // Handle gender field
-        if (fieldName === 'gender') {
-          return {
-            ...fieldData,
-            type: 'select',
-            options: [
-              { label: __('Male'), value: 'Male' },
-              { label: __('Female'), value: 'Female' }
-            ],
-            placeholder: `${__('Select')} ${translatedLabel}`
-          }
+          return fieldData
         }
 
         // Handle field types that need special treatment
-        switch (field.fieldtype?.toLowerCase()) {
+        const fieldType = field.fieldtype?.toLowerCase() || ''
+        switch (fieldType) {
           case 'select':
-            fieldData.type = 'select'
+            fieldData.type = 'Select'
             if (field.options) {
               fieldData.options = field.options.split('\n').map(option => ({
                 label: __(option),
@@ -81,7 +67,7 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
             break
 
           case 'link':
-            fieldData.type = 'link'
+            fieldData.type = 'Link'
             fieldData.doctype = field.options
             // Add create/link handlers if needed based on doctype
             if (field.options === 'CRM Organization' && handlers.organization) {
@@ -99,6 +85,10 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
             fieldData.type = 'Datetime'
             fieldData.class = 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
             break
+
+          case 'check':
+            fieldData.type = 'Check'
+            break
         }
 
         return fieldData
@@ -107,4 +97,18 @@ export function getParsedFields(data, doctype, doc, handlers = {}) {
   })
   
   return sectionList
+}
+
+// Helper function to capitalize field types consistently
+function capitalizeFieldType(type) {
+  const typeMap = {
+    'select': 'Select',
+    'link': 'Link',
+    'date': 'Date',
+    'datetime': 'Datetime',
+    'check': 'Check',
+    'text': 'Text',
+    // Add other field types as needed
+  }
+  return typeMap[type.toLowerCase()] || type
 }

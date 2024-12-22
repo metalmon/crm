@@ -13,7 +13,7 @@ import router from './router'
 import translationPlugin, { translationsReady, __ } from './translation'
 import { posthogPlugin } from './telemetry'
 import App from './App.vue'
-import { setLocale } from './utils/translation'
+import { setLocale } from './utils/localeUtils'
 
 import {
   FrappeUI,
@@ -55,6 +55,25 @@ app.use(translationPlugin)
 // Make __ available globally
 window.__ = __
 
+// Initialize socket immediately
+let socket
+if (import.meta.env.DEV) {
+  frappeRequest({ url: '/api/method/crm.www.crm.get_context_for_dev' }).then(
+    (values) => {
+      for (let key in values) {
+        window[key] = values[key]
+      }
+      socket = initSocket()
+      app.config.globalProperties.$socket = socket
+      initApp()
+    },
+  )
+} else {
+  socket = initSocket()
+  app.config.globalProperties.$socket = socket
+  initApp()
+}
+
 async function initApp() {
   // Wait for translations to be ready before initializing router
   await new Promise(resolve => {
@@ -82,27 +101,9 @@ async function initApp() {
 
   app.config.globalProperties.$dialog = createDialog
 
-  let socket
-  if (import.meta.env.DEV) {
-    frappeRequest({ url: '/api/method/crm.www.crm.get_context_for_dev' }).then(
-      (values) => {
-        for (let key in values) {
-          window[key] = values[key]
-        }
-        socket = initSocket()
-        app.config.globalProperties.$socket = socket
-        app.mount('#app')
-      },
-    )
-  } else {
-    socket = initSocket()
-    app.config.globalProperties.$socket = socket
-    app.mount('#app')
-  }
-
   if (import.meta.env.DEV) {
     window.$dialog = createDialog
   }
-}
 
-initApp();
+  app.mount('#app')
+}

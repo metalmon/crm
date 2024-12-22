@@ -88,21 +88,25 @@
                     type="select"
                     class="form-control"
                     :class="[
-                      field.prefix || field.prefixFn ? 'prefix' : ''
+                      field.prefix || field.prefixFn ? 'prefix' : '',
+                      field.name === 'status' ? 'status-select' : ''
                     ]"
                     :options="field.name === 'gender' ? [
                       { label: __('Male'), value: 'Male' },
                       { label: __('Female'), value: 'Female' }
-                    ] : field.options"
+                    ] : field.name === 'status' ? field.options.map(status => ({
+                      label: getTranslatedStatus(field, status.value),
+                      value: status.value
+                    })) : field.options"
                     v-model="data[field.name]"
                     :placeholder="getPlaceholder(field)"
                   >
-                    <template v-if="field.prefix || field.prefixFn" #prefix>
-                      <IndicatorIcon :class="field.prefixFn ? field.prefixFn(data[field.name]) : field.prefix" />
+                    <template v-if="field.prefix || field.prefixFn || field.name === 'status'" #prefix>
+                      <IndicatorIcon :class="field.name === 'status' ? getStatusPrefix(field, data[field.name]) : field.prefixFn ? field.prefixFn(data[field.name]) : field.prefix" />
                     </template>
-                    <template v-if="field.prefixFn" #option="{ option }">
+                    <template v-if="field.prefixFn || field.name === 'status'" #option="{ option }">
                       <div class="flex items-center gap-2">
-                        <IndicatorIcon :class="field.prefixFn(option.value)" />
+                        <IndicatorIcon :class="field.name === 'status' ? getStatusPrefix(field, option.value) : field.prefixFn(option.value)" />
                         {{ option.label }}
                       </div>
                     </template>
@@ -140,6 +144,36 @@
                         :onCreate="field.create"
                       />
                     </template>
+                    <template v-else-if="field.options === 'User'">
+                      <Link
+                        class="form-control flex-1 truncate"
+                        :value="data[field.name] ? getUser(data[field.name]).full_name : ''"
+                        :doctype="field.options"
+                        :filters="field.filters"
+                        @change="(v) => (data[field.name] = v)"
+                        :placeholder="getPlaceholder(field)"
+                        :hideMe="true"
+                      >
+                        <template #prefix>
+                          <UserAvatar
+                            v-if="data[field.name]"
+                            class="mr-2"
+                            :user="data[field.name]"
+                            size="sm"
+                          />
+                        </template>
+                        <template #item-prefix="{ option }">
+                          <UserAvatar class="mr-2" :user="option.value" size="sm" />
+                        </template>
+                        <template #item-label="{ option }">
+                          <Tooltip :text="option.value">
+                            <div class="cursor-pointer text-ink-gray-8 dark:text-gray-500">
+                              {{ getUser(option.value).full_name }}
+                            </div>
+                          </Tooltip>
+                        </template>
+                      </Link>
+                    </template>
                     <template v-else>
                       <Link
                         class="form-control flex-1 truncate"
@@ -162,35 +196,6 @@
                       </template>
                     </Button>
                   </div>
-
-                  <Link
-                    v-else-if="field.type === 'User'"
-                    class="form-control"
-                    :value="getUser(data[field.name]).full_name"
-                    :doctype="field.options"
-                    :filters="field.filters"
-                    @change="(v) => (data[field.name] = v)"
-                    :placeholder="getPlaceholder(field)"
-                    :hideMe="true"
-                  >
-                    <template #prefix>
-                      <UserAvatar
-                        class="mr-2"
-                        :user="data[field.name]"
-                        size="sm"
-                      />
-                    </template>
-                    <template #item-prefix="{ option }">
-                      <UserAvatar class="mr-2" :user="option.value" size="sm" />
-                    </template>
-                    <template #item-label="{ option }">
-                      <Tooltip :text="option.value">
-                        <div class="cursor-pointer">
-                          {{ getUser(option.value).full_name }}
-                        </div>
-                      </Tooltip>
-                    </template>
-                  </Link>
                   <input
                     v-else-if="field.type === 'Date'"
                     type="date"
@@ -244,12 +249,16 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
 import CountryLink from '@/components/Controls/CountryLink.vue'
 import { usersStore } from '@/stores/users'
+import { statusesStore } from '@/stores/statuses'
 import { getFormat } from '@/utils'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import { Tabs, Tooltip, DatePicker, DateTimePicker, Dropdown, Button } from 'frappe-ui'
 import { ref, computed } from 'vue'
 import { FeatherIcon } from 'frappe-ui'
 
 const { getUser } = usersStore()
+const { getLeadStatus, getDealStatus } = statusesStore()
 
 const props = defineProps({
   tabs: Array,
@@ -295,6 +304,32 @@ const getPlaceholder = (field) => {
   } else {
     return `${__('Enter')} ${__(field.label)}`
   }
+}
+
+function getTranslatedStatus(field, status) {
+  if (!status) return ''
+  if (field.name === 'status') {
+    if (field.doctype === 'CRM Lead') {
+      return translateLeadStatus(status)
+    } else if (field.doctype === 'CRM Deal') {
+      return translateDealStatus(status)
+    }
+  }
+  return status
+}
+
+function getStatusPrefix(field, status) {
+  if (!status) return ''
+  if (field.name === 'status') {
+    if (field.doctype === 'CRM Lead') {
+      const statusInfo = getLeadStatus(status)
+      return statusInfo?.iconColorClass[0]
+    } else if (field.doctype === 'CRM Deal') {
+      const statusInfo = getDealStatus(status)
+      return statusInfo?.iconColorClass[0]
+    }
+  }
+  return field.prefixFn ? field.prefixFn(status) : field.prefix
 }
 
 </script>
