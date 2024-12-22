@@ -273,9 +273,10 @@
     @loadMore="() => loadMore++"
     @columnWidthUpdated="() => triggerResize++"
     @updatePageCount="(count) => (updatedPageCount = count)"
-    @applyFilter="handleListFilter"
+    @applyFilter="(data) => viewControls.applyFilter(data)"
     @applyLikeFilter="(data) => viewControls.applyLikeFilter(data)"
     @likeDoc="(data) => viewControls.likeDoc(data)"
+    @bulkAction="(data) => viewControls.handleBulkAction(data)"
   />
   <div v-else-if="leads.data" class="flex h-full items-center justify-center">
     <div
@@ -308,7 +309,11 @@
     doctype="CRM Lead"
     :doc="docname"
   />
-  <QuickEntryModal v-if="showQuickEntryModal" v-model="showQuickEntryModal" />
+  <QuickEntryModal
+    v-if="showQuickEntryModal"
+    v-model="showQuickEntryModal"
+    doctype="CRM Lead"
+  />
 </template>
 
 <script setup>
@@ -559,18 +564,27 @@ function actions(itemName) {
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
       label: __('Make a Call'),
-      onClick: () => makeCall(mobile_no),
+      onClick: (context) => {
+        makeCall(mobile_no)
+        context.close()
+      },
       condition: () => mobile_no && callEnabled.value,
     },
     {
       icon: h(NoteIcon, { class: 'h-4 w-4' }),
       label: __('New Note'),
-      onClick: () => showNote(itemName),
+      onClick: (context) => {
+        showNote(itemName)
+        context.close()
+      },
     },
     {
       icon: h(TaskIcon, { class: 'h-4 w-4' }),
       label: __('New Task'),
-      onClick: () => showTask(itemName),
+      onClick: (context) => {
+        showTask(itemName)
+        context.close()
+      },
     },
   ]
   return actions.filter((action) =>
@@ -603,13 +617,6 @@ const task = ref({
 function showTask(name) {
   docname.value = name
   showTaskModal.value = true
-}
-
-function handleListFilter(data) {
-  if (!viewControls.value || !leads.value || !leads.value.params) return;
-  
-  leads.value.params.filters = data;
-  leads.value.reload();
 }
 
 function handleSmartFilter(filters) {
