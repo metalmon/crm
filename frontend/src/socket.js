@@ -15,10 +15,9 @@ const log = {
 
 export function initSocket() {
   let host = window.location.hostname
-  let siteName = window.site_name
   let port = window.location.port ? `:${socketio_port}` : ''
   let protocol = port ? 'http' : 'https'
-  let url = `${protocol}://${host}${port}/${siteName}`
+  let url = `${protocol}://${host}${port}`
 
   log.info('Initializing socket connection to:', url)
 
