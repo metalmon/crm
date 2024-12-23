@@ -205,8 +205,8 @@ def get_the_call_attender(owners, caller=None):
 				current_loggedin_users = [user]
 
 	for name, details in owners.items():
-		if ((details['call_receiving_device'] == 'Phone' and details['mobile_no']) or
-			(details['call_receiving_device'] == 'Computer' and name in current_loggedin_users)):
+		if ((details['call_receiving_device'] == _('Phone') and details['mobile_no']) or
+			(details['call_receiving_device'] == _('Computer') and name in current_loggedin_users)):
 			return details
 
 
@@ -222,8 +222,8 @@ class TwilioCallDetails:
 
 	def get_direction(self):
 		if self.call_info.get('Caller').lower().startswith('client'):
-			return 'Outgoing'
-		return 'Incoming'
+			return _('Outgoing')
+		return _('Incoming')
 
 	def get_from_number(self):
 		return self._call_from or self.call_info.get('From')

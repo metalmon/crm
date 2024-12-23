@@ -23,7 +23,7 @@ def generate_access_token():
 		return {
 			"ok": False,
 			"error": "caller_phone_identity_missing",
-			"detail": "Phone number is not mapped to the caller"
+			"detail": _("Phone number is not mapped to the caller")
 		}
 
 	token=twilio.generate_voice_access_token(identity=frappe.session.user)
@@ -68,7 +68,7 @@ def twilio_incoming_call_handler(**kwargs):
 def create_call_log(call_details: TwilioCallDetails):
 	call_log = frappe.get_doc({**call_details.to_dict(),
 		'doctype': 'CRM Call Log',
-		'medium': 'Twilio'
+		'medium': _('Twilio')
 	})
 	call_log.reference_docname, call_log.reference_doctype = get_lead_or_deal_from_number(call_log)
 	call_log.flags.ignore_permissions = True
@@ -148,7 +148,7 @@ def add_note_to_call_log(call_sid, note):
 	if not twilio: return
 
 	call_details = twilio.get_call_info(call_sid)
-	sid = call_sid if call_details.direction == 'inbound' else call_details.parent_call_sid
+	sid = call_sid if call_details.direction == _('inbound') else call_details.parent_call_sid
 
 	frappe.db.set_value("CRM Call Log", sid, "note", note)
 	frappe.db.commit()

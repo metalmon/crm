@@ -610,7 +610,7 @@ def get_sidebar_fields(doctype, name):
 
 def get_field_obj(field):
 	obj = {
-		"label": field.label,
+		"label": _(field.label),
 		"type": get_type(field),
 		"name": field.fieldname,
 		"hidden": field.hidden,
@@ -619,17 +619,17 @@ def get_field_obj(field):
 		"all_properties": field,
 	}
 
-	obj["placeholder"] = field.get("placeholder") or "Add " + field.label + "..."
+	obj["placeholder"] = field.get("placeholder") or _("Add") + " " + _(field.label) + "..."
 
 	if field.fieldtype == "Link":
-		obj["placeholder"] = field.get("placeholder") or "Select " + field.label + "..."
+		obj["placeholder"] = field.get("placeholder") or _("Select") + " " + _(field.label) + "..."
 		obj["doctype"] = field.options
 	elif field.fieldtype == "Select" and field.options:
-		obj["placeholder"] = field.get("placeholder") or "Select " + field.label + "..."
+		obj["placeholder"] = field.get("placeholder") or _("Select") + " " + _(field.label) + "..."
 		obj["options"] = [{"label": option, "value": option} for option in field.options.split("\n")]
 
 	if field.read_only:
-		obj["tooltip"] = "This field is read only and cannot be edited."
+		obj["tooltip"] = _("This field is read only and cannot be edited.")
 
 	return obj
 
