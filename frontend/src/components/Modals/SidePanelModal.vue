@@ -112,6 +112,7 @@ const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
   cache: ['SidePanel', _doctype.value],
   params: getParams(),
+  auto: false,
   onSuccess(data) {
     tabs.originalData = JSON.parse(JSON.stringify(data))
   },
