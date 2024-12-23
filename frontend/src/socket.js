@@ -3,6 +3,16 @@ import { socketio_port } from '../../../../sites/common_site_config.json'
 import { getCachedListResource } from 'frappe-ui/src/resources/listResource'
 import { getCachedResource } from 'frappe-ui/src/resources/resources'
 
+// Ensure these logs are preserved in production
+const log = {
+  info: (...args) => {
+    console.log('[Socket]', ...args)
+  },
+  error: (...args) => {
+    console.error('[Socket]', ...args)
+  }
+}
+
 export function initSocket() {
   let host = window.location.hostname
   let siteName = window.site_name
@@ -10,7 +20,7 @@ export function initSocket() {
   let protocol = port ? 'http' : 'https'
   let url = `${protocol}://${host}${port}/${siteName}`
 
-  console.log('Initializing socket connection to:', url)
+  log.info('Initializing socket connection to:', url)
 
   let socket = io(url, {
     withCredentials: true,
@@ -18,22 +28,22 @@ export function initSocket() {
   })
 
   socket.on('connect', () => {
-    console.log('Socket connected successfully')
-    console.log('Transport type:', socket.io.engine.transport.name)
+    log.info('Socket connected successfully')
+    log.info('Transport type:', socket.io.engine.transport.name)
   })
 
   socket.io.engine.on("upgrade", () => {
-    console.log('Transport upgraded to:', socket.io.engine.transport.name)
+    log.info('Transport upgraded to:', socket.io.engine.transport.name)
   })
 
   socket.on('connect_error', (error) => {
-    console.error('Socket connection error:', error)
+    log.error('Socket connection error:', error)
   })
 
   socket.on('disconnect', (reason) => {
-    console.log('Socket disconnected:', reason)
+    log.info('Socket disconnected:', reason)
     if (socket.io?.engine?.transport) {
-      console.log('Last transport type:', socket.io.engine.transport.name)
+      log.info('Last transport type:', socket.io.engine.transport.name)
     }
   })
 
