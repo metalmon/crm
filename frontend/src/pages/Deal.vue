@@ -499,8 +499,31 @@ const showQuickEntryModal = ref(false)
 const _organization = ref({})
 const _contact = ref({})
 
-function updateField(fieldname, value) {
-  if (validateRequired(fieldname, value)) return
+function updateField(name, value, callback) {
+  if (validateRequired(name, value)) return
+  
+  updateDeal(name, value, () => {
+    deal.data[name] = value
+    callback?.()
+  })
+}
+
+function validateRequired(fieldname, value) {
+  let meta = deal.data.fields_meta || {}
+  if (meta[fieldname]?.reqd && !value) {
+    createToast({
+      title: __('Error Updating Deal'),
+      text: __('{0} is a required field', [meta[fieldname].label]),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
+    return true
+  }
+  return false
+}
+
+function updateDeal(fieldname, value, callback) {
+  value = Array.isArray(fieldname) ? '' : value
 
   createResource({
     url: 'frappe.client.set_value',
@@ -519,7 +542,7 @@ function updateField(fieldname, value) {
         icon: 'check',
         iconClasses: 'text-ink-green-3',
       })
-      
+      callback?.()
     },
     onError: (err) => {
       createToast({
@@ -530,20 +553,6 @@ function updateField(fieldname, value) {
       })
     },
   })
-}
-
-function validateRequired(fieldname, value) {
-  let meta = deal.data.fields_meta || {}
-  if (meta[fieldname]?.reqd && !value) {
-    createToast({
-      title: __('Error Updating Deal'),
-      text: __('{0} is a required field', [meta[fieldname].label]),
-      icon: 'x',
-      iconClasses: 'text-ink-red-4',
-    })
-    return true
-  }
-  return false
 }
 
 const displayName = computed(() => {
@@ -651,29 +660,29 @@ const fieldsLayout = createResource({
   cache: ['fieldsLayout', props.dealId],
   params: { doctype: 'CRM Deal', name: props.dealId },
   auto: true,
-  transform: (data) => {
-    const transformed = getParsedFields(data, 'CRM Deal', deal.data, {
-      organization: {
-        create: (value, close) => {
-          _organization.value = { organization_name: value }
-          showOrganizationModal.value = true
-          close()
-        },
-        link: (org) => router.push({
-          name: 'Organization',
-          params: { organizationId: org },
-        })
+  transform: (data) => getParsedFields(data, 'CRM Deal', deal.data, {
+    organization: {
+      create: (value, close) => {
+        _organization.value = { organization_name: value }
+        showOrganizationModal.value = true
+        close()
       },
-      contact: {
-        link: (contact) => router.push({
-          name: 'Contact',
-          params: { contactId: contact },
-        }),
-        onChange: (contact) => addContact(contact)
+      link: (org) => router.push({
+        name: 'Organization',
+        params: { organizationId: org },
+      }),
+      edit: async (org) => {
+        showQuickEntryModal.value = true
       }
-    });
-    return transformed;
-  }
+    },
+    contact: {
+      link: (contact) => router.push({
+        name: 'Contact',
+        params: { contactId: contact },
+      }),
+      onChange: (contact) => addContact(contact)
+    }
+  })
 })
 
 const showContactModal = ref(false)

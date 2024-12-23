@@ -54,7 +54,7 @@ import { usersStore } from '@/stores/users'
 import { showSettings } from '@/composables/settings'
 import { Dropdown } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
-import { computed, ref, markRaw, inject, onMounted } from 'vue'
+import { computed, ref, markRaw, inject } from 'vue'
 
 const props = defineProps({
   isCollapsed: {
@@ -125,10 +125,4 @@ function toggleTheme() {
   theme.value = currentTheme === 'dark' ? 'light' : 'dark'
   document.documentElement.setAttribute('data-theme', theme.value)
 }
-
-onMounted(() => {
-  if (['light', 'dark'].includes(theme.value)) {
-    document.documentElement.setAttribute('data-theme', theme.value)
-  }
-})
 </script>

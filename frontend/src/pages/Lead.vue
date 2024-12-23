@@ -625,9 +625,6 @@ const fieldsLayout = createResource({
 })
 
 function updateField(name, value, callback) {
-  if (name === 'source') {
-    console.log('updateField for source:', { name, value })
-  }
   updateLead(name, value, () => {
     lead.data[name] = value
     callback?.()
