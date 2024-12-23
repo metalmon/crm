@@ -123,6 +123,12 @@ const options = createResource({
   url: 'frappe.desk.search.search_link',
   cache: [props.doctype, text.value, props.hideMe],
   method: 'POST',
+  beforeSubmit: () => {
+    if (!props.doctype) {
+      return false
+    }
+    return true
+  },
   params: {
     txt: text.value,
     doctype: props.doctype,
@@ -146,6 +152,11 @@ const options = createResource({
 })
 
 function reload(val) {
+  if (!props.doctype) {
+    console.warn('Link component: doctype is required')
+    return
+  }
+
   if (
     options.data?.length &&
     val === options.params?.txt &&
