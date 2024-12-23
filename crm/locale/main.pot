@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2024-12-23 04:28+0000\n"
-"PO-Revision-Date: 2024-12-23 04:28+0000\n"
+"POT-Creation-Date: 2024-12-23 16:46+0000\n"
+"PO-Revision-Date: 2024-12-23 16:46+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -1949,6 +1949,7 @@ msgid "Load Default Columns"
 msgstr ""
 
 #: frontend/src/components/Kanban/KanbanView.vue:142
+#: frontend/src/components/custom-ui/ListFooter.vue:14
 msgid "Load More"
 msgstr ""
 
@@ -3067,6 +3068,14 @@ msgstr ""
 #: frontend/src/pages/Organization.vue:446
 #: frontend/src/pages/Organization.vue:465
 msgid "Select"
+msgstr ""
+
+#: frontend/src/components/custom-ui/ListSelectBanner.vue:58
+msgid "Select All"
+msgstr ""
+
+#: frontend/src/components/custom-ui/ListSelectBanner.vue:81
+msgid "Selected"
 msgstr ""
 
 #: frontend/src/components/EmailEditor.vue:159

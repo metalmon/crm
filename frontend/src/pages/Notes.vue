@@ -111,7 +111,8 @@ import NoteModal from '@/components/Modals/NoteModal.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import { usersStore } from '@/stores/users'
 import { timeAgo, formatDate } from '@/utils'
-import { TextEditor, call, Dropdown, Tooltip, ListFooter } from 'frappe-ui'
+import { TextEditor, call, Dropdown, Tooltip } from 'frappe-ui'
+import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { ref, watch } from 'vue'
 
 const { getUser } = usersStore()

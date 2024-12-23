@@ -169,12 +169,12 @@ import {
   ListRows,
   ListRow,
   ListRowItem,
-  ListFooter,
   Tooltip,
   Dropdown,
   Button,
-  ListSelectBanner,
 } from 'frappe-ui'
+import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
+import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
