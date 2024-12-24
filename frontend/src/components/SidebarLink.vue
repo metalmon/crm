@@ -74,27 +74,8 @@ const props = defineProps({
   },
 })
 
-// Track route changes
-watch(() => route.name, (newName, oldName) => {
-  console.log(`[${props.label}] route.name changed:`, { 
-    from: oldName, 
-    to: newName 
-  })
-})
-
-watch(() => route.query.view, (newView, oldView) => {
-  console.log(`[${props.label}] route.query.view changed:`, { 
-    from: oldView, 
-    to: newView 
-  })
-})
-
 function handleClick() {
   if (!props.to) return
-  console.log(`[${props.label}] handleClick:`, {
-    to: props.to,
-    isMobile: isMobileView.value
-  })
   if (typeof props.to === 'object') {
     router.push(props.to)
   } else {

@@ -248,8 +248,7 @@ import {
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
-import { trackCommunication } from '@/utils/communicationUtils'
-import { getParsedFields } from '@/utils/getParsedFields'
+import { normalizePhoneNumber } from '@/utils/communicationUtils'
 
 const { $dialog, makeCall } = globalStore()
 
@@ -714,14 +713,13 @@ function trackPhoneActivities(type = 'phone') {
     errorMessage(__('No phone number set'))
     return
   }
-  trackCommunication({
-    type,
-    doctype: 'Contact',
-    docname: contact.data.name,
-    phoneNumber: contact.data.actual_mobile_no,
-    activities: null,
-    contactName: contact.data.full_name
-  })
+
+  const formattedNumber = normalizePhoneNumber(contact.data.actual_mobile_no)
+  if (type === 'phone') {
+    window.location.href = `tel:${formattedNumber}`
+  } else {
+    window.open(`https://wa.me/${formattedNumber}`, '_blank')
+  }
 }
 </script>
 

@@ -269,8 +269,7 @@ import {
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { normalizePhoneNumber } from '@/utils/communicationUtils'
-import { trackCommunication } from '@/utils/communicationUtils'
-import { getParsedFields } from '@/utils/getParsedFields'
+
 
 const { $dialog, makeCall } = globalStore()
 
@@ -670,14 +669,13 @@ function trackPhoneActivities(type = 'phone') {
     errorMessage(__('No phone number set'))
     return
   }
-  trackCommunication({
-    type,
-    doctype: 'Contact',
-    docname: contact.data.name,
-    phoneNumber: contact.data.actual_mobile_no,
-    activities: null,
-    contactName: contact.data.full_name
-  })
+
+  const formattedNumber = normalizePhoneNumber(contact.data.actual_mobile_no)
+  if (type === 'phone') {
+    window.location.href = `tel:${formattedNumber}`
+  } else {
+    window.open(`https://wa.me/${formattedNumber}`, '_blank')
+  }
 }
 
 async function setAsPrimary(type, value) {
@@ -739,19 +737,6 @@ async function createNew(type, value) {
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
-  }
-}
-
-function getPlaceholderVerb(fieldtype) {
-  switch(fieldtype?.toLowerCase()) {
-    case 'select':
-    case 'link':
-      return __('Select')
-    case 'date':
-    case 'datetime':
-      return __('Set')
-    default:
-      return __('Enter')
   }
 }
 </script>
