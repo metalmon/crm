@@ -72,6 +72,7 @@ import { computed, ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import { getParsedFields } from '@/utils/getParsedFields'
+import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   defaults: Object,
@@ -243,13 +244,17 @@ function createDeal() {
       show.value = false
       router.push({ name: 'Deal', params: { dealId: name } })
     },
-    onError(err) {
-      isDealCreating.value = false
-      if (!err.messages) {
-        error.value = err.message
-        return
+    async onError(err) {
+      // Try to handle duplicate entry error
+      const handled = await handleDuplicateEntry(err, 'CRM Deal', () => createDeal())
+      if (!handled) {
+        isDealCreating.value = false
+        if (!err.messages) {
+          error.value = err.message
+          return
+        }
+        error.value = err.messages.join('\n')
       }
-      error.value = err.messages.join('\n')
     },
   })
 }

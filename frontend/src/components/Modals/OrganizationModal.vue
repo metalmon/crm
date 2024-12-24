@@ -58,6 +58,7 @@ import { capture } from '@/telemetry'
 import { call, FeatherIcon, createResource } from 'frappe-ui'
 import { ref, nextTick, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   options: {
@@ -139,16 +140,25 @@ async function callSetValue(values) {
 }
 
 async function callInsertDoc() {
-  const doc = await call('frappe.client.insert', {
-    doc: {
-      doctype: 'CRM Organization',
-      ..._organization.value,
-    },
-  })
-  loading.value = false
-  if (doc.name) {
-    capture('organization_created')
-    handleOrganizationUpdate(doc)
+  try {
+    const doc = await call('frappe.client.insert', {
+      doc: {
+        doctype: 'CRM Organization',
+        ..._organization.value,
+      },
+    })
+    loading.value = false
+    if (doc.name) {
+      capture('organization_created')
+      handleOrganizationUpdate(doc)
+    }
+  } catch (err) {
+    // Try to handle duplicate entry error
+    const handled = await handleDuplicateEntry(err, 'CRM Organization', () => callInsertDoc())
+    if (!handled) {
+      loading.value = false
+      error.value = err.message
+    }
   }
 }
 

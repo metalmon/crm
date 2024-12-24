@@ -56,6 +56,7 @@ import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
 import { call, FeatherIcon, createResource, ErrorMessage } from 'frappe-ui'
 import { ref, nextTick, watch, computed } from 'vue'
+import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   options: {
@@ -252,22 +253,24 @@ const createAddress = createResource({
       doc: {
         doctype: 'Address',
         ..._address.value,
+        country: originalCountry,
         address_title: _address.value.address_title || defaultTitle,
-        address_type: _address.value.address_type || 'Office',
-        country: originalCountry
       },
     }
   },
   onSuccess(doc) {
     loading.value = false
     if (doc.name) {
-      capture('address_created')
       handleAddressUpdate(doc)
     }
   },
-  onError(err) {
-    loading.value = false
-    error.value = err
+  async onError(err) {
+    // Try to handle duplicate entry error
+    const handled = await handleDuplicateEntry(err, 'Address', () => createAddress.submit())
+    if (!handled) {
+      loading.value = false
+      error.value = err
+    }
   },
 })
 

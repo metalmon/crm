@@ -57,6 +57,7 @@ import { useRouter } from 'vue-router'
 import { Dropdown } from 'frappe-ui'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   defaults: Object,
@@ -177,7 +178,12 @@ function createNewLead() {
       show.value = false
       router.push({ name: 'Lead', params: { leadId: data.name } })
     },
-    onError(err) {
+    async onError(err) {
+      // Try to handle duplicate entry error
+      const handled = await handleDuplicateEntry(err, 'CRM Lead', () => createLead.submit(lead))
+      if (handled) return
+
+      // If not handled, show the error as usual
       isLeadCreating.value = false
       if (!err.messages) {
         error.value = err.message
