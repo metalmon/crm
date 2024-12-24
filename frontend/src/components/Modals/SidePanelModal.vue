@@ -104,19 +104,26 @@ const dirty = ref(false)
 const preview = ref(false)
 const data = ref({})
 
-function getParams() {
-  return { doctype: _doctype.value, type: 'Side Panel' }
-}
-
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
   cache: ['SidePanel', _doctype.value],
-  params: getParams(),
-  auto: false,
+  params: { doctype: _doctype.value, type: 'Side Panel' },
+  auto: true,
   onSuccess(data) {
     tabs.originalData = JSON.parse(JSON.stringify(data))
   },
 })
+
+watch(
+  () => _doctype.value,
+  () => {
+    if (_doctype.value) {
+      tabs.params = { doctype: _doctype.value, type: 'Side Panel' }
+      tabs.reload()
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => tabs?.data,
@@ -127,11 +134,9 @@ watch(
   { deep: true },
 )
 
-onMounted(() => useDebounceFn(reload, 100)())
-
 function reload() {
   nextTick(() => {
-    tabs.params = getParams()
+    tabs.params = { doctype: _doctype.value, type: 'Side Panel' }
     tabs.reload()
   })
 }

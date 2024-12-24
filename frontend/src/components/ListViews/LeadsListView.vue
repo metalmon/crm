@@ -17,7 +17,6 @@
   >
     <ListHeader
       class="sm:mx-5 mx-3"
-      @columnWidthUpdated="emit('columnWidthUpdated')"
     >
       <ListHeaderItem
         v-for="column in columns"
@@ -36,7 +35,7 @@
         </Button>
       </ListHeaderItem>
     </ListHeader>
-    <ListRows :rows="rows" v-slot="{ idx, column, item, row }">
+    <TranslatedListRows :rows="rows" v-slot="{ idx, column, item, row }">
       <div v-if="column.key === '_assign'" class="flex items-center">
         <MultipleAvatar
           :avatars="item || []"
@@ -179,7 +178,7 @@
           </div>
         </template>
       </ListRowItem>
-    </ListRows>
+    </TranslatedListRows>
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
@@ -210,12 +209,13 @@ import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
-import ListRows from '@/components/ListViews/ListRows.vue'
+import TranslatedListRows from '@/components/ListViews/ListRows.vue'
 import {
   Avatar,
   ListView,
   ListHeader,
   ListHeaderItem,
+  ListRow,
   ListRowItem,
   Dropdown,
   Tooltip,
