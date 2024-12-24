@@ -470,6 +470,19 @@ const organization = createResource({
   onSuccess: (data) => (deal.data._organizationObj = data),
 })
 
+const dealContacts = createResource({
+  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
+  params: { name: props.dealId },
+  cache: ['deal_contacts', props.dealId],
+  auto: true,
+  transform: (data) => {
+    data.forEach((contact) => {
+      contact.opened = false
+    })
+    return data
+  },
+})
+
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
     createToast({
@@ -731,19 +744,6 @@ async function setPrimaryContact(contact) {
     })
   }
 }
-
-const dealContacts = createResource({
-  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
-  params: { name: props.dealId },
-  cache: ['deal_contacts', props.dealId],
-  auto: true,
-  transform: (data) => {
-    data.forEach((contact) => {
-      contact.opened = false
-    })
-    return data
-  },
-})
 
 function trackPhoneActivities(type = 'phone') {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)

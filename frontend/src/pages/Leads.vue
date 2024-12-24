@@ -276,7 +276,6 @@
     @applyFilter="(data) => viewControls.applyFilter(data)"
     @applyLikeFilter="(data) => viewControls.applyLikeFilter(data)"
     @likeDoc="(data) => viewControls.likeDoc(data)"
-    @bulkAction="(data) => viewControls.handleBulkAction(data)"
   />
   <div v-else-if="leads.data" class="flex h-full items-center justify-center">
     <div

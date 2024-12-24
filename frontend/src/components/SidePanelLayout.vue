@@ -21,7 +21,7 @@
         >
           <div
             v-if="
-              field.read_only && !['checkbox', 'dropdown'].includes(field.type)
+              field.read_only && !['Checkbox', 'Dropdown'].includes(field.type)
             "
             class="flex h-7 cursor-pointer items-center px-2 py-1 text-ink-gray-5"
           >
@@ -29,7 +29,7 @@
               <div>{{ localData[field.name] }}</div>
             </Tooltip>
           </div>
-          <div v-else-if="field.type === 'dropdown'">
+          <div v-else-if="field.type === 'Dropdown'">
             <NestedPopover>
               <template #target="{ open }">
                 <Button
@@ -87,7 +87,7 @@
             </NestedPopover>
           </div>
           <FormControl
-            v-else-if="field.type == 'checkbox'"
+            v-else-if="field.type == 'Сheckbox'"
             class="form-control"
             :type="field.type"
             v-model="data[field.name]"
@@ -96,17 +96,17 @@
           />
           <FormControl
             v-else-if="
-              ['email', 'number', 'password', 'textarea'].includes(field.type)
+              ['email', 'number', 'password', 'textarea'].includes(field.type?.toLowerCase())
             "
             class="form-control"
-            :type="field.type"
+            :type="field.type?.toLowerCase()"
             :value="data[field.name]"
             :placeholder="getPlaceholder(field)"
             :debounce="500"
             @change.stop="handleChange(field.name, $event.target.value)"
           />
           <FormControl
-          v-else-if="field.type === 'Select' || field.name === 'gender'"
+            v-else-if="field.type === 'Select' || field.name === 'gender'"
             type="select"
             class="form-control"
             :class="[
@@ -294,6 +294,15 @@ const _fields = computed(() => {
   let all_fields = []
   props.fields?.forEach((field) => {
     let df = field?.all_properties
+    
+    // Transform field type to have first letter capitalized
+    if (field.type) {
+      field.type = field.type.charAt(0).toUpperCase() + field.type.slice(1).toLowerCase()
+    }
+    // Only set fieldtype if type is not already set
+    if (df?.fieldtype && !field.type) {
+      field.type = df.fieldtype.charAt(0).toUpperCase() + df.fieldtype.slice(1).toLowerCase()
+    }
 
     if (df?.depends_on) evaluate_depends_on(df.depends_on, field)
     all_fields.push({

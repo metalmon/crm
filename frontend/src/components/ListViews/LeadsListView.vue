@@ -30,7 +30,7 @@
           variant="ghosted"
           class="!h-4"
           :class="isLikeFilterApplied ? 'fill-red-500' : 'fill-white'"
-          @click="applyLikeFilter"
+          @click="() => emit('applyLikeFilter')"
         >
           <HeartIcon class="h-4 w-4" />
         </Button>
@@ -43,7 +43,7 @@
           size="sm"
           @click="
             (event) =>
-              applyFilter({
+              emit('applyFilter', {
                 event,
                 idx,
                 column,
@@ -103,7 +103,7 @@
             class="truncate text-base"
             @click="
               (event) =>
-                applyFilter({
+                emit('applyFilter', {
                   event,
                   idx,
                   column,
@@ -143,7 +143,7 @@
               :label="item?.value"
               @click="
                 (event) =>
-                  applyFilter({
+                  emit('applyFilter', {
                     event,
                     idx,
                     column,
@@ -166,7 +166,7 @@
             class="truncate text-base"
             @click="
               (event) =>
-                applyFilter({
+                emit('applyFilter', {
                   event,
                   idx,
                   column,
@@ -183,7 +183,8 @@
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
-          :options="listBulkActionsRef.bulkActions(selections, unselectAll)"
+          :options="listBulkActionsRef?.bulkActions(selections, unselectAll) || []"
+          placement="bottom-end"
         >
           <Button icon="more-horizontal" variant="ghost" />
         </Dropdown>
@@ -218,6 +219,7 @@ import {
   ListRowItem,
   Dropdown,
   Tooltip,
+  Button,
 } from 'frappe-ui'
 import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
 import ListFooter from '@/components/custom-ui/ListFooter.vue'
@@ -272,62 +274,6 @@ function isLiked(item) {
     return likedByMe.includes(user)
   }
   return false
-}
-
-function applyFilter({ event, idx, column, item, firstColumn }) {
-  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
-  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
-  if (idx === 1 && firstColumn.key == '_liked_by') return
-  if (!column.key) return
-
-  event.stopPropagation()
-  event.preventDefault()
-
-  let filters = { ...list.value.params?.filters } || {}
-  let value = item?.name || item?.label || item?.value || item || ''
-
-  // Handle special cases
-  if (column.key === '_assign') {
-    if (Array.isArray(item) && item.length > 1) {
-      let target = event.target.closest('.user-avatar')
-      if (target) {
-        let name = target.getAttribute('data-name')
-        if (name) {
-          filters['_assign'] = ['LIKE', `%${name}%`]
-        }
-      }
-    } else if (Array.isArray(item) && item.length === 1) {
-      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
-    }
-  } else if (value) {
-    if (column.type === 'Link' || column.type === 'Select') {
-      filters[column.key] = value
-    } else {
-      filters[column.key] = ['LIKE', `%${value}%`]
-    }
-  } else {
-    delete filters[column.key]
-  }
-
-  emit('applyFilter', filters)
-}
-
-function applyLikeFilter() {
-  let filters = { ...list.value.params?.filters } || {}
-  if (!filters._liked_by) {
-    filters['_liked_by'] = ['LIKE', '%@me%']
-  } else {
-    delete filters['_liked_by']
-  }
-
-  // Remove any filters with undefined keys
-  Object.keys(filters).forEach(key => {
-    if (key === 'undefined' || key === undefined) {
-      delete filters[key]
-    }
-  })
-
-  emit('applyFilter', filters)
 }
 
 watch(pageLengthCount, (val, old_value) => {

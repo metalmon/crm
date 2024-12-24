@@ -708,6 +708,15 @@ function updateColumns(obj) {
     }
   }
 
+  // Проверяем, есть ли реальные изменения
+  if (!obj.reset && !obj.isDefault) {
+    const currentColumns = JSON.stringify(defaultParams.value?.columns || '')
+    const newColumns = JSON.stringify(obj.columns)
+    if (currentColumns === newColumns) {
+      return // Нет изменений, выходим
+    }
+  }
+
   if (!defaultParams.value) {
     defaultParams.value = getParams()
   }
