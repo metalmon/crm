@@ -30,6 +30,7 @@ function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activitie
   if (!phoneNumber) return errorMessage(__('No phone number set'))
 
   const formattedNumber = normalizePhoneNumber(phoneNumber)
+  const user = getUser()
 
   if (type === 'phone') {
     window.location.href = `tel:${formattedNumber}`
@@ -54,7 +55,8 @@ function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activitie
       subject: type === 'phone' 
         ? __('Phone call')
         : __('WhatsApp chat'),
-      sender: getUser()?.full_name || undefined
+      sender: user?.email || undefined,
+      sender_full_name: user?.full_name || undefined
     }
   }
 

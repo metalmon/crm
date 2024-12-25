@@ -119,32 +119,11 @@ def get_deal_activities(name):
 
 	for attachment_log in docinfo.attachment_logs:
 		activity = {
-			"activity_type": "communication",
-			"communication_type": communication.communication_type,
-			"creation": communication.creation,
-			"data": {
-				"subject": communication.subject,
-				"content": communication.content,
-				"sender_full_name": communication.sender_full_name,
-				"sender": communication.sender,
-				"recipients": communication.recipients,
-				"cc": communication.cc,
-				"bcc": communication.bcc,
-				"attachments": get_attachments('Communication', communication.name),
-				"read_by_recipient": communication.read_by_recipient,
-				"delivery_status": communication.delivery_status,
-			},
-			"is_lead": False,
-		}
-		activities.append(activity)
-
-	for attachment_log in docinfo.attachment_logs:
-		activity = {
-			"name": attachment_log.name,
+			"name": attachment_log.get("name"),
 			"activity_type": "attachment_log",
-			"creation": attachment_log.creation,
-			"owner": attachment_log.owner,
-			"data": parse_attachment_log(attachment_log.content, attachment_log.comment_type),
+			"creation": attachment_log.get("creation"),
+			"owner": attachment_log.get("owner"),
+			"data": parse_attachment_log(attachment_log.get("content"), attachment_log.get("comment_type")),
 			"is_lead": False,
 		}
 		activities.append(activity)
@@ -249,32 +228,11 @@ def get_lead_activities(name):
 
 	for attachment_log in docinfo.attachment_logs:
 		activity = {
-			"activity_type": "communication",
-			"communication_type": communication.communication_type,
-			"creation": communication.creation,
-			"data": {
-				"subject": communication.subject,
-				"content": communication.content,
-				"sender_full_name": communication.sender_full_name,
-				"sender": communication.sender,
-				"recipients": communication.recipients,
-				"cc": communication.cc,
-				"bcc": communication.bcc,
-				"attachments": get_attachments('Communication', communication.name),
-				"read_by_recipient": communication.read_by_recipient,
-				"delivery_status": communication.delivery_status,
-			},
-			"is_lead": True,
-		}
-		activities.append(activity)
-
-	for attachment_log in docinfo.attachment_logs:
-		activity = {
-			"name": attachment_log.name,
+			"name": attachment_log.get("name"),
 			"activity_type": "attachment_log",
-			"creation": attachment_log.creation,
-			"owner": attachment_log.owner,
-			"data": parse_attachment_log(attachment_log.content, attachment_log.comment_type),
+			"creation": attachment_log.get("creation"),
+			"owner": attachment_log.get("owner"),
+			"data": parse_attachment_log(attachment_log.get("content"), attachment_log.get("comment_type")),
 			"is_lead": True,
 		}
 		activities.append(activity)
