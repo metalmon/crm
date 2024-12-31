@@ -387,7 +387,8 @@ import { globalStore } from '@/stores/global'
 import { contactsStore } from '@/stores/contacts'
 import { statusesStore } from '@/stores/statuses'
 import { usersStore } from '@/stores/users'
-import { whatsappEnabled, avitoEnabled, callEnabled } from '@/composables/settings'
+import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
 import {
   createResource,
