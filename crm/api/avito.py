@@ -1,9 +1,11 @@
 import frappe
 import json
 import requests
+from datetime import datetime
 from frappe import _
 from crm.api.doc import get_assigned_users
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
+from frappe.utils.password import get_decrypted_password
 
 
 def validate(doc, method):
@@ -275,7 +277,8 @@ def get_avito_messages(reference_doctype, reference_name):
 def get_message_from_avito(
     *args, **kwargs
 ):
-    frappe.enqueue(process_avito_message, queue='short', timeout=5, *args, **kwargs)
+    # frappe.enqueue(process_avito_message, queue='short', timeout=5, *args, **kwargs)
+    process_avito_message(*args, **kwargs)
 
 def process_avito_message(
     *args, **kwargs
@@ -287,24 +290,36 @@ def process_avito_message(
     message = kwargs['payload']['value']['content']['text']
     chat_id = kwargs['payload']['value']['chat_id']
     attach = ''
+
+    settings = frappe.get_doc("Avito Settings")
+    if settings.token_expires_in == None or \
+       settings.token == None or \
+       datetime.strptime(settings.token_expires_in, '%Y-%m-%d %H:%M:%S.%f') < datetime.now():
+        settings.update_auth_token()
+    
     try:
-        avito_lead = frappe.get_last_doc(doctype="CRM Lead", filters={"avito_chat_id": chat_id})
+        avito_lead = frappe.get_last_doc(doctype="Avito Lead", filters={"avito_chat_id": chat_id})
     except frappe.DoesNotExistError:
-        avito_lead = frappe.new_doc("CRM Lead")
+        token = get_decrypted_password('Avito Settings', 'Avito Settings', 'token')
+        crm_lead = frappe.new_doc("CRM Lead")
         res = requests.get(
             f"https://api.avito.ru/messenger/v2/accounts/{user_id}/chats/{chat_id}", 
             headers={
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer OfBNq-f1Rw6aAQwWru851wKR857nSL_EszurLs1z'
+                'Authorization': f'Bearer {token}'
             })
         content = json.loads(res.text)
         user = content['users'][0]
-        content['users'][0]['id']
         if user['id'] == user_id: user = content['users'][1]
-        avito_lead.first_name = user['name']
+        crm_lead.first_name = user['name']
+        crm_lead.insert(ignore_permissions=True)
+        # avito lead - subDocType
+        avito_lead = frappe.new_doc("Avito Lead")
         avito_lead.avito_chat_id = chat_id
+        avito_lead.fcrm_lead = crm_lead
         avito_lead.insert(ignore_permissions=True)
-    create_avito_message("CRM Lead", avito_lead.name, message, chat_id,'',None,_type="Incoming")
+
+    create_avito_message("CRM Lead", avito_lead.fcrm_lead, message, '', None, chat_id=chat_id, _type="Incoming")
 
 
 @frappe.whitelist()
@@ -312,9 +327,9 @@ def create_avito_message(
     reference_doctype,
     reference_name,
     message,
-    chat_id,
     attach,
     reply_to,
+    chat_id=None,
     content_type="text",
     _type="Outgoing",
 ):
@@ -328,6 +343,10 @@ def create_avito_message(
                 "reply_to_message_id": reply_doc.message_id,
             }
         )
+    
+    if chat_id is None:
+        avito_lead = frappe.get_last_doc("Avito Lead", filters={"fcrm_lead": reference_name})
+        chat_id = avito_lead.avito_chat_id
 
     doc.update(
         {
