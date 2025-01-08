@@ -38,6 +38,14 @@
           :messages="whatsappMessages.data"
         />
       </div>
+      <div v-else-if="title == 'Avito' && avitoMessages.data?.length">
+        <AvitoArea
+          class="px-3 sm:px-10"
+          v-model="avitoMessages"
+          v-model:reply="replyMessage"
+          :messages="avitoMessages.data"
+        />
+      </div>
       <div
         v-else-if="title == 'Notes'"
         class="grid grid-cols-1 gap-4 px-3 pb-3 sm:px-10 sm:pb-5 lg:grid-cols-2 xl:grid-cols-3"
@@ -96,14 +104,6 @@
             <CallArea class="mb-4" :activity="call" />
           </div>
         </div>
-      </div>
-      <div v-else-if="title == 'Avito' && avitoMessages.data?.length">
-        <AvitoArea
-          class="px-3 sm:px-10"
-          v-model="avitoMessages"
-          v-model:reply="replyMessage"
-          :messages="avitoMessages.data"
-        />
       </div>
       <div
         v-else-if="title == 'Attachments'"
@@ -661,7 +661,11 @@ onMounted(() => {
     ) {
       whatsappMessages.reload()
     }
-  })
+  });
+
+  $socket.onAny((event, ...args) => {
+    console.log(`Received event: ${event}`, args);
+  });
 
   $socket.on('avito_message', (data) => {
     if (
@@ -670,7 +674,7 @@ onMounted(() => {
     ) {
       avitoMessages.reload()
     }
-  })
+  });
 
   nextTick(() => {
     const hash = route.hash.slice(1) || null

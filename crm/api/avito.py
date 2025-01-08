@@ -335,6 +335,8 @@ def create_avito_message(
 ):
     doc = frappe.new_doc("Avito Message")
 
+    token = get_decrypted_password('Avito Settings', 'Avito Settings', 'token')
+
     if reply_to:
         reply_doc = frappe.get_doc("Avito Message", reply_to)
         doc.update(

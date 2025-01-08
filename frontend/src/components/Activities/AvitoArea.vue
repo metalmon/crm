@@ -11,12 +11,12 @@
     >
       <div
         :id="avito.name"
-        class="group/message relative max-w-[90%] rounded-md bg-gray-50 p-1.5 pl-2 text-base shadow-sm"
+        class="group/message relative max-w-[90%] rounded-md bg-surface-gray-1 text-ink-gray-9 p-1.5 pl-2 text-base shadow-sm"
       >
         <div
           v-if="avito.is_reply"
           @click="() => scrollToMessage(avito.reply_to)"
-          class="mb-1 cursor-pointer rounded border-0 border-l-4 bg-gray-200 p-2 text-gray-600"
+          class="mb-1 cursor-pointer rounded border-0 border-l-4 bg-surface-gray-3 p-2 text-ink-gray-5"
           :class="
             avito.reply_to_type == 'Incoming'
               ? 'border-green-500'
@@ -27,8 +27,8 @@
             class="mb-1 text-sm font-bold"
             :class="
               avito.reply_to_type == 'Incoming'
-                ? 'text-green-500'
-                : 'text-blue-400'
+                ? 'text-ink-green-2'
+                : 'text-ink-blue-link'
             "
           >
             {{ avito.reply_to_from || __('You') }}
@@ -38,25 +38,25 @@
               {{ avito.header }}
             </div>
             <div v-html="formatAvitoMessage(avito.reply_message)" />
-            <div v-if="avito.footer" class="text-xs text-gray-600">
+            <div v-if="avito.footer" class="text-xs text-ink-gray-5">
               {{ avito.footer }}
             </div>
           </div>
         </div>
         <div class="flex gap-2 justify-between">
           <div
-            class="absolute -right-0.5 -top-0.5 flex cursor-pointer gap-1 rounded-full bg-white pb-2 pl-2 pr-1.5 pt-1.5 opacity-0 group-hover/message:opacity-100"
+            class="absolute -right-0.5 -top-0.5 flex cursor-pointer gap-1 rounded-full bg-surface-white pb-2 pl-2 pr-1.5 pt-1.5 opacity-0 group-hover/message:opacity-100"
             :style="{
               background:
                 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 35%, rgba(238, 130, 238, 0) 100%)',
             }"
           >
             <Dropdown :options="messageOptions(avito)">
-              <FeatherIcon name="chevron-down" class="size-4 text-gray-600" />
+              <FeatherIcon name="chevron-down" class="size-4 text-ink-gray-5" />
             </Dropdown>
           </div>
           <div
-            class="absolute -bottom-5 flex gap-1 rounded-full border bg-white p-1 pb-[3px] shadow-sm"
+            class="absolute -bottom-5 flex gap-1 rounded-full border bg-surface-white p-1 pb-[3px] shadow-sm"
             v-if="avito.reaction"
           >
             <div class="flex size-4 items-center justify-center">
@@ -71,7 +71,7 @@
               {{ avito.header }}
             </div>
             <div v-html="formatAvitoMessage(avito.template)" />
-            <div v-if="avito.footer" class="text-xs text-gray-600">
+            <div v-if="avito.footer" class="text-xs text-ink-gray-5">
               {{ avito.footer }}
             </div>
           </div>
@@ -100,10 +100,10 @@
             class="flex items-center gap-2"
           >
             <DocumentIcon
-              class="size-10 cursor-pointer rounded-md text-gray-500"
+              class="size-10 cursor-pointer rounded-md text-ink-gray-4"
               @click="() => openFileInAnotherTab(avito.attach)"
             />
-            <div class="text-gray-600">Document</div>
+            <div class="text-ink-gray-5">Document</div>
           </div>
           <div
             v-else-if="avito.content_type == 'audio'"
@@ -126,10 +126,10 @@
               v-html="formatAvitoMessage(avito.message)"
             />
           </div>
-          <div class="-mb-1 flex shrink-0 items-end gap-1 text-gray-600">
-            <Tooltip :text="dateFormat(avito.creation, 'ddd, MMM D, YYYY')">
+          <div class="-mb-1 flex shrink-0 items-end gap-1 text-ink-gray-5">
+            <Tooltip :text="formatDate(avito.creation, 'ddd, MMM D, YYYY')">
               <div class="text-2xs">
-                {{ dateFormat(avito.creation, 'hh:mm a') }}
+                {{ formatDate(avito.creation, 'hh:mm a') }}
               </div>
             </Tooltip>
             <div v-if="avito.type == 'Outgoing'">
@@ -140,7 +140,7 @@
               <DoubleCheckIcon
                 v-else-if="['read', 'delivered'].includes(avito.status)"
                 class="size-4"
-                :class="{ 'text-blue-500': avito.status == 'read' }"
+                :class="{ 'text-ink-blue-2': avito.status == 'read' }"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@
       <div
         class="flex items-center justify-center opacity-0 transition-all ease-in group-hover:opacity-100"
       >
-        <!-- <IconPicker
+        <IconPicker
           v-model="emoji"
           v-model:reaction="reaction"
           v-slot="{ togglePopover }"
@@ -159,9 +159,9 @@
             @click="() => (reaction = true) && togglePopover()"
             class="rounded-full !size-6 mt-0.5"
           >
-            <ReactIcon class="text-gray-400" />
+            <ReactIcon class="text-ink-gray-3" />
           </Button>
-        </IconPicker> -->
+        </IconPicker>
       </div>
     </div>
   </div>
@@ -248,10 +248,10 @@ function messageOptions(message) {
     //   label: 'Forward',
     //   onClick: () => console.log('Forward'),
     // },
-    {
-      label: 'Delete',
-      onClick: () => console.log('Delete'),
-    },
+    // {
+    //   label: 'Delete',
+    //   onClick: () => console.log('Delete'),
+    // },
   ]
 }
 
