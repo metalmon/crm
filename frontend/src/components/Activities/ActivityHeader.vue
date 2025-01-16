@@ -88,6 +88,18 @@
         <span class="btn-text-standard">{{ __('New Message') }}</span>
       </Button>
     </div>
+    <div class="flex gap-2 shrink-0" v-else-if="title == 'Avito'">
+      <Button
+        :label="__('Send Template')"
+        @click="showAvitoTemplates = true"
+      />
+      <Button variant="solid" @click="avitoBox.show()">
+        <template #prefix>
+          <FeatherIcon name="plus" class="h-4 w-4" />
+        </template>
+        <span>{{ __('New Message') }}</span>
+      </Button>
+    </div>
     <Dropdown v-else :options="defaultActions" @click.stop>
       <template v-slot="{ open }">
         <Button variant="solid" class="shrink-0">
@@ -114,8 +126,10 @@ import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import { globalStore } from '@/stores/global'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { avitoEnabled } from '@/composables/avito'
 import { Dropdown } from 'frappe-ui'
 import { computed, h } from 'vue'
 
@@ -126,12 +140,14 @@ const props = defineProps({
   modalRef: Object,
   emailBox: Object,
   whatsappBox: Object,
+  avitoBox: Object,
 })
 
 const { makeCall } = globalStore()
 
 const tabIndex = defineModel()
 const showWhatsappTemplates = defineModel('showWhatsappTemplates')
+const showAvitoTemplates = defineModel('showAvitoTemplates')
 const showFilesUploader = defineModel('showFilesUploader')
 
 const defaultActions = computed(() => {
@@ -172,6 +188,12 @@ const defaultActions = computed(() => {
       label: __('New WhatsApp Message'),
       onClick: () => (tabIndex.value = getTabIndex('WhatsApp')),
       condition: () => whatsappEnabled.value,
+    },
+    {
+      icon: h(AvitoIcon, { class: 'h-4 w-4' }),
+      label: __('New Avito Message'),
+      onClick: () => (tabIndex.value = getTabIndex('Avito')),
+      condition: () => avitoEnabled.value,
     },
   ]
   return actions.filter((action) =>
