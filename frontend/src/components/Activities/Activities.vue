@@ -817,7 +817,7 @@ const emptyText = computed(() => {
   } else if (title.value == 'WhatsApp') {
     text = __('No WhatsApp Messages')
   } else if (title.value == 'Avito') {
-    text = 'No Avito Messages'
+    text = __('No Avito Messages')
   }
   return text
 })
