@@ -277,8 +277,8 @@ def get_avito_messages(reference_doctype, reference_name):
 def get_message_from_avito(
     *args, **kwargs
 ):
-    # frappe.enqueue(process_avito_message, queue='short', timeout=5, *args, **kwargs)
-    process_avito_message(*args, **kwargs)
+    frappe.enqueue(process_avito_message, queue='short', timeout=5, *args, **kwargs)
+    # process_avito_message(*args, **kwargs)
 
 def process_avito_message(
     *args, **kwargs
