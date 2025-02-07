@@ -66,7 +66,6 @@
               </Section>
             </div>
           </div>
-          <TrialBanner v-if="isFCSite.data" />
         </div>
       </TransitionChild>
       <TransitionChild
@@ -105,7 +104,7 @@ import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { viewsStore } from '@/stores/views'
 import { unreadNotificationsCount } from '@/stores/notifications'
-import { TrialBanner, createResource } from 'frappe-ui'
+import { createResource } from 'frappe-ui'
 import { computed, h, provide } from 'vue'
 import { mobileSidebarOpened as sidebarOpened } from '@/composables/settings'
 import { callEnabled } from '@/composables/settings'
@@ -216,13 +215,4 @@ function getIcon(routeName, icon) {
       return PinIcon
   }
 }
-
-const isFCSite = createResource({
-  url: 'frappe.integrations.frappe_providers.frappecloud_billing.is_fc_site',
-  cache: 'isFCSite',
-  auto: true,
-  transform: (data) => Boolean(data),
-})
-
-provide('isFCSite', isFCSite)
 </script>

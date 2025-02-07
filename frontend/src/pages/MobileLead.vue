@@ -9,14 +9,15 @@
         </template>
       </Breadcrumbs>
       <div class="absolute right-0">
-        <Dropdown :options="statusOptions('lead', updateField, customStatuses)">
+        <Dropdown
+          :options="
+            statusOptions('lead', updateField, lead.data._customStatuses)
+          "
+        >
           <template #default="{ open }">
-            <Button
-              :label="translateLeadStatus(lead.data.status)"
-              :class="getLeadStatus(lead.data.status).colorClass"
-            >
+            <Button :label="translateLeadStatus(lead.data.status)">
               <template #prefix>
-                <IndicatorIcon />
+                <IndicatorIcon :class="getLeadStatus(lead.data.status).color" />
               </template>
               <template #suffix>
                 <FeatherIcon
@@ -34,14 +35,16 @@
     v-if="lead.data"
     class="flex h-12 items-center justify-between gap-2 border-b px-3 py-2.5"
   >
-    <component :is="lead.data._assignedTo?.length == 1 ? 'Button' : 'div'">
-      <MultipleAvatar
-        :avatars="lead.data._assignedTo"
-        @click="showAssignmentModal = true"
-      />
-    </component>
+    <AssignTo
+      v-model="lead.data._assignedTo"
+      :data="lead.data"
+      doctype="CRM Lead"
+    />
     <div class="flex items-center gap-2">
-      <CustomActions v-if="customActions" :actions="customActions" />
+      <CustomActions
+        v-if="lead.data._customActions?.length"
+        :actions="lead.data._customActions"
+      />
       <Button
         :label="__('Convert')"
         variant="solid"
@@ -50,43 +53,39 @@
     </div>
   </div>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
-    <Tabs
-      v-model="tabIndex"
-      v-slot="{ tab }"
-      :tabs="tabs"
-      tablistClass="!px-3"
-      class="overflow-auto"
-    >
-      <div v-if="tab.name == 'Details'">
-        <SLASection
-          v-if="lead.data.sla_status"
-          v-model="lead.data"
-          @updateField="updateField"
-        />
-        <div
-          v-if="fieldsLayout.data"
-          class="flex flex-1 flex-col justify-between overflow-hidden"
-        >
-          <div class="flex flex-col overflow-y-auto">
-            <div
-              v-for="(section, i) in fieldsLayout.data"
-              :key="section.label"
-              class="flex flex-col px-2 py-3 sm:p-3"
-              :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-            >
-              <Section :label="section.label" :opened="section.opened">
-                <SidePanelLayout
-                  :fields="section.fields"
-                  :isLastSection="i == fieldsLayout.data.length - 1"
-                  v-model="lead.data"
-                  @update="updateField"
-                  :doctype="'CRM Lead'"
-                  :doc="lead.data"
-                />
-              </Section>
-            </div>
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+      <TabList class="!px-3" />
+      <TabPanel v-slot="{ tab }">
+        <div v-if="tab.name == 'Details'">
+          <SLASection
+            v-if="lead.data.sla_status"
+            v-model="lead.data"
+            @updateField="updateField"
+          />
+          <div
+            v-if="sections.data"
+            class="flex flex-1 flex-col justify-between overflow-hidden"
+          >
+            <SidePanelLayout
+              v-model="lead.data"
+              :sections="sections.data"
+              doctype="CRM Lead"
+              @update="updateField"
+              @reload="sections.reload"
+            />
           </div>
-          <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+        </div>
+        <Activities
+          v-else
+          doctype="CRM Lead"
+          :tabs="tabs"
+          v-model:reload="reload"
+          v-model:tabIndex="tabIndex"
+          v-model="lead"
+        />
+      </TabPanel>
+    </Tabs>
+    <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
             <Button
               v-if="lead.data.mobile_no && callEnabled"
               size="sm"
@@ -142,28 +141,7 @@
               {{ __('Website') }}
             </Button>
           </div>
-        </div>
-      </div>
-      <Activities
-        v-else
-        ref="activities"
-        doctype="CRM Lead"
-        :tabs="tabs"
-        v-model:reload="reload"
-        v-model:tabIndex="tabIndex"
-        v-model="lead"
-        :doc="lead.data"
-        v-if="lead.data && !lead.loading"
-      />
-    </Tabs>
   </div>
-  <AssignmentModal
-    v-if="showAssignmentModal"
-    v-model="showAssignmentModal"
-    v-model:assignees="lead.data._assignedTo"
-    :doc="lead.data"
-    doctype="CRM Lead"
-  />
   <Dialog
     v-model="showConvertToDealModal"
     :options="{
@@ -248,15 +226,14 @@ import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
-import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
-import MultipleAvatar from '@/components/MultipleAvatar.vue'
+import AssignTo from '@/components/AssignTo.vue'
 import Link from '@/components/Controls/Link.vue'
-import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import { createToast, setupAssignees, setupCustomizations } from '@/utils'
 import { getView } from '@/utils/view'
+import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { contactsStore } from '@/stores/contacts'
 import { statusesStore } from '@/stores/statuses'
@@ -271,20 +248,20 @@ import {
   createResource,
   Dropdown,
   Tabs,
+  TabList,
+  TabPanel,
   Switch,
   Breadcrumbs,
   call,
+  usePageMeta,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { errorMessage } from '@/utils'
-import LinkIcon from '@/components/Icons/LinkIcon.vue'
-import { openWebsite } from '@/utils'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
-import { getParsedFields } from '@/utils/getParsedFields'
 
-const { $dialog, $socket, makeCall } = globalStore()
+const { brand } = getSettings()
+const { $dialog, $socket } = globalStore()
 const { getContactByName, contacts } = contactsStore()
 const { statusOptions, getLeadStatus } = statusesStore()
 const route = useRoute()
@@ -297,15 +274,13 @@ const props = defineProps({
   },
 })
 
-const customActions = ref([])
-const customStatuses = ref([])
-
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
-  onSuccess: async (data) => {
-    let obj = {
+  onSuccess: (data) => {
+    setupAssignees(lead)
+    setupCustomizations(lead, {
       doc: data,
       $dialog,
       $socket,
@@ -315,14 +290,10 @@ const lead = createResource({
       deleteDoc: deleteLead,
       resource: {
         lead,
-        fieldsLayout,
+        sections,
       },
       call,
-    }
-    setupAssignees(data)
-    let customization = await setupCustomizations(data, obj)
-    customActions.value = customization.actions || []
-    customStatuses.value = customization.statuses || []
+    })
   },
 })
 
@@ -332,7 +303,6 @@ onMounted(() => {
 })
 
 const reload = ref(false)
-const showAssignmentModal = ref(false)
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -408,6 +378,13 @@ const breadcrumbs = computed(() => {
   return items
 })
 
+usePageMeta(() => {
+  return {
+    title: lead.data?.lead_name || lead.data?.name,
+    icon: brand.favicon,
+  }
+})
+
 const tabs = computed(() => {
   let tabOptions = [
     {
@@ -472,7 +449,7 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
-const { tabIndex } = useActiveTabManager(tabs, 'lastLeadTab', 0)
+const { tabIndex } = useActiveTabManager(tabs, 'lastLeadTab')
 
 watch(tabs, (value) => {
   if (value && route.params.tabName) {
@@ -485,12 +462,11 @@ watch(tabs, (value) => {
   }
 })
 
-const fieldsLayout = createResource({
-  url: 'crm.api.doc.get_sidebar_fields',
-  cache: ['fieldsLayout', props.leadId],
-  params: { doctype: 'CRM Lead', name: props.leadId },
+const sections = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
+  cache: ['sidePanelSections', 'CRM Lead'],
+  params: { doctype: 'CRM Lead' },
   auto: true,
-  transform: (data) => getParsedFields(data, 'CRM Lead', lead.data)
 })
 
 function updateField(name, value, callback) {
@@ -585,25 +561,6 @@ async function convertToDeal(updated) {
   }
 }
 
-const activities = ref(null)
-
-// Add cleanup function for activities component
-onBeforeUnmount(() => {
-  if (activities.value) {
-    // Ensure email editor is properly cleaned up
-    if (activities.value.emailBox) {
-      activities.value.emailBox.show = false
-    }
-    activities.value = null
-  }
-})
-
-function openEmailBox() {
-  if (activities.value?.emailBox) {
-    activities.value.emailBox.show = true
-  }
-}
-
 function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
@@ -614,17 +571,4 @@ function trackPhoneActivities(type = 'phone') {
     contactName: lead.data.lead_name,
   })
 }
-
-// Add proper cleanup for lead resource
-onBeforeUnmount(() => {
-  if (lead.data) {
-    lead.data = null
-  }
-})
 </script>
-
-<style scoped>
-.flex-1 {
-  padding-bottom: 4rem;
-}
-</style>

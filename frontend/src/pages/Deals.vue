@@ -298,29 +298,25 @@ import NoteModal from '@/components/Modals/NoteModal.vue'
 import TaskModal from '@/components/Modals/TaskModal.vue'
 import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import ViewControls from '@/components/ViewControls.vue'
+import { getMeta } from '@/stores/meta'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { organizationsStore } from '@/stores/organizations'
 import { statusesStore } from '@/stores/statuses'
-import { callEnabled } from '@/composables/settings'
-import {
-  formatDate,
-  timeAgo,
-  website,
-  formatTime,
-} from '@/utils'
-import { formatNumberIntoCurrency } from '@/utils/formatters'
+import { callEnabled, isMobileView } from '@/composables/settings'
+import { formatDate, timeAgo, website, formatTime } from '@/utils'
 import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import { ref, reactive, computed, h, watch } from 'vue'
-import SmartFilterField from '@/components/SmartFilterField.vue'
-import { isMobileView } from '@/composables/settings'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import SmartFilterField from '@/components/SmartFilterField.vue'
 
+const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
+  getMeta('CRM Deal')
 const { makeCall } = globalStore()
 const { getUser } = usersStore()
 const { getOrganization } = organizationsStore()
-const { getDealStatus, getStatusLabel } = statusesStore()
+const { getDealStatus } = statusesStore()
 
 const route = useRoute()
 
@@ -341,9 +337,12 @@ const desktopSmartFilter = ref(null)
 const mobileSmartFilter = ref(null)
 const isResettingFilters = ref(false)
 
+// Watch for filter changes in the list
 watch(() => deals.value?.params?.filters, (newFilters) => {
+  // Skip if we're already resetting filters
   if (isResettingFilters.value) return;
   
+  // If filters are empty, clear the smart filter fields
   if (!newFilters || Object.keys(newFilters).length === 0) {
     isResettingFilters.value = true;
     desktopSmartFilter.value?.clearSearch();
@@ -352,112 +351,21 @@ watch(() => deals.value?.params?.filters, (newFilters) => {
   }
 }, { deep: true })
 
-function handleSmartFilter(filters) {
-  if (!viewControls.value || !filters) return;
-  if (isResettingFilters.value) return;
-  if (!deals.value || !deals.value.params) return;
-
-  const currentFilters = deals.value.params.filters || {};
-  const standardFilters = {};
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    if (!['mobile_no', 'email', 'organization'].includes(key)) {
-      standardFilters[key] = value;
+function getRow(name, field) {
+  function getValue(value) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value
     }
-  });
-
-  deals.value.params.filters = {
-    ...standardFilters,
-    ...filters
-  };
-  
-  deals.value.reload();
-}
-
-function getRow(itemName, row) {
-  let deal = deals.value?.data?.data?.find((d) => d.name === itemName)
-  if (!deal) return {}
-
-  let _rows = {}
-  Object.keys(deal).forEach((row) => {
-    if (row === 'status') {
-      _rows[row] = {
-        label: getStatusLabel('deal', deal[row]),
-        value: deal[row],
-        color: getDealStatus(deal[row])?.iconColorClass,
-      }
-    } else if (row === 'organization') {
-      let primaryContact = deal.contacts?.find(c => c.is_primary)
-      _rows[row] = {
-        label: deal.organization || (primaryContact?.full_name || __('Untitled')),
-        logo: deal.organization ? getOrganization(deal.organization)?.organization_logo : null,
-      }
-    } else if (row === 'website') {
-      _rows[row] = website(deal.website)
-    } else if (row === 'sla_status') {
-      let value = deal.sla_status
-      let tooltipText = value
-      let color =
-        deal.sla_status == 'Failed'
-          ? 'red'
-          : deal.sla_status == 'Fulfilled'
-            ? 'green'
-            : 'orange'
-      if (value == 'First Response Due') {
-        value = __(timeAgo(deal.response_by))
-        tooltipText = formatDate(deal.response_by)
-        if (new Date(deal.response_by) < new Date()) {
-          color = 'red'
-        }
-      }
-      _rows[row] = {
-        label: tooltipText,
-        value: value,
-        color: color,
-      }
-    } else if (row === 'deal_owner') {
-      _rows[row] = {
-        label: deal.deal_owner && getUser(deal.deal_owner).full_name,
-        ...(deal.deal_owner && getUser(deal.deal_owner)),
-      }
-    } else if (row === '_assign') {
-      let assignees = JSON.parse(deal._assign || '[]')
-      if (!assignees.length && deal.deal_owner) {
-        assignees = [deal.deal_owner]
-      }
-      _rows[row] = assignees.map((user) => ({
-        name: user,
-        image: getUser(user).user_image,
-        label: getUser(user).full_name,
-      }))
-    } else if (['modified', 'creation'].includes(row)) {
-      _rows[row] = {
-        label: formatDate(deal[row]),
-        timeAgo: __(timeAgo(deal[row])),
-      }
-    } else if (
-      ['first_response_time', 'first_responded_on', 'response_by'].includes(
-        row,
-      )
-    ) {
-      let field = row == 'response_by' ? 'response_by' : 'first_responded_on'
-      _rows[row] = {
-        label: deal[field] ? formatDate(deal[field]) : '',
-        timeAgo: deal[row]
-          ? row == 'first_response_time'
-            ? formatTime(deal[row])
-            : __(timeAgo(deal[row]))
-          : '',
-      }
-    }
-  })
-  return _rows[row] || {}
+    return { label: value }
+  }
+  return getValue(rows.value?.find((row) => row.name == name)[field])
 }
 
 // Rows
 const rows = computed(() => {
   if (!deals.value?.data?.data) return []
   if (deals.value.data.view_type === 'group_by') {
-    if (!deals.value?.data.group_by_field?.name) return []
+    if (!deals.value?.data.group_by_field?.fieldname) return []
     return getGroupedByRows(
       deals.value?.data.data,
       deals.value?.data.group_by_field,
@@ -477,9 +385,9 @@ function getGroupedByRows(listRows, groupByField, columns) {
     let filteredRows = []
 
     if (!option) {
-      filteredRows = listRows.filter((row) => !row[groupByField.name])
+      filteredRows = listRows.filter((row) => !row[groupByField.fieldname])
     } else {
-      filteredRows = listRows.filter((row) => row[groupByField.name] == option)
+      filteredRows = listRows.filter((row) => row[groupByField.fieldname] == option)
     }
 
     let groupDetail = {
@@ -488,10 +396,10 @@ function getGroupedByRows(listRows, groupByField, columns) {
       collapsed: false,
       rows: parseRows(filteredRows, columns),
     }
-    if (groupByField.name == 'status') {
+    if (groupByField.fieldname == 'status') {
       groupDetail.icon = () =>
         h(IndicatorIcon, {
-          class: getDealStatus(option)?.iconColorClass,
+          class: getDealStatus(option)?.color,
         })
     }
     groupedRows.push(groupDetail)
@@ -528,12 +436,19 @@ function parseRows(rows, columns = []) {
         _rows[row] = formatDate(deal[row], '', true, fieldType == 'Datetime')
       }
 
-      if (row == 'annual_revenue') {
-        _rows[row] = {
-          label: formatNumberIntoCurrency(deal.annual_revenue, deal.currency),
-          value: deal.annual_revenue
-        }
-      } else if (row == 'organization') {
+      if (fieldType && fieldType == 'Currency') {
+        _rows[row] = getFormattedCurrency(row, deal)
+      }
+
+      if (fieldType && fieldType == 'Float') {
+        _rows[row] = getFormattedFloat(row, deal)
+      }
+
+      if (fieldType && fieldType == 'Percent') {
+        _rows[row] = getFormattedPercent(row, deal)
+      }
+
+      if (row == 'organization') {
         _rows[row] = {
           label: deal.organization,
           logo: getOrganization(deal.organization)?.organization_logo,
@@ -542,9 +457,9 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(deal.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: getStatusLabel('deal', deal.status),
+          label: translateDealStatus(deal.status),
           value: deal.status,
-          color: getDealStatus(deal.status)?.iconColorClass,
+          color: getDealStatus(deal.status)?.color,
         }
       } else if (row == 'sla_status') {
         let value = deal.sla_status
@@ -671,5 +586,25 @@ const task = ref({
 function showTask(name) {
   docname.value = name
   showTaskModal.value = true
+}
+function handleSmartFilter(filters) {
+  if (!viewControls.value || !filters) return;
+  if (isResettingFilters.value) return;
+  if (!deals.value || !deals.value.params) return;
+
+  const currentFilters = deals.value.params.filters || {};
+  const standardFilters = {};
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (!['mobile_no', 'email', 'organization'].includes(key)) {
+      standardFilters[key] = value;
+    }
+  });
+
+  deals.value.params.filters = {
+    ...standardFilters,
+    ...filters
+  };
+  
+  deals.value.reload();
 }
 </script>

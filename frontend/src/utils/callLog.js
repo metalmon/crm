@@ -1,39 +1,26 @@
-import { secondsToDuration, formatDate, timeAgo } from '@/utils'
-import { usersStore } from '@/stores/users'
-import { contactsStore } from '@/stores/contacts'
+import { formatDate, timeAgo } from '@/utils'
+import { getMeta } from '@/stores/meta'
 
-const { getUser } = usersStore()
-const { getContact, getLeadContact } = contactsStore()
+const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
+  getMeta('CRM Call Log')
 
 export function getCallLogDetail(row, log, columns = []) {
   let incoming = log.type === 'Incoming'
 
-  if (row === 'caller') {
+  if (row === 'duration') {
     return {
-      label: incoming
-        ? getContact(log.from)?.full_name ||
-          getLeadContact(log.from)?.full_name ||
-          'Unknown'
-        : getUser(log.caller).full_name,
-      image: incoming
-        ? getContact(log.from)?.image || getLeadContact(log.from)?.image
-        : getUser(log.caller).user_image,
+      label: log._duration,
+      icon: 'clock',
+    }
+  } else if (row === 'caller') {
+    return {
+      label: log._caller?.label,
+      image: log._caller?.image,
     }
   } else if (row === 'receiver') {
     return {
-      label: incoming
-        ? getUser(log.receiver).full_name
-        : getContact(log.to)?.full_name ||
-          getLeadContact(log.to)?.full_name ||
-          'Unknown',
-      image: incoming
-        ? getUser(log.receiver).user_image
-        : getContact(log.to)?.image || getLeadContact(log.to)?.image,
-    }
-  } else if (row === 'duration') {
-    return {
-      label: secondsToDuration(log.duration),
-      icon: 'clock',
+      label: log._receiver?.label,
+      image: log._receiver?.image,
     }
   } else if (row === 'type') {
     return {
@@ -58,6 +45,18 @@ export function getCallLogDetail(row, log, columns = []) {
     return formatDate(log[row], '', true, fieldType == 'Datetime')
   }
 
+  if (fieldType && fieldType == 'Currency') {
+    return getFormattedCurrency(row, log)
+  }
+
+  if (fieldType && fieldType == 'Float') {
+    return getFormattedFloat(row, log)
+  }
+
+  if (fieldType && fieldType == 'Percent') {
+    return getFormattedPercent(row, log)
+  }
+
   return log[row]
 }
 
@@ -67,7 +66,7 @@ export const statusLabelMap = {
   Busy: 'Declined',
   Failed: 'Failed',
   Queued: 'Queued',
-  Cancelled: 'Cancelled',
+  Canceled: 'Canceled',
   Ringing: 'Ringing',
   'No Answer': 'Missed Call',
   'In Progress': 'In Progress',
@@ -79,7 +78,7 @@ export const statusColorMap = {
   Failed: 'red',
   Initiated: 'gray',
   Queued: 'gray',
-  Cancelled: 'gray',
+  Canceled: 'gray',
   Ringing: 'gray',
   'No Answer': 'red',
   'In Progress': 'blue',

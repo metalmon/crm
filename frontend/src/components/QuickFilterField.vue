@@ -1,13 +1,13 @@
 <template>
   <FormControl
-    v-if="filter.type == 'Check'"
+    v-if="filter.fieldtype == 'Check'"
     :label="filter.label"
     type="checkbox"
     v-model="filter.value"
     @change.stop="updateFilter(filter, $event.target.checked)"
   />
   <FormControl
-    v-else-if="filter.type === 'Select'"
+    v-else-if="filter.fieldtype === 'Select'"
     class="form-control cursor-pointer [&_select]:cursor-pointer"
     type="select"
     v-model="filter.value"
@@ -16,18 +16,18 @@
     @change.stop="updateFilter(filter, $event.target.value)"
   />
   <Link
-    v-else-if="filter.type === 'Link'"
+    v-else-if="filter.fieldtype === 'Link'"
     :value="filter.value"
     :doctype="filter.options"
     :placeholder="filter.label"
     @change="(data) => updateFilter(filter, data)"
   />
-  <component
-    v-else-if="['Date', 'Datetime'].includes(filter.type)"
+  <input
+    v-else-if="['Date', 'Datetime'].includes(filter.fieldtype)"
     class="border-none"
-    :is="filter.type === 'Date' ? DatePicker : DateTimePicker"
+    :type="filter.fieldtype === 'Date' ? 'date' : 'datetime-local'"
     :value="filter.value"
-    @change="(v) => updateFilter(filter, v)"
+    @change="(e) => updateFilter(filter, e.target.value)"
     :placeholder="filter.label"
   />
   <FormControl
@@ -40,7 +40,7 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
-import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
+import { FormControl } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
 
 const props = defineProps({

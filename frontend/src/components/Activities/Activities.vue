@@ -214,9 +214,9 @@
               />
             </div>
             <div class="ml-auto whitespace-nowrap">
-              <Tooltip :text="formatDate(activity.creation)">
+              <Tooltip :text="formatActivityDate(activity.creation, 'MMM D, YYYY h:mm A')">
                 <div class="text-sm text-ink-gray-5">
-                  {{ __(timeAgo(activity.creation)) }}
+                  {{ timeAgo(activity.creation) }}
                 </div>
               </Tooltip>
             </div>
@@ -258,14 +258,14 @@
               <span class="font-medium text-ink-gray-8">
                 {{ activity.owner_name }}
               </span>
-              <span v-if="activity.type">{{ __(activity.type) }}</span>
+              <span v-if="activity.type">{{ activity.type }}</span>
               <span
                 v-if="activity.data.field_label"
                 class="max-w-xs truncate font-medium text-ink-gray-8"
               >
                 {{ __(activity.data.field_label) }}
               </span>
-              <span v-if="activity.value">{{ __(activity.value) }}</span>
+              <span v-if="activity.value">{{ activity.value }}</span>
               <span
                 v-if="activity.data.old_value"
                 class="max-w-xs font-medium text-ink-gray-8"
@@ -300,9 +300,9 @@
             </div>
 
             <div class="ml-auto whitespace-nowrap">
-              <Tooltip :text="formatDate(activity.creation)">
+              <Tooltip :text="formatActivityDate(activity.creation, 'MMM D, YYYY h:mm A')">
                 <div class="text-sm text-ink-gray-5">
-                  {{ __(timeAgo(activity.creation)) }}
+                  {{ timeAgo(activity.creation) }}
                 </div>
               </Tooltip>
             </div>
@@ -344,7 +344,7 @@
                     {{ activity.data.old_value }}
                   </div>
                 </span>
-                <span v-if="activity.to">{{ __('to') }}</span>
+                <span v-if="activity.to">{{ __('to', 'change activityto') }}</span>
                 <span
                   v-if="activity.data.value"
                   class="max-w-xs font-medium text-ink-gray-8"
@@ -363,9 +363,9 @@
               </div>
 
               <div class="ml-auto whitespace-nowrap">
-                <Tooltip :text="formatDate(activity.creation)">
+                <Tooltip :text="formatActivityDate(activity.creation, 'MMM D, YYYY h:mm A')">
                   <div class="text-sm text-ink-gray-5">
-                    {{ __(timeAgo(activity.creation)) }}
+                    {{ timeAgo(activity.creation) }}
                   </div>
                 </Tooltip>
               </div>
@@ -392,33 +392,26 @@
       />
       <Button
         v-else-if="title == 'Notes'"
-        size="sm"
-        class="min-w-[90px] whitespace-nowrap"
         :label="__('Create Note')"
         @click="modalRef.showNote()"
       />
       <Button
         v-else-if="title == 'Emails'"
-        size="sm"
-        class="min-w-[90px] whitespace-nowrap"
         :label="__('New Email')"
         @click="emailBox.show = true"
       />
       <Button
         v-else-if="title == 'Comments'"
-        size="sm"
         :label="__('New Comment')"
         @click="emailBox.showComment = true"
       />
       <Button
         v-else-if="title == 'Tasks'"
-        size="sm"
         :label="__('Create Task')"
         @click="modalRef.showTask()"
       />
       <Button
         v-else-if="title == 'Attachments'"
-        size="sm"
         :label="__('Upload Attachment')"
         @click="showFilesUploader = true"
       />
@@ -515,7 +508,7 @@ import CommunicationArea from '@/components/CommunicationArea.vue'
 import WhatsappTemplateSelectorModal from '@/components/Modals/WhatsappTemplateSelectorModal.vue'
 import AllModals from '@/components/Activities/AllModals.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
-import { timeAgo, formatDate, secondsToDuration, startCase } from '@/utils'
+import { timeAgo, startCase } from '@/utils'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { contactsStore } from '@/stores/contacts'
@@ -538,6 +531,7 @@ import { useRoute } from 'vue-router'
 import { filterEmailActivities } from '@/utils/activity_filters'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import dayjs from '@/utils/dayjs'
 
 const { makeCall, $socket } = globalStore()
 const { getUser } = usersStore()
@@ -546,16 +540,12 @@ const { getContact, getLeadContact } = contactsStore()
 const props = defineProps({
   doctype: {
     type: String,
-    required: true
+    default: 'CRM Lead',
   },
   tabs: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
-  doc: {
-    type: Object,
-    required: true
-  }
 })
 
 const route = useRoute()
@@ -583,40 +573,6 @@ const all_activities = createResource({
   cache: ['activity', doc.value.data.name],
   auto: true,
   transform: ([versions, calls, notes, tasks, attachments]) => {
-    if (calls?.length) {
-      calls.forEach((doc) => {
-        doc.show_recording = false
-        doc.activity_type =
-          doc.type === 'Incoming' ? 'incoming_call' : 'outgoing_call'
-        doc.duration = secondsToDuration(doc.duration)
-        if (doc.type === 'Incoming') {
-          doc.caller = {
-            label:
-              getContact(doc.from)?.full_name ||
-              getLeadContact(doc.from)?.full_name ||
-              'Unknown',
-            image:
-              getContact(doc.from)?.image || getLeadContact(doc.from)?.image,
-          }
-          doc.receiver = {
-            label: getUser(doc.receiver).full_name,
-            image: getUser(doc.receiver).user_image,
-          }
-        } else {
-          doc.caller = {
-            label: getUser(doc.caller).full_name,
-            image: getUser(doc.caller).user_image,
-          }
-          doc.receiver = {
-            label:
-              getContact(doc.to)?.full_name ||
-              getLeadContact(doc.to)?.full_name ||
-              'Unknown',
-            image: getContact(doc.to)?.image || getLeadContact(doc.to)?.image,
-          }
-        }
-      })
-    }
     return { versions, calls, notes, tasks, attachments }
   },
 })
@@ -704,10 +660,9 @@ const replyMessage = ref({})
 
 function get_activities() {
   if (!all_activities.data?.versions) return []
-  const versions = Array.isArray(all_activities.data.versions) ? all_activities.data.versions : []
-  const calls = Array.isArray(all_activities.data?.calls) ? all_activities.data.calls : []
-  if (!calls.length) return versions
-  return [...versions, ...calls]
+  if (!all_activities.data?.calls.length)
+    return all_activities.data.versions || []
+  return [...all_activities.data.versions, ...all_activities.data.calls]
 }
 
 const activities = computed(() => {
@@ -716,28 +671,30 @@ const activities = computed(() => {
     _activities = get_activities()
   } else if (title.value == 'Emails') {
     if (!all_activities.data?.versions) return []
-    _activities = filterEmailActivities(all_activities.data.versions || [])
+    _activities = all_activities.data.versions.filter(
+      (activity) => activity.activity_type === 'communication' && 
+         activity.communication_medium !== 'Phone' && 
+         activity.communication_medium !== 'Chat',
+    )
   } else if (title.value == 'Comments') {
     if (!all_activities.data?.versions) return []
-    _activities = (all_activities.data.versions || []).filter(
+    _activities = all_activities.data.versions.filter(
       (activity) => activity.activity_type === 'comment',
     )
   } else if (title.value == 'Calls') {
     if (!all_activities.data?.calls) return []
-    return sortByCreation(all_activities.data.calls || [])
+    return sortByCreation(all_activities.data.calls)
   } else if (title.value == 'Tasks') {
     if (!all_activities.data?.tasks) return []
-    return sortByCreation(all_activities.data.tasks || [])
+    return sortByModified(all_activities.data.tasks)
   } else if (title.value == 'Notes') {
     if (!all_activities.data?.notes) return []
-    return sortByCreation(all_activities.data.notes || [])
+    return sortByModified(all_activities.data.notes)
   } else if (title.value == 'Attachments') {
     if (!all_activities.data?.attachments) return []
-    return sortByCreation(all_activities.data.attachments || [])
+    return sortByModified(all_activities.data.attachments)
   }
 
-  if (!Array.isArray(_activities)) return []
-  
   _activities.forEach((activity) => {
     activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
 
@@ -763,6 +720,9 @@ const activities = computed(() => {
 function sortByCreation(list) {
   return list.sort((a, b) => new Date(a.creation) - new Date(b.creation))
 }
+function sortByModified(list) {
+  return list.sort((b, a) => new Date(a.modified) - new Date(b.modified))
+}
 
 function update_activities_details(activity) {
   activity.owner_name = getUser(activity.owner).full_name
@@ -773,26 +733,27 @@ function update_activities_details(activity) {
   if (activity.activity_type == 'creation') {
     activity.type = activity.data
   } else if (activity.activity_type == 'added') {
-    activity.type = 'added'
-    activity.value = 'as'
+    activity.type = __('added', 'activity type')
+    activity.value = __('as', 'activity value')
   } else if (activity.activity_type == 'removed') {
-    activity.type = 'removed'
-    activity.value = 'value'
+    activity.type = __('removed', 'activity type')
+    activity.value = __('value', 'activity value' )
   } else if (activity.activity_type == 'changed') {
-    activity.type = 'changed'
-    activity.value = 'from'
-    activity.to = 'to'
-    
-    if (activity.data?.field_label === 'Status') {
+    activity.type = __('changed', 'activity type')
+    activity.value = __('from', 'activity value')
+    activity.to = __('to', 'activity value')
+
+    // Translate status values if the field is 'status'
+    if (activity.data.field_label === 'Status') {
       if (activity.data.old_value) {
-        activity.data.old_value = props.doctype === 'CRM Deal' 
-          ? translateDealStatus(activity.data.old_value)
-          : translateLeadStatus(activity.data.old_value)
+        activity.data.old_value = props.doctype === 'CRM Lead' 
+          ? translateLeadStatus(activity.data.old_value)
+          : translateDealStatus(activity.data.old_value)
       }
       if (activity.data.value) {
-        activity.data.value = props.doctype === 'CRM Deal'
-          ? translateDealStatus(activity.data.value)
-          : translateLeadStatus(activity.data.value)
+        activity.data.value = props.doctype === 'CRM Lead'
+          ? translateLeadStatus(activity.data.value)
+          : translateDealStatus(activity.data.value)
       }
     }
   }
@@ -902,6 +863,11 @@ function scroll(hash) {
       el.focus()
     }
   }, 500)
+}
+
+function formatActivityDate(date, format) {
+  if (!date) return ''
+  return dayjs(date).format(format)
 }
 
 defineExpose({ emailBox, all_activities })

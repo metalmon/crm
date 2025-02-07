@@ -1,9 +1,6 @@
 <template>
-  <div 
-    class="mx-3 mt-2 h-full overflow-y-auto dark-scrollbar sm:mx-5" 
-    v-if="showGroupedRows"
-  >
-    <div v-for="group in rows" :key="group.group">
+  <div class="mx-3 mt-2 h-full overflow-y-auto sm:mx-5" v-if="showGroupedRows">
+    <div v-for="group in reactivieRows" :key="group.group">
       <ListGroupHeader :group="group">
         <div
           class="my-2 flex items-center gap-2 text-base font-medium text-ink-gray-8"
@@ -14,11 +11,11 @@
             <div v-if="group.group == ' '" class="text-ink-gray-4">
               {{ __('Empty') }}
             </div>
-            <div v-else>{{ __(group.group) }}</div>
+            <div v-else>{{ group.group }}</div>
           </div>
         </div>
       </ListGroupHeader>
-      <ListGroupRows :group="group" id="list-rows">
+      <ListGroupRows :group="group">
         <ListRow
           v-for="row in group.rows"
           :key="row.name"
@@ -30,13 +27,14 @@
       </ListGroupRows>
     </div>
   </div>
-  <ListRows 
-    class="mx-3 dark-scrollbar sm:mx-5" 
-    v-else 
-    id="list-rows"
+  <ListRows
+    v-else
+    ref="scrollContainer"
+    class="mx-3 dark-scrollbar sm:mx-5"
+    @scroll="handleScroll"
   >
     <ListRow
-      v-for="row in rows"
+      v-for="row in reactivieRows"
       :key="row.name"
       v-slot="{ idx, column, item }"
       :row="row"
@@ -47,21 +45,22 @@
 </template>
 
 <script setup>
+import { useStorage } from '@vueuse/core'
 import { ListRows, ListRow, ListGroupHeader, ListGroupRows } from 'frappe-ui'
-import { computed } from 'vue'
+import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue'
 
 const props = defineProps({
   rows: {
     type: Array,
     required: true,
   },
+  doctype: {
+    type: String,
+    default: 'CRM Lead',
+  },
 })
 
-const showGroupedRows = computed(() => {
-  return props.rows.every(
-    (row) => row.group && row.rows && Array.isArray(row.rows)
-  )
-})
+const reactivieRows = ref(props.rows)
 
 function translateItem(item, column) {
   if (!column) return item
@@ -73,4 +72,37 @@ function translateItem(item, column) {
   }
   return item
 }
+
+watch(
+  () => props.rows,
+  (val) => (reactivieRows.value = val),
+)
+
+let showGroupedRows = computed(() => {
+  return props.rows.every(
+    (row) => row.group && row.rows && Array.isArray(row.rows),
+  )
+})
+
+const scrollPosition = useStorage(`scrollPosition${props.doctype}`, 0)
+const scrollContainer = ref(null)
+
+const handleScroll = () => {
+  if (scrollContainer.value) {
+    scrollPosition.value = scrollContainer.value.$el.scrollTop
+  }
+}
+
+onBeforeUnmount(() => {
+  if (scrollContainer.value) {
+    scrollContainer.value.$el.removeEventListener('scroll', handleScroll)
+  }
+})
+
+onMounted(() => {
+  if (scrollContainer.value) {
+    scrollContainer.value.$el.addEventListener('scroll', handleScroll)
+    scrollContainer.value.$el.scrollTop = scrollPosition.value
+  }
+})
 </script>

@@ -25,7 +25,6 @@ export default defineConfig({
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',
         start_url: '/crm',
-        scope: '/crm/',
         description:
           'Modern & 100% Open-source CRM tool to supercharge your sales operations',
         icons: [
@@ -55,11 +54,6 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        globDirectory: '../crm/public/frontend',
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        globIgnores: ['**/node_modules/**/*', 'sw.js', 'workbox-*.js']
-      }
     }),
     {
       name: 'transform-index.html',

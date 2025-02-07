@@ -105,14 +105,13 @@ import { ref, nextTick, watch } from 'vue'
 const props = defineProps({
   emailTemplate: {
     type: Object,
-    default: () => ({}),
+    default: {},
   },
 })
 
 const show = defineModel()
 const emailTemplates = defineModel('reloadEmailTemplates')
 const errorMessage = ref('')
-const content = ref(null)
 
 const emit = defineEmits(['after'])
 
@@ -121,8 +120,6 @@ const nameRef = ref(null)
 const editMode = ref(false)
 let _emailTemplate = ref({
   content_type: 'Rich Text',
-  response: '',
-  response_html: '',
 })
 
 async function updateEmailTemplate() {
@@ -229,19 +226,10 @@ watch(
       } else {
         nameRef.value?.el?.focus()
       }
-      
-      // Reset content first
-      _emailTemplate.value = {
-        content_type: 'Rich Text',
-        response: '',
-        response_html: '',
-        ...(props.emailTemplate || {}),
-      }
-      
+      _emailTemplate.value = { ...props.emailTemplate }
       _emailTemplate.value.content_type = _emailTemplate.value.use_html
         ? 'HTML'
         : 'Rich Text'
-
       if (_emailTemplate.value.name) {
         editMode.value = true
       }

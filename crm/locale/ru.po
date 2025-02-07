@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
 "POT-Creation-Date: 2024-12-24 16:25+0000\n"
-"PO-Revision-Date: 2024-12-24 20:29+0400\n"
+"PO-Revision-Date: 2025-02-05 01:35+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -3856,7 +3856,7 @@ msgstr "аквамарин"
 #: frontend/src/components/Activities/Activities.vue:274
 #: frontend/src/components/Activities/Activities.vue:337
 msgid "to"
-msgstr "для"
+msgstr "на"
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'

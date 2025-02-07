@@ -46,15 +46,12 @@
 
 <script setup>
 import { Tooltip } from 'frappe-ui'
-import { computed, ref, onBeforeUpdate, watch } from 'vue'
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { isMobileView, mobileSidebarOpened } from '@/composables/settings'
 
 const router = useRouter()
 const route = useRoute()
-
-// Diagnostic counters
-const isActiveComputeCount = ref(0)
 
 const props = defineProps({
   icon: {
@@ -86,38 +83,10 @@ function handleClick() {
   }
 }
 
-// Мемоизируем параметры маршрута
-const routeInfo = computed(() => ({
-  name: route.name,
-  view: route.query?.view
-}))
-
-// Мемоизируем параметры компонента
-const linkInfo = computed(() => ({
-  name: typeof props.to === 'string' ? props.to : props.to?.name,
-  view: props.to?.query?.view
-}))
-
-const isActive = computed(() => {
-  const route = routeInfo.value
-  const link = linkInfo.value
-  
-  const result = route.view 
-    ? route.view === link.view 
-    : route.name === link.name
-  
-  // Только для диагностики
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[${props.label}] isActive compute:`, {
-      count: ++isActiveComputeCount.value,
-      result,
-      routeName: route.name,
-      routeView: route.view,
-      toName: link.name,
-      toView: link.view
-    })
+let isActive = computed(() => {
+  if (route.query.view) {
+    return route.query.view == props.to?.query?.view
   }
-  
-  return result
+  return route.name === props.to
 })
 </script>

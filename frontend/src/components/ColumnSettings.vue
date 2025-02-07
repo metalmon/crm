@@ -49,7 +49,9 @@
               </div>
             </template>
           </Draggable>
-          <div class="mt-1.5 flex flex-col gap-1 border-t border-outline-gray-modals pt-1.5">
+          <div
+            class="mt-1.5 flex flex-col gap-1 border-t border-outline-gray-modals pt-1.5"
+          >
             <Autocomplete
               value=""
               :options="fields"
@@ -208,16 +210,18 @@ const fields = computed(() => {
   if (!allFields) return []
 
   return allFields.filter((field) => {
-    return !columns.value.find((column) => column.key === field.value)
+    return !columns.value.find((column) => column.key === field.fieldname)
   })
 })
 
 function addColumn(c) {
+  let align = ['Float', 'Int', 'Percent', 'Currency'].includes(c.type) ? 'right' : 'left'
   let _column = {
     label: c.label,
-    type: c.type,
-    key: c.value,
+    type: c.fieldtype,
+    key: c.fieldname,
     width: '10rem',
+    align,
   }
   columns.value.push(_column)
   rows.value.push(c.value)

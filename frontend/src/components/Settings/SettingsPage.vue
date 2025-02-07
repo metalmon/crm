@@ -11,25 +11,32 @@
         theme="orange"
       />
     </h2>
-    <div v-if="!data.get.loading" class="flex-1 overflow-y-auto dark-scrollbar">
-      <FieldLayout v-if="data?.doc && tabs" :tabs="tabs" :data="data.doc" />
-      <ErrorMessage class="mt-2" :message="error" />
+    <div v-if="!data.get.loading" class="flex-1 overflow-y-auto">
+      <FieldLayout
+        v-if="data?.doc && tabs"
+        :tabs="tabs"
+        :data="data.doc"
+        :doctype="doctype"
+      />
     </div>
     <div v-else class="flex flex-1 items-center justify-center">
       <Spinner class="size-8" />
     </div>
-    <div class="flex flex-row-reverse">
+    <div class="flex justify-between gap-2">
+      <div>
+        <ErrorMessage class="mt-2" :message="data.save.error" />
+      </div>
       <Button
         :loading="data.save.loading"
         :label="__('Update')"
         variant="solid"
-        @click="update"
+        @click="data.save.submit()"
       />
     </div>
   </div>
 </template>
 <script setup>
-import FieldLayout from '@/components/FieldLayout.vue'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import {
   createDocumentResource,
   createResource,
@@ -37,8 +44,8 @@ import {
   Badge,
   ErrorMessage,
 } from 'frappe-ui'
-import { evaluateDependsOnValue, createToast } from '@/utils'
-import { ref, computed } from 'vue'
+import { createToast, getRandom } from '@/utils'
+import { computed } from 'vue'
 
 const props = defineProps({
   doctype: {
@@ -65,17 +72,13 @@ const fields = createResource({
   auto: true,
 })
 
-const error = ref(null)
-
 const data = createDocumentResource({
   doctype: props.doctype,
   name: props.doctype,
   fields: ['*'],
-  cache: props.doctype,
   auto: true,
   setValue: {
     onSuccess: () => {
-      error.value = null
       createToast({
         title: __('Success'),
         text: __(props.successMessage),
@@ -96,67 +99,53 @@ const data = createDocumentResource({
 
 const tabs = computed(() => {
   if (!fields.data) return []
-  let _sections = []
+  let _tabs = []
   let fieldsData = fields.data
 
-  if (fieldsData[0].type !== 'Section Break') {
-    _sections.push({
-      label: 'General',
-      hideLabel: true,
-      columns: 1,
-      fields: [],
-    })
-  }
-  fieldsData.forEach((field) => {
-    if (field.type === 'Section Break') {
+  if (fieldsData[0].type != 'Tab Break') {
+    let _sections = []
+    if (fieldsData[0].type != 'Section Break') {
       _sections.push({
-        label: field.value,
-        hideLabel: true,
-        columns: 1,
+        name: 'first_section',
+        columns: [{ name: 'first_column', fields: [] }],
+      })
+    }
+    _tabs.push({ name: 'first_tab', sections: _sections })
+  }
+
+  fieldsData.forEach((field) => {
+    let last_tab = _tabs[_tabs.length - 1]
+    let _sections = _tabs.length ? last_tab.sections : []
+    if (field.fieldtype === 'Tab Break') {
+      _tabs.push({
+        label: field.label,
+        name: field.fieldname,
+        sections: [
+          {
+            name: 'section_' + getRandom(),
+            columns: [{ name: 'column_' + getRandom(), fields: [] }],
+          },
+        ],
+      })
+    } else if (field.fieldtype === 'Section Break') {
+      _sections.push({
+        label: field.label,
+        name: field.fieldname,
+        hideBorder: field.hide_border,
+        columns: [{ name: 'column_' + getRandom(), fields: [] }],
+      })
+    } else if (field.fieldtype === 'Column Break') {
+      _sections[_sections.length - 1].columns.push({
+        name: field.fieldname,
         fields: [],
       })
-    } else if (field.type === 'Column Break') {
-      _sections[_sections.length - 1].columns += 1
     } else {
-      _sections[_sections.length - 1].fields.push({
-        ...field,
-        filters: field.link_filters && JSON.parse(field.link_filters),
-        display_via_depends_on: evaluateDependsOnValue(
-          field.depends_on,
-          data.doc,
-        ),
-        mandatory_via_depends_on: evaluateDependsOnValue(
-          field.mandatory_depends_on,
-          data.doc,
-        ),
-        name: field.value,
-      })
+      let last_section = _sections[_sections.length - 1]
+      let last_column = last_section.columns[last_section.columns.length - 1]
+      last_column.fields.push(field)
     }
   })
 
-  return [{ no_tabs: true, sections: _sections }]
+  return _tabs
 })
-
-function update() {
-  error.value = null
-  if (validateMandatoryFields()) return
-  data.save.submit()
-}
-
-function validateMandatoryFields() {
-  if (!tabs.value) return false
-  for (let section of tabs.value[0].sections) {
-    for (let field of section.fields) {
-      if (
-        (field.mandatory ||
-          (field.mandatory_depends_on && field.mandatory_via_depends_on)) &&
-        !data.doc[field.name]
-      ) {
-        error.value = __('{0} is mandatory', [__(field.label)])
-        return true
-      }
-    }
-  }
-  return false
-}
 </script>

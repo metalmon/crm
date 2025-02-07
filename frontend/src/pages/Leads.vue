@@ -41,6 +41,7 @@
     v-model:resizeColumn="triggerResize"
     v-model:updatedPageCount="updatedPageCount"
     doctype="CRM Lead"
+    :filters="{ converted: 0 }"
     :options="{
       allowedViews: ['list', 'group_by', 'kanban'],
     }"
@@ -308,11 +309,7 @@
     doctype="CRM Lead"
     :doc="docname"
   />
-  <QuickEntryModal
-    v-if="showQuickEntryModal"
-    v-model="showQuickEntryModal"
-    doctype="CRM Lead"
-  />
+  <QuickEntryModal v-if="showQuickEntryModal" v-model="showQuickEntryModal" />
 </template>
 
 <script setup>
@@ -335,18 +332,22 @@ import NoteModal from '@/components/Modals/NoteModal.vue'
 import TaskModal from '@/components/Modals/TaskModal.vue'
 import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import ViewControls from '@/components/ViewControls.vue'
+import { getMeta } from '@/stores/meta'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { callEnabled, isMobileView } from '@/composables/settings'
 import { formatDate, timeAgo, website, formatTime } from '@/utils'
-import { Avatar, Tooltip, Dropdown, Button, FeatherIcon } from 'frappe-ui'
+import { Avatar, Tooltip, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import { ref, computed, reactive, h, watch } from 'vue'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 
+const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
+  getMeta('CRM Lead')
 const { makeCall } = globalStore()
 const { getUser } = usersStore()
-const { getLeadStatus, getStatusLabel } = statusesStore()
+const { getLeadStatus } = statusesStore()
 
 const route = useRoute()
 
@@ -395,7 +396,7 @@ function getRow(name, field) {
 const rows = computed(() => {
   if (!leads.value?.data?.data) return []
   if (leads.value.data.view_type === 'group_by') {
-    if (!leads.value?.data.group_by_field?.name) return []
+    if (!leads.value?.data.group_by_field?.fieldname) return []
     return getGroupedByRows(
       leads.value?.data.data,
       leads.value?.data.group_by_field,
@@ -415,9 +416,9 @@ function getGroupedByRows(listRows, groupByField, columns) {
     let filteredRows = []
 
     if (!option) {
-      filteredRows = listRows.filter((row) => !row[groupByField.name])
+      filteredRows = listRows.filter((row) => !row[groupByField.fieldname])
     } else {
-      filteredRows = listRows.filter((row) => row[groupByField.name] == option)
+      filteredRows = listRows.filter((row) => row[groupByField.fieldname] == option)
     }
 
     let groupDetail = {
@@ -426,10 +427,10 @@ function getGroupedByRows(listRows, groupByField, columns) {
       collapsed: false,
       rows: parseRows(filteredRows, columns),
     }
-    if (groupByField.name == 'status') {
+    if (groupByField.fieldname == 'status') {
       groupDetail.icon = () =>
         h(IndicatorIcon, {
-          class: getLeadStatus(option)?.iconColorClass,
+          class: getLeadStatus(option)?.color,
         })
     }
     groupedRows.push(groupDetail)
@@ -466,6 +467,18 @@ function parseRows(rows, columns = []) {
         _rows[row] = formatDate(lead[row], '', true, fieldType == 'Datetime')
       }
 
+      if (fieldType && fieldType == 'Currency') {
+        _rows[row] = getFormattedCurrency(row, lead)
+      }
+
+      if (fieldType && fieldType == 'Float') {
+        _rows[row] = getFormattedFloat(row, lead)
+      }
+
+      if (fieldType && fieldType == 'Percent') {
+        _rows[row] = getFormattedPercent(row, lead)
+      }
+
       if (row == 'lead_name') {
         _rows[row] = {
           label: lead.lead_name,
@@ -478,9 +491,9 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(lead.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: getStatusLabel('lead', lead.status),
+          label: translateLeadStatus(lead.status),
           value: lead.status,
-          color: getLeadStatus(lead.status)?.iconColorClass,
+          color: getLeadStatus(lead.status)?.color,
         }
       } else if (row == 'sla_status') {
         let value = lead.sla_status
@@ -563,27 +576,18 @@ function actions(itemName) {
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
       label: __('Make a Call'),
-      onClick: (context) => {
-        makeCall(mobile_no)
-        context.close()
-      },
+      onClick: () => makeCall(mobile_no),
       condition: () => mobile_no && callEnabled.value,
     },
     {
       icon: h(NoteIcon, { class: 'h-4 w-4' }),
       label: __('New Note'),
-      onClick: (context) => {
-        showNote(itemName)
-        context.close()
-      },
+      onClick: () => showNote(itemName),
     },
     {
       icon: h(TaskIcon, { class: 'h-4 w-4' }),
       label: __('New Task'),
-      onClick: (context) => {
-        showTask(itemName)
-        context.close()
-      },
+      onClick: () => showTask(itemName),
     },
   ]
   return actions.filter((action) =>

@@ -10,7 +10,7 @@
           </div>
           <div class="flex items-center gap-1">
             <Button
-              v-if="isManager()"
+              v-if="isManager() && !isMobileView"
               variant="ghost"
               class="w-7"
               @click="openQuickEntryModal"
@@ -23,7 +23,7 @@
           </div>
         </div>
         <div v-if="tabs.data">
-          <FieldLayout :tabs="tabs.data" :data="_address" />
+          <FieldLayout :tabs="tabs.data" :data="_address" doctype="Address" />
           <ErrorMessage class="mt-2" :message="error" />
         </div>
       </div>
@@ -50,13 +50,13 @@
 
 <script setup>
 import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
-import FieldLayout from '@/components/FieldLayout.vue'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import { usersStore } from '@/stores/users'
+import { isMobileView } from '@/composables/settings'
 import { capture } from '@/telemetry'
-import { call, FeatherIcon, createResource, ErrorMessage } from 'frappe-ui'
+import { FeatherIcon, createResource, ErrorMessage } from 'frappe-ui'
 import { ref, nextTick, watch, computed } from 'vue'
-import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   options: {
@@ -66,8 +66,6 @@ const props = defineProps({
     },
   },
 })
-
-const emits = defineEmits(['save'])
 
 const { isManager } = usersStore()
 
@@ -82,7 +80,7 @@ const editMode = ref(false)
 let _address = ref({
   name: '',
   address_title: '',
-  address_type: __('Office'),
+  address_type: 'Office',
   address_line1: '',
   address_line2: '',
   city: '',
@@ -93,6 +91,13 @@ let _address = ref({
   pincode: '',
   links: []
 })
+
+const countryCodeMap = {
+  'RU': 'Russian Federation',
+  'US': 'United States',
+  'GB': 'United Kingdom',
+  // Add more as needed
+}
 
 const defaultCountry = createResource({
   url: 'frappe.client.get_value',
@@ -261,6 +266,7 @@ const createAddress = createResource({
   onSuccess(doc) {
     loading.value = false
     if (doc.name) {
+      capture('address_created')
       handleAddressUpdate(doc)
     }
   },
@@ -276,14 +282,7 @@ const createAddress = createResource({
 
 function handleAddressUpdate(doc) {
   show.value = false
-  emits('save', doc.name)
-}
-
-const countryCodeMap = {
-  'RU': 'Russian Federation',
-  'US': 'United States',
-  'GB': 'United Kingdom',
-  // Add more as needed
+  props.options.afterInsert && props.options.afterInsert(doc)
 }
 
 watch(
@@ -319,6 +318,9 @@ watch(
       _address.value = { 
         ...doc.value,
         country: countryValue || ''
+      }
+      if (_address.value.name) {
+        editMode.value = true
       }
     })
   },

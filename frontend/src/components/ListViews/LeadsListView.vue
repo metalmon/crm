@@ -17,6 +17,7 @@
   >
     <ListHeader
       class="sm:mx-5 mx-3"
+      @columnWidthUpdated="emit('columnWidthUpdated')"
     >
       <ListHeaderItem
         v-for="column in columns"
@@ -35,10 +36,14 @@
         </Button>
       </ListHeaderItem>
     </ListHeader>
-    <TranslatedListRows :rows="rows" v-slot="{ idx, column, item, row }">
+    <ListRows
+      :rows="rows"
+      v-slot="{ idx, column, item, row }"
+      doctype="CRM Lead"
+    >
       <div v-if="column.key === '_assign'" class="flex items-center">
         <MultipleAvatar
-          :avatars="item || []"
+          :avatars="item"
           size="sm"
           @click="
             (event) =>
@@ -52,17 +57,17 @@
           "
         />
       </div>
-      <ListRowItem v-else :item="item">
+      <ListRowItem v-else :item="item" :align="column.align">
         <template #prefix>
           <div v-if="column.key === 'status'">
-            <IndicatorIcon :class="item?.color || ''" />
+            <IndicatorIcon :class="item.color" />
           </div>
           <div v-else-if="column.key === 'lead_name'">
             <Avatar
-              v-if="item?.label"
+              v-if="item.label"
               class="flex items-center"
-              :image="item?.image"
-              :label="item?.image_label || item?.label"
+              :image="item.image"
+              :label="item.image_label"
               size="sm"
             />
           </div>
@@ -77,10 +82,10 @@
           </div>
           <div v-else-if="column.key === 'lead_owner'">
             <Avatar
-              v-if="item?.full_name"
+              v-if="item.full_name"
               class="flex items-center"
-              :image="item?.user_image"
-              :label="item?.full_name"
+              :image="item.user_image"
+              :label="item.full_name"
               size="sm"
             />
           </div>
@@ -111,12 +116,13 @@
                 })
             "
           >
-            <Tooltip :text="item?.label || ''">
-              <div>{{ item?.timeAgo || '' }}</div>
+            <Tooltip :text="item.label">
+              <div>{{ item.timeAgo }}</div>
             </Tooltip>
           </div>
           <div v-else-if="column.key === '_liked_by'">
             <Button
+              v-if="column.key == '_liked_by'"
               variant="ghosted"
               :class="isLiked(item) ? 'fill-red-500' : 'fill-white'"
               @click.stop.prevent="
@@ -135,11 +141,11 @@
             class="truncate text-base"
           >
             <Badge
-              v-if="item?.value"
+              v-if="item.value"
               :variant="'subtle'"
-              :theme="item?.color || 'gray'"
+              :theme="item.color"
               size="md"
-              :label="item?.value"
+              :label="item.value"
               @click="
                 (event) =>
                   emit('applyFilter', {
@@ -155,7 +161,7 @@
           <div v-else-if="column.type === 'Check'">
             <FormControl
               type="checkbox"
-              :modelValue="item || false"
+              :modelValue="item"
               :disabled="true"
               class="text-ink-gray-9"
             />
@@ -174,16 +180,15 @@
                 })
             "
           >
-            {{ label || '' }}
+            {{ label }}
           </div>
         </template>
       </ListRowItem>
-    </TranslatedListRows>
+    </ListRows>
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
-          :options="listBulkActionsRef?.bulkActions(selections, unselectAll) || []"
-          placement="bottom-end"
+          :options="listBulkActionsRef.bulkActions(selections, unselectAll)"
         >
           <Button icon="more-horizontal" variant="ghost" />
         </Dropdown>
@@ -209,7 +214,6 @@ import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
-import TranslatedListRows from '@/components/ListViews/ListRows.vue'
 import {
   Avatar,
   ListView,
@@ -221,6 +225,7 @@ import {
   Tooltip,
   Button,
 } from 'frappe-ui'
+import ListRows from '@/components/ListViews/ListRows.vue'
 import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
 import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
@@ -273,7 +278,6 @@ function isLiked(item) {
     let likedByMe = JSON.parse(item)
     return likedByMe.includes(user)
   }
-  return false
 }
 
 watch(pageLengthCount, (val, old_value) => {

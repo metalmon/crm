@@ -1,44 +1,40 @@
 <template>
   <Dialog v-model="show" :options="{ size: '3xl' }">
     <template #body>
-      <div class="flex flex-col h-full">
-        <div class="flex flex-col flex-1 bg-surface-modal">
-          <div class="px-4 pb-6 pt-5 sm:px-6">
-            <div class="mb-5 flex items-center justify-between">
-              <div>
-                <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
-                  {{ __('Create Lead') }}
-                </h3>
-              </div>
-              <div class="flex items-center gap-1">
-                <Button
-                  v-if="isManager()"
-                  variant="ghost"
-                  class="w-7"
-                  @click="openQuickEntryModal"
-                >
-                  <EditIcon class="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" class="w-7" @click="show = false">
-                  <FeatherIcon name="x" class="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+      <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
+        <div class="mb-5 flex items-center justify-between">
+          <div>
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+              {{ __('Create Lead') }}
+            </h3>
           </div>
-          <div class="flex-1 overflow-y-auto px-4 sm:px-6 [&_[id^='headlessui-tabs-panel']]:!overflow-visible">
-            <FieldLayout v-if="tabs.data" :tabs="tabs.data" :data="lead" :modal="true" />
-            <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
+          <div class="flex items-center gap-1">
+            <Button
+              v-if="isManager() && !isMobileView"
+              variant="ghost"
+              class="w-7"
+              @click="openQuickEntryModal"
+            >
+              <EditIcon class="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" class="w-7" @click="show = false">
+              <FeatherIcon name="x" class="h-4 w-4" />
+            </Button>
           </div>
-          <div class="mt-auto px-4 pb-7 pt-4 sm:px-6">
-            <div class="flex flex-row-reverse gap-2">
-              <Button
-                variant="solid"
-                :label="__('Create')"
-                :loading="isLeadCreating"
-                @click="createNewLead"
-              />
-            </div>
-          </div>
+        </div>
+        <div>
+          <FieldLayout v-if="tabs.data" :tabs="tabs.data" :data="lead" />
+          <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
+        </div>
+      </div>
+      <div class="px-4 pb-7 pt-4 sm:px-6">
+        <div class="flex flex-row-reverse gap-2">
+          <Button
+            variant="solid"
+            :label="__('Create')"
+            :loading="isLeadCreating"
+            @click="createNewLead"
+          />
         </div>
       </div>
     </template>
@@ -47,17 +43,14 @@
 
 <script setup>
 import EditIcon from '@/components/Icons/EditIcon.vue'
-import FieldLayout from '@/components/FieldLayout.vue'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
+import { isMobileView } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import { createResource } from 'frappe-ui'
 import { computed, onMounted, ref, reactive, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { Dropdown } from 'frappe-ui'
-import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
-import { translateLeadStatus } from '@/utils/leadStatusTranslations'
-import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   defaults: Object,
@@ -77,27 +70,22 @@ const tabs = createResource({
   params: { doctype: 'CRM Lead', type: 'Quick Entry' },
   auto: true,
   transform: (_tabs) => {
-    return _tabs.map((tab) => {
+    return _tabs.forEach((tab) => {
       tab.sections.forEach((section) => {
-        section.fields.forEach((field) => {
-          if (field.name == 'status') {
-            field.type = 'Select'
-            field.prefixFn = (value) => {
-              const statusInfo = getLeadStatus(value)
-              return statusInfo?.iconColorClass[0]
+        section.columns.forEach((column) => {
+          column.fields.forEach((field) => {
+            if (field.fieldname == 'status') {
+              field.fieldtype = 'Select'
+              field.options = leadStatuses.value
+              field.prefix = getLeadStatus(lead.status).color
             }
-            field.options = leadStatuses.value.map(status => ({
-              label: translateLeadStatus(status.value),
-              value: status.value
-            }))
-            field.doctype = 'CRM Lead'
-          } else if (field.name == 'lead_owner') {
-            field.type = 'Link'
-            field.options = 'User'
-          }
+
+            if (field.fieldtype === 'Table') {
+              lead[field.fieldname] = []
+            }
+          })
         })
       })
-      return tab
     })
   },
 })
@@ -152,8 +140,9 @@ function createNewLead() {
         return error.value
       }
       if (lead.annual_revenue) {
-        lead.annual_revenue = lead.annual_revenue.replace(/,/g, '')
-        if (isNaN(lead.annual_revenue)) {
+        if (typeof lead.annual_revenue === 'string') {
+          lead.annual_revenue = lead.annual_revenue.replace(/,/g, '')
+        } else if (isNaN(lead.annual_revenue)) {
           error.value = __('Annual Revenue should be a number')
           return error.value
         }
@@ -178,12 +167,7 @@ function createNewLead() {
       show.value = false
       router.push({ name: 'Lead', params: { leadId: data.name } })
     },
-    async onError(err) {
-      // Try to handle duplicate entry error
-      const handled = await handleDuplicateEntry(err, 'CRM Lead', () => createLead.submit(lead))
-      if (handled) return
-
-      // If not handled, show the error as usual
+    onError(err) {
       isLeadCreating.value = false
       if (!err.messages) {
         error.value = err.message

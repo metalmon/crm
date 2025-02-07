@@ -130,13 +130,8 @@
         </div>
       </template>
     </FileUploader>
-    <Tabs
-      v-model="tabIndex"
-      :tabs="tabs"
-      tablistClass="!px-4"
-      class="h-full flex flex-col"
-    >
-      <template #tab="{ tab, selected }">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+      <TabList class="!px-4" v-slot="{ tab, selected }">
         <button
           v-if="tab.name == 'Deals'"
           class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
@@ -154,58 +149,39 @@
             {{ tab.count }}
           </Badge>
         </button>
-      </template>
-      <template #default="{ tab }">
-        <div class="flex-1 relative">
-          <div v-if="tab.name == 'Details'">
-            <div
-              v-if="fieldsLayout.data"
-              class="flex flex-1 flex-col justify-between overflow-hidden"
-            >
-              <div class="flex flex-col overflow-y-auto">
-                <div
-                  v-for="(section, i) in fieldsLayout.data"
-                  :key="section.label"
-                  class="flex flex-col px-2 py-3 sm:p-3"
-                  :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-                >
-                  <Section :label="section.label" :opened="section.opened">
-                    <SidePanelLayout
-                      :fields="section.fields"
-                      :isLastSection="i == fieldsLayout.data.length - 1"
-                      v-model="contact.data"
-                      @update="updateField"
-                    />
-                  </Section>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div 
-            v-else-if="tab.name === 'Deals'" 
-            class="absolute inset-0 overflow-auto"
+      </TabList>
+      <TabPanel v-slot="{ tab }">
+        <div v-if="tab.name == 'Details'">
+          <div
+            v-if="sections.data"
+            class="flex flex-1 flex-col justify-between overflow-hidden"
           >
-            <div class="min-w-max">
-              <DealsListView
-                v-if="rows.length"
-                class="mt-4"
-                :rows="rows"
-                :columns="columns"
-                :options="{ selectable: false, showTooltip: false }"
-              />
-              <div
-                v-else
-                class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
-              >
-                <div class="flex flex-col items-center justify-center space-y-3">
-                  <component :is="tab.icon" class="!h-10 !w-10" />
-                  <div>{{ __('No Deals Found') }}</div>
-                </div>
-              </div>
-            </div>
+            <SidePanelLayout
+              v-model="contact.data"
+              :sections="sections.data"
+              doctype="Contact"
+              @update="updateField"
+              @reload="sections.reload"
+            />
           </div>
         </div>
-      </template>
+        <DealsListView
+          v-else-if="tab.label === 'Deals' && rows.length"
+          class="mt-4"
+          :rows="rows"
+          :columns="columns"
+          :options="{ selectable: false, showTooltip: false }"
+        />
+        <div
+          v-if="tab.label === 'Deals' && !rows.length"
+          class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
+        >
+          <div class="flex flex-col items-center justify-center space-y-3">
+            <component :is="tab.icon" class="!h-10 !w-10" />
+            <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
+          </div>
+        </div>
+      </TabPanel>
     </Tabs>
   </div>
   <AddressModal v-model="showAddressModal" v-model:address="_address" />
@@ -213,7 +189,6 @@
 
 <script setup>
 import Icon from '@/components/Icon.vue'
-import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
@@ -222,13 +197,10 @@ import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
 import AddressModal from '@/components/Modals/AddressModal.vue'
-import {
-  formatDate,
-  timeAgo,
-  formatNumberIntoCurrency,
-  createToast,
-} from '@/utils'
+import { formatDate, timeAgo, createToast } from '@/utils'
 import { getView } from '@/utils/view'
+import { getSettings } from '@/stores/settings'
+import { getMeta } from '@/stores/meta'
 import { globalStore } from '@/stores/global.js'
 import { usersStore } from '@/stores/users.js'
 import { organizationsStore } from '@/stores/organizations.js'
@@ -239,20 +211,20 @@ import {
   Avatar,
   FileUploader,
   Tabs,
+  TabList,
+  TabPanel,
   call,
   createResource,
   usePageMeta,
   Dropdown,
-  Button,
 } from 'frappe-ui'
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
-import { normalizePhoneNumber } from '@/utils/communicationUtils'
 
+const { brand } = getSettings()
 const { $dialog, makeCall } = globalStore()
 
-const { getUser, isManager } = usersStore()
+const { getUser } = usersStore()
 const { getOrganization } = organizationsStore()
 const { getDealStatus } = statusesStore()
 
@@ -314,6 +286,7 @@ const breadcrumbs = computed(() => {
 usePageMeta(() => {
   return {
     title: contact.data?.full_name || contact.data?.name,
+    icon: brand.favicon,
   }
 })
 
@@ -374,199 +347,173 @@ const tabs = [
 const deals = createResource({
   url: 'crm.api.contact.get_linked_deals',
   cache: ['deals', props.contactId],
-  params: {
-    contact: props.contactId,
-  },
+  params: { contact: props.contactId },
   auto: true,
 })
 
 const rows = computed(() => {
-  if (!deals.data || !deals.data.length) return []
+  if (!deals.data || deals.data == []) return []
+
   return deals.data.map((row) => getDealRowObject(row))
 })
 
-const fieldsLayout = createResource({
-  url: 'crm.api.doc.get_sidebar_fields',
-  cache: ['fieldsLayout', props.contactId],
-  params: { doctype: 'Contact', name: props.contactId },
+const sections = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
+  cache: ['sidePanelSections', 'Contact'],
+  params: { doctype: 'Contact' },
   auto: true,
-  transform: (data) => {
-    return data.map((section) => {
-      return {
-        ...section,
-        fields: computed(() =>
-          section.fields.map((field) => {
-            // Get translated field label
-            const translatedLabel = __(field.label || field.name.split('_').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
-
-            // Handle link fields
-            if (field.type === 'link') {
-              const baseField = {
-                ...field,
-                doctype: field.options || field.doctype,
-                options: field.options,
-                placeholder: `${__('Select')} ${translatedLabel}`,
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-
-              // Special handling for address field
-              if (field.name === 'address') {
-                return {
-                  ...baseField,
-                  doctype: 'Address',
-                  create: (value, close) => {
-                    _address.value = { address_title: value }
-                    showAddressModal.value = true
-                    close()
-                  },
-                  edit: async (addr) => {
-                    _address.value = await call('frappe.client.get', {
-                      doctype: 'Address',
-                      name: addr,
-                    })
-                    showAddressModal.value = true
-                  }
-                }
-              }
-
-              return baseField
-            }
-
-            // Handle email_id field
-            if (field.name === 'email_id') {
-              return {
-                ...field,
-                type: 'dropdown',
-                fieldtype: 'data',
-                placeholder: __('Add Email Address...'),
-                options: contact.data?.email_ids?.map((email) => ({
-                    name: email.name,
-                    value: email.email_id,
-                    selected: email.email_id === contact.data.email_id,
-                    placeholder: __('Add Email Address...'),
-                    isNew: email.isNew,
-                    onClick: () => {
-                      _contact.value.email_id = email.email_id
-                      setAsPrimary('email', email.email_id)
-                    },
-                    onSave: (option, isNew) => {
-                      if (isNew) {
-                        createNew('email', option.value)
-                        if (contact.data.email_ids.length === 1) {
-                          _contact.value.email_id = option.value
-                        }
-                      } else {
-                        editOption('email', option.name, option.value)
-                      }
-                    },
-                    onDelete: () => {
-                      if (email.isNew) {
-                        contact.data.email_ids = contact.data.email_ids.filter(e => e.name !== email.name)
-                        if (_contact.value.email_id === email.email_id) {
-                          _contact.value.email_id = contact.data.email_ids.find(e => e.is_primary)?.email_id || ''
-                        }
-                      } else {
-                        deleteOption('email', email.name)
-                      }
-                    }
-                  })) || [],
-                create: () => {
-                  contact.data.email_ids = contact.data.email_ids || []
-                  const newEmail = {
-                    name: 'new-1',
-                    email_id: '',
-                    is_primary: contact.data.email_ids.length === 0,
-                    selected: false,
-                    isNew: true,
-                  }
-                  contact.data.email_ids.push(newEmail)
-                },
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-            }
-
-            // Handle mobile_no field
-            if (field.name === 'mobile_no') {
-              return {
-                ...field,
-                type: 'dropdown',
-                fieldtype: 'data',
-                placeholder: __('Add Mobile No...'),
-                options: contact.data?.phone_nos?.map((phone) => ({
-                    name: phone.name,
-                    value: phone.phone,
-                    selected: phone.phone === contact.data.actual_mobile_no,
-                    placeholder: __('Add Mobile No...'),
-                    isNew: phone.isNew,
-                    onClick: () => {
-                      _contact.value.actual_mobile_no = phone.phone
-                      _contact.value.mobile_no = phone.phone
-                      setAsPrimary('mobile_no', phone.phone)
-                    },
-                    onSave: (option, isNew) => {
-                      if (isNew) {
-                        createNew('phone', option.value)
-                        if (contact.data.phone_nos.length === 1) {
-                          _contact.value.actual_mobile_no = option.value
-                        }
-                      } else {
-                        editOption('phone', option.name, option.value)
-                      }
-                    },
-                    onDelete: () => {
-                      if (phone.isNew) {
-                        contact.data.phone_nos = contact.data.phone_nos.filter(p => p.name !== phone.name)
-                        if (_contact.value.actual_mobile_no === phone.phone) {
-                          _contact.value.actual_mobile_no = contact.data.phone_nos.find(p => p.is_primary_mobile_no)?.phone || ''
-                        }
-                      } else {
-                        deleteOption('phone', phone.name)
-                      }
-                    }
-                  })) || [],
-                create: () => {
-                  contact.data.phone_nos = contact.data.phone_nos || []
-                  const newPhone = {
-                    name: 'new-1',
-                    phone: '',
-                    is_primary_mobile_no: contact.data.phone_nos.length === 0,
-                    selected: false,
-                    isNew: true,
-                  }
-                  contact.data.phone_nos.push(newPhone)
-                },
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-            }
-
-            // Handle company_name field
-            if (field.name === 'company_name') {
-              return {
-                ...field,
-                type: 'text',
-                placeholder: __('Enter Organization Name')
-              }
-            }
-
-            // Default field handling
-            return {
-              ...field,
-              placeholder: `${__('Enter')} ${translatedLabel}`,
-              class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            }
-          })
-        ),
-      }
-    })
-  }
+  transform: (data) => computed(() => getParsedSections(data)),
 })
 
-async function createNew(type, value) {
-  if (!value) return
-  let d = await call('crm.api.contact.create_new', {
+function getParsedSections(_sections) {
+  return _sections.map((section) => {
+    section.columns = section.columns.map((column) => {
+      column.fields = column.fields.map((field) => {
+        if (field.fieldname === 'email_id') {
+          return {
+            ...field,
+            type: 'dropdown',
+            options:
+              contact.data?.email_ids?.map((email) => {
+                return {
+                  name: email.name,
+                  value: email.email_id,
+                  selected: email.email_id === contact.data.email_id,
+                  placeholder: 'john@doe.com',
+                  onClick: () => {
+                    _contact.value.email_id = email.email_id
+                    setAsPrimary('email', email.email_id)
+                  },
+                  onSave: (option, isNew) => {
+                    if (isNew) {
+                      createNew('email', option.value)
+                      if (contact.data.email_ids.length === 1) {
+                        _contact.value.email_id = option.value
+                      }
+                    } else {
+                      editOption(
+                        'Contact Email',
+                        option.name,
+                        'email_id',
+                        option.value,
+                      )
+                    }
+                  },
+                  onDelete: async (option, isNew) => {
+                    contact.data.email_ids = contact.data.email_ids.filter(
+                      (email) => email.name !== option.name,
+                    )
+                    !isNew && (await deleteOption('Contact Email', option.name))
+                    if (_contact.value.email_id === option.value) {
+                      if (contact.data.email_ids.length === 0) {
+                        _contact.value.email_id = ''
+                      } else {
+                        _contact.value.email_id = contact.data.email_ids.find(
+                          (email) => email.is_primary,
+                        )?.email_id
+                      }
+                    }
+                  },
+                }
+              }) || [],
+            create: () => {
+              contact.data?.email_ids?.push({
+                name: 'new-1',
+                value: '',
+                selected: false,
+                isNew: true,
+              })
+            },
+          }
+        } else if (field.name === 'mobile_no') {
+          return {
+            ...field,
+            read_only: false,
+            fieldtype: 'dropdown',
+            options:
+              contact.data?.phone_nos?.map((phone) => {
+                return {
+                  name: phone.name,
+                  value: phone.phone,
+                  selected: phone.phone === contact.data.actual_mobile_no,
+                  onClick: () => {
+                    _contact.value.actual_mobile_no = phone.phone
+                    _contact.value.mobile_no = phone.phone
+                    setAsPrimary('mobile_no', phone.phone)
+                  },
+                  onSave: (option, isNew) => {
+                    if (isNew) {
+                      createNew('phone', option.value)
+                      if (contact.data.phone_nos.length === 1) {
+                        _contact.value.actual_mobile_no = option.value
+                      }
+                    } else {
+                      editOption(
+                        'Contact Phone',
+                        option.name,
+                        'phone',
+                        option.value,
+                      )
+                    }
+                  },
+                  onDelete: async (option, isNew) => {
+                    contact.data.phone_nos = contact.data.phone_nos.filter(
+                      (phone) => phone.name !== option.name,
+                    )
+                    !isNew && (await deleteOption('Contact Phone', option.name))
+                    if (_contact.value.actual_mobile_no === option.value) {
+                      if (contact.data.phone_nos.length === 0) {
+                        _contact.value.actual_mobile_no = ''
+                      } else {
+                        _contact.value.actual_mobile_no =
+                          contact.data.phone_nos.find(
+                            (phone) => phone.is_primary_mobile_no,
+                          )?.phone
+                      }
+                    }
+                  },
+                }
+              }) || [],
+            create: () => {
+              contact.data?.phone_nos?.push({
+                name: 'new-1',
+                value: '',
+                selected: false,
+                isNew: true,
+              })
+            },
+          }
+        } else if (field.name === 'address') {
+          return {
+            ...field,
+            create: (value, close) => {
+              _contact.value.address = value
+              _address.value = {}
+              showAddressModal.value = true
+              close()
+            },
+            edit: async (addr) => {
+              _address.value = await call('frappe.client.get', {
+                doctype: 'Address',
+                name: addr,
+              })
+              showAddressModal.value = true
+            },
+          }
+        } else {
+          return field
+        }
+      })
+      return column
+    })
+    return section
+  })
+}
+
+async function setAsPrimary(field, value) {
+  let d = await call('crm.api.contact.set_as_primary', {
     contact: contact.data.name,
-    field: type,
+    field,
     value,
   })
   if (d) {
@@ -579,39 +526,41 @@ async function createNew(type, value) {
   }
 }
 
-async function editOption(type, name, value) {
-  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
-  const fieldname = type === 'email' ? 'email_id' : 'phone'
-  await call('frappe.client.set_value', {
+async function createNew(field, value) {
+  if (!value) return
+  let d = await call('crm.api.contact.create_new', {
+    contact: contact.data.name,
+    field,
+    value,
+  })
+  if (d) {
+    contact.reload()
+    createToast({
+      title: __('Contact updated'),
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  }
+}
+
+async function editOption(doctype, name, fieldname, value) {
+  let d = await call('frappe.client.set_value', {
     doctype,
     name,
     fieldname,
     value,
   })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
+  if (d) {
+    contact.reload()
+    createToast({
+      title: 'Contact updated',
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  }
 }
 
-async function setAsPrimary(type, value) {
-  await call('crm.api.contact.set_as_primary', {
-    contact: contact.data.name,
-    field: type,
-    value,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function deleteOption(type, name) {
-  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
+async function deleteOption(doctype, name) {
   await call('frappe.client.delete', {
     doctype,
     name,
@@ -632,13 +581,15 @@ async function updateField(fieldname, value) {
     value,
   })
   createToast({
-    title: 'Contact updated',
+    title: __('Contact updated'),
     icon: 'check',
     iconClasses: 'text-ink-green-3',
   })
 
   contact.reload()
 }
+
+const { getFormattedCurrency } = getMeta('CRM Deal')
 
 const columns = computed(() => dealColumns)
 
@@ -649,13 +600,10 @@ function getDealRowObject(deal) {
       label: deal.organization,
       logo: getOrganization(deal.organization)?.organization_logo,
     },
-    annual_revenue: formatNumberIntoCurrency(
-      deal.annual_revenue,
-      deal.currency,
-    ),
+    annual_revenue: getFormattedCurrency('annual_revenue', deal),
     status: {
       label: deal.status,
-      color: getDealStatus(deal.status)?.iconColorClass,
+      color: getDealStatus(deal.status)?.color,
     },
     email: deal.email,
     mobile_no: deal.mobile_no,
@@ -674,78 +622,38 @@ const dealColumns = [
   {
     label: __('Organization'),
     key: 'organization',
-    width: '150px',
+    width: '11rem',
   },
   {
     label: __('Amount'),
     key: 'annual_revenue',
-    width: '120px',
+    align: 'right',
+    width: '9rem',
   },
   {
     label: __('Status'),
     key: 'status',
-    width: '120px',
+    width: '10rem',
   },
   {
     label: __('Email'),
     key: 'email',
-    width: '180px',
+    width: '12rem',
   },
   {
     label: __('Mobile no'),
     key: 'mobile_no',
-    width: '130px',
+    width: '11rem',
   },
   {
     label: __('Deal owner'),
     key: 'deal_owner',
-    width: '150px',
+    width: '10rem',
   },
   {
     label: __('Last modified'),
     key: 'modified',
-    width: '130px',
+    width: '8rem',
   },
 ]
-
-function trackPhoneActivities(type = 'phone') {
-  if (!contact.data.actual_mobile_no) {
-    errorMessage(__('No phone number set'))
-    return
-  }
-
-  const formattedNumber = normalizePhoneNumber(contact.data.actual_mobile_no)
-  if (type === 'phone') {
-    window.location.href = `tel:${formattedNumber}`
-  } else {
-    window.open(`https://wa.me/${formattedNumber}`, '_blank')
-  }
-}
 </script>
-
-<style scoped>
-:deep(:has(> .dropdown-button)) {
-  width: 100%;
-}
-
-:deep(.flex-col.overflow-y-auto) {
-  overflow: visible !important;
-}
-
-:deep(.table-container) {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-:deep(table) {
-  width: auto;
-  min-width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-:deep(th),
-:deep(td) {
-  white-space: nowrap;
-}
-</style>

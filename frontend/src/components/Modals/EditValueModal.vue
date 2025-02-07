@@ -157,11 +157,10 @@ function getValueComponent(f) {
     return h(FormControl, { type: 'number' })
   } else if (typeDate.includes(type)) {
     return h('input', {
-      type: 'date',
-      class: 'form-input w-full',
+      type: type === 'Date' ? 'date' : 'datetime-local',
       value: newValue.value,
-      onInput: (e) => newValue.value = e.target.value,
-      placeholder: __('Set date')
+      class: 'w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
+      onInput: (e) => updateValue(e.target.value)
     })
   } else if (typeEditor.includes(type)) {
     return h(TextEditor, {

@@ -36,7 +36,11 @@
         </Button>
       </ListHeaderItem>
     </ListHeader>
-    <ListRows :rows="rows" v-slot="{ idx, column, item, row }">
+    <ListRows
+      :rows="rows"
+      v-slot="{ idx, column, item, row }"
+      doctype="CRM Deal"
+    >
       <div v-if="column.key === '_assign'" class="flex items-center">
         <MultipleAvatar
           :avatars="item"
@@ -53,7 +57,7 @@
           "
         />
       </div>
-      <ListRowItem v-else :item="item">
+      <ListRowItem v-else :item="item" :align="column.align">
         <template #prefix>
           <div v-if="column.key === 'status'">
             <IndicatorIcon :class="item.color" />
@@ -158,7 +162,7 @@
                   event,
                   idx,
                   column,
-                  item: column.key === 'annual_revenue' ? item.value : item,
+                  item,
                   firstColumn: columns[0],
                 })
             "
@@ -171,8 +175,7 @@
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
-          :options="listBulkActionsRef?.bulkActions(selections, unselectAll) || []"
-          placement="bottom-end"
+          :options="listBulkActionsRef.bulkActions(selections, unselectAll)"
         >
           <Button icon="more-horizontal" variant="ghost" />
         </Dropdown>
@@ -205,12 +208,11 @@ import {
   ListHeader,
   ListHeaderItem,
   ListRowItem,
+  ListSelectBanner,
+  ListFooter,
   Dropdown,
   Tooltip,
-  Button,
 } from 'frappe-ui'
-import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
-import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'

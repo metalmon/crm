@@ -1,11 +1,13 @@
 // Task priority translation utilities
-const { __ } = window
+//const { __ } = window
 
 // Map of original priority values to their translations
-export const taskPriorityTranslations = {
-  'Low': __('Low'),
-  'Medium': __('Medium'),
-  'High': __('High')
+export function taskPriorityTranslations() {
+  return {
+    'Low': window.__('Low'),
+    'Medium': window.__('Medium'),
+    'High': window.__('High')
+  }
 }
 
 // Reverse map for looking up original values from translations
@@ -16,9 +18,9 @@ export const reverseTaskPriorityTranslations = Object.entries(taskPriorityTransl
   }, {})
 
 // Translate a priority to localized version
-export function translateTaskPriority(priority) {
+export const translateTaskPriority = (priority) => {
   if (!priority) return ''
-  return __(priority) // Use __ directly to ensure translation at render time
+  return window.__(priority) // Use __ directly to ensure translation at render time
 }
 
 // Get original priority from translated version

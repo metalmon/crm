@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia'
-import { createListResource } from 'frappe-ui'
-import { h } from 'vue'
-import { reactive } from 'vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import { capture } from '@/telemetry'
-import { translateDealStatus, getOriginalDealStatus } from '@/utils/dealStatusTranslations'
-import { translateLeadStatus, getOriginalLeadStatus } from '@/utils/leadStatusTranslations'
+import { parseColor } from '@/utils'
+import { defineStore } from 'pinia'
+import { createListResource } from 'frappe-ui'
+import { reactive, h } from 'vue'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 
 export const statusesStore = defineStore('crm-statuses', () => {
   let leadStatusesByName = reactive({})
@@ -21,8 +21,7 @@ export const statusesStore = defineStore('crm-statuses', () => {
     auto: true,
     transform(statuses) {
       for (let status of statuses) {
-        status.colorClass = colorClasses(status.color)
-        status.iconColorClass = colorClasses(status.color, true)
+        status.color = parseColor(status.color)
         leadStatusesByName[status.name] = status
       }
       return statuses
@@ -38,8 +37,7 @@ export const statusesStore = defineStore('crm-statuses', () => {
     auto: true,
     transform(statuses) {
       for (let status of statuses) {
-        status.colorClass = colorClasses(status.color)
-        status.iconColorClass = colorClasses(status.color, true)
+        status.color = parseColor(status.color)
         dealStatusesByName[status.name] = status
       }
       return statuses
@@ -60,71 +58,51 @@ export const statusesStore = defineStore('crm-statuses', () => {
     },
   })
 
-  function colorClasses(color, onlyIcon = false) {
-    let textColor = `!text-${color}-600`
-    if (color == 'black') {
-      textColor = '!text-ink-gray-9'
-    } else if (['gray', 'green'].includes(color)) {
-      textColor = `!text-${color}-700`
-    }
-
-    let bgColor = `!bg-${color}-100 hover:!bg-${color}-200 active:!bg-${color}-300`
-
-    return [textColor, onlyIcon ? '' : bgColor]
-  }
-
   function getLeadStatus(name) {
     if (!name) {
-      name = leadStatuses.data[0]?.name
+      name = leadStatuses.data[0].name
     }
     return leadStatusesByName[name]
   }
 
   function getDealStatus(name) {
     if (!name) {
-      name = dealStatuses.data[0]?.name
+      name = dealStatuses.data[0].name
     }
     return dealStatusesByName[name]
   }
 
   function getCommunicationStatus(name) {
     if (!name) {
-      name = communicationStatuses.data[0]?.name
+      name = communicationStatuses.data[0].name
     }
-    return communicationStatusesByName[name]
+    return communicationStatuses[name]
   }
 
-  function statusOptions(doctype, updateField, customStatuses = []) {
-    let statusesMap = doctype === 'deal' ? dealStatusesByName : leadStatusesByName
-    let statuses = customStatuses?.length ? customStatuses : Object.keys(statusesMap)
-    
-    return statuses.map((status) => ({
-      label: doctype === 'deal' 
-        ? translateDealStatus(statusesMap[status]?.name || status)
-        : translateLeadStatus(statusesMap[status]?.name || status),
-      value: status,
-      onClick: () => {
-        capture('status_changed', { doctype, status })
-        updateField?.('status', statusesMap[status]?.name || status)
-      },
-      icon: () => h(IndicatorIcon, {
-        class: statusesMap[status]?.iconColorClass || ['!text-gray-600']
+  function statusOptions(doctype, action, statuses = []) {
+    let statusesByName =
+      doctype == 'deal' ? dealStatusesByName : leadStatusesByName
+
+    if (statuses.length) {
+      statusesByName = statuses.reduce((acc, status) => {
+        acc[status] = statusesByName[status]
+        return acc
+      }, {})
+    }
+
+    let options = []
+    for (const status in statusesByName) {
+      options.push({
+        label: doctype === 'deal' ? translateDealStatus(statusesByName[status]?.name || status) : translateLeadStatus(statusesByName[status]?.name || status),
+        value: statusesByName[status]?.name,
+        icon: () => h(IndicatorIcon, { class: statusesByName[status]?.color }),
+        onClick: () => {
+          capture('status_changed', { doctype, status })
+          action && action('status', statusesByName[status]?.name)
+        },
       })
-    }))
-  }
-
-  function getStatusLabel(doctype, status) {
-    if (doctype === 'deal') {
-      return translateDealStatus(status)
     }
-    return translateLeadStatus(status)
-  }
-
-  function getOriginalStatusValue(doctype, translatedStatus) {
-    if (doctype === 'deal') {
-      return getOriginalDealStatus(translatedStatus)
-    }
-    return getOriginalLeadStatus(translatedStatus)
+    return options
   }
 
   return {
@@ -135,7 +113,5 @@ export const statusesStore = defineStore('crm-statuses', () => {
     getDealStatus,
     getCommunicationStatus,
     statusOptions,
-    getStatusLabel,
-    getOriginalStatusValue,
   }
 })

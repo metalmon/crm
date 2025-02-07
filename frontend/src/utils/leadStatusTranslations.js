@@ -1,16 +1,17 @@
-// Lead status translation utilities
-const { __ } = window
+//Lead status translation utilities
+//const { __ } = window
 
 // Map of original status values to their translations
-export const leadStatusTranslations = {
-  'New': __('New'),
-  'Contacted': __('Contacted'),
-  'Nurture': __('Nurture'),
-  'Qualified': __('Qualified'),
-  'Unqualified': __('Unqualified'),
-  'Junk': __('Junk')
+export function leadStatusTranslations() {
+  return {
+    'New': window.__('New'),
+    'Contacted': window.__('Contacted'),
+    'Nurture': window.__('Nurture'),
+    'Qualified': window.__('Qualified'),
+    'Unqualified': window.__('Unqualified'),
+    'Junk': window.__('Junk')
 }
-
+}
 // Reverse map for looking up original values from translations
 export const reverseLeadStatusTranslations = Object.entries(leadStatusTranslations)
   .reduce((acc, [key, value]) => {
@@ -19,9 +20,9 @@ export const reverseLeadStatusTranslations = Object.entries(leadStatusTranslatio
   }, {})
 
 // Translate a status to localized version
-export function translateLeadStatus(status) {
+export const translateLeadStatus = (status) => {
   if (!status) return ''
-  return __(status) // Use __ directly to ensure translation at render time
+  return window.__(status) // Use __ directly to ensure translation at render time
 }
 
 // Get original status from translated version

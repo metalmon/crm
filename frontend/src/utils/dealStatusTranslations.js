@@ -1,5 +1,5 @@
 // Deal status translation utilities
-const { __ } = window
+//const { __ } = window
 
 // Map of original status values to their translations
 export const dealStatusTranslations = {

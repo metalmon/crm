@@ -59,55 +59,49 @@
             "
           />
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex flex-col gap-2">
-            <Dropdown :options="taskStatusOptions(updateTaskStatus)">
-              <Button class="w-full justify-between">
-                <template #prefix>
-                  <TaskStatusIcon :status="_task.status" />
-                </template>
-                {{ translateTaskStatus(_task.status) }}
-              </Button>
-            </Dropdown>
-            <Dropdown :options="taskPriorityOptions(updateTaskPriority)">
-              <Button class="w-full justify-between">
-                <template #prefix>
-                  <TaskPriorityIcon :priority="_task.priority" />
-                </template>
-                {{ translateTaskPriority(_task.priority) }}
-              </Button>
-            </Dropdown>
-          </div>
-          <div class="flex flex-col gap-2">
-            <input
-              type="datetime-local"
-              class="form-input w-full"
-              v-model="_task.due_date"
-              :placeholder="__('Set due date')"
-            />
-            <Link
-              class="form-control w-full"
-              :value="getUser(_task.assigned_to).full_name"
-              doctype="User"
-              @change="(option) => (_task.assigned_to = option)"
-              :placeholder="__('John Doe')"
-              :hideMe="true"
-            >
+        <div class="flex flex-nowrap items-center gap-2">
+          <Dropdown :options="taskStatusOptions(updateTaskStatus)">
+            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="w-full justify-between whitespace-nowrap">
               <template #prefix>
-                <UserAvatar class="mr-2 !h-4 !w-4" :user="_task.assigned_to" />
+                <TaskStatusIcon :status="extractValue(_task.status)" />
               </template>
-              <template #item-prefix="{ option }">
-                <UserAvatar class="mr-2" :user="option.value" size="sm" />
+            </Button>
+          </Dropdown>
+          <Link
+            class="form-control flex-1"
+            :value="getUser(_task.assigned_to).full_name"
+            doctype="User"
+            @change="(option) => (_task.assigned_to = option)"
+            :placeholder="__('John Doe')"
+            :hideMe="true"
+          >
+            <template #prefix>
+              <UserAvatar class="mr-2 !h-4 !w-4" :user="_task.assigned_to" />
+            </template>
+            <template #item-prefix="{ option }">
+              <UserAvatar class="mr-2" :user="option.value" size="sm" />
+            </template>
+            <template #item-label="{ option }">
+              <Tooltip :text="option.value">
+                <div class="cursor-pointer text-ink-gray-9">
+                  {{ getUser(option.value).full_name }}
+                </div>
+              </Tooltip>
+            </template>
+          </Link>
+          <input
+            type="datetime-local"
+            v-model="_task.due_date"
+            class="flex-1"
+            @click.stop
+          />
+          <Dropdown :options="taskPriorityOptions(updateTaskPriority)">
+            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
+              <template #prefix>
+                <TaskPriorityIcon :priority="extractValue(_task.priority)" />
               </template>
-              <template #item-label="{ option }">
-                <Tooltip :text="option.value">
-                  <div class="cursor-pointer text-ink-gray-9">
-                    {{ getUser(option.value).full_name }}
-                  </div>
-                </Tooltip>
-              </template>
-            </Link>
-          </div>
+            </Button>
+          </Dropdown>
         </div>
       </div>
     </template>
@@ -120,14 +114,14 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
-import { taskStatusOptions, taskPriorityOptions, getFormat } from '@/utils'
-import { translateTaskStatus } from '@/utils/taskStatusTranslations'
-import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
+import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
 import { TextEditor, Dropdown, Tooltip, call } from 'frappe-ui'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { translateTaskStatus } from '@/utils/taskStatusTranslations'
+import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 
 const props = defineProps({
   task: {
@@ -166,11 +160,11 @@ const _task = ref({
 })
 
 function updateTaskStatus(status) {
-  _task.value.status = status
+  _task.value.status = extractValue(status)
 }
 
 function updateTaskPriority(priority) {
-  _task.value.priority = priority
+  _task.value.priority = extractValue(priority)
 }
 
 function redirect() {
@@ -187,28 +181,15 @@ async function updateTask() {
   if (!_task.value.assigned_to) {
     _task.value.assigned_to = getUser().name
   }
-
-  const formattedDueDate = _task.value.due_date ? 
-    new Date(_task.value.due_date).toISOString().slice(0, 19).replace('T', ' ') : 
-    null
-
   if (_task.value.name) {
     let d = await call('frappe.client.set_value', {
       doctype: 'CRM Task',
       name: _task.value.name,
-      fieldname: {
-        title: _task.value.title,
-        description: _task.value.description,
-        status: _task.value.status,
-        priority: _task.value.priority,
-        due_date: formattedDueDate,
-        assigned_to: _task.value.assigned_to,
-        reference_doctype: _task.value.reference_doctype,
-        reference_docname: _task.value.reference_docname
-      }
+      fieldname: _task.value,
     })
     if (d.name) {
-      tasks.value.reload()
+      tasks.value?.reload()
+      emit('after', d)
     }
   } else {
     let d = await call('frappe.client.insert', {
@@ -216,16 +197,13 @@ async function updateTask() {
         doctype: 'CRM Task',
         reference_doctype: props.doctype,
         reference_docname: props.doc || null,
-        ...{
-          ..._task.value,
-          due_date: formattedDueDate
-        }
+        ..._task.value,
       },
     })
     if (d.name) {
       capture('task_created')
-      tasks.value.reload()
-      emit('after')
+      tasks.value?.reload()
+      emit('after', d, true)
     }
   }
   show.value = false
@@ -235,22 +213,7 @@ function render() {
   editMode.value = false
   nextTick(() => {
     title.value?.el?.focus?.()
-    if (props.task) {
-      // Handle initial task data structure
-      _task.value = {
-        ...props.task,
-        status: props.task.status?.value || props.task.status || 'Backlog',
-        priority: props.task.priority?.value || props.task.priority || 'Low'
-      }
-    }
-    
-    // Format the due_date for datetime-local input if it exists
-    if (_task.value.due_date) {
-      _task.value.due_date = new Date(_task.value.due_date)
-        .toISOString()
-        .slice(0, 16) // Get YYYY-MM-DDTHH:mm format for datetime-local input
-    }
-    
+    _task.value = { ...props.task }
     if (_task.value.title) {
       editMode.value = true
     }
@@ -264,10 +227,3 @@ watch(show, (value) => {
   render()
 })
 </script>
-
-<style scoped>
-:deep(.datepicker svg) {
-  width: 0.875rem;
-  height: 0.875rem;
-}
-</style>

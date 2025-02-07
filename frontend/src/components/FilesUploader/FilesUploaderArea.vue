@@ -13,7 +13,7 @@
   </div>
   <div v-else>
     <div
-      class="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed min-h-64 text-ink-gray-5"
+      class="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-outline-gray-modals min-h-64 text-ink-gray-5"
       @dragover.prevent="dragover"
       @dragleave.prevent="dragleave"
       @drop.prevent="dropfiles"
@@ -128,7 +128,7 @@ import FileAudioIcon from '@/components/Icons/FileAudioIcon.vue'
 import FileVideoIcon from '@/components/Icons/FileVideoIcon.vue'
 import { createToast, formatDate, convertSize } from '@/utils'
 import { FormControl, CircularProgressBar, createResource } from 'frappe-ui'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 
 const props = defineProps({
   doctype: {
@@ -216,7 +216,7 @@ async function startCamera() {
 }
 
 function stopStream() {
-  stream.value.getTracks().forEach((track) => track.stop())
+  stream.value?.getTracks()?.forEach((track) => track.stop())
   showCamera.value = false
   cameraImage.value = null
 }
@@ -382,6 +382,12 @@ function fileIcon(type) {
   }
   return FileTextIcon
 }
+
+watch(showCamera, (value) => {
+  if (!value) stopStream()
+})
+
+onUnmounted(() => stopStream())
 
 defineExpose({
   showFileBrowser,

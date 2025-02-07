@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="show" :options="{ size: '3xl' }">
+  <Dialog v-model="show" :options="{ size: '4xl' }">
     <template #body-title>
       <h3
         class="flex items-center gap-2 text-2xl font-semibold leading-6 text-ink-gray-9"
@@ -16,24 +16,19 @@
     <template #body-content>
       <div class="flex flex-col gap-3">
         <div class="flex justify-between gap-2">
-          <FormControl
-            type="select"
-            class="w-1/4"
-            v-model="_doctype"
-            :options="[
-              'CRM Lead',
-              'CRM Deal',
-              'Contact',
-              'CRM Organization',
-              'Address',
-            ]"
-            @change="reload"
-          />
-          <Switch
-            v-model="preview"
+          <Button
             :label="preview ? __('Hide preview') : __('Show preview')"
-            size="sm"
+            @click="preview = !preview"
           />
+          <div class="flex flex-row-reverse gap-2">
+            <Button
+              :loading="loading"
+              :label="__('Save')"
+              variant="solid"
+              @click="saveChanges"
+            />
+            <Button :label="__('Reset')" @click="reload" />
+          </div>
         </div>
         <div v-if="tabs?.data">
           <FieldLayoutEditor
@@ -41,25 +36,14 @@
             :tabs="tabs.data"
             :doctype="_doctype"
           />
-          <FieldLayout v-else :tabs="tabs.data" :data="{}" />
+          <FieldLayout v-else :tabs="tabs.data" :data="{}" :preview="true" />
         </div>
-      </div>
-    </template>
-    <template #actions>
-      <div class="flex flex-row-reverse gap-2">
-        <Button
-          :loading="loading"
-          :label="__('Save')"
-          variant="solid"
-          @click="saveChanges"
-        />
-        <Button :label="__('Reset')" @click="reload" />
       </div>
     </template>
   </Dialog>
 </template>
 <script setup>
-import FieldLayout from '@/components/FieldLayout.vue'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import FieldLayoutEditor from '@/components/FieldLayoutEditor.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { capture } from '@/telemetry'
@@ -115,10 +99,10 @@ function saveChanges() {
   _tabs.forEach((tab) => {
     if (!tab.sections) return
     tab.sections.forEach((section) => {
-      if (!section.fields) return
-      section.fields = section.fields.map(
-        (field) => field.fieldname || field.name,
-      )
+      section.columns.forEach((column) => {
+        if (!column.fields) return
+        column.fields = column.fields.map((field) => field.fieldname)
+      })
     })
   })
   loading.value = true

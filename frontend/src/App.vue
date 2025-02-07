@@ -9,9 +9,9 @@
 <script setup>
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
+import { setTheme } from '@/stores/theme'
 import { Toasts, setConfig } from 'frappe-ui'
 import { computed, defineAsyncComponent, onMounted } from 'vue'
-import { useStorage } from '@vueuse/core'
 
 const MobileLayout = defineAsyncComponent(
   () => import('./components/Layouts/MobileLayout.vue'),
@@ -27,14 +27,8 @@ const Layout = computed(() => {
   }
 })
 
+onMounted(() => setTheme())
+
 setConfig('systemTimezone', window.timezone?.system || null)
 setConfig('localTimezone', window.timezone?.user || null)
-
-const theme = useStorage('theme', 'light')
-
-onMounted(() => {
-  if (['light', 'dark'].includes(theme.value)) {
-    document.documentElement.setAttribute('data-theme', theme.value)
-  }
-})
 </script>

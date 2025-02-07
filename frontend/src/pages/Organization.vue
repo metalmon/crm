@@ -66,7 +66,7 @@
                 </div>
                 <div class="flex flex-col gap-2 truncate">
                   <div class="truncate text-2xl font-medium text-ink-gray-9">
-                    <span>{{ organization.doc.organization_name }}</span>
+                    <span>{{ organization.doc.name }}</span>
                   </div>
                   <div
                     v-if="organization.doc.website"
@@ -80,68 +80,42 @@
               </div>
               <div class="flex gap-1.5">
                 <Button
-                  size="sm"
-                  class="dark:text-white dark:hover:bg-gray-700"
-                  @click="openWebsite"
-                >
-                  <template #prefix>
-                    <FeatherIcon name="link" class="h-4 w-4" />
-                  </template>
-                  {{ __('Open website') }}
-                </Button>
-                <Button
                   :label="__('Delete')"
-                  variant="ghost"
                   theme="red"
                   size="sm"
-                  class="dark:text-red-400 dark:hover:bg-gray-700"
                   @click="deleteOrganization"
                 >
                   <template #prefix>
                     <FeatherIcon name="trash-2" class="h-4 w-4" />
                   </template>
                 </Button>
+                <Tooltip :text="__('Open website')">
+                  <div>
+                    <Button @click="openWebsite">
+                      <FeatherIcon name="link" class="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Tooltip>
               </div>
             </div>
           </template>
         </FileUploader>
       </div>
       <div
-        v-if="fieldsLayout.data"
+        v-if="sections.data"
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
-        <div class="flex flex-col overflow-y-auto dark-scrollbar">
-          <div
-            v-for="(section, i) in fieldsLayout.data"
-            :key="section.label"
-            class="flex flex-col p-3"
-            :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-          >
-            <Section :label="section.label" :opened="section.opened">
-              <template #actions>
-                <Button
-                  v-if="i == 0 && isManager()"
-                  variant="ghost"
-                  class="w-7"
-                  @click="showSidePanelModal = true"
-                >
-                  <EditIcon class="h-4 w-4" />
-                </Button>
-              </template>
-              <SidePanelLayout
-                v-if="section.fields"
-                :fields="section.fields"
-                :isLastSection="i == fieldsLayout.data.length - 1"
-                v-model="organization.doc"
-                @update="updateField"
-              />
-            </Section>
-          </div>
-        </div>
+        <SidePanelLayout
+          v-model="organization.doc"
+          :sections="sections.data"
+          doctype="CRM Organization"
+          @update="updateField"
+          @reload="sections.reload"
+        />
       </div>
     </Resizer>
-    <Tabs class="!h-full" v-model="tabIndex" :tabs="tabs">
-      <template #tab="{ tab, selected }">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+      <template #tab-item="{ tab, selected }">
         <button
           class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
           :class="{ 'text-ink-gray-9': selected }"
@@ -159,7 +133,7 @@
           </Badge>
         </button>
       </template>
-      <template #default="{ tab }">
+      <template #tab-panel="{ tab }">
         <DealsListView
           class="mt-4"
           v-if="tab.label === 'Deals' && rows.length"
@@ -180,35 +154,23 @@
         >
           <div class="flex flex-col items-center justify-center space-y-3">
             <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __(`No ${tab.label} Found`) }}</div>
+            <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
           </div>
         </div>
       </template>
     </Tabs>
   </div>
-  <SidePanelModal
-    v-if="showSidePanelModal"
-    v-model="showSidePanelModal"
-    doctype="CRM Organization"
-    @reload="() => fieldsLayout.reload()"
-  />
   <QuickEntryModal
     v-if="showQuickEntryModal"
     v-model="showQuickEntryModal"
     doctype="CRM Organization"
   />
-  <AddressModal 
-    v-model="showAddressModal" 
-    v-model:address="_address"
-    @save="updateField('address', $event)"
-  />
+  <AddressModal v-model="showAddressModal" v-model:address="_address" />
 </template>
 
 <script setup>
 import Resizer from '@/components/Resizer.vue'
-import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
-import SidePanelModal from '@/components/Modals/SidePanelModal.vue'
 import Icon from '@/components/Icon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
@@ -216,21 +178,16 @@ import AddressModal from '@/components/Modals/AddressModal.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
 import ContactsListView from '@/components/ListViews/ContactsListView.vue'
 import WebsiteIcon from '@/components/Icons/WebsiteIcon.vue'
-import EditIcon from '@/components/Icons/EditIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
+import { getSettings } from '@/stores/settings'
+import { getMeta } from '@/stores/meta'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { getView } from '@/utils/view'
-import { translateDealStatus } from '@/utils/dealStatusTranslations'
-import {
-  formatDate,
-  timeAgo,
-  formatNumberIntoCurrency,
-  createToast,
-} from '@/utils'
+import { formatDate, timeAgo, createToast } from '@/utils'
 import {
   Tooltip,
   Breadcrumbs,
@@ -254,10 +211,10 @@ const props = defineProps({
   },
 })
 
-const { getUser, isManager } = usersStore()
+const { brand } = getSettings()
+const { getUser } = usersStore()
 const { $dialog } = globalStore()
 const { getDealStatus } = statusesStore()
-const showSidePanelModal = ref(false)
 const showQuickEntryModal = ref(false)
 
 const route = useRoute()
@@ -272,27 +229,9 @@ const organization = createDocumentResource({
 })
 
 async function updateField(fieldname, value) {
-  if (fieldname === 'organization_name') {
-    // Handle renaming
-    const newName = await call('frappe.client.rename_doc', {
-      doctype: 'CRM Organization',
-      old_name: organization.doc.organization_name,
-      new_name: value,
-    })
-    router.push({
-      name: 'Organization',
-      params: { organizationId: newName }
-    })
-  } else {
-    await call('frappe.client.set_value', {
-      doctype: 'CRM Organization',
-      name: props.organizationId,
-      fieldname: fieldname,
-      value: value
-    })
-    organization.reload()
-  }
-  
+  await organization.setValue.submit({
+    [fieldname]: value,
+  })
   createToast({
     title: __('Organization updated'),
     icon: 'check',
@@ -335,6 +274,7 @@ const breadcrumbs = computed(() => {
 usePageMeta(() => {
   return {
     title: props.organizationId,
+    icon: brand.favicon,
   }
 })
 
@@ -392,88 +332,46 @@ function openWebsite() {
 }
 
 const showAddressModal = ref(false)
+const _organization = ref({})
 const _address = ref({})
 
-const fieldsLayout = createResource({
-  url: 'crm.api.doc.get_sidebar_fields',
-  cache: ['fieldsLayout', props.organizationId],
-  params: { doctype: 'CRM Organization', name: props.organizationId },
+const sections = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
+  cache: ['sidePanelSections', 'CRM Organization'],
+  params: { doctype: 'CRM Organization' },
   auto: true,
-  transform: (data) => getParsedFields(data),
+  transform: (data) => getParsedSections(data),
 })
 
-function getParsedFields(data) {
-  return data.map((section) => {
-    return {
-      ...section,
-      fields: computed(() =>
-        section.fields.map((field) => {
-          // Get translated field label
-          const translatedLabel = __(field.label || field.name.split('_').map(word => 
-            word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
-
-          // Handle link fields
-          if (field.type === 'link') {
-            const baseField = {
-              ...field,
-              doctype: field.options || field.doctype,
-              options: field.options,
-              placeholder: `${__('Select')} ${translatedLabel}`
-            }
-
-            // Special handling for address field
-            if (field.name === 'address') {
-              return {
-                ...baseField,
-                doctype: 'Address',
-                create: (value, close) => {
-                  _address.value = { address_title: value }
-                  showAddressModal.value = true
-                  close()
-                },
-                edit: async (addr) => {
-                  _address.value = await call('frappe.client.get', {
-                    doctype: 'Address',
-                    name: addr,
-                  })
-                  showAddressModal.value = true
-                }
-              }
-            }
-
-            return baseField
-          }
-
-          // Handle select fields
-          if (field.type === 'select') {
-            return {
-              ...field,
-              placeholder: `${__('Select')} ${translatedLabel}`
-            }
-          }
-
-          // Default field handling
+function getParsedSections(_sections) {
+  return _sections.map((section) => {
+    section.columns = section.columns.map((column) => {
+      column.fields = column.fields.map((field) => {
+        if (field.fieldname === 'address') {
           return {
             ...field,
-            placeholder: `${__('Enter')} ${translatedLabel}`
+            create: (value, close) => {
+              _organization.value.address = value
+              _address.value = {}
+              showAddressModal.value = true
+              close()
+            },
+            edit: async (addr) => {
+              _address.value = await call('frappe.client.get', {
+                doctype: 'Address',
+                name: addr,
+              })
+              showAddressModal.value = true
+            },
           }
-        }),
-      ),
-    }
+        } else {
+          return field
+        }
+      })
+      return column
+    })
+    return section
   })
-}
-
-function getPlaceholderVerb(fieldtype) {
-  switch(fieldtype?.toLowerCase()) {
-    case 'select':
-    case 'link':
-      return __('Select')
-    case 'date':
-    case 'datetime':
-      return __('Set')
-    default:
-      return __('Enter')
-  }
 }
 
 const tabIndex = ref(0)
@@ -545,6 +443,8 @@ const rows = computed(() => {
   })
 })
 
+const { getFormattedCurrency } = getMeta('CRM Deal')
+
 const columns = computed(() => {
   return tabIndex.value === 0 ? dealColumns : contactColumns
 })
@@ -554,15 +454,12 @@ function getDealRowObject(deal) {
     name: deal.name,
     organization: {
       label: deal.organization,
-      logo: props.organization?.organization_logo,
+      logo: organization.doc?.organization_logo,
     },
-    annual_revenue: formatNumberIntoCurrency(
-      deal.annual_revenue,
-      deal.currency,
-    ),
+    annual_revenue: getFormattedCurrency('annual_revenue', deal),
     status: {
-      label: translateDealStatus(deal.status),
-      color: getDealStatus(deal.status)?.iconColorClass,
+      label: deal.status,
+      color: getDealStatus(deal.status)?.color,
     },
     email: deal.email,
     mobile_no: deal.mobile_no,
@@ -589,7 +486,7 @@ function getContactRowObject(contact) {
     mobile_no: contact.mobile_no,
     company_name: {
       label: contact.company_name,
-      logo: props.organization?.organization_logo,
+      logo: organization.doc?.organization_logo,
     },
     modified: {
       label: formatDate(contact.modified),
@@ -607,6 +504,7 @@ const dealColumns = [
   {
     label: __('Amount'),
     key: 'annual_revenue',
+    align: 'right',
     width: '9rem',
   },
   {

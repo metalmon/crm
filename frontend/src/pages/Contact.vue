@@ -20,7 +20,7 @@
           :validateFile="validateFile"
         >
           <template #default="{ openFileSelector, error }">
-            <div class="flex flex-col gap-4 p-5">
+            <div class="flex flex-col items-start justify-start gap-4 p-5">
               <div class="flex gap-4 items-center">
                 <div class="group relative h-15.5 w-15.5">
                   <Avatar
@@ -146,41 +146,20 @@
         </FileUploader>
       </div>
       <div
-        v-if="fieldsLayout.data"
+        v-if="sections.data"
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
-        <div class="flex flex-col overflow-y-auto dark-scrollbar">
-          <div
-            v-for="(section, i) in fieldsLayout.data"
-            :key="section.label"
-            class="flex flex-col p-3"
-            :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-          >
-            <Section :label="section.label" :opened="section.opened">
-              <template #actions>
-                <Button
-                  v-if="i == 0 && isManager()"
-                  variant="ghost"
-                  class="w-7"
-                  @click="showSidePanelModal = true"
-                >
-                  <EditIcon class="h-4 w-4" />
-                </Button>
-              </template>
-              <SidePanelLayout
-                v-if="section.fields"
-                :fields="section.fields"
-                :isLastSection="i == fieldsLayout.data.length - 1"
-                v-model="contact.data"
-                @update="updateField"
-              />
-            </Section>
-          </div>
-        </div>
+        <SidePanelLayout
+          v-model="contact.data"
+          :sections="sections.data"
+          doctype="Contact"
+          @update="updateField"
+          @reload="sections.reload"
+        />
       </div>
     </Resizer>
-    <Tabs class="!h-full" v-model="tabIndex" :tabs="tabs">
-      <template #tab="{ tab, selected }">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+      <template #tab-item="{ tab, selected }">
         <button
           class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
           :class="{ 'text-ink-gray-9': selected }"
@@ -198,7 +177,7 @@
           </Badge>
         </button>
       </template>
-      <template #default="{ tab }">
+      <template #tab-panel="{ tab }">
         <DealsListView
           v-if="tab.label === 'Deals' && rows.length"
           class="mt-4"
@@ -218,38 +197,24 @@
       </template>
     </Tabs>
   </div>
-  <SidePanelModal
-    v-if="showSidePanelModal"
-    v-model="showSidePanelModal"
-    doctype="Contact"
-    @reload="() => fieldsLayout.reload()"
-  />
   <AddressModal v-model="showAddressModal" v-model:address="_address" />
-  <ContactModal v-model="showContactModal" :contact="contact" :options="{ redirect: false, afterInsert: () => contact.reload() }" />
 </template>
 
 <script setup>
 import Resizer from '@/components/Resizer.vue'
 import Icon from '@/components/Icon.vue'
-import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
-import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
-import EditIcon from '@/components/Icons/EditIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
+import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
-import SidePanelModal from '@/components/Modals/SidePanelModal.vue'
 import AddressModal from '@/components/Modals/AddressModal.vue'
-import ContactModal from '@/components/Modals/ContactModal.vue'
-import {
-  formatDate,
-  timeAgo,
-  formatNumberIntoCurrency,
-  createToast,
-} from '@/utils'
+import { formatDate, timeAgo, createToast } from '@/utils'
 import { getView } from '@/utils/view'
+import { getSettings } from '@/stores/settings'
+import { getMeta } from '@/stores/meta'
 import { globalStore } from '@/stores/global.js'
 import { usersStore } from '@/stores/users.js'
 import { organizationsStore } from '@/stores/organizations.js'
@@ -270,10 +235,10 @@ import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { normalizePhoneNumber } from '@/utils/communicationUtils'
 
-
+const { brand } = getSettings()
 const { $dialog, makeCall } = globalStore()
 
-const { getUser, isManager } = usersStore()
+const { getUser } = usersStore()
 const { getOrganization } = organizationsStore()
 const { getDealStatus } = statusesStore()
 
@@ -288,17 +253,13 @@ const route = useRoute()
 const router = useRouter()
 
 const showAddressModal = ref(false)
-const showSidePanelModal = ref(false)
-const showContactModal = ref(false)
 const _contact = ref({})
 const _address = ref({})
 
 const contact = createResource({
   url: 'crm.api.contact.get_contact',
   cache: ['contact', props.contactId],
-  params: {
-    name: props.contactId,
-  },
+  params: { name: props.contactId },
   auto: true,
   transform: (data) => {
     return {
@@ -337,6 +298,7 @@ const breadcrumbs = computed(() => {
 usePageMeta(() => {
   return {
     title: contact.data?.full_name || contact.data?.name,
+    icon: brand.favicon,
   }
 })
 
@@ -403,67 +365,30 @@ const rows = computed(() => {
   return deals.data.map((row) => getDealRowObject(row))
 })
 
-const fieldsLayout = createResource({
-  url: 'crm.api.doc.get_sidebar_fields',
-  cache: ['fieldsLayout', props.contactId],
-  params: { doctype: 'Contact', name: props.contactId },
+const sections = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
+  cache: ['sidePanelSections', 'Contact'],
+  params: { doctype: 'Contact' },
   auto: true,
-  transform: (data) => {
-    return data.map((section) => {
-      return {
-        ...section,
-        fields: computed(() =>
-          section.fields.map((field) => {
-            // Get translated field label
-            const translatedLabel = __(field.label || field.name.split('_').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+  transform: (data) => computed(() => getParsedSections(data)),
+})
 
-            // Handle link fields
-            if (field.type === 'link') {
-              const baseField = {
-                ...field,
-                doctype: field.options || field.doctype,
-                options: field.options,
-                placeholder: `${__('Select')} ${translatedLabel}`,
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-
-              // Special handling for address field
-              if (field.name === 'address') {
+function getParsedSections(_sections) {
+  return _sections.map((section) => {
+    section.columns = section.columns.map((column) => {
+      column.fields = column.fields.map((field) => {
+        if (field.fieldname === 'email_id') {
+          return {
+            ...field,
+            read_only: false,
+            fieldtype: 'Dropdown',
+            options:
+              contact.data?.email_ids?.map((email) => {
                 return {
-                  ...baseField,
-                  doctype: 'Address',
-                  create: (value, close) => {
-                    _address.value = { address_title: value }
-                    showAddressModal.value = true
-                    close()
-                  },
-                  edit: async (addr) => {
-                    _address.value = await call('frappe.client.get', {
-                      doctype: 'Address',
-                      name: addr,
-                    })
-                    showAddressModal.value = true
-                  }
-                }
-              }
-
-              return baseField
-            }
-
-            // Handle email_id field
-            if (field.name === 'email_id') {
-              return {
-                ...field,
-                type: 'dropdown',
-                fieldtype: 'data',
-                placeholder: __('Add Email Address...'),
-                options: contact.data?.email_ids?.map((email) => ({
                   name: email.name,
                   value: email.email_id,
                   selected: email.email_id === contact.data.email_id,
-                  placeholder: __('Add Email Address...'),
-                  isNew: email.isNew,
+                  placeholder: 'john@doe.com',
                   onClick: () => {
                     _contact.value.email_id = email.email_id
                     setAsPrimary('email', email.email_id)
@@ -475,48 +400,51 @@ const fieldsLayout = createResource({
                         _contact.value.email_id = option.value
                       }
                     } else {
-                      editOption('email', option.name, option.value)
+                      editOption(
+                        'Contact Email',
+                        option.name,
+                        'email_id',
+                        option.value,
+                      )
                     }
                   },
-                  onDelete: () => {
-                    if (email.isNew) {
-                      contact.data.email_ids = contact.data.email_ids.filter(e => e.name !== email.name)
-                      if (_contact.value.email_id === email.email_id) {
-                        _contact.value.email_id = contact.data.email_ids.find(e => e.is_primary)?.email_id || ''
+                  onDelete: async (option, isNew) => {
+                    contact.data.email_ids = contact.data.email_ids.filter(
+                      (email) => email.name !== option.name,
+                    )
+                    !isNew && (await deleteOption('Contact Email', option.name))
+                    if (_contact.value.email_id === option.value) {
+                      if (contact.data.email_ids.length === 0) {
+                        _contact.value.email_id = ''
+                      } else {
+                        _contact.value.email_id = contact.data.email_ids.find(
+                          (email) => email.is_primary,
+                        )?.email_id
                       }
-                    } else {
-                      deleteOption('email', email.name)
                     }
-                  }
-                })) || [],
-                create: () => {
-                  contact.data.email_ids = contact.data.email_ids || []
-                  const newEmail = {
-                    name: 'new-1',
-                    email_id: '',
-                    is_primary: contact.data.email_ids.length === 0,
-                    selected: false,
-                    isNew: true,
-                  }
-                  contact.data.email_ids.push(newEmail)
-                },
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-            }
-
-            // Handle mobile_no field
-            if (field.name === 'mobile_no') {
-              return {
-                ...field,
-                type: 'dropdown',
-                fieldtype: 'data',
-                placeholder: __('Add Mobile No...'),
-                options: contact.data?.phone_nos?.map((phone) => ({
+                  },
+                }
+              }) || [],
+            create: () => {
+              contact.data?.email_ids?.push({
+                name: 'new-1',
+                value: '',
+                selected: false,
+                isNew: true,
+              })
+            },
+          }
+        } else if (field.fieldname === 'mobile_no') {
+          return {
+            ...field,
+            read_only: false,
+            fieldtype: 'Dropdown',
+            options:
+              contact.data?.phone_nos?.map((phone) => {
+                return {
                   name: phone.name,
                   value: phone.phone,
                   selected: phone.phone === contact.data.actual_mobile_no,
-                  placeholder: __('Add Mobile No...'),
-                  isNew: phone.isNew,
                   onClick: () => {
                     _contact.value.actual_mobile_no = phone.phone
                     _contact.value.mobile_no = phone.phone
@@ -529,56 +457,130 @@ const fieldsLayout = createResource({
                         _contact.value.actual_mobile_no = option.value
                       }
                     } else {
-                      editOption('phone', option.name, option.value)
+                      editOption(
+                        'Contact Phone',
+                        option.name,
+                        'phone',
+                        option.value,
+                      )
                     }
                   },
-                  onDelete: () => {
-                    if (phone.isNew) {
-                      contact.data.phone_nos = contact.data.phone_nos.filter(p => p.name !== phone.name)
-                      if (_contact.value.actual_mobile_no === phone.phone) {
-                        _contact.value.actual_mobile_no = contact.data.phone_nos.find(p => p.is_primary_mobile_no)?.phone || ''
+                  onDelete: async (option, isNew) => {
+                    contact.data.phone_nos = contact.data.phone_nos.filter(
+                      (phone) => phone.name !== option.name,
+                    )
+                    !isNew && (await deleteOption('Contact Phone', option.name))
+                    if (_contact.value.actual_mobile_no === option.value) {
+                      if (contact.data.phone_nos.length === 0) {
+                        _contact.value.actual_mobile_no = ''
+                      } else {
+                        _contact.value.actual_mobile_no =
+                          contact.data.phone_nos.find(
+                            (phone) => phone.is_primary_mobile_no,
+                          )?.phone
                       }
-                    } else {
-                      deleteOption('phone', phone.name)
                     }
-                  }
-                })) || [],
-                create: () => {
-                  contact.data.phone_nos = contact.data.phone_nos || []
-                  const newPhone = {
-                    name: 'new-1',
-                    phone: '',
-                    is_primary_mobile_no: contact.data.phone_nos.length === 0,
-                    selected: false,
-                    isNew: true,
-                  }
-                  contact.data.phone_nos.push(newPhone)
-                },
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-            }
+                  },
+                }
+              }) || [],
+            create: () => {
+              contact.data?.phone_nos?.push({
+                name: 'new-1',
+                value: '',
+                selected: false,
+                isNew: true,
+              })
+            },
+          }
+        } else if (field.fieldname === 'address') {
+          return {
+            ...field,
+            create: (value, close) => {
+              _contact.value.address = value
+              _address.value = {}
+              showAddressModal.value = true
+              close()
+            },
+            edit: async (addr) => {
+              _address.value = await call('frappe.client.get', {
+                doctype: 'Address',
+                name: addr,
+              })
+              showAddressModal.value = true
+            },
+          }
+        } else {
+          return field
+        }
+      })
+      return column
+    })
+    return section
+  })
+}
 
-            // Handle select fields
-            if (field.type === 'select') {
-              return {
-                ...field,
-                placeholder: `${__('Select')} ${translatedLabel}`,
-                class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-              }
-            }
-
-            // Default field handling
-            return {
-              ...field,
-              placeholder: `${__('Enter')} ${translatedLabel}`,
-              class: 'form-input w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3'
-            }
-          }),
-        ),
-      }
+async function setAsPrimary(field, value) {
+  let d = await call('crm.api.contact.set_as_primary', {
+    contact: contact.data.name,
+    field,
+    value,
+  })
+  if (d) {
+    contact.reload()
+    createToast({
+      title: 'Contact updated',
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
     })
   }
-})
+}
+
+async function createNew(field, value) {
+  if (!value) return
+  let d = await call('crm.api.contact.create_new', {
+    contact: contact.data.name,
+    field,
+    value,
+  })
+  if (d) {
+    contact.reload()
+    createToast({
+      title: 'Contact updated',
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  }
+}
+
+async function editOption(doctype, name, fieldname, value) {
+  let d = await call('frappe.client.set_value', {
+    doctype,
+    name,
+    fieldname,
+    value,
+  })
+  if (d) {
+    contact.reload()
+    createToast({
+      title: 'Contact updated',
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  }
+}
+
+async function deleteOption(doctype, name) {
+  await call('frappe.client.delete', {
+    doctype,
+    name,
+  })
+  await contact.reload()
+  createToast({
+    title: 'Contact updated',
+    icon: 'check',
+    iconClasses: 'text-ink-green-3',
+  })
+}
 
 async function updateField(fieldname, value) {
   await call('frappe.client.set_value', {
@@ -596,6 +598,8 @@ async function updateField(fieldname, value) {
   contact.reload()
 }
 
+const { getFormattedCurrency } = getMeta('CRM Deal')
+
 const columns = computed(() => dealColumns)
 
 function getDealRowObject(deal) {
@@ -605,13 +609,10 @@ function getDealRowObject(deal) {
       label: deal.organization,
       logo: getOrganization(deal.organization)?.organization_logo,
     },
-    annual_revenue: formatNumberIntoCurrency(
-      deal.annual_revenue,
-      deal.currency,
-    ),
+    annual_revenue: getFormattedCurrency('annual_revenue', deal),
     status: {
-      label: translateDealStatus(deal.status),
-      color: getDealStatus(deal.status)?.iconColorClass,
+      label: deal.status,
+      color: getDealStatus(deal.status)?.color,
     },
     email: deal.email,
     mobile_no: deal.mobile_no,
@@ -635,6 +636,7 @@ const dealColumns = [
   {
     label: __('Amount'),
     key: 'annual_revenue',
+    align: 'right',
     width: '9rem',
   },
   {
@@ -675,68 +677,6 @@ function trackPhoneActivities(type = 'phone') {
     window.location.href = `tel:${formattedNumber}`
   } else {
     window.open(`https://wa.me/${formattedNumber}`, '_blank')
-  }
-}
-
-async function setAsPrimary(type, value) {
-  await call('crm.api.contact.set_as_primary', {
-    contact: contact.data.name,
-    field: type,
-    value,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function editOption(type, name, value) {
-  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
-  const fieldname = type === 'email' ? 'email_id' : 'phone'
-  await call('frappe.client.set_value', {
-    doctype,
-    name,
-    fieldname,
-    value,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function deleteOption(type, name) {
-  const doctype = type === 'email' ? 'Contact Email' : 'Contact Phone'
-  await call('frappe.client.delete', {
-    doctype,
-    name,
-  })
-  await contact.reload()
-  createToast({
-    title: __('Contact Updated'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
-}
-
-async function createNew(type, value) {
-  if (!value) return
-  let d = await call('crm.api.contact.create_new', {
-    contact: contact.data.name,
-    field: type,
-    value,
-  })
-  if (d) {
-    contact.reload()
-    createToast({
-      title: __('Contact Updated'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
   }
 }
 </script>

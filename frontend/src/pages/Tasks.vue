@@ -37,10 +37,10 @@
     <template #title="{ titleField, itemName }">
       <div class="flex items-center gap-2">
         <div v-if="titleField === 'status'">
-          <TaskStatusIcon :status="getRow(itemName, titleField).label" />
+          <TaskStatusIcon :status="getRow(itemName, titleField).value" />
         </div>
         <div v-else-if="titleField === 'priority'">
-          <TaskPriorityIcon :priority="getRow(itemName, titleField).label" />
+          <TaskPriorityIcon :priority="getRow(itemName, titleField).value" />
         </div>
         <div v-else-if="titleField === 'assigned_to'">
           <Avatar
@@ -78,11 +78,9 @@
             class="size-3"
             :status="getRow(itemName, fieldName).value"
           />
-          <!--{{ getRow(itemName, fieldName).label }}-->
         </div>
         <div v-else-if="fieldName === 'priority'">
           <TaskPriorityIcon :priority="getRow(itemName, fieldName).value" />
-          <!--{{ translateTaskPriority(getRow(itemName, fieldName).label) }}-->
         </div>
         <div v-else-if="fieldName === 'assigned_to'">
           <Avatar
@@ -206,6 +204,7 @@ import ViewControls from '@/components/ViewControls.vue'
 import TasksListView from '@/components/ListViews/TasksListView.vue'
 import KanbanView from '@/components/Kanban/KanbanView.vue'
 import TaskModal from '@/components/Modals/TaskModal.vue'
+import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { formatDate, timeAgo } from '@/utils'
 import { Tooltip, Avatar, TextEditor, Dropdown, call } from 'frappe-ui'
@@ -214,6 +213,8 @@ import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 
+const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
+  getMeta('CRM Task')
 const { getUser } = usersStore()
 
 const router = useRouter()
@@ -273,6 +274,18 @@ function parseRows(rows, columns = []) {
         !['modified', 'creation', 'due_date'].includes(row)
       ) {
         _rows[row] = formatDate(task[row], '', true, fieldType == 'Datetime')
+      }
+
+      if (fieldType && fieldType == 'Currency') {
+        _rows[row] = getFormattedCurrency(row, task)
+      }
+
+      if (fieldType && fieldType == 'Float') {
+        _rows[row] = getFormattedFloat(row, task)
+      }
+
+      if (fieldType && fieldType == 'Percent') {
+        _rows[row] = getFormattedPercent(row, task)
       }
 
       if (['modified', 'creation'].includes(row)) {

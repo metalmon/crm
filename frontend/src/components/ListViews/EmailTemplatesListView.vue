@@ -10,7 +10,10 @@
     }"
     row-key="name"
   >
-    <ListHeader class="sm:mx-5 mx-3" @columnWidthUpdated="emit('columnWidthUpdated')">
+    <ListHeader
+      class="sm:mx-5 mx-3"
+      @columnWidthUpdated="emit('columnWidthUpdated')"
+    >
       <ListHeaderItem
         v-for="column in columns"
         :key="column.key"
@@ -28,21 +31,41 @@
         </Button>
       </ListHeaderItem>
     </ListHeader>
-    <ListRows class="mx-3 sm:mx-5" id="list-rows">
-      <ListRow
-        v-for="row in rows"
-        :key="row.name"
-        v-slot="{ idx, column, item }"
-        :row="row"
-      >
-        <ListRowItem :item="item">
-          <!-- <template #prefix>
+    <ListRows
+      class="mx-3 sm:mx-5"
+      :rows="rows"
+      v-slot="{ idx, column, item }"
+      doctype="Email Template"
+    >
+      <ListRowItem :item="item" :align="column.align">
+        <!-- <template #prefix>
 
           </template> -->
-          <template #default="{ label }">
-            <div
-              v-if="['modified', 'creation'].includes(column.key)"
-              class="truncate text-base"
+        <template #default="{ label }">
+          <div
+            v-if="['modified', 'creation'].includes(column.key)"
+            class="truncate text-base"
+            @click="
+              (event) =>
+                emit('applyFilter', {
+                  event,
+                  idx,
+                  column,
+                  item,
+                  firstColumn: columns[0],
+                })
+            "
+          >
+            <Tooltip :text="item.label">
+              <div>{{ item.timeAgo }}</div>
+            </Tooltip>
+          </div>
+          <div v-else-if="column.key === 'status'" class="truncate text-base">
+            <Badge
+              :variant="'subtle'"
+              :theme="item.color"
+              size="md"
+              :label="item.label"
               @click="
                 (event) =>
                   emit('applyFilter', {
@@ -53,75 +76,51 @@
                     firstColumn: columns[0],
                   })
               "
-            >
-              <Tooltip :text="item.label">
-                <div>{{ item.timeAgo }}</div>
-              </Tooltip>
-            </div>
-            <div v-else-if="column.key === 'status'" class="truncate text-base">
-              <Badge
-                :variant="'subtle'"
-                :theme="item.color"
-                size="md"
-                :label="item.label"
-                @click="
-                  (event) =>
-                    emit('applyFilter', {
-                      event,
-                      idx,
-                      column,
-                      item,
-                      firstColumn: columns[0],
-                    })
-                "
-              />
-            </div>
-            <div v-else-if="column.type === 'Check'">
-              <FormControl
-                type="checkbox"
-                :modelValue="item"
-                :disabled="true"
-                class="text-ink-gray-9"
-              />
-            </div>
-            <div v-else-if="column.key === '_liked_by'">
-              <Button
-                v-if="column.key == '_liked_by'"
-                variant="ghosted"
-                :class="isLiked(item) ? 'fill-red-500' : 'fill-white'"
-                @click.stop.prevent="
-                  () =>
-                    emit('likeDoc', { name: row.name, liked: isLiked(item) })
-                "
-              >
-                <HeartIcon class="h-4 w-4" />
-              </Button>
-            </div>
-            <div
-              v-else
-              class="truncate text-base"
-              @click="
-                (event) =>
-                  emit('applyFilter', {
-                    event,
-                    idx,
-                    column,
-                    item,
-                    firstColumn: columns[0],
-                  })
+            />
+          </div>
+          <div v-else-if="column.type === 'Check'">
+            <FormControl
+              type="checkbox"
+              :modelValue="item"
+              :disabled="true"
+              class="text-ink-gray-9"
+            />
+          </div>
+          <div v-else-if="column.key === '_liked_by'">
+            <Button
+              v-if="column.key == '_liked_by'"
+              variant="ghosted"
+              :class="isLiked(item) ? 'fill-red-500' : 'fill-white'"
+              @click.stop.prevent="
+                () => emit('likeDoc', { name: row.name, liked: isLiked(item) })
               "
             >
-              {{ label }}
-            </div>
-          </template>
-        </ListRowItem>
-      </ListRow>
+              <HeartIcon class="h-4 w-4" />
+            </Button>
+          </div>
+          <div
+            v-else
+            class="truncate text-base"
+            @click="
+              (event) =>
+                emit('applyFilter', {
+                  event,
+                  idx,
+                  column,
+                  item,
+                  firstColumn: columns[0],
+                })
+            "
+          >
+            {{ label }}
+          </div>
+        </template>
+      </ListRowItem>
     </ListRows>
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
           :options="listBulkActionsRef.bulkActions(selections, unselectAll)"
-          placement="bottom-end"
         >
           <Button icon="more-horizontal" variant="ghost" />
         </Dropdown>
@@ -149,19 +148,17 @@
 <script setup>
 import HeartIcon from '@/components/Icons/HeartIcon.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
+import ListRows from '@/components/ListViews/ListRows.vue'
 import {
   ListView,
   ListHeader,
   ListHeaderItem,
-  ListRows,
-  ListRow,
+  ListSelectBanner,
   ListRowItem,
+  ListFooter,
   Dropdown,
   Tooltip,
-  Button,
 } from 'frappe-ui'
-import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
-import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 
@@ -221,7 +218,7 @@ const listBulkActionsRef = ref(null)
 
 defineExpose({
   customListActions: computed(
-    () => listBulkActionsRef.value?.customListActions
+    () => listBulkActionsRef.value?.customListActions,
   ),
 })
 </script>

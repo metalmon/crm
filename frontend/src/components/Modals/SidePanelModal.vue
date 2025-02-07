@@ -16,18 +16,19 @@
     <template #body-content>
       <div class="flex flex-col gap-5.5">
         <div class="flex justify-between gap-2">
-          <FormControl
-            type="select"
-            class="w-1/4"
-            v-model="_doctype"
-            :options="['CRM Lead', 'CRM Deal', 'Contact', 'CRM Organization']"
-            @change="reload"
-          />
-          <Switch
-            v-model="preview"
+          <Button
             :label="preview ? __('Hide preview') : __('Show preview')"
-            size="sm"
+            @click="preview = !preview"
           />
+          <div class="flex flex-row-reverse gap-2">
+            <Button
+              :loading="loading"
+              :label="__('Save')"
+              variant="solid"
+              @click="saveChanges"
+            />
+            <Button :label="__('Reset')" @click="reload" />
+          </div>
         </div>
         <div v-if="tabs.data?.[0]?.sections" class="flex gap-4">
           <SidePanelLayoutEditor
@@ -36,26 +37,20 @@
             :doctype="_doctype"
           />
           <div v-if="preview" class="flex flex-1 flex-col border rounded">
-            <div
-              v-for="(section, i) in tabs.data[0].sections"
-              :key="section.label"
-              class="flex flex-col py-1.5 px-1"
-              :class="{
-                'border-b': i !== tabs.data[0].sections?.length - 1,
-              }"
+            <SidePanelLayout
+              v-model="data"
+              :sections="tabs.data[0].sections"
+              :doctype="_doctype"
+              :preview="true"
+              v-slot="{ section }"
             >
-              <Section
-                class="p-2"
-                :label="section.label"
-                :opened="section.opened"
+              <div
+                v-if="section.name == 'contacts_section'"
+                class="flex h-16 items-center justify-center text-base text-ink-gray-5"
               >
-                <SidePanelLayout
-                  :fields="section.fields"
-                  :isLastSection="i == section.data?.length - 1"
-                  v-model="data"
-                />
-              </Section>
-            </div>
+                {{ __('No contacts added') }}
+              </div>
+            </SidePanelLayout>
           </div>
           <div
             v-else
@@ -66,26 +61,14 @@
         </div>
       </div>
     </template>
-    <template #actions>
-      <div class="flex flex-row-reverse gap-2">
-        <Button
-          :loading="loading"
-          :label="__('Save')"
-          variant="solid"
-          @click="saveChanges"
-        />
-        <Button :label="__('Reset')" @click="reload" />
-      </div>
-    </template>
   </Dialog>
 </template>
 <script setup>
-import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SidePanelLayoutEditor from '@/components/SidePanelLayoutEditor.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { capture } from '@/telemetry'
-import { Dialog, Badge, Switch, call, createResource } from 'frappe-ui'
+import { Dialog, Badge, call, createResource } from 'frappe-ui'
 import { ref, watch, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
@@ -104,26 +87,18 @@ const dirty = ref(false)
 const preview = ref(false)
 const data = ref({})
 
+function getParams() {
+  return { doctype: _doctype.value, type: 'Side Panel' }
+}
+
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
   cache: ['SidePanel', _doctype.value],
-  params: { doctype: _doctype.value, type: 'Side Panel' },
-  auto: true,
+  params: getParams(),
   onSuccess(data) {
     tabs.originalData = JSON.parse(JSON.stringify(data))
   },
 })
-
-watch(
-  () => _doctype.value,
-  () => {
-    if (_doctype.value) {
-      tabs.params = { doctype: _doctype.value, type: 'Side Panel' }
-      tabs.reload()
-    }
-  },
-  { immediate: true }
-)
 
 watch(
   () => tabs?.data,
@@ -134,9 +109,11 @@ watch(
   { deep: true },
 )
 
+onMounted(() => useDebounceFn(reload, 100)())
+
 function reload() {
   nextTick(() => {
-    tabs.params = { doctype: _doctype.value, type: 'Side Panel' }
+    tabs.params = getParams()
     tabs.reload()
   })
 }
@@ -145,10 +122,13 @@ function saveChanges() {
   let _tabs = JSON.parse(JSON.stringify(tabs.data))
   _tabs.forEach((tab) => {
     tab.sections.forEach((section) => {
-      if (!section.fields) return
-      section.fields = section.fields
-        .map((field) => field.fieldname || field.name)
-        .filter(Boolean)
+      if (!section.columns) return
+      section.columns.forEach((column) => {
+        if (!column.fields) return
+        column.fields = column.fields
+          .map((field) => field.fieldname)
+          .filter(Boolean)
+      })
     })
   })
   loading.value = true
@@ -157,7 +137,7 @@ function saveChanges() {
     {
       doctype: _doctype.value,
       type: 'Side Panel',
-      layout: JSON.stringify(_tabs),
+      layout: JSON.stringify(_tabs[0].sections),
     },
   ).then(() => {
     loading.value = false

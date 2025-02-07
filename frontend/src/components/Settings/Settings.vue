@@ -33,7 +33,15 @@
             </nav>
           </div>
         </div>
-        <div class="flex flex-1 flex-col overflow-y-auto bg-surface-modal dark-scrollbar">
+        <div
+          class="flex relative flex-1 flex-col overflow-y-auto bg-surface-modal"
+        >
+          <Button
+            class="absolute right-5 top-5"
+            variant="ghost"
+            icon="x"
+            @click="showSettings = false"
+          />
           <component :is="activeTab.component" v-if="activeTab" />
         </div>
       </div>
@@ -45,12 +53,13 @@ import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import ERPNextIcon from '@/components/Icons/ERPNextIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
+import GeneralSettings from '@/components/Settings/GeneralSettings.vue'
 import InviteMemberPage from '@/components/Settings/InviteMemberPage.vue'
 import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
 import WhatsAppSettings from '@/components/Settings/WhatsAppSettings.vue'
 import AvitoSettings from '@/components/Settings/AvitoSettings.vue'
 import ERPNextSettings from '@/components/Settings/ERPNextSettings.vue'
-import TwilioSettings from '@/components/Settings/TwilioSettings.vue'
+import TelephonySettings from '@/components/Settings/TelephonySettings.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { usersStore } from '@/stores/users'
 import {
@@ -59,10 +68,10 @@ import {
   activeSettingsPage,
 } from '@/composables/settings'
 import { isAvitoInstalled } from '@/composables/avito'
-import { Dialog, Avatar } from 'frappe-ui'
+import { Dialog, Button, Avatar } from 'frappe-ui'
 import { ref, markRaw, computed, watch, h } from 'vue'
 
-const { isManager, getUser } = usersStore()
+const { isManager, isAgent, getUser } = usersStore()
 
 const user = computed(() => getUser() || {})
 
@@ -83,6 +92,12 @@ const tabs = computed(() => {
           component: markRaw(ProfileSettings),
         },
         {
+          label: __('General'),
+          icon: 'settings',
+          component: markRaw(GeneralSettings),
+          condition: () => isManager(),
+        },
+        {
           label: __('Invite Members'),
           icon: 'user-plus',
           component: markRaw(InviteMemberPage),
@@ -94,28 +109,31 @@ const tabs = computed(() => {
       label: __('Integrations'),
       items: [
         {
-          label: __('Twilio'),
+          label: __('Telephony'),
           icon: PhoneIcon,
-          component: markRaw(TwilioSettings),
+          component: markRaw(TelephonySettings),
+          condition: () => isManager() || isAgent(),
         },
         {
           label: __('WhatsApp'),
           icon: WhatsAppIcon,
           component: markRaw(WhatsAppSettings),
-          condition: () => isWhatsappInstalled.value,
+          condition: () => isWhatsappInstalled.value && isManager(),
         },
         {
           label: __('Avito'),
           icon: AvitoIcon,
           component: markRaw(AvitoSettings),
-          condition: () => isAvitoInstalled.value,
+          condition: () => isAvitoInstalled.value && isManager(),
         },
         {
           label: __('ERPNext'),
           icon: ERPNextIcon,
           component: markRaw(ERPNextSettings),
+          condition: () => isManager(),
         },
       ],
+      condition: () => isManager() || isAgent(),
     },
   ]
 

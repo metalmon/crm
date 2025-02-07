@@ -1,13 +1,15 @@
 // Task status translation utilities
-const { __ } = window
+//const { __ } = window
 
 // Map of original status values to their translations
-export const taskStatusTranslations = {
-  'Backlog': __('Backlog'),
-  'Todo': __('Todo'),
-  'In Progress': __('In Progress'),
-  'Done': __('Done'),
-  'Canceled': __('Canceled')
+export function taskStatusTranslations() {
+  return {
+    'Backlog': window.__('Backlog'),
+    'Todo': window.__('Todo'),
+    'In Progress': window.__('In Progress'),
+    'Done': window.__('Done'),
+    'Canceled': window.__('Canceled')
+  }
 }
 
 // Reverse map for looking up original values from translations
@@ -18,9 +20,9 @@ export const reverseTaskStatusTranslations = Object.entries(taskStatusTranslatio
   }, {})
 
 // Translate a status to localized version
-export function translateTaskStatus(status) {
+export const translateTaskStatus = (status) => {
   if (!status) return ''
-  return __(status) // Use __ directly to ensure translation at render time
+  return window.__(status) // Use __ directly to ensure translation at render time
 }
 
 // Get original status from translated version

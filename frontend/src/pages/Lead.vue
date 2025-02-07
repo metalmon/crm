@@ -8,21 +8,22 @@
       </Breadcrumbs>
     </template>
     <template #right-header>
-      <CustomActions v-if="customActions" :actions="customActions" />
-      <component :is="assignedToComponent">
-        <MultipleAvatar
-          :avatars="lead.data._assignedTo"
-          @click="showAssignmentModal = true"
-        />
-      </component>
-      <Dropdown :options="statusOptions('lead', updateField, customStatuses)">
-        <template v-slot:default="{ open }">
-          <Button
-            :label="translateLeadStatus(lead.data.status)"
-            :class="getLeadStatus(lead.data.status).colorClass"
-          >
+      <CustomActions
+        v-if="lead.data._customActions?.length"
+        :actions="lead.data._customActions"
+      />
+      <AssignTo
+        v-model="lead.data._assignedTo"
+        :data="lead.data"
+        doctype="CRM Lead"
+      />
+      <Dropdown
+        :options="statusOptions('lead', updateField, lead.data._customStatuses)"
+      >
+        <template #default="{ open }">
+          <Button :label="translateLeadStatus(lead.data.status)">
             <template #prefix>
-              <IndicatorIcon />
+              <IndicatorIcon :class="getLeadStatus(lead.data.status).color" />
             </template>
             <template #suffix>
               <FeatherIcon
@@ -35,30 +36,23 @@
       </Dropdown>
       <Button
         :label="__('Convert to Deal')"
-        :class="{ 'min-w-[90px]': true, 'overflow-hidden': true }"
         variant="solid"
         @click="showConvertToDealModal = true"
-      >
-        <template #prefix>
-          <FeatherIcon name="plus" class="h-4 w-4" />
-        </template>
-        <template #default>
-          <span class="truncate">{{ __('Convert') }}</span>
-        </template>
-      </Button>
+      />
     </template>
   </LayoutHeader>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
-    <Tabs v-model="tabIndex" class="!h-full" :tabs="tabs">
-      <Activities
-        ref="activities"
-        doctype="CRM Lead"
-        :tabs="tabs"
-        v-model:reload="reload"
-        v-model:tabIndex="tabIndex"
-        v-model="lead"
-        :doc="lead"
-      />
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+      <template #tab-panel>
+        <Activities
+          ref="activities"
+          doctype="CRM Lead"
+          :tabs="tabs"
+          v-model:reload="reload"
+          v-model:tabIndex="tabIndex"
+          v-model="lead"
+        />
+      </template>
     </Tabs>
     <Resizer class="flex flex-col justify-between border-l" side="right">
       <div
@@ -71,7 +65,7 @@
         @success="(file) => updateField('image', file.file_url)"
         :validateFile="validateFile"
       >
-        <template v-slot:default="{ openFileSelector, error }">
+        <template #default="{ openFileSelector, error }">
           <div class="flex items-center justify-start gap-5 border-b p-5">
             <div class="group relative size-12">
               <Avatar
@@ -125,7 +119,12 @@
                 <Tooltip v-if="callEnabled" :text="__('Make a call')">
                   <Button
                     class="h-7 w-7"
-                    @click="handleMobileClick"
+                    @click="
+                      () =>
+                        lead.data.mobile_no
+                          ? makeCall(lead.data.mobile_no)
+                          : errorMessage(__('No phone number set'))
+                    "
                   >
                     <PhoneIcon class="h-4 w-4" />
                   </Button>
@@ -189,80 +188,32 @@
         @updateField="updateField"
       />
       <div
-        v-if="fieldsLayout.data"
+        v-if="sections.data"
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
-        <div class="flex flex-col overflow-y-auto dark-scrollbar">
-          <div
-            v-for="(section, i) in fieldsLayout.data"
-            :key="section.label"
-            class="flex flex-col p-3"
-            :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-          >
-            <Section
-              class="px-2 font-semibold"
-              :label="section.label"
-              :opened="section.opened"
-            >
-              <template #actions>
-                <div v-if="section.contacts" class="pr-2">
-                  <Link
-                    value=""
-                    doctype="Contact"
-                    @change="(e) => addContact(e)"
-                    :onCreate="
-                      (value, close) => {
-                        _contact = {
-                          first_name: value,
-                          company_name: lead.data.organization,
-                        }
-                        showContactModal = true
-                        close()
-                      }
-                    "
-                  >
-                    <template #target="{ togglePopover }">
-                      <Button
-                        class="h-7 px-3"
-                        variant="ghost"
-                        icon="plus"
-                        @click="togglePopover()"
-                      />
-                    </template>
-                  </Link>
-                </div>
-                <Button
-                  v-else-if="((!section.contacts && i == 1) || i == 0) && isManager()"
-                  variant="ghost"
-                  class="w-7 mr-2"
-                  @click="showSidePanelModal = true"
-                >
-                  <EditIcon class="h-4 w-4" />
-                </Button>
-              </template>
-              <SidePanelLayout
-                v-if="section.fields"
-                :fields="section.fields"
-                :isLastSection="i == fieldsLayout.data.length - 1"
-                v-model="lead.data"
-                @update="updateField"
-              />
-            </Section>
-          </div>
-        </div>
+        <SidePanelLayout
+          v-model="lead.data"
+          :sections="sections.data"
+          doctype="CRM Lead"
+          @update="updateField"
+          @reload="sections.reload"
+        />
       </div>
     </Resizer>
   </div>
-  <AssignmentModal
-    v-if="showAssignmentModal"
-    v-model="showAssignmentModal"
-    v-model:assignees="lead.data._assignedTo"
-    :doc="lead.data"
-    doctype="CRM Lead"
-  />
   <Dialog
     v-model="showConvertToDealModal"
-    :options="convertToDealOptions"
+    :options="{
+      title: __('Convert to Deal'),
+      size: 'xl',
+      actions: [
+        {
+          label: __('Convert'),
+          variant: 'solid',
+          onClick: convertToDeal,
+        },
+      ],
+    }"
   >
     <template #body-content>
       <div class="mb-4 flex items-center gap-2 text-ink-gray-5">
@@ -281,7 +232,7 @@
           size="md"
           :value="existingOrganization"
           doctype="CRM Organization"
-          @change="(data) => existingOrganization = data"
+          @change="(data) => (existingOrganization = data)"
         />
         <div v-else class="mt-2.5 text-base">
           {{
@@ -316,12 +267,6 @@
       </div>
     </template>
   </Dialog>
-  <SidePanelModal
-    v-if="showSidePanelModal"
-    v-model="showSidePanelModal"
-    doctype="CRM Lead"
-    @reload="() => fieldsLayout.reload()"
-  />
   <FilesUploader
     v-if="lead.data?.name"
     v-model="showFilesUploader"
@@ -334,19 +279,10 @@
       }
     "
   />
-  <ContactModal
-    v-model="showContactModal"
-    :contact="_contact"
-    :options="{
-      redirect: false,
-      afterInsert: (doc) => addContact(doc.name),
-    }"
-  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
 import Resizer from '@/components/Resizer.vue'
-import EditIcon from '@/components/Icons/EditIcon.vue'
 import ActivityIcon from '@/components/Icons/ActivityIcon.vue'
 import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import Email2Icon from '@/components/Icons/Email2Icon.vue'
@@ -365,12 +301,9 @@ import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
-import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
+import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
-import SidePanelModal from '@/components/Modals/SidePanelModal.vue'
-import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
-import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
@@ -383,10 +316,10 @@ import {
   copyToClipboard,
 } from '@/utils'
 import { getView } from '@/utils/view'
+import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { contactsStore } from '@/stores/contacts'
 import { statusesStore } from '@/stores/statuses'
-import { usersStore } from '@/stores/users'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
 import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
@@ -402,18 +335,16 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch, onBeforeUpdate } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
-import ContactModal from '@/components/Modals/ContactModal.vue'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
-import { getParsedFields } from '@/utils/getParsedFields'
 
+const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
 const { getContactByName, contacts } = contactsStore()
-const { statusOptions, getLeadStatus, getStatusLabel } = statusesStore()
-const { isManager } = usersStore()
+const { statusOptions, getLeadStatus } = statusesStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -424,15 +355,13 @@ const props = defineProps({
   },
 })
 
-const customActions = ref([])
-const customStatuses = ref([])
-
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
-  onSuccess: async (data) => {
-    let obj = {
+  onSuccess: (data) => {
+    setupAssignees(lead)
+    setupCustomizations(lead, {
       doc: data,
       $dialog,
       $socket,
@@ -440,16 +369,9 @@ const lead = createResource({
       updateField,
       createToast,
       deleteDoc: deleteLead,
-      resource: {
-        lead,
-        fieldsLayout,
-      },
+      resource: { lead, sections },
       call,
-    }
-    setupAssignees(data)
-    let customization = await setupCustomizations(data, obj)
-    customActions.value = customization.actions || []
-    customStatuses.value = customization.statuses || []
+    })
   },
 })
 
@@ -459,11 +381,7 @@ onMounted(() => {
 })
 
 const reload = ref(false)
-const showAssignmentModal = ref(false)
-const showSidePanelModal = ref(false)
 const showFilesUploader = ref(false)
-const showContactModal = ref(false)
-const _contact = ref({})
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -542,6 +460,7 @@ const breadcrumbs = computed(() => {
 usePageMeta(() => {
   return {
     title: lead.data?.lead_name || lead.data?.name,
+    icon: brand.favicon,
   }
 })
 
@@ -624,12 +543,11 @@ function validateFile(file) {
   }
 }
 
-const fieldsLayout = createResource({
-  url: 'crm.api.doc.get_sidebar_fields',
-  cache: ['fieldsLayout', props.leadId],
-  params: { doctype: 'CRM Lead', name: props.leadId },
+const sections = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
+  cache: ['sidePanelSections', 'CRM Lead'],
+  params: { doctype: 'CRM Lead' },
   auto: true,
-  transform: (data) => getParsedFields(data, 'CRM Lead', lead.data)
 })
 
 function updateField(name, value, callback) {
@@ -654,18 +572,6 @@ const existingOrganizationChecked = ref(false)
 
 const existingContact = ref('')
 const existingOrganization = ref('')
-
-const convertToDealOptions = computed(() => ({
-  title: __('Convert to Deal'),
-  size: 'xl',
-  actions: [
-    {
-      label: __('Convert'),
-      variant: 'solid',
-      onClick: convertToDeal,
-    },
-  ],
-}))
 
 async function convertToDeal(updated) {
   let valueUpdated = false
@@ -753,31 +659,4 @@ function trackPhoneActivities(type = 'phone') {
     contactName: lead.data.lead_name,
   })
 }
-
-async function addContact(contact) {
-  let d = await call('crm.fcrm.doctype.crm_lead.crm_lead.add_contact', {
-    lead: props.leadId,
-    contact,
-  })
-  if (d) {
-    fieldsLayout.reload()
-    createToast({
-      title: __('Contact added'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
-  }
-}
-
-function handleMobileClick() {
-  if (lead.data.mobile_no) {
-    makeCall(lead.data.mobile_no)
-  } else {
-    errorMessage(__('No phone number set'))
-  }
-}
-
-const assignedToComponent = computed(() => 
-  lead.data._assignedTo?.length == 1 ? 'Button' : 'div'
-)
 </script>

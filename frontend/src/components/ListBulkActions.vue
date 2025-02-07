@@ -60,38 +60,31 @@ function editValues(selections, unselectAll) {
 function convertToDeal(selections, unselectAll) {
   $dialog({
     title: __('Convert to Deal'),
-    message: __('Are you sure you want to convert') + ' ' + selections.size + ' ' + __('Lead(s) to Deal(s)'),
+    message: __('Are you sure you want to convert {0} Lead(s) to Deal(s)?', [
+      selections.size,
+    ]),
     variant: 'solid',
     theme: 'blue',
     actions: [
       {
         label: __('Convert'),
         variant: 'solid',
-        onClick: async (context) => {
-          try {
-            capture('bulk_convert_to_deal')
-            for (const name of Array.from(selections)) {
-              await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
-                lead: name,
+        onClick: (close) => {
+          capture('bulk_convert_to_deal')
+          Array.from(selections).forEach((name) => {
+            call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
+              lead: name,
+            }).then(() => {
+              createToast({
+                title: __('Converted successfully'),
+                icon: 'check',
+                iconClasses: 'text-ink-green-3',
               })
-            }
-            createToast({
-              title: __('Converted successfully'),
-              icon: 'check',
-              iconClasses: 'text-ink-green-3',
+              list.value.reload()
+              unselectAll()
+              close()
             })
-            list.value.reload()
-            unselectAll()
-            context.close()
-          } catch (error) {
-            createToast({
-              title: __('Error converting to deal'),
-              icon: 'x',
-              iconClasses: 'text-red-500',
-              message: error.message,
-            })
-            context.close()
-          }
+          })
         },
       },
     ],
@@ -101,7 +94,9 @@ function convertToDeal(selections, unselectAll) {
 function deleteValues(selections, unselectAll) {
   $dialog({
     title: __('Delete'),
-    message: __('Are you sure you want to delete') + ' ' + selections.size + ' ' + __('item(s)'),
+    message: __('Are you sure you want to delete {0} item(s)?', [
+      selections.size,
+    ]),
     variant: 'solid',
     theme: 'red',
     actions: [
@@ -109,13 +104,12 @@ function deleteValues(selections, unselectAll) {
         label: __('Delete'),
         variant: 'solid',
         theme: 'red',
-        onClick: async (context) => {
-          try {
-            capture('bulk_delete')
-            await call('frappe.desk.reportview.delete_items', {
-              items: JSON.stringify(Array.from(selections)),
-              doctype: props.doctype,
-            })
+        onClick: (close) => {
+          capture('bulk_delete')
+          call('frappe.desk.reportview.delete_items', {
+            items: JSON.stringify(Array.from(selections)),
+            doctype: props.doctype,
+          }).then(() => {
             createToast({
               title: __('Deleted successfully'),
               icon: 'check',
@@ -123,16 +117,8 @@ function deleteValues(selections, unselectAll) {
             })
             unselectAll()
             list.value.reload()
-            context.close()
-          } catch (error) {
-            createToast({
-              title: __('Error deleting items'),
-              icon: 'x',
-              iconClasses: 'text-red-500',
-              message: error.message,
-            })
-            context.close()
-          }
+            close()
+          })
         },
       },
     ],
@@ -151,7 +137,9 @@ function assignValues(selections, unselectAll) {
 function clearAssignemnts(selections, unselectAll) {
   $dialog({
     title: __('Clear Assignment'),
-    message: __('Are you sure you want to clear assignment for') + ' ' + selections.size + ' ' + __('item(s)'),
+    message: __('Are you sure you want to clear assignment for {0} item(s)?', [
+      selections.size,
+    ]),
     variant: 'solid',
     theme: 'red',
     actions: [
@@ -159,30 +147,21 @@ function clearAssignemnts(selections, unselectAll) {
         label: __('Clear Assignment'),
         variant: 'solid',
         theme: 'red',
-        onClick: async (context) => {
-          try {
-            capture('bulk_clear_assignment')
-            await call('frappe.desk.form.assign_to.remove_multiple', {
-              doctype: props.doctype,
-              names: JSON.stringify(Array.from(selections)),
-              ignore_permissions: true,
-            })
+        onClick: (close) => {
+          capture('bulk_clear_assignment')
+          call('frappe.desk.form.assign_to.remove_multiple', {
+            doctype: props.doctype,
+            names: JSON.stringify(Array.from(selections)),
+            ignore_permissions: true,
+          }).then(() => {
             createToast({
               title: __('Assignment cleared successfully'),
               icon: 'check',
               iconClasses: 'text-ink-green-3',
             })
             reload(unselectAll)
-            context.close()
-          } catch (error) {
-            createToast({
-              title: __('Error clearing assignment'),
-              icon: 'x',
-              iconClasses: 'text-red-500',
-              message: error.message,
-            })
-            context.close()
-          }
+            close()
+          })
         },
       },
     ],

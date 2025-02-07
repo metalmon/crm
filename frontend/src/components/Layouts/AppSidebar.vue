@@ -71,7 +71,6 @@
         </Section>
       </div>
     </div>
-    <TrialBanner v-if="isFCSite.data" />
     <div class="m-2 flex flex-col gap-1">
       <SidebarLink
         :label="isSidebarCollapsed ? __('Expand') : __('Collapse')"
@@ -116,9 +115,9 @@ import {
   unreadNotificationsCount,
   notificationsStore,
 } from '@/stores/notifications'
-import { FeatherIcon, TrialBanner, createResource } from 'frappe-ui'
+import { FeatherIcon } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
-import { computed, h, provide } from 'vue'
+import { computed, h } from 'vue'
 import { callEnabled } from '@/composables/settings'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
@@ -126,48 +125,48 @@ const { toggle: toggleNotificationPanel } = notificationsStore()
 
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 
-const links = computed(() => [
+const links = [
   {
-    label: 'Leads',
+    label: __('Leads'),
     icon: LeadsIcon,
     to: 'Leads',
   },
   {
-    label: 'Deals',
+    label: __('Deals'),
     icon: DealsIcon,
     to: 'Deals',
   },
   {
-    label: 'Contacts',
+    label: __('Contacts'),
     icon: ContactsIcon,
     to: 'Contacts',
   },
   {
-    label: 'Organizations',
+    label: __('Organizations'),
     icon: OrganizationsIcon,
     to: 'Organizations',
   },
   {
-    label: 'Notes',
+    label: __('Notes'),
     icon: NoteIcon,
     to: 'Notes',
   },
   {
-    label: 'Tasks',
+    label: __('Tasks'),
     icon: TaskIcon,
     to: 'Tasks',
   },
   ...(callEnabled.value ? [{
-    label: 'Call Logs',
+    label: __('Call Logs'),
     icon: PhoneIcon,
     to: 'Call Logs',
   }] : []),
   {
-    label: 'Email Templates',
+    label: __('Email Templates'),
     icon: Email2Icon,
     to: 'Email Templates',
   },
-])
+]
 
 const allViews = computed(() => {
   let _views = [
@@ -175,7 +174,7 @@ const allViews = computed(() => {
       name: __('All Views'),
       hideLabel: true,
       opened: true,
-      views: links.value,
+      views: links,
     },
   ]
   if (getPublicViews().length) {
@@ -230,13 +229,4 @@ function getIcon(routeName, icon) {
       return PinIcon
   }
 }
-
-const isFCSite = createResource({
-  url: 'frappe.integrations.frappe_providers.frappecloud_billing.is_fc_site',
-  cache: 'isFCSite',
-  auto: true,
-  transform: (data) => Boolean(data),
-})
-
-provide('isFCSite', isFCSite)
 </script>

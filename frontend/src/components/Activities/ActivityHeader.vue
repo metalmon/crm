@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="title !== 'Data'"
-    class="mx-4 my-3 flex items-center gap-4 justify-between text-lg font-medium sm:mx-10 sm:mb-4 sm:mt-8"
+    class="mx-4 my-3 flex items-center justify-between text-lg font-medium sm:mx-10 sm:mb-4 sm:mt-8"
   >
     <div class="flex h-8 items-center text-xl font-semibold text-ink-gray-8">
       {{ __(title) }}
@@ -9,37 +9,35 @@
     <Button
       v-if="title == 'Emails'"
       variant="solid"
-      class="shrink-0 px-3"
       @click="emailBox.show = true"
     >
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="btn-text-standard">{{ __('New Email') }}</span>
+      <span>{{ __('New Email') }}</span>
     </Button>
     <Button
-      v-else-if="title == 'Comments'"
+      v-else-if="title == __('Comments')"
       variant="solid"
       @click="emailBox.showComment = true"
     >
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="btn-text-standard">{{ __('New Comment') }}</span>
+      <span>{{ __('New Comment') }}</span>
     </Button>
     <Button
       v-else-if="title == 'Calls'"
       variant="solid"
-      class="shrink-0"
       @click="makeCall(doc.data.mobile_no)"
     >
       <template #prefix>
         <PhoneIcon class="h-4 w-4" />
       </template>
-      <span class="btn-text-standard">{{ __('Make a Call') }}</span>
+      <span>{{ __('Make a Call') }}</span>
     </Button>
     <Button
-      v-else-if="title == 'Notes'"
+      v-else-if="title == __('Notes')"
       variant="solid"
       class="shrink-0"
       @click="modalRef.showNote()"
@@ -47,10 +45,10 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="btn-text-standard">{{ __('New Note') }}</span>
+      <span>{{ __('New Note') }}</span>
     </Button>
     <Button
-      v-else-if="title == 'Tasks'"
+      v-else-if="title == __('Tasks')"
       variant="solid"
       class="shrink-0"
       @click="modalRef.showTask()"
@@ -58,10 +56,10 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="btn-text-standard">{{ __('New Task') }}</span>
+      <span>{{ __('New Task') }}</span>
     </Button>
     <Button
-      v-else-if="title == 'Attachments'"
+      v-else-if="title == __('Attachments')"
       variant="solid"
       class="shrink-0"
       @click="showFilesUploader = true"
@@ -69,31 +67,14 @@
       <template #prefix>
         <FeatherIcon name="plus" class="h-4 w-4" />
       </template>
-      <span class="btn-text-standard">{{ __('Upload Attachment') }}</span>
+      <span>{{ __('Upload Attachment') }}</span>
     </Button>
-    <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
-      <Button
-        class="shrink-0"
-        @click="showWhatsappTemplates = true"
-      >
-        <template #prefix>
-          <FeatherIcon name="plus" class="h-4 w-4" />
-        </template>
-        <span class="btn-text-standard">{{ __('Send Template') }}</span>
-      </Button>
-      <Button variant="solid" class="shrink-0" @click="whatsappBox.show()">
-        <template #prefix>
-          <FeatherIcon name="plus" class="h-4 w-4" />
-        </template>
-        <span class="btn-text-standard">{{ __('New Message') }}</span>
-      </Button>
-    </div>
-    <div class="flex gap-2 shrink-0" v-else-if="title == 'Avito'">
+    <div class="flex gap-2 shrink-0" v-else-if="title == __('WhatsApp')">
       <Button
         :label="__('Send Template')"
-        @click="showAvitoTemplates = true"
+        @click="showWhatsappTemplates = true"
       />
-      <Button variant="solid" @click="avitoBox.show()">
+      <Button variant="solid" @click="whatsappBox.show()">
         <template #prefix>
           <FeatherIcon name="plus" class="h-4 w-4" />
         </template>
@@ -102,15 +83,15 @@
     </div>
     <Dropdown v-else :options="defaultActions" @click.stop>
       <template v-slot="{ open }">
-        <Button variant="solid" class="shrink-0">
+        <Button variant="solid" class="flex items-center gap-1">
           <template #prefix>
             <FeatherIcon name="plus" class="h-4 w-4" />
           </template>
-          <span class="btn-text-standard">{{ __('New') }}</span>
+          <span>{{ __('New') }}</span>
           <template #suffix>
             <FeatherIcon
               :name="open ? 'chevron-up' : 'chevron-down'"
-              class="h-4 w-4 hidden sm:inline"
+              class="h-4 w-4"
             />
           </template>
         </Button>
@@ -129,9 +110,9 @@ import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import { globalStore } from '@/stores/global'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
-import { avitoEnabled } from '@/composables/avito'
 import { Dropdown } from 'frappe-ui'
 import { computed, h } from 'vue'
+import { avitoEnabled } from '@/composables/avito'
 
 const props = defineProps({
   tabs: Array,
@@ -140,14 +121,12 @@ const props = defineProps({
   modalRef: Object,
   emailBox: Object,
   whatsappBox: Object,
-  avitoBox: Object,
 })
 
 const { makeCall } = globalStore()
 
 const tabIndex = defineModel()
 const showWhatsappTemplates = defineModel('showWhatsappTemplates')
-const showAvitoTemplates = defineModel('showAvitoTemplates')
 const showFilesUploader = defineModel('showFilesUploader')
 
 const defaultActions = computed(() => {
