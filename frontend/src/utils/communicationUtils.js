@@ -2,6 +2,7 @@ import { createResource, getCachedDocumentResource } from 'frappe-ui'
 import { errorMessage } from '@/utils'
 import { capture } from '@/telemetry'
 import { usersStore } from '@/stores/users'
+import { normalizePhoneNumber } from './phoneUtils'
 const { getUser } = usersStore()
 
 function debounce(func, wait) {
@@ -14,16 +15,6 @@ function debounce(func, wait) {
     clearTimeout(timeout)
     timeout = setTimeout(later, wait)
   }
-}
-
-function normalizePhoneNumber(phoneNumber) {
-  let normalizedNumber = phoneNumber.replace(/\D/g, '')
-  
-  if (normalizedNumber.startsWith('8')) {
-    normalizedNumber = '7' + normalizedNumber.slice(1)
-  }
-  
-  return normalizedNumber.startsWith('+') ? normalizedNumber : `+${normalizedNumber}`
 }
 
 function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activities, contactName }) {

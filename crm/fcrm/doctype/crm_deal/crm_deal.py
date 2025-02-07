@@ -10,11 +10,13 @@ from crm.fcrm.doctype.crm_service_level_agreement.utils import get_sla
 from crm.fcrm.doctype.crm_status_change_log.crm_status_change_log import (
 	add_status_change_log,
 )
+from crm.utils import parse_phone_number
 
 
 class CRMDeal(Document):
 	def before_validate(self):
 		self.set_sla()
+		self.normalize_phone_numbers()
 
 	def validate(self):
 		self.set_primary_contact()
@@ -132,6 +134,15 @@ class CRMDeal(Document):
 		sla = frappe.get_last_doc("CRM Service Level Agreement", {"name": self.sla})
 		if sla:
 			sla.apply(self)
+
+	def normalize_phone_numbers(self):
+		"""Normalize mobile number"""
+		if self.mobile_no:
+			parsed = parse_phone_number(self.mobile_no)
+			if parsed.get("success"):
+				self.mobile_no = parsed.get("formats", {}).get("E164", self.mobile_no)
+			else:
+				self.mobile_no = "".join([c for c in self.mobile_no if c.isdigit() or c == "+"])
 
 	@staticmethod
 	def default_list_data():
