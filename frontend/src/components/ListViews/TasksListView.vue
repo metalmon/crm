@@ -169,9 +169,7 @@ import {
   ListView,
   ListHeader,
   ListHeaderItem,
-  ListSelectBanner,
   ListRowItem,
-  ListFooter,
   Dropdown,
   Tooltip,
 } from 'frappe-ui'
@@ -183,6 +181,8 @@ import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import UserAvatar from '@/components/UserAvatar.vue'
 import dayjs from '@/utils/dayjs'
+import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
+import ListFooter from '@/components/custom-ui/ListFooter.vue'
 
 const props = defineProps({
   rows: {
