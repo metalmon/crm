@@ -2426,6 +2426,44 @@ frappe-ui@^0.1.105:
     tippy.js "^6.3.7"
     typescript "^5.0.2"
 
+frappe-ui@^0.1.108:
+  version "0.1.109"
+  resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-0.1.109.tgz#4de34c6927c9f870240e5b8eaef9239cb33e9bb2"
+  integrity sha512-jrB3wX2fUvWlVCzFWzP6PDmn43xEHu4hiDhNSgfn0zJe8wD78XH3GFEoWwNbEsykw9QIZvNlpDV0oYGtfS+yvQ==
+  dependencies:
+    "@headlessui/vue" "^1.7.14"
+    "@popperjs/core" "^2.11.2"
+    "@tailwindcss/forms" "^0.5.3"
+    "@tailwindcss/typography" "^0.5.0"
+    "@tiptap/extension-color" "^2.0.3"
+    "@tiptap/extension-highlight" "^2.0.3"
+    "@tiptap/extension-image" "^2.0.3"
+    "@tiptap/extension-link" "^2.0.3"
+    "@tiptap/extension-mention" "^2.0.3"
+    "@tiptap/extension-placeholder" "^2.0.3"
+    "@tiptap/extension-table" "^2.0.3"
+    "@tiptap/extension-table-cell" "^2.0.3"
+    "@tiptap/extension-table-header" "^2.0.3"
+    "@tiptap/extension-table-row" "^2.0.3"
+    "@tiptap/extension-text-align" "^2.0.3"
+    "@tiptap/extension-text-style" "^2.0.3"
+    "@tiptap/extension-typography" "^2.0.3"
+    "@tiptap/pm" "^2.0.3"
+    "@tiptap/starter-kit" "^2.0.3"
+    "@tiptap/suggestion" "^2.0.3"
+    "@tiptap/vue-3" "^2.0.3"
+    "@vueuse/core" "^10.4.1"
+    dayjs "^1.11.13"
+    feather-icons "^4.28.0"
+    idb-keyval "^6.2.0"
+    ora "5.4.1"
+    prettier "^3.3.2"
+    radix-vue "^1.5.3"
+    showdown "^2.1.0"
+    socket.io-client "^4.5.1"
+    tippy.js "^6.3.7"
+    typescript "^5.0.2"
+
 fs-extra@^9.0.1:
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-9.1.0.tgz#5954460c764a8da2094ba3554bf839e6b9a7c86d"
@@ -4325,10 +4363,10 @@ vite-plugin-pwa@^0.15.0:
     workbox-build "^6.5.4"
     workbox-window "^6.5.4"
 
-vite@^4.4.9:
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.5.tgz#639b9feca5c0a3bfe3c60cb630ef28bf219d742e"
-  integrity sha512-ifW3Lb2sMdX+WU91s3R0FyQlAyLxOzCSCP37ujw0+r5POeHPwe6udWVIElKQq8gk3t7b8rkmvqC6IHBpCff4GQ==
+vite@^4.5.6:
+  version "4.5.6"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.6.tgz#48bbd97fe06e8241df2e625b31c581707e10b57d"
+  integrity sha512-ElBNuVvJKslxcfY2gMmae5IjaKGqCYGicCNZ+8R56sAznobeE3pI9ctzI17cBS/6OJh5YuQNMSN4BP4dRjugBg==
   dependencies:
     esbuild "^0.18.10"
     postcss "^8.4.27"
