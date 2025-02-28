@@ -117,13 +117,11 @@ before_uninstall = "crm.uninstall.before_uninstall"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# "Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"CRM Deal": "crm.permissions.get_permission_query_conditions_for_crm_deal",
+	"CRM Lead": "crm.permissions.get_permission_query_conditions_for_crm_lead",
+	"CRM Task": "crm.permissions.get_permission_query_conditions_for_crm_task"
+}
 
 # DocType Class
 # ---------------
@@ -286,7 +284,14 @@ standard_dropdown_items = [
 		"label": "Settings",
 		"type": "Route",
 		"icon": "settings",
-  		"route": "#",
+		"route": "#",
+		"is_standard": 1,
+	},
+	{
+		"name1": "login_to_fc",
+		"label": "Login to Frappe Cloud",
+		"type": "Route",
+		"route": "#",
 		"is_standard": 1,
 	},
 	{
@@ -300,7 +305,7 @@ standard_dropdown_items = [
 		"label": "Log out",
 		"type": "Route",
 		"icon": "log-out",
-  		"route": "#",
+		"route": "#",
 		"is_standard": 1,
 	},
 ]

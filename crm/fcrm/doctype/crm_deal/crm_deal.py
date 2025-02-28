@@ -10,13 +10,11 @@ from crm.fcrm.doctype.crm_service_level_agreement.utils import get_sla
 from crm.fcrm.doctype.crm_status_change_log.crm_status_change_log import (
 	add_status_change_log,
 )
-from crm.utils import parse_phone_number
 
 
 class CRMDeal(Document):
 	def before_validate(self):
 		self.set_sla()
-		self.normalize_phone_numbers()
 
 	def validate(self):
 		self.set_primary_contact()
@@ -28,7 +26,15 @@ class CRMDeal(Document):
 			add_status_change_log(self)
 
 	def after_insert(self):
-		if self.deal_owner:
+		# Only create assignment if there are no active assignment rules
+		assignment_rules = frappe.get_all(
+			"Assignment Rule",
+			filters={
+				"document_type": "CRM Deal",
+				"disabled": 0
+			}, ignore_permissions=True
+		)
+		if not assignment_rules and self.deal_owner:
 			self.assign_agent(self.deal_owner)
 
 	def before_save(self):
@@ -135,15 +141,6 @@ class CRMDeal(Document):
 		if sla:
 			sla.apply(self)
 
-	def normalize_phone_numbers(self):
-		"""Normalize mobile number"""
-		if self.mobile_no:
-			parsed = parse_phone_number(self.mobile_no)
-			if parsed.get("success"):
-				self.mobile_no = parsed.get("formats", {}).get("E164", self.mobile_no)
-			else:
-				self.mobile_no = "".join([c for c in self.mobile_no if c.isdigit() or c == "+"])
-
 	@staticmethod
 	def default_list_data():
 		columns = [
@@ -229,6 +226,7 @@ def add_contact(deal, contact):
 	deal.save()
 	return True
 
+
 @frappe.whitelist()
 def remove_contact(deal, contact):
 	if not frappe.has_permission("CRM Deal", "write", deal):
@@ -239,6 +237,7 @@ def remove_contact(deal, contact):
 	deal.save()
 	return True
 
+
 @frappe.whitelist()
 def set_primary_contact(deal, contact):
 	if not frappe.has_permission("CRM Deal", "write", deal):
@@ -248,6 +247,7 @@ def set_primary_contact(deal, contact):
 	deal.set_primary_contact(contact)
 	deal.save()
 	return True
+
 
 def create_organization(doc):
 	if not doc.get("organization_name"):
@@ -272,6 +272,7 @@ def create_organization(doc):
 	organization.insert(ignore_permissions=True)
 	return organization.name
 
+
 def contact_exists(doc):
 	email_exist = frappe.db.exists("Contact Email", {"email_id": doc.get("email")})
 	mobile_exist = frappe.db.exists("Contact Phone", {"phone": doc.get("mobile_no")})
@@ -283,6 +284,7 @@ def contact_exists(doc):
 		return frappe.db.get_value(doctype, name, "parent")
 
 	return False
+
 
 def create_contact(doc):
 	existing_contact = contact_exists(doc)
@@ -296,6 +298,7 @@ def create_contact(doc):
 			"last_name": doc.get("last_name"),
 			"salutation": doc.get("salutation"),
 			"company_name": doc.get("organization") or doc.get("organization_name"),
+			"designation": doc.get("job_title"),
 		}
 	)
 
@@ -310,19 +313,26 @@ def create_contact(doc):
 
 	return contact.name
 
+
 @frappe.whitelist()
 def create_deal(args):
 	deal = frappe.new_doc("CRM Deal")
 
+	# Create organization first if needed
+	organization = args.get("organization") or create_organization(args)
+
+	# Then create contact if needed
 	contact = args.get("contact")
 	if not contact and (
 		args.get("first_name") or args.get("last_name") or args.get("email") or args.get("mobile_no")
 	):
+		# Pass organization to contact creation
+		args["organization"] = organization
 		contact = create_contact(args)
 
 	deal.update(
 		{
-			"organization": args.get("organization") or create_organization(args),
+			"organization": organization,
 			"contacts": [{"contact": contact, "is_primary": 1}] if contact else [],
 		}
 	)

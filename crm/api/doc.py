@@ -276,7 +276,7 @@ def get_data(
 		default_view_filters = {
 			"dt": doctype,
 			"type": view_type or "list",
-			"is_default": 1,
+			"is_standard": 1,
 			"user": frappe.session.user,
 		}
 
@@ -325,14 +325,16 @@ def get_data(
 
 		if not kanban_columns and column_field:
 			field_meta = frappe.get_meta(doctype).get_field(column_field)
-			if field_meta.fieldtype == "Link":
+			if field_meta and field_meta.fieldtype == "Link":
 				kanban_columns = frappe.get_all(
 					field_meta.options,
 					fields=["name"],
 					order_by="modified asc",
 				)
-			elif field_meta.fieldtype == "Select":
+			elif field_meta and field_meta.fieldtype == "Select":
 				kanban_columns = [{"name": option} for option in field_meta.options.split("\n")]
+			else:
+				kanban_columns = []
 
 		if not title_field:
 			title_field = "name"
@@ -379,9 +381,11 @@ def get_data(
 				new_filters = filters.copy()
 				new_filters.update({column_field: kc.get("name")})
 
-				all_count = len(
-					frappe.get_list(doctype, filters=convert_filter_to_tuple(doctype, new_filters))
-				)
+				all_count = frappe.get_list(
+					doctype,
+					filters=convert_filter_to_tuple(doctype, new_filters),
+					fields="count(*) as total_count"
+				)[0].total_count
 
 				kc["all_count"] = all_count
 				kc["count"] = len(column_data)
@@ -483,7 +487,9 @@ def get_data(
 		"page_length_count": page_length_count,
 		"is_default": is_default,
 		"views": get_views(doctype),
-		"total_count": len(frappe.get_list(doctype, filters=filters)),
+		"total_count": frappe.get_list(
+			doctype, filters=filters, fields="count(*) as total_count"
+		)[0].total_count,
 		"row_count": len(data),
 		"form_script": get_form_script(doctype),
 		"list_script": get_form_script(doctype, "List"),
@@ -537,7 +543,7 @@ def get_records_based_on_order(doctype, rows, filters, page_length, order):
 
 
 @frappe.whitelist()
-def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False):
+def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False, only_required=False):
 	not_allowed_fieldtypes = [
 		"Tab Break",
 		"Section Break",
@@ -571,6 +577,9 @@ def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False):
 	for field in standard_fields:
 		if not restricted_fieldtypes or field.get("fieldtype") not in restricted_fieldtypes:
 			fields.append(field)
+
+	if only_required:
+		fields = [field for field in fields if field.get("reqd")]
 
 	if as_array:
 		return fields

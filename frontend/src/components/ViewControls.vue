@@ -58,24 +58,30 @@
       </div>
     </div>
   </div>
-  <div v-else class="flex items-center justify-between gap-2 px-5 py-4">
+  <div v-else class="flex items-start justify-between gap-2 px-5 py-4">
     <FadedScrollableDiv
-      class="flex flex-1 items-center overflow-hidden -ml-1"
+      class="flex flex-1 items-center overflow-x-auto -ml-1 -mt-1 scroll-smooth"
       orientation="horizontal"
+      @wheel.prevent="(e) => {
+        const container = e.currentTarget
+        container.scrollLeft += e.deltaY
+      }"
     >
-      <div
-        v-for="filter in quickFilterList"
-        :key="filter.name"
-        class="m-1 min-w-36"
-      >
-        <QuickFilterField
-          :filter="filter"
-          @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
-        />
+      <div class="flex items-center gap-2">
+        <div
+          v-for="filter in quickFilterList"
+          :key="filter.fieldname"
+          class="m-1 min-w-36"
+        >
+          <QuickFilterField
+            :filter="filter"
+            @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
+          />
+        </div>
       </div>
     </FadedScrollableDiv>
     <div class="-ml-2 h-[70%] border-l" />
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-shrink-0">
       <div
         v-if="viewUpdated && route.query.view && (!view.public || isManager())"
         class="flex items-center gap-2 border-r pr-2"
@@ -215,6 +221,7 @@ import QuickFilterField from '@/components/QuickFilterField.vue'
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import DuplicateIcon from '@/components/Icons/DuplicateIcon.vue'
+import CheckIcon from '@/components/Icons/CheckIcon.vue'
 import PinIcon from '@/components/Icons/PinIcon.vue'
 import UnpinIcon from '@/components/Icons/UnpinIcon.vue'
 import ViewModal from '@/components/Modals/ViewModal.vue'
@@ -224,6 +231,7 @@ import GroupBy from '@/components/GroupBy.vue'
 import FadedScrollableDiv from '@/components/FadedScrollableDiv.vue'
 import ColumnSettings from '@/components/ColumnSettings.vue'
 import KanbanSettings from '@/components/Kanban/KanbanSettings.vue'
+import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { viewsStore } from '@/stores/views'
 import { usersStore } from '@/stores/users'
@@ -260,8 +268,9 @@ const props = defineProps({
   },
 })
 
+const { brand } = getSettings()
 const { $dialog } = globalStore()
-const { reload: reloadView, getView } = viewsStore()
+const { reload: reloadView, getDefaultView, getView } = viewsStore()
 const { isManager } = usersStore()
 
 const list = defineModel()
@@ -278,7 +287,7 @@ const viewUpdated = ref(false)
 const showViewModal = ref(false)
 
 function getViewType() {
-  let viewType = route.params.viewType || 'kanban'
+  let viewType = route.params.viewType || 'list'
   let types = {
     list: {
       name: 'list',
@@ -297,8 +306,7 @@ function getViewType() {
     },
   }
 
-  // If viewType is not valid, fallback to kanban
-  return types[viewType] || types['kanban']
+  return types[viewType]
 }
 
 const currentView = computed(() => {
@@ -308,19 +316,20 @@ const currentView = computed(() => {
     label:
       _view?.label || props.options?.defaultViewName || getViewType().label,
     icon: _view?.icon || getViewType().icon,
-    is_default: !_view || _view.is_default,
+    is_standard: !_view || _view.is_standard,
   }
 })
 
 usePageMeta(() => {
   let label = currentView.value.label
-  if (currentView.value.is_default) {
+  if (currentView.value.is_standard) {
     let routeName = route.name
     label = `${routeName} - ${label}`
   }
   return {
     title: label,
     emoji: isEmoji(currentView.value.icon) ? currentView.value.icon : '',
+    icon: brand.favicon,
   }
 })
 
@@ -373,13 +382,6 @@ function getParams() {
   const title_field = _view?.title_field || ''
   const kanban_columns = _view?.kanban_columns || ''
   const kanban_fields = _view?.kanban_fields || ''
-
-  // Clean up filters to prevent undefined keys
-  Object.keys(filters).forEach(key => {
-    if (key === 'undefined' || key === undefined || filters[key] === undefined) {
-      delete filters[key]
-    }
-  })
 
   view.value = {
     name: view_name,
@@ -466,7 +468,12 @@ const export_all = ref(false)
 
 async function exportRows() {
   let fields = JSON.stringify(list.value.data.columns.map((f) => f.key))
-  let filters = JSON.stringify(list.value.params.filters)
+
+  let filters = JSON.stringify({
+    ...props.filters,
+    ...list.value.params.filters,
+  })
+
   let order_by = list.value.params.order_by
   let page_length = list.value.params.page_length
   if (export_all.value) {
@@ -479,39 +486,39 @@ async function exportRows() {
   export_type.value = 'Excel'
 }
 
-let defaultViews = []
+let standardViews = []
 let allowedViews = props.options.allowedViews || ['list']
 
 if (allowedViews.includes('list')) {
-  defaultViews.push({
+  standardViews.push({
     name: 'list',
     label: __(props.options?.defaultViewName) || __('List'),
     icon: markRaw(ListIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'list' } })
+      router.push({ name: route.name, params: { viewType: 'list' }, replace: true })
     },
   })
 }
 if (allowedViews.includes('kanban')) {
-  defaultViews.push({
+  standardViews.push({
     name: 'kanban',
     label: __(props.options?.defaultViewName) || __('Kanban'),
     icon: markRaw(KanbanIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'kanban' } })
+      router.push({ name: route.name, params: { viewType: 'kanban' }, replace: true })
     },
   })
 }
 if (allowedViews.includes('group_by')) {
-  defaultViews.push({
+  standardViews.push({
     name: 'group_by',
     label: __(props.options?.defaultViewName) || __('Group By'),
     icon: markRaw(GroupByIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'group_by' } })
+      router.push({ name: route.name, params: { viewType: 'group_by' }, replace: true })
     },
   })
 }
@@ -530,9 +537,9 @@ function getIcon(icon, type) {
 const viewsDropdownOptions = computed(() => {
   let _views = [
     {
-      group: __('Default Views'),
+      group: __('Standard Views'),
       hideLabel: true,
-      items: defaultViews,
+      items: standardViews,
     },
   ]
 
@@ -557,7 +564,7 @@ const viewsDropdownOptions = computed(() => {
     })
     let publicViews = list.value.data.views.filter((v) => v.public)
     let savedViews = list.value.data.views.filter(
-      (v) => !v.pinned && !v.public && !v.is_default,
+      (v) => !v.pinned && !v.public && !v.is_standard,
     )
     let pinnedViews = list.value.data.views.filter((v) => v.pinned)
 
@@ -594,7 +601,7 @@ const viewsDropdownOptions = computed(() => {
 })
 
 const quickFilterList = computed(() => {
-  let filters = [{ fieldname: 'name', label: __('ID'), fieldtype: 'Data' }]
+  let filters = [{ fieldname: 'name', fieldtype: 'Data', label: __('ID') }]
   if (quickFilters.data) {
     filters.push(...quickFilters.data)
   }
@@ -613,8 +620,10 @@ const quickFilterList = computed(() => {
         )
           return
         filter['value'] = value[1]?.replace(/%/g, '')
-      } else {
+      } else if (typeof value == 'boolean') {
         filter['value'] = value
+      } else {
+        filter['value'] = value?.replace(/%/g, '')
       }
     }
   })
@@ -633,7 +642,9 @@ function applyQuickFilter(filter, value) {
   let filters = { ...list.value.params.filters }
   let field = filter.fieldname
   if (value) {
-    if (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.fieldtype)) {
+    if (
+      ['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.fieldtype)
+    ) {
       filters[field] = value
     } else {
       filters[field] = ['LIKE', `%${value}%`]
@@ -641,32 +652,23 @@ function applyQuickFilter(filter, value) {
     filter['value'] = value
   } else {
     delete filters[field]
-    filter['value'] = filter.fieldtype === 'Check' ? false : ''
+    filter['value'] = ''
   }
   updateFilter(filters)
 }
 
 function updateFilter(filters) {
-  // Clean up filters to prevent undefined keys
-  if (filters) {
-    Object.keys(filters).forEach(key => {
-      if (key === 'undefined' || key === undefined || filters[key] === undefined) {
-        delete filters[key]
-      }
-    })
-  }
-
   viewUpdated.value = true
   if (!defaultParams.value) {
     defaultParams.value = getParams()
   }
   list.value.params = defaultParams.value
-  list.value.params.filters = filters || {}
-  view.value.filters = filters || {}
+  list.value.params.filters = filters
+  view.value.filters = filters
   list.value.reload()
 
   if (!route.query.view) {
-    create_or_update_default_view()
+    createOrUpdateStandardView()
   }
 }
 
@@ -681,7 +683,7 @@ function updateSort(order_by) {
   list.value.reload()
 
   if (!route.query.view) {
-    create_or_update_default_view()
+    createOrUpdateStandardView()
   }
 }
 
@@ -696,7 +698,7 @@ function updateGroupBy(group_by_field) {
   list.value.reload()
 
   if (!route.query.view) {
-    create_or_update_default_view()
+    createOrUpdateStandardView()
   }
 }
 
@@ -706,15 +708,6 @@ function updateColumns(obj) {
       columns: list.value.data.columns,
       rows: list.value.data.rows,
       isDefault: false,
-    }
-  }
-
-  // Проверяем, есть ли реальные изменения
-  if (!obj.reset && !obj.isDefault) {
-    const currentColumns = JSON.stringify(defaultParams.value?.columns || '')
-    const newColumns = JSON.stringify(obj.columns)
-    if (currentColumns === newColumns) {
-      return // Нет изменений, выходим
     }
   }
 
@@ -739,7 +732,7 @@ function updateColumns(obj) {
   viewUpdated.value = true
 
   if (!route.query.view) {
-    create_or_update_default_view()
+    createOrUpdateStandardView()
   }
 }
 
@@ -781,7 +774,7 @@ async function updateKanbanSettings(data) {
   list.value.reload()
 
   if (!route.query.view) {
-    create_or_update_default_view()
+    createOrUpdateStandardView()
   } else if (!data.column_field) {
     if (isDirty) {
       $dialog({
@@ -793,14 +786,14 @@ async function updateKanbanSettings(data) {
             label: __('Update'),
             variant: 'solid',
             onClick: (close) => {
-              update_custom_view()
+              updateCustomView()
               close()
             },
           },
         ],
       })
     } else {
-      update_custom_view()
+      updateCustomView()
     }
   }
 }
@@ -824,11 +817,11 @@ function loadMoreKanban(columnName) {
   list.value.reload()
 }
 
-function create_or_update_default_view() {
+function createOrUpdateStandardView() {
   if (route.query.view) return
   view.value.doctype = props.doctype
   call(
-    'crm.fcrm.doctype.crm_view_settings.crm_view_settings.create_or_update_default_view',
+    'crm.fcrm.doctype.crm_view_settings.crm_view_settings.create_or_update_standard_view',
     {
       view: view.value,
     },
@@ -855,7 +848,7 @@ function create_or_update_default_view() {
   })
 }
 
-function update_custom_view() {
+function updateCustomView() {
   viewUpdated.value = false
   view.value = {
     doctype: props.doctype,
@@ -901,12 +894,24 @@ function updatePageLength(value, loadMore = false) {
 
 // View Actions
 const viewActions = (view) => {
-  let isDefault = typeof view.name === 'string'
+  let isStandard = typeof view.name === 'string'
   let _view = getView(view.name)
+
+  if (isStandard) {
+    _view = getView(null, view.name, props.doctype)
+  }
+
+  if (!_view) {
+    _view = {
+      label: view.label,
+      type: view.name,
+      dt: props.doctype,
+    }
+  }
 
   let actions = [
     {
-      group: __('Default Views'),
+      group: __('Actions'),
       hideLabel: true,
       items: [
         {
@@ -918,7 +923,15 @@ const viewActions = (view) => {
     },
   ]
 
-  if (!isDefault && (!_view.public || isManager())) {
+  if (!isDefaultView(_view, isStandard)) {
+    actions[0].items.unshift({
+      label: __('Set as default'),
+      icon: () => h(CheckIcon, { class: 'h-4 w-4' }),
+      onClick: () => setAsDefault(_view),
+    })
+  }
+
+  if (!isStandard && (!_view.public || isManager())) {
     actions[0].items.push({
       label: __('Edit'),
       icon: () => h(EditIcon, { class: 'h-4 w-4' }),
@@ -955,9 +968,7 @@ const viewActions = (view) => {
           onClick: () =>
             $dialog({
               title: __('Delete View'),
-              message: __('Are you sure you want to delete "{0}" view?', [
-                _view.label,
-              ]),
+              message: __('Are you sure you want to delete {0} view?', [_view.label]),
               variant: 'danger',
               actions: [
                 {
@@ -975,6 +986,14 @@ const viewActions = (view) => {
   return actions
 }
 
+function isDefaultView(v, isStandard) {
+  let defaultView = getDefaultView()
+
+  if (!defaultView || (isStandard && !v.name)) return false
+
+  return defaultView.name == v.name
+}
+
 const viewModalObj = ref({})
 
 function createView() {
@@ -984,6 +1003,17 @@ function createView() {
   viewModalObj.value = view.value
   viewModalObj.value.mode = 'create'
   showViewModal.value = true
+}
+
+function setAsDefault(v) {
+  call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.set_as_default', {
+    name: v.name,
+    type: v.type,
+    doctype: v.dt,
+  }).then(() => {
+    reloadView()
+    list.value.reload()
+  })
 }
 
 function duplicateView(v) {
@@ -1064,62 +1094,41 @@ function applyFilter({ event, idx, column, item, firstColumn }) {
   let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
   if (restrictedFieldtypes.includes(column.type) || idx === 0) return
   if (idx === 1 && firstColumn.key == '_liked_by') return
-  if (!column?.key) return // Prevent undefined column keys
 
   event.stopPropagation()
   event.preventDefault()
 
-  let filters = { ...list.value.params?.filters } || {}
-  let value = item?.name || item?.label || item?.value || item || ''
+  let filters = { ...list.value.params.filters }
 
-  // Handle special cases
-  if (column.key === '_assign') {
-    if (Array.isArray(item) && item.length > 1) {
-      let target = event.target.closest('.user-avatar')
-      if (target) {
-        let name = target.getAttribute('data-name')
-        if (name) {
-          filters['_assign'] = ['LIKE', `%${name}%`]
-        }
-      }
-    } else if (Array.isArray(item) && item.length === 1 && item[0]?.name) {
-      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
-    }
-  } else if (value) {
-    if (column.type === 'Link' || column.type === 'Select') {
-      filters[column.key] = value
-    } else {
-      filters[column.key] = ['LIKE', `%${value}%`]
-    }
+  let value = item.name || item.label || item
+
+  if (value) {
+    filters[column.key] = value
   } else {
     delete filters[column.key]
   }
 
-  // Clean up filters
-  Object.keys(filters).forEach(key => {
-    if (key === 'undefined' || key === undefined || filters[key] === undefined) {
-      delete filters[key]
+  if (column.key == '_assign') {
+    if (item.length > 1) {
+      let target = event.target.closest('.user-avatar')
+      if (target) {
+        let name = target.getAttribute('data-name')
+        filters['_assign'] = ['LIKE', `%${name}%`]
+      }
+    } else {
+      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
     }
-  })
-
+  }
   updateFilter(filters)
 }
 
 function applyLikeFilter() {
-  let filters = { ...list.value.params?.filters } || {}
+  let filters = { ...list.value.params.filters }
   if (!filters._liked_by) {
     filters['_liked_by'] = ['LIKE', '%@me%']
   } else {
     delete filters['_liked_by']
   }
-
-  // Clean up filters
-  Object.keys(filters).forEach(key => {
-    if (key === 'undefined' || key === undefined || filters[key] === undefined) {
-      delete filters[key]
-    }
-  })
-
   updateFilter(filters)
 }
 

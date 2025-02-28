@@ -133,15 +133,15 @@ const signature = createResource({
   auto: true,
 })
 
-function setSignature(editor) {
+async function setSignature(editor) {
   if (!signature.data) return
-  signature.data = signature.data.replace(/\n/g, '<br>')
   let emailContent = editor.getHTML()
   emailContent = emailContent.startsWith('<p></p>')
     ? emailContent.slice(7)
     : emailContent
-  editor.commands.setContent(signature.data + emailContent)
-  editor.commands.focus('start')
+  editor.commands.setContent(emailContent)
+  await newEmailEditor.value.addSignature(editor)
+  newEmail.value = editor.getHTML()
 }
 
 watch(
@@ -181,6 +181,7 @@ async function sendMail() {
   if (attachments.value.length) {
     capture('email_attachments_added')
   }
+  
   await call('frappe.core.doctype.communication.email.make', {
     recipients: recipients.join(', '),
     attachments: attachments.value.map((x) => x.name),

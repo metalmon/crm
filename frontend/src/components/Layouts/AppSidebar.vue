@@ -72,6 +72,8 @@
       </div>
     </div>
     <div class="m-2 flex flex-col gap-1">
+      <SignupBanner :isSidebarCollapsed="isSidebarCollapsed" />
+      <TrialBanner v-if="isFCSite" />
       <SidebarLink
         :label="isSidebarCollapsed ? __('Expand') : __('Collapse')"
         :isCollapsed="isSidebarCollapsed"
@@ -110,15 +112,16 @@ import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Notifications from '@/components/Notifications.vue'
 import Settings from '@/components/Settings/Settings.vue'
+import SignupBanner from '@/components/SignupBanner.vue'
 import { viewsStore } from '@/stores/views'
 import {
   unreadNotificationsCount,
   notificationsStore,
 } from '@/stores/notifications'
-import { FeatherIcon } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
-import { computed, h } from 'vue'
 import { callEnabled } from '@/composables/settings'
+import { FeatherIcon, TrialBanner } from 'frappe-ui'
+import { ref, computed, h } from 'vue'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()

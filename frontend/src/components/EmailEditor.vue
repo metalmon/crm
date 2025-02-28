@@ -5,6 +5,7 @@
       'prose-sm max-w-none',
       editable && 'min-h-[7rem]',
       '[&_p.reply-to-content]:hidden',
+      'dark-scrollbar'
     ]"
     :content="content"
     @change="editable ? (content = $event) : null"
@@ -30,6 +31,7 @@
           />
           <div class="flex gap-1.5">
             <Button
+              :label="__('CC')"
               variant="ghost"
               @click="toggleCC()"
               :class="[
@@ -37,15 +39,9 @@
                   ? '!bg-surface-gray-4 hover:bg-surface-gray-3'
                   : '!text-ink-gray-4',
               ]"
-            >
-              <template #icon>
-                <Email2Icon class="h-4" />
-              </template>
-              <template #default>
-                <span class="hidden sm:inline">{{ __('CC') }}</span>
-              </template>
-            </Button>
+            />
             <Button
+              :label="__('BCC')"
               variant="ghost"
               @click="toggleBCC()"
               :class="[
@@ -53,14 +49,7 @@
                   ? '!bg-surface-gray-4 hover:bg-surface-gray-3'
                   : '!text-ink-gray-4',
               ]"
-            >
-              <template #icon>
-                <EmailIcon class="h-4" />
-              </template>
-              <template #default>
-                <span class="hidden sm:inline">{{ __('BCC') }}</span>
-              </template>
-            </Button>
+            />
           </div>
         </div>
         <div v-if="cc" class="sm:mx-10 mx-4 flex items-center gap-2">
@@ -196,7 +185,7 @@ import { capture } from '@/telemetry'
 import { validateEmail } from '@/utils'
 import Paragraph from '@tiptap/extension-paragraph'
 import { EditorContent } from '@tiptap/vue-3'
-import { ref, computed, defineModel, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
 const props = defineProps({
   placeholder: {
@@ -273,6 +262,15 @@ function removeAttachment(attachment) {
 
 const showEmailTemplateSelectorModal = ref(false)
 
+async function addSignature(editor) {
+  const signature = await call('crm.api.get_user_signature')
+  if (signature) {
+    let signatureHtml = signature.replace(/\n/g, '<br>')
+    let currentContent = editor.getHTML()
+    editor.commands.setContent(currentContent + signatureHtml)
+  }
+}
+
 async function applyEmailTemplate(template) {
   let data = await call(
     'frappe.email.doctype.email_template.email_template.get_email_template',
@@ -287,8 +285,9 @@ async function applyEmailTemplate(template) {
   }
 
   if (template.response) {
-    content.value = data.message
     editor.value.commands.setContent(data.message)
+    await addSignature(editor.value)
+    content.value = editor.value.getHTML()
   }
   showEmailTemplateSelectorModal.value = false
   capture('email_template_applied', { doctype: props.doctype })
@@ -319,6 +318,7 @@ defineExpose({
   toEmails,
   ccEmails,
   bccEmails,
+  addSignature,
 })
 
 const textEditorMenuButtons = [
