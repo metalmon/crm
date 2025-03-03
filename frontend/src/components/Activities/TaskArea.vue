@@ -3,42 +3,42 @@
     <div v-for="(task, i) in tasks" :key="task.name">
       <div
         class="activity flex cursor-pointer gap-6 rounded p-2.5 duration-300 ease-in-out hover:bg-surface-gray-1"
-        @click="modalRef.showTask(task)"
+        @click="modalRef?.showTask(task)"
       >
         <div class="flex flex-1 flex-col gap-1.5 text-base truncate">
           <div class="font-medium text-ink-gray-9 truncate">
             {{ task.title }}
           </div>
-          <div class="flex gap-1.5 text-ink-gray-8">
-            <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 text-ink-gray-8">
+            <div class="flex items-center gap-1.5 shrink-0">
               <UserAvatar :user="task.assigned_to" size="xs" />
               {{ getUser(task.assigned_to).full_name }}
             </div>
-            <div v-if="task.due_date" class="flex items-center justify-center">
+            <div v-if="task.due_date" class="flex items-center justify-center shrink-0">
               <DotIcon class="h-2.5 w-2.5 text-ink-gray-5" :radius="2" />
             </div>
-            <div v-if="task.due_date">
+            <div v-if="task.due_date" class="flex-1 min-w-0">
               <Tooltip
                 :text="formatTaskDate(task.due_date, 'ddd, MMM D, YYYY | hh:mm a')"
               >
-                <div class="flex gap-2">
-                  <CalendarIcon />
-                  <div>{{ formatTaskDate(task.due_date, 'D MMM, hh:mm a') }}</div>
+                <div class="flex gap-2 truncate">
+                  <CalendarIcon class="shrink-0" />
+                  <div class="truncate">{{ formatTaskDate(task.due_date, 'D MMM, hh:mm a') }}</div>
                 </div>
               </Tooltip>
             </div>
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center shrink-0">
               <DotIcon class="h-2.5 w-2.5 text-ink-gray-5" :radius="2" />
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 shrink-0">
               <TaskPriorityIcon class="!h-2 !w-2" :priority="task.priority" />
               {{ translateTaskPriority(task.priority) }}
             </div>
           </div>
         </div>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1 shrink-0">
           <Dropdown
-            :options="taskStatusOptions(modalRef.updateTaskStatus, task)"
+            :options="taskStatusOptions(modalRef?.updateTaskStatus, task)"
             @click.stop
           >
             <Tooltip :text="__('Change Status')">
@@ -61,9 +61,9 @@
                         label: __('Delete'),
                         theme: 'red',
                         variant: 'solid',
-                        onClick(close) {
-                          modalRef.deleteTask(task.name)
-                          close()
+                        onClick(context) {
+                          modalRef?.deleteTask(task.name)
+                          context.close()
                         },
                       },
                     ],
