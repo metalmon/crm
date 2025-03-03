@@ -165,8 +165,6 @@ import {
   FormControl,
   createResource,
   Tooltip,
-  DatePicker,
-  DateTimePicker,
   DateRangePicker,
 } from 'frappe-ui'
 import { h, computed, onMounted } from 'vue'
