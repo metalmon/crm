@@ -1,6 +1,6 @@
 import frappe
 from frappe import _
-
+import time
 def init_for_execute():
     """Initialize session for bench execute"""
     if not frappe.db:
@@ -80,84 +80,160 @@ def track_communication():
 def update_email_references():
     """Find emails without references and link them to leads/deals based on email addresses"""
     try:
-        # Get all emails without references
-        emails_without_refs = frappe.get_all(
+        batch_size = 50  # Process 50 emails at a time to avoid server overload
+        processed_total = 0
+        linked_total = 0
+        not_found_total = 0
+        error_total = 0
+        
+        # Get initial count for progress reporting
+        total_emails = frappe.db.count(
             "Communication",
             filters={
                 "communication_medium": "Email",
                 "communication_type": "Communication",
                 "reference_doctype": ["in", ["", None]],
                 "reference_name": ["in", ["", None]]
-            },
-            fields=["name", "sender", "recipients", "cc", "bcc"]
+            }
         )
-
-        processed = 0
-        linked = 0
-        not_found = 0
-
-        for email in emails_without_refs:
-            processed += 1
-            # Collect all email addresses from the communication
-            email_addresses = set()
-            if email.sender:
-                email_addresses.add(email.sender.lower())
-            if email.recipients:
-                email_addresses.update([e.strip().lower() for e in email.recipients.split(",")])
-            if email.cc:
-                email_addresses.update([e.strip().lower() for e in email.cc.split(",")])
-            if email.bcc:
-                email_addresses.update([e.strip().lower() for e in email.bcc.split(",")])
-
-            # Search for leads with matching emails
-            leads = frappe.get_all(
-                "CRM Lead",
-                filters={"email": ["in", list(email_addresses)]},
-                fields=["name", "email"]
+        
+        if not total_emails:
+            frappe.logger().info("No emails without references found. Nothing to process.")
+            return
+            
+        frappe.logger().info(f"Starting email reference update: {total_emails} total emails to process")
+        
+        # Process in batches
+        start = 0
+        while True:
+            # Get batch of emails without references
+            emails_without_refs = frappe.get_all(
+                "Communication",
+                filters={
+                    "communication_medium": "Email",
+                    "communication_type": "Communication",
+                    "reference_doctype": ["in", ["", None]],
+                    "reference_name": ["in", ["", None]]
+                },
+                fields=["name", "sender", "recipients", "cc", "bcc", "creation"],
+                order_by="creation desc",  # Process newest first
+                start=start,
+                page_length=batch_size
             )
-
-            # Search for deals with matching emails
-            deals = frappe.get_all(
-                "CRM Deal",
-                filters={"email": ["in", list(email_addresses)]},
-                fields=["name", "email"]
+            
+            if not emails_without_refs:
+                break  # No more emails to process
+                
+            batch_processed = 0
+            batch_linked = 0
+            batch_not_found = 0
+            batch_errors = 0
+            
+            for email in emails_without_refs:
+                try:
+                    # Collect all email addresses from the communication
+                    email_addresses = set()
+                    if email.sender:
+                        email_addresses.add(email.sender.lower())
+                    if email.recipients:
+                        email_addresses.update([e.strip().lower() for e in email.recipients.split(",")])
+                    if email.cc:
+                        email_addresses.update([e.strip().lower() for e in email.cc.split(",")])
+                    if email.bcc:
+                        email_addresses.update([e.strip().lower() for e in email.bcc.split(",")])
+                    
+                    # Skip if no valid email addresses found
+                    if not email_addresses:
+                        batch_not_found += 1
+                        continue
+                    
+                    # Search for deals with matching emails (prioritize newest deals)
+                    deals = frappe.get_all(
+                        "CRM Deal",
+                        filters={"email": ["in", list(email_addresses)]},
+                        fields=["name", "email", "creation"],
+                        order_by="creation desc"  # Newest deals first
+                    )
+                    
+                    # Priority given to deals over leads
+                    linked = False
+                    if deals:
+                        deal = deals[0]  # Take newest deal (already sorted by creation desc)
+                        frappe.db.set_value(
+                            "Communication",
+                            email.name,
+                            {
+                                "reference_doctype": "CRM Deal",
+                                "reference_name": deal.name
+                            },
+                            update_modified=False
+                        )
+                        linked = True
+                        batch_linked += 1
+                    else:
+                        # Search for leads with matching emails ONLY if no deals found
+                        leads = frappe.get_all(
+                            "CRM Lead",
+                            filters={"email": ["in", list(email_addresses)]},
+                            fields=["name", "email", "creation"],
+                            order_by="creation desc"  # Newest leads first
+                        )
+                        
+                        if leads:
+                            lead = leads[0]  # Take newest lead
+                            frappe.db.set_value(
+                                "Communication",
+                                email.name,
+                                {
+                                    "reference_doctype": "CRM Lead",
+                                    "reference_name": lead.name
+                                },
+                                update_modified=False
+                            )
+                            linked = True
+                            batch_linked += 1
+                        else:
+                            batch_not_found += 1
+                    
+                except Exception as e:
+                    batch_errors += 1
+                    error_msg = f"Error processing communication {email.name}: {str(e)}"
+                    frappe.logger().error(error_msg)
+                    # Continue with next email despite error
+                
+                batch_processed += 1
+                
+            # Update total counters
+            processed_total += batch_processed
+            linked_total += batch_linked
+            not_found_total += batch_not_found
+            error_total += batch_errors
+            
+            # Commit transaction after each batch to free up resources
+            frappe.db.commit()
+            
+            # Log batch progress
+            frappe.logger().info(
+                f"Email batch processed: {batch_processed} emails, {batch_linked} linked, "
+                f"{batch_not_found} not found, {batch_errors} errors. "
+                f"Progress: {processed_total}/{total_emails} ({round(processed_total/total_emails*100, 2)}%)"
             )
-
-            # Priority given to deals over leads if both found
-            if deals:
-                deal = deals[0]
-                frappe.db.set_value(
-                    "Communication",
-                    email.name,
-                    {
-                        "reference_doctype": "CRM Deal",
-                        "reference_name": deal.name
-                    },
-                    update_modified=False
-                )
-                linked += 1
-            elif leads:
-                lead = leads[0]
-                frappe.db.set_value(
-                    "Communication",
-                    email.name,
-                    {
-                        "reference_doctype": "CRM Lead",
-                        "reference_name": lead.name
-                    },
-                    update_modified=False
-                )
-                linked += 1
-            else:
-                not_found += 1
-
-        # Log summary
+            
+            # Move to next batch
+            start += batch_size
+            
+            # Optional: Add a small delay to reduce database load
+            time.sleep(0.5)  # 500ms delay between batches
+        
+        # Log final summary
         frappe.logger().info(
-            f"Email reference update completed: {processed} processed, {linked} linked, {not_found} not found"
+            f"Email reference update completed: {processed_total} processed, {linked_total} linked, "
+            f"{not_found_total} not found, {error_total} errors"
         )
 
     except Exception as e:
-        frappe.logger().error(f"Error in update_email_references: {str(e)}")
+        frappe.logger().error(f"Critical error in update_email_references: {str(e)}")
+        # Re-throw for further handling
         raise
 
 @frappe.whitelist()
