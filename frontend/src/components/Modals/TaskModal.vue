@@ -206,6 +206,8 @@ async function updateTask() {
     if (d.name) {
       tasks.value?.reload()
       emit('after', d)
+      isDirty.value = false
+      dialogShow.value = false
     }
   } else {
     let d = await call('frappe.client.insert', {
@@ -220,6 +222,8 @@ async function updateTask() {
       capture('task_created')
       tasks.value?.reload()
       emit('after', d, true)
+      isDirty.value = false
+      dialogShow.value = false
     }
   }
   show.value = false

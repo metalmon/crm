@@ -333,6 +333,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { isMobileView } from '@/composables/settings'
 import Draggable from 'vuedraggable'
 import _ from 'lodash'
+import { timespanOptions } from '@/utils/timeOptions'
 
 const props = defineProps({
   doctype: {
@@ -515,10 +516,15 @@ function applyQuickFilter(filter, value) {
   let filters = { ...list.value.params.filters }
   let field = filter.fieldname
   if (value) {
-    if (
-      ['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.fieldtype)
-    ) {
+    if (['Check', 'Select', 'Link'].includes(filter.fieldtype)) {
       filters[field] = value
+    } else if (['Date', 'Datetime'].includes(filter.fieldtype)) {
+      // Handle timespan filters for date fields
+      if (timespanOptions.find(opt => opt.value === value)) {
+        filters[field] = ['timespan', value]
+      } else {
+        filters[field] = value
+      }
     } else {
       filters[field] = ['LIKE', `%${value}%`]
     }

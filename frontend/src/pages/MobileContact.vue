@@ -320,12 +320,12 @@ async function deleteContact() {
         label: __('Delete'),
         theme: 'red',
         variant: 'solid',
-        async onClick(close) {
+        async onClick(context) {
           await call('frappe.client.delete', {
             doctype: 'Contact',
             name: props.contactId,
           })
-          close()
+          context.close()
           router.push({ name: 'Contacts' })
         },
       },

@@ -85,7 +85,7 @@
         </div>
       </div>
       <div v-else-if="title == 'Tasks'" class="px-3 pb-3 sm:px-10 sm:pb-5">
-        <TaskArea :modalRef="modalRef" :tasks="activities" :doctype="doctype" />
+        <TaskArea v-if="modalRef" :modalRef="modalRef" :tasks="activities" :doctype="doctype" />
       </div>
       <div v-else-if="title == 'Calls'" class="activity">
         <div v-for="(call, i) in activities">
