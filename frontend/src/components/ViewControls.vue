@@ -340,6 +340,7 @@ import { isMobileView } from '@/composables/settings'
 import Draggable from 'vuedraggable'
 import _ from 'lodash'
 import { timespanOptions } from '@/utils/timeOptions'
+import { statusesStore } from '@/stores/statuses'
 
 const props = defineProps({
   doctype: {
@@ -998,8 +999,22 @@ function resetColumnSettings() {
     list.value.params.kanban_columns = ''
     view.value.kanban_columns = ''
     
-    // Force reload
+    // Force reload the view
     reload()
+    
+    // Also reload the statuses store to refresh colors and status information
+    try {
+      const store = statusesStore()
+      
+      // Determine which status type to reload based on doctype
+      if (props.doctype === 'CRM Deal') {
+        store.dealStatuses.reload()
+      } else if (props.doctype === 'CRM Lead') {
+        store.leadStatuses.reload()
+      }
+    } catch (e) {
+      console.error("Error reloading status store:", e)
+    }
     
     // Show success message
     createToast({
