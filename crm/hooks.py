@@ -150,6 +150,11 @@ doc_events = {
 		"after_insert": "crm.api.doc.on_doc_update",
 		"on_trash": "crm.api.doc.on_doc_update",
 	},
+	"CRM Task": {
+		"on_update": "crm.api.doc.on_doc_update",
+		"after_insert": "crm.api.doc.on_doc_update",
+		"on_trash": "crm.api.doc.on_doc_update",
+	},
 	"Contact": {
 		"validate": ["crm.api.contact.validate"],
 	},

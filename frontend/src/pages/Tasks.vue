@@ -208,10 +208,11 @@ import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { formatDate, timeAgo } from '@/utils'
 import { Tooltip, Avatar, TextEditor, Dropdown, call } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
+import { useSocket } from '@/socket'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Task')
@@ -227,6 +228,28 @@ const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
 const viewControls = ref(null)
+
+const socket = useSocket()
+
+onMounted(() => {
+  socket.on('task_status_updated', () => {
+    tasks.value.reload()
+  })
+  
+  socket.on('task_created', () => {
+    tasks.value.reload()
+  })
+  
+  socket.on('task_deleted', () => {
+    tasks.value.reload()
+  })
+})
+
+onBeforeUnmount(() => {
+  socket.off('task_status_updated')
+  socket.off('task_created')
+  socket.off('task_deleted')
+})
 
 function getRow(name, field) {
   function getValue(value) {
@@ -396,5 +419,19 @@ function redirect(doctype, docname) {
     params = { dealId: docname }
   }
   router.push({ name: name, params: params })
+}
+
+async function updateTaskStatus(name, status) {
+  try {
+    await call('frappe.client.set_value', {
+      doctype: 'CRM Task',
+      name: name,
+      fieldname: 'status',
+      value: status
+    })
+    tasks.value.reload()
+  } catch (error) {
+    console.error('Error updating task status:', error)
+  }
 }
 </script>

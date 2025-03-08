@@ -780,8 +780,8 @@ def unsubscribe_doc(doctype, name):
 
 def on_doc_update(doc, method=None):
 	"""Publish updates to subscribed clients"""
-	# Only handle CRM Lead and CRM Deal
-	if doc.doctype not in ['CRM Lead', 'CRM Deal']:
+	# Handle CRM Lead, CRM Deal and CRM Task
+	if doc.doctype not in ['CRM Lead', 'CRM Deal', 'CRM Task']:
 		return
 		
 	# Determine event type based on method
@@ -803,3 +803,16 @@ def on_doc_update(doc, method=None):
 		},
 		after_commit=True
 	)
+	
+	# Additional handling for task status updates
+	if doc.doctype == 'CRM Task' and event == 'modified':
+		if doc.has_value_changed('status'):
+			frappe.publish_realtime(
+				'task_status_updated',
+				{
+					'task': doc.name,
+					'old_status': doc.get_doc_before_save().status,
+					'new_status': doc.status
+				},
+				after_commit=True
+			)
