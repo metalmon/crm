@@ -526,7 +526,7 @@ import { whatsappEnabled } from '@/composables/settings'
 import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
 import { Button, Tooltip, createResource } from 'frappe-ui'
-import { useElementVisibility } from '@vueuse/core'
+import { useElementVisibility, useDebounceFn } from '@vueuse/core'
 import {
   ref,
   computed,
@@ -595,11 +595,53 @@ const all_activities = createResource({
   },
 })
 
+const reloadDebounced = useDebounceFn(() => {
+  all_activities.reload()
+}, 1000)
+
+function handleScroll(e) {
+  const el = e.target
+  const threshold = 100 // pixels from top
+  const isNearTop = el.scrollTop <= threshold
+  
+  if (isNearTop && !isLoadingMore.value && !noMoreActivities.value) {
+    loadMore()
+  }
+}
+
 async function loadMore() {
   if (isLoadingMore.value || noMoreActivities.value) return
   
+  // If we don't have any initial data and we're not in the Activity tab, 
+  // we should mark as no more activities
+  if (!all_activities.data && title.value !== 'Activity') {
+    noMoreActivities.value = true
+    return
+  }
+  
   isLoadingMore.value = true
-  const currentLength = activities.value?.length || 0
+  
+  // Calculate total length based on the current tab
+  let currentLength = 0
+  if (title.value === 'Activity') {
+    currentLength = (all_activities.data?.versions?.length || 0) + (all_activities.data?.calls?.length || 0)
+  } else if (title.value === 'Emails') {
+    currentLength = all_activities.data?.versions?.filter(a => 
+      a.activity_type === 'communication' && 
+      a.communication_medium !== 'Phone' && 
+      a.communication_medium !== 'Chat'
+    )?.length || 0
+  } else if (title.value === 'Comments') {
+    currentLength = all_activities.data?.versions?.filter(a => a.activity_type === 'comment')?.length || 0
+  } else if (title.value === 'Calls') {
+    currentLength = all_activities.data?.calls?.length || 0
+  } else if (title.value === 'Tasks') {
+    currentLength = all_activities.data?.tasks?.length || 0
+  } else if (title.value === 'Notes') {
+    currentLength = all_activities.data?.notes?.length || 0
+  } else if (title.value === 'Attachments') {
+    currentLength = all_activities.data?.attachments?.length || 0
+  }
   
   try {
     const result = await createResource({
@@ -613,106 +655,70 @@ async function loadMore() {
 
     const [versions, calls, notes, tasks, attachments] = result
     
-    // Merge new activities with existing ones
-    if (!versions?.length && !calls?.length) {
-      noMoreActivities.value = true
-    } else {
-      all_activities.data.versions = [...(all_activities.data.versions || []), ...(versions || [])]
-      all_activities.data.calls = [...(all_activities.data.calls || []), ...(calls || [])]
-      all_activities.data.notes = [...(all_activities.data.notes || []), ...(notes || [])]
-      all_activities.data.tasks = [...(all_activities.data.tasks || []), ...(tasks || [])]
-      all_activities.data.attachments = [...(all_activities.data.attachments || []), ...(attachments || [])]
+    // Check if we have any new data based on the current tab
+    let hasNewData = false
+    if (title.value === 'Activity') {
+      hasNewData = versions?.length > 0 || calls?.length > 0
+    } else if (title.value === 'Emails') {
+      hasNewData = versions?.some(a => 
+        a.activity_type === 'communication' && 
+        a.communication_medium !== 'Phone' && 
+        a.communication_medium !== 'Chat'
+      )
+    } else if (title.value === 'Comments') {
+      hasNewData = versions?.some(a => a.activity_type === 'comment')
+    } else if (title.value === 'Calls') {
+      hasNewData = calls?.length > 0
+    } else if (title.value === 'Tasks') {
+      hasNewData = tasks?.length > 0
+    } else if (title.value === 'Notes') {
+      hasNewData = notes?.length > 0
+    } else if (title.value === 'Attachments') {
+      hasNewData = attachments?.length > 0
     }
+
+    if (!hasNewData) {
+      noMoreActivities.value = true
+      return
+    }
+
+    // Merge new activities with existing ones
+    const mergeUniqueById = (existing = [], newItems = []) => {
+      if (!Array.isArray(existing) || !Array.isArray(newItems)) return existing || []
+      const merged = [...(existing || [])]
+      newItems.forEach(item => {
+        if (!merged.find(e => e.name === item.name)) {
+          merged.push(item)
+        }
+      })
+      return merged
+    }
+
+    // Save current scroll position
+    const scrollEl = scrollContainer.value.$el
+    const oldScrollHeight = scrollEl.scrollHeight
+    const oldScrollTop = scrollEl.scrollTop
+
+    all_activities.data = all_activities.data || {}
+    all_activities.data.versions = mergeUniqueById(all_activities.data.versions, versions)
+    all_activities.data.calls = mergeUniqueById(all_activities.data.calls, calls)
+    all_activities.data.notes = mergeUniqueById(all_activities.data.notes, notes)
+    all_activities.data.tasks = mergeUniqueById(all_activities.data.tasks, tasks)
+    all_activities.data.attachments = mergeUniqueById(all_activities.data.attachments, attachments)
+
+    // After data is updated and DOM is re-rendered, restore scroll position
+    nextTick(() => {
+      const newScrollHeight = scrollEl.scrollHeight
+      const heightDiff = newScrollHeight - oldScrollHeight
+      scrollEl.scrollTop = oldScrollTop + heightDiff
+    })
+
   } catch (error) {
     console.error('Error loading more activities:', error)
   } finally {
     isLoadingMore.value = false
   }
 }
-
-function handleScroll(e) {
-  const el = e.target
-  const threshold = 100 // pixels from top
-  
-  if (el.scrollTop <= threshold && !isLoadingMore.value && !noMoreActivities.value) {
-    loadMore()
-  }
-}
-
-const showWhatsappTemplates = ref(false)
-
-const whatsappMessages = createResource({
-  url: 'crm.api.whatsapp.get_whatsapp_messages',
-  cache: ['whatsapp_messages', doc.value.data.name],
-  params: {
-    reference_doctype: props.doctype,
-    reference_name: doc.value.data.name,
-  },
-  auto: true,
-  transform: (data) => sortByCreation(data),
-  onSuccess: () => nextTick(() => scroll()),
-})
-
-const avitoMessages = createResource({
-  url: 'crm.api.avito.get_avito_messages',
-  cache: ['avito_messages', doc.value.data.name],
-  params: {
-    reference_doctype: props.doctype,
-    reference_name: doc.value.data.name,
-  },
-  auto: true,
-  transform: (data) => sortByCreation(data),
-  onSuccess: () => nextTick(() => scroll()),
-})
-
-onBeforeUnmount(() => {
-  $socket.off('whatsapp_message')
-  $socket.off('avito_message')
-})
-
-onMounted(() => {
-  $socket.on('whatsapp_message', (data) => {
-    if (
-      data.reference_doctype === props.doctype &&
-      data.reference_name === doc.value.data.name
-    ) {
-      whatsappMessages.reload()
-    }
-  });
-
-  $socket.onAny((event, ...args) => {
-    console.log(`Received event: ${event}`, args);
-  });
-
-  $socket.on('avito_message', (data) => {
-    if (
-      data.reference_doctype === props.doctype &&
-      data.reference_name === doc.value.data.name
-    ) {
-      avitoMessages.reload()
-    }
-  });
-
-  nextTick(() => {
-    const hash = route.hash.slice(1) || null
-    let tabNames = props.tabs?.map((tab) => tab.name)
-    if (!tabNames?.includes(hash)) {
-      scroll(hash)
-    }
-  })
-
-  nextTick(() => {
-    if (scrollContainer.value) {
-      const el = scrollContainer.value.$el
-      el.scrollTop = el.scrollHeight
-    }
-  })
-})
-
-watch(title, () => {
-  noMoreActivities.value = false
-  isLoadingMore.value = false
-})
 
 function sendTemplate(template) {
   showWhatsappTemplates.value = false
@@ -739,55 +745,78 @@ function get_activities() {
 }
 
 const activities = computed(() => {
+  if (!all_activities.data) return []
+  
   let _activities = []
   if (title.value == 'Activity') {
     _activities = get_activities()
   } else if (title.value == 'Emails') {
-    if (!all_activities.data?.versions) return []
-    _activities = all_activities.data.versions.filter(
+    _activities = all_activities.data.versions?.filter(
       (activity) => activity.activity_type === 'communication' && 
          activity.communication_medium !== 'Phone' && 
          activity.communication_medium !== 'Chat',
-    )
+    ) || []
+    if (!_activities.length) {
+      noMoreActivities.value = true
+    }
   } else if (title.value == 'Comments') {
-    if (!all_activities.data?.versions) return []
-    _activities = all_activities.data.versions.filter(
+    _activities = all_activities.data.versions?.filter(
       (activity) => activity.activity_type === 'comment',
-    )
+    ) || []
+    if (!_activities.length) {
+      noMoreActivities.value = true
+    }
   } else if (title.value == 'Calls') {
-    if (!all_activities.data?.calls) return []
-    return sortByCreation(all_activities.data.calls)
+    const calls = sortByCreation(all_activities.data.calls || [])
+    if (!calls.length) {
+      noMoreActivities.value = true
+    }
+    return calls
   } else if (title.value == 'Tasks') {
-    if (!all_activities.data?.tasks) return []
-    return sortByModified(all_activities.data.tasks)
+    const tasks = sortByModified(all_activities.data.tasks || [])
+    if (!tasks.length) {
+      noMoreActivities.value = true
+    }
+    return tasks
   } else if (title.value == 'Notes') {
-    if (!all_activities.data?.notes) return []
-    return sortByModified(all_activities.data.notes)
+    const notes = sortByModified(all_activities.data.notes || [])
+    if (!notes.length) {
+      noMoreActivities.value = true
+    }
+    return notes
   } else if (title.value == 'Attachments') {
-    if (!all_activities.data?.attachments) return []
-    return sortByModified(all_activities.data.attachments)
+    const attachments = sortByModified(all_activities.data.attachments || [])
+    if (!attachments.length) {
+      noMoreActivities.value = true
+    }
+    return attachments
   }
 
-  _activities.forEach((activity) => {
-    activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
+  if (_activities.length) {
+    _activities.forEach((activity) => {
+      activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
 
-    if (
-      activity.activity_type == 'incoming_call' ||
-      activity.activity_type == 'outgoing_call' ||
-      activity.activity_type == 'communication'
-    )
-      return
+      if (
+        activity.activity_type == 'incoming_call' ||
+        activity.activity_type == 'outgoing_call' ||
+        activity.activity_type == 'communication'
+      )
+        return
 
-    update_activities_details(activity)
+      update_activities_details(activity)
 
-    if (activity.other_versions) {
-      activity.show_others = false
-      activity.other_versions.forEach((other_version) => {
-        update_activities_details(other_version)
-      })
-    }
-  })
-  return sortByCreation(_activities)
+      if (activity.other_versions) {
+        activity.show_others = false
+        activity.other_versions.forEach((other_version) => {
+          update_activities_details(other_version)
+        })
+      }
+    })
+    return sortByCreation(_activities)
+  }
+  
+  noMoreActivities.value = true
+  return []
 })
 
 function sortByCreation(list) {
@@ -941,6 +970,90 @@ function formatActivityDate(date, format) {
   if (!date) return ''
   return dayjs(date).format(format)
 }
+
+const showWhatsappTemplates = ref(false)
+
+const whatsappMessages = createResource({
+  url: 'crm.api.whatsapp.get_whatsapp_messages',
+  cache: ['whatsapp_messages', doc.value.data.name],
+  params: {
+    reference_doctype: props.doctype,
+    reference_name: doc.value.data.name,
+  },
+  auto: true,
+  transform: (data) => sortByCreation(data),
+  onSuccess: () => nextTick(() => scroll()),
+})
+
+const avitoMessages = createResource({
+  url: 'crm.api.avito.get_avito_messages',
+  cache: ['avito_messages', doc.value.data.name],
+  params: {
+    reference_doctype: props.doctype,
+    reference_name: doc.value.data.name,
+  },
+  auto: true,
+  transform: (data) => sortByCreation(data),
+  onSuccess: () => nextTick(() => scroll()),
+})
+
+onBeforeUnmount(() => {
+  $socket.off('whatsapp_message')
+  $socket.off('avito_message')
+  $socket.off('activity_update')
+})
+
+onMounted(() => {
+  // Setup socket event handlers
+  const handleWhatsAppMessage = (data) => {
+    if (data.reference_doctype === props.doctype && 
+        data.reference_name === doc.value.data.name) {
+      whatsappMessages.reload()
+      reloadDebounced()
+    }
+  }
+
+  const handleAvitoMessage = (data) => {
+    if (data.reference_doctype === props.doctype && 
+        data.reference_name === doc.value.data.name) {
+      avitoMessages.reload()
+      reloadDebounced()
+    }
+  }
+
+  // Attach event listeners
+  $socket.on('whatsapp_message', handleWhatsAppMessage)
+  $socket.on('avito_message', handleAvitoMessage)
+
+  // Initial scroll setup
+  nextTick(() => {
+    const hash = route.hash.slice(1) || null
+    let tabNames = props.tabs?.map((tab) => tab.name)
+    if (!tabNames?.includes(hash)) {
+      scroll(hash)
+    }
+  })
+
+  // Scroll to bottom to show latest activities
+  nextTick(() => {
+    if (scrollContainer.value) {
+      const el = scrollContainer.value.$el
+      el.scrollTop = el.scrollHeight
+    }
+  })
+})
+
+// Update scroll position after tab change
+watch(title, () => {
+  noMoreActivities.value = false
+  isLoadingMore.value = false
+  nextTick(() => {
+    if (scrollContainer.value) {
+      const el = scrollContainer.value.$el
+      el.scrollTop = el.scrollHeight
+    }
+  })
+})
 
 defineExpose({ emailBox, all_activities })
 </script>

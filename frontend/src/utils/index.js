@@ -1,3 +1,4 @@
+import { getMeta } from '@/stores/meta'
 import TaskStatusIcon from '@/components/Icons/TaskStatusIcon.vue'
 import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import { usersStore } from '@/stores/users'
@@ -117,27 +118,38 @@ export function extractLabel(field, translator) {
 const taskMeta = getMeta('CRM Task')
 
 export function taskStatusOptions(action, data) {
-  return ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'].map(
-    (status) => {
-      const translatedLabel = translateTaskStatus(status)
-      return {
-        icon: () => h(TaskStatusIcon, { status }),
-        label: translatedLabel,
-        value: status,
-        onClick: () => action && action(extractValue(status), data),
-      }
-    },
-  )
+  let options = ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled']
+  let statusMeta = taskMeta.getFields()?.find((field) => field.fieldname == 'status')
+  if (statusMeta) {
+    options = statusMeta.options
+      .map((option) => option.value)
+      .filter((option) => option)
+  }
+  return options.map((status) => {
+    return {
+      icon: () => h(TaskStatusIcon, { status }),
+      label: translateTaskStatus(status),
+      value: status,
+      onClick: () => action && action(status, data),
+    }
+  })
 }
 
 export function taskPriorityOptions(action, data) {
-  return ['Low', 'Medium', 'High'].map((priority) => {
-    const translatedLabel = translateTaskPriority(priority)
+  let options = ['Low', 'Medium', 'High']
+  let priorityMeta = taskMeta.getFields()?.find((field) => field.fieldname == 'priority')
+  if (priorityMeta) {
+    options = priorityMeta.options
+      .map((option) => option.value)
+      .filter((option) => option)
+  }
+
+  return options.map((priority) => {
     return {
-      label: translatedLabel,
+      label: translateTaskPriority(priority),
       value: priority,
       icon: () => h(TaskPriorityIcon, { priority }),
-      onClick: () => action && action(extractValue(priority), data),
+      onClick: () => action && action(priority, data),
     }
   })
 }

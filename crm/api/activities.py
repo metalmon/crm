@@ -171,6 +171,7 @@ def get_lead_activities(name, limit=20, offset=0):
 		"owner": doc[1],
 		"data": _("created this lead"),
 		"is_lead": True,
+		"name": f"{name}_creation"
 		}
 	]
 
@@ -214,6 +215,7 @@ def get_lead_activities(name, limit=20, offset=0):
 				}
 
 		activity = {
+			"name": version.name,
 			"activity_type": activity_type,
 			"creation": version.creation,
 			"owner": version.owner,
@@ -237,7 +239,8 @@ def get_lead_activities(name, limit=20, offset=0):
 
 	for communication in docinfo.communications + docinfo.automated_messages:
 		activity = prepare_communication_activity(communication, is_lead=True)
-		activities.append(activity)
+		if activity.get("name"):
+			activities.append(activity)
 
 	for attachment_log in docinfo.attachment_logs:
 		activity = {
@@ -260,6 +263,22 @@ def get_lead_activities(name, limit=20, offset=0):
 
 	total_count = len(activities)
 	activities = activities[offset:offset + limit]
+
+	for item in calls:
+		if not item.get("name"):
+			item["name"] = f"call_{item.get('creation')}"
+	
+	for item in notes:
+		if not item.get("name"):
+			item["name"] = f"note_{item.get('creation')}"
+			
+	for item in tasks:
+		if not item.get("name"):
+			item["name"] = f"task_{item.get('creation')}"
+			
+	for item in attachments:
+		if not item.get("name"):
+			item["name"] = f"attachment_{item.get('creation')}"
 
 	return activities, calls, notes, tasks, attachments
 
