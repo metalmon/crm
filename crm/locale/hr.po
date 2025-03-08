@@ -1,20 +1,22 @@
-# Translations template for Frappe CRM.
-# Copyright (C) 2025 Frappe Technologies Pvt. Ltd.
-# This file is distributed under the same license as the Frappe CRM project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
-#
 msgid ""
 msgstr ""
-"Project-Id-Version: Frappe CRM VERSION\n"
+"Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
 "POT-Creation-Date: 2025-03-05 16:31+0553\n"
-"PO-Revision-Date: 2025-03-05 16:31+0553\n"
+"PO-Revision-Date: 2025-03-07 11:57\n"
 "Last-Translator: shariq@frappe.io\n"
-"Language-Team: shariq@frappe.io\n"
+"Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Crowdin-Project: frappe\n"
+"X-Crowdin-Project-ID: 639578\n"
+"X-Crowdin-Language: hr\n"
+"X-Crowdin-File: /[frappe.crm] develop/crm/locale/main.pot\n"
+"X-Crowdin-File-ID: 97\n"
+"Language: hr_HR\n"
 
 #: frontend/src/components/ViewControls.vue:1201
 msgid " (New)"
@@ -595,7 +597,7 @@ msgstr ""
 
 #: frontend/src/components/ViewControls.vue:270
 msgid "CSV"
-msgstr ""
+msgstr "CSV"
 
 #: frontend/src/components/Modals/CallLogDetailModal.vue:8
 msgid "Call Details"
@@ -1112,7 +1114,7 @@ msgstr ""
 
 #: frontend/src/components/ListBulkActions.vue:114
 msgid "Deleted successfully"
-msgstr ""
+msgstr "Uspješno izbrisano"
 
 #. Label of the description (Text Editor) field in DocType 'CRM Holiday'
 #. Label of the description (Text Editor) field in DocType 'CRM Task'
@@ -1707,7 +1709,7 @@ msgstr ""
 
 #: frontend/src/components/GroupBy.vue:8
 msgid "Group By: "
-msgstr ""
+msgstr "Grupiši po: "
 
 #: frontend/src/components/CommunicationArea.vue:58
 msgid "Hi John, \\n\\nCan you please provide more details on this..."
@@ -1950,7 +1952,7 @@ msgstr ""
 #: frontend/src/components/ViewControls.vue:381
 #: frontend/src/components/ViewControls.vue:583 frontend/src/utils/view.js:20
 msgid "Kanban"
-msgstr ""
+msgstr "Oglasna Tabla"
 
 #. Label of the kanban_columns (Code) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
@@ -2255,7 +2257,7 @@ msgstr ""
 #. Label of the mobile_no (Data) field in DocType 'CRM Telephony Agent'
 #: crm/fcrm/doctype/crm_telephony_agent/crm_telephony_agent.json
 msgid "Mobile No."
-msgstr ""
+msgstr "Broj mobilnog."
 
 #: frontend/src/components/Telephony/CallUI.vue:22
 msgid "Mobile Number"
@@ -2788,7 +2790,7 @@ msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploader.vue:170
 msgid "Please enter a valid URL"
-msgstr ""
+msgstr "Unesi važeći URL"
 
 #: frontend/src/pages/Lead.vue:601 frontend/src/pages/MobileLead.vue:435
 msgid "Please select an existing contact"
@@ -3891,7 +3893,7 @@ msgstr ""
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "black"
-msgstr ""
+msgstr "crna"
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'
@@ -3945,7 +3947,7 @@ msgstr ""
 #. Option for the 'Type' (Select) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "kanban"
-msgstr ""
+msgstr "oglasna Tabla"
 
 #: crm/api/doc.py:38 crm/api/doc.py:156 crm/api/doc.py:500
 msgid "label"
@@ -3963,7 +3965,7 @@ msgstr ""
 
 #: frontend/src/components/FieldLayoutEditor.vue:374
 msgid "next"
-msgstr ""
+msgstr "sljedeći"
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'
@@ -3981,15 +3983,15 @@ msgstr ""
 
 #: frontend/src/components/FieldLayoutEditor.vue:374
 msgid "previous"
-msgstr ""
+msgstr "prethodno"
 
 #: frontend/src/components/Activities/AttachmentArea.vue:97
 msgid "private"
-msgstr ""
+msgstr "privatno"
 
 #: frontend/src/components/Activities/AttachmentArea.vue:97
 msgid "public"
-msgstr ""
+msgstr "javno"
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'
@@ -4022,7 +4024,7 @@ msgstr ""
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "violet"
-msgstr ""
+msgstr "ljubičasta"
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'

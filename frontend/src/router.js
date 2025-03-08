@@ -193,9 +193,8 @@ router.beforeEach(async (to, from, next) => {
     let { route_name, type, name, is_standard } = defaultView
     route_name = route_name || 'Leads'
 
-    // If there's a saved view, respect its type
-    if (name) {
-      next({ name: route_name, params: { viewType: type || 'list' }, query: { view: name } })
+    if (name && !is_standard) {
+      next({ name: route_name, params: { viewType: type }, query: { view: name } })
     } else {
       // For standard views without explicit type, use our default
       next({ name: route_name, params: { viewType: type || getDefaultViewType(route_name) } })

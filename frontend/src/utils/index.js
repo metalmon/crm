@@ -114,6 +114,8 @@ export function extractLabel(field, translator) {
   return translator ? translator(field) : field
 }
 
+const taskMeta = getMeta('CRM Task')
+
 export function taskStatusOptions(action, data) {
   return ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'].map(
     (status) => {
