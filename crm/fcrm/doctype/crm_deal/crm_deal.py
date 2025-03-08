@@ -244,7 +244,25 @@ def set_primary_contact(deal, contact):
 		frappe.throw(_("Not allowed to set primary contact for Deal"), frappe.PermissionError)
 
 	deal = frappe.get_cached_doc("CRM Deal", deal)
+	
+	# Set primary contact in the contacts table
 	deal.set_primary_contact(contact)
+	
+	# Update deal fields with contact's personal data
+	if contact:
+		from crm.api.contact import get_contact_personal_data
+		contact_data = get_contact_personal_data(contact)
+		
+		# Update deal fields with contact personal data
+		if contact_data:
+			deal.update({
+				"first_name": contact_data.get("first_name", ""),
+				"last_name": contact_data.get("last_name", ""),
+				"salutation": contact_data.get("salutation", ""),
+				"email": contact_data.get("email", ""),
+				"mobile_no": contact_data.get("mobile_no", "")
+			})
+	
 	deal.save()
 	return True
 
