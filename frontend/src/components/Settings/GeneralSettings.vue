@@ -90,6 +90,23 @@
         </div>
       </div>
 
+      <!-- Lead conversion status -->
+      <div class="flex flex-col justify-between gap-4">
+        <span class="text-base font-semibold text-ink-gray-9">
+          {{ __('Lead Conversion') }}
+        </span>
+        <div class="flex w-full">
+          <FormControl
+            type="select"
+            class="w-1/2"
+            v-model="settings.doc.default_converted_lead_status"
+            :label="__('Default Status for Converted Lead')"
+            :options="[{ label: '', value: '' }, ...statusOptions('deal')]"
+            :description="__('Status that will be set when lead is converted to deal. Leave empty to use first status by position.')"
+          />
+        </div>
+      </div>
+
       <!-- Home actions -->
 
       <div class="flex flex-col justify-between gap-4">
@@ -123,8 +140,10 @@ import Grid from '@/components/Controls/Grid.vue'
 import { FormControl, Badge, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { showSettings } from '@/composables/settings'
+import { statusesStore } from '@/stores/statuses'
 
 const { _settings: settings, setupBrand } = getSettings()
+const { statusOptions } = statusesStore()
 
 function updateSettings() {
   settings.save.submit(null, {

@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "defaults_tab",
+  "default_converted_lead_status",
   "restore_defaults",
   "branding_tab",
   "brand_name",
@@ -29,6 +30,13 @@
    "fieldname": "defaults_tab",
    "fieldtype": "Tab Break",
    "label": "Defaults"
+  },
+  {
+   "fieldname": "default_converted_lead_status",
+   "fieldtype": "Link",
+   "label": "Default Status for Converted Lead",
+   "description": "Status that will be set when lead is converted to deal. Leave empty to use first status by position.",
+   "options": "CRM Deal Status"
   },
   {
    "fieldname": "branding_tab",

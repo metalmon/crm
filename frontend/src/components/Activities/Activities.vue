@@ -707,7 +707,7 @@ async function loadMore() {
     all_activities.data.attachments = mergeUniqueById(all_activities.data.attachments, attachments)
 
     // After data is updated and DOM is re-rendered, restore scroll position
-    nextTick(() => {
+  nextTick(() => {
       const newScrollHeight = scrollEl.scrollHeight
       const heightDiff = newScrollHeight - oldScrollHeight
       scrollEl.scrollTop = oldScrollTop + heightDiff
@@ -793,26 +793,26 @@ const activities = computed(() => {
   }
 
   if (_activities.length) {
-    _activities.forEach((activity) => {
-      activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
+  _activities.forEach((activity) => {
+    activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
 
-      if (
-        activity.activity_type == 'incoming_call' ||
-        activity.activity_type == 'outgoing_call' ||
-        activity.activity_type == 'communication'
-      )
-        return
+    if (
+      activity.activity_type == 'incoming_call' ||
+      activity.activity_type == 'outgoing_call' ||
+      activity.activity_type == 'communication'
+    )
+      return
 
-      update_activities_details(activity)
+    update_activities_details(activity)
 
-      if (activity.other_versions) {
-        activity.show_others = false
-        activity.other_versions.forEach((other_version) => {
-          update_activities_details(other_version)
-        })
-      }
-    })
-    return sortByCreation(_activities)
+    if (activity.other_versions) {
+      activity.show_others = false
+      activity.other_versions.forEach((other_version) => {
+        update_activities_details(other_version)
+      })
+    }
+  })
+  return sortByCreation(_activities)
   }
   
   noMoreActivities.value = true

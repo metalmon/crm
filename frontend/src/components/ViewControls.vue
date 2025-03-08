@@ -218,6 +218,12 @@
                   icon: () => h(QuickFilterIcon, { class: 'h-4 w-4' }),
                   onClick: () => showCustomizeQuickFilter(),
                 },
+                {
+                  label: __('Reset column settings'),
+                  icon: () => h(RefreshIcon, { class: 'h-4 w-4' }),
+                  onClick: () => resetColumnSettings(),
+                  condition: () => route.params.viewType === 'kanban',
+                },
               ],
             },
           ]"
@@ -965,7 +971,115 @@ function updateColumns(obj) {
   }
 }
 
+function resetColumnSettings() {
+  if (!defaultParams.value) {
+    defaultParams.value = getParams()
+  }
+  
+  // Get the current column field
+  const columnField = list.value.params.column_field || defaultParams.value.column_field
+  
+  // Show a loading indicator - with auto-dismiss (short duration)
+  createToast({
+    title: __('Resetting columns...'),
+    text: __('Fetching latest status values'),
+    icon: 'refresh-cw',
+    position: 'bottom-right',
+    iconClasses: 'animate-spin',
+    duration: 3000 // Short duration with auto-dismiss
+  })
+  
+  // Reset the columns directly via a special API call
+  call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
+    doctype: props.doctype,
+    column_field: columnField
+  }).then((newColumns) => {
+    // Clear local columns data
+    list.value.params.kanban_columns = ''
+    view.value.kanban_columns = ''
+    
+    // Force reload
+    reload()
+    
+    // Show success message
+    createToast({
+      title: __('Success'),
+      text: __('Column settings have been reset'),
+      icon: 'check',
+      position: 'bottom-right',
+    })
+  }).catch((error) => {
+    // Show error message
+    createToast({
+      title: __('Error'),
+      text: __('Failed to reset column settings: ') + (error.message || __('Unknown error')),
+      icon: 'alert-triangle',
+      position: 'bottom-right',
+    })
+  })
+}
+
+function applyFilter({ event, idx, column, item, firstColumn }) {
+  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
+  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
+  if (idx === 1 && firstColumn.key == '_liked_by') return
+
+  event.stopPropagation()
+  event.preventDefault()
+
+  let filters = { ...list.value.params.filters }
+
+  let value = item
+  // For status field, use the original value (name) instead of translated label
+  if (column.key === 'status' && typeof item === 'object') {
+    value = item.name || item.value || item
+  } else {
+    value = item.name || item.label || item
+  }
+
+  if (value) {
+    filters[column.key] = value
+  } else {
+    delete filters[column.key]
+  }
+
+  if (column.key == '_assign') {
+    if (item.length > 1) {
+      let target = event.target.closest('.user-avatar')
+      if (target) {
+        let name = target.getAttribute('data-name')
+        filters['_assign'] = ['LIKE', `%${name}%`]
+      }
+    } else {
+      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
+    }
+  }
+  updateFilter(filters)
+}
+
+function applyLikeFilter() {
+  let filters = { ...list.value.params.filters }
+  if (!filters._liked_by) {
+    filters['_liked_by'] = ['LIKE', '%@me%']
+  } else {
+    delete filters['_liked_by']
+  }
+  updateFilter(filters)
+}
+
+function likeDoc({ name, liked }) {
+  createResource({
+    url: 'frappe.desk.like.toggle_like',
+    params: { doctype: props.doctype, name: name, add: liked ? 'No' : 'Yes' },
+    auto: true,
+    onSuccess: () => reload(),
+  })
+}
+
 async function updateKanbanSettings(data) {
+  // Special handling for column reset requests
+  const isResetRequest = data._force_reload && data.kanban_columns === '';
+  
   if (data.item && data.to) {
     await call('frappe.client.set_value', {
       doctype: props.doctype,
@@ -981,10 +1095,25 @@ async function updateKanbanSettings(data) {
     defaultParams.value = getParams()
   }
   list.value.params = defaultParams.value
-  if (data.kanban_columns) {
-    list.value.params.kanban_columns = data.kanban_columns
-    view.value.kanban_columns = data.kanban_columns
+  
+  if (isResetRequest) {
+    // For reset requests, explicitly clear columns and force a sync 
+    console.log('Resetting kanban columns to fresh data from directory')
+    list.value.params.kanban_columns = ''
+    view.value.kanban_columns = ''
+    // Call backend to sync the default columns
+    await call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
+      doctype: props.doctype,
+      column_field: data.column_field || view.value.column_field
+    })
+  } else {
+    // Normal updates
+    if (data.kanban_columns) {
+      list.value.params.kanban_columns = data.kanban_columns
+      view.value.kanban_columns = data.kanban_columns
+    }
   }
+  
   if (data.kanban_fields) {
     list.value.params.kanban_fields = data.kanban_fields
     view.value.kanban_fields = data.kanban_fields
@@ -1004,7 +1133,7 @@ async function updateKanbanSettings(data) {
 
   if (!route.query.view) {
     createOrUpdateStandardView()
-  } else if (!data.column_field) {
+  } else if (!data.column_field && !isResetRequest) {
     if (isDirty) {
       $dialog({
         title: __('Unsaved Changes'),
@@ -1320,63 +1449,6 @@ function saveView() {
   showViewModal.value = true
 }
 
-function applyFilter({ event, idx, column, item, firstColumn }) {
-  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
-  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
-  if (idx === 1 && firstColumn.key == '_liked_by') return
-
-  event.stopPropagation()
-  event.preventDefault()
-
-  let filters = { ...list.value.params.filters }
-
-  let value = item
-  // For status field, use the original value (name) instead of translated label
-  if (column.key === 'status' && typeof item === 'object') {
-    value = item.name || item.value || item
-  } else {
-    value = item.name || item.label || item
-  }
-
-  if (value) {
-    filters[column.key] = value
-  } else {
-    delete filters[column.key]
-  }
-
-  if (column.key == '_assign') {
-    if (item.length > 1) {
-      let target = event.target.closest('.user-avatar')
-      if (target) {
-        let name = target.getAttribute('data-name')
-        filters['_assign'] = ['LIKE', `%${name}%`]
-      }
-    } else {
-      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
-    }
-  }
-  updateFilter(filters)
-}
-
-function applyLikeFilter() {
-  let filters = { ...list.value.params.filters }
-  if (!filters._liked_by) {
-    filters['_liked_by'] = ['LIKE', '%@me%']
-  } else {
-    delete filters['_liked_by']
-  }
-  updateFilter(filters)
-}
-
-function likeDoc({ name, liked }) {
-  createResource({
-    url: 'frappe.desk.like.toggle_like',
-    params: { doctype: props.doctype, name: name, add: liked ? 'No' : 'Yes' },
-    auto: true,
-    onSuccess: () => reload(),
-  })
-}
-
 defineExpose({
   applyFilter,
   applyLikeFilter,
@@ -1386,6 +1458,7 @@ defineExpose({
   viewActions,
   viewsDropdownOptions,
   currentView,
+  resetColumnSettings,
 })
 
 // Watchers

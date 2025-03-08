@@ -407,12 +407,33 @@ def convert_to_deal(lead, doc=None, deal=None):
 		frappe.throw(_("Not allowed to convert Lead to Deal"), frappe.PermissionError)
 
 	lead = frappe.get_cached_doc("CRM Lead", lead)
-	if frappe.db.exists("CRM Lead Status", "Qualified"):
-		lead.db_set("status", "Qualified")
+	
+	# Get default status from settings
+	settings = frappe.get_single("FCRM Settings")
+	default_status = settings.default_converted_lead_status
+	
+	# If no default status is set, get the first status by position
+	if not default_status:
+		first_status = frappe.get_all(
+			"CRM Deal Status",
+			filters={},
+			order_by="position asc",
+			limit=1,
+			pluck="deal_status"
+		)
+		default_status = first_status[0] if first_status else None
+	
+	# Create new deal with the status
 	lead.db_set("converted", 1)
 	if lead.sla and frappe.db.exists("CRM Communication Status", "Replied"):
 		lead.db_set("communication_status", "Replied")
 	contact = lead.create_contact(False)
 	organization = lead.create_organization()
-	_deal = lead.create_deal(contact, organization, deal)
+	
+	# Create deal with status
+	deal_data = deal or {}
+	if default_status:
+		deal_data["status"] = default_status
+	
+	_deal = lead.create_deal(contact, organization, deal_data)
 	return _deal
