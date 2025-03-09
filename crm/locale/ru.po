@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-08 19:36+0000\n"
-"PO-Revision-Date: 2025-03-08 22:38+0300\n"
+"POT-Creation-Date: 2025-03-09 12:55+0000\n"
+"PO-Revision-Date: 2025-03-09 16:56+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.13.1\n"
 "X-Generator: Poedit 3.5\n"
 
-#: frontend/src/components/ViewControls.vue:1379
+#: frontend/src/components/ViewControls.vue:1394
 msgid " (New)"
 msgstr " (Новый)"
 
@@ -167,8 +167,8 @@ msgid "Account SID"
 msgstr "SID аккаунта"
 
 #: frontend/src/components/CustomActions.vue:73
-#: frontend/src/components/ViewControls.vue:881
-#: frontend/src/components/ViewControls.vue:1273
+#: frontend/src/components/ViewControls.vue:882
+#: frontend/src/components/ViewControls.vue:1288
 msgid "Actions"
 msgstr "Действия"
 
@@ -365,7 +365,7 @@ msgstr "Вы уверены, что хотите удалить эту зада�
 msgid "Are you sure you want to delete {0} item(s)?"
 msgstr "Вы уверены, что хотите удалить {0} элемент(ов)?"
 
-#: frontend/src/components/ViewControls.vue:1330
+#: frontend/src/components/ViewControls.vue:1345
 msgid "Are you sure you want to delete {0} view?"
 msgstr "Вы уверены, что хотите удалить вид {0}?"
 
@@ -832,7 +832,7 @@ msgstr "Колонка"
 msgid "Column Field"
 msgstr "Поле колонки"
 
-#: frontend/src/components/ViewControls.vue:1007
+#: frontend/src/components/ViewControls.vue:1022
 msgid "Column settings have been reset"
 msgstr "Настройки колонок были сброшены"
 
@@ -926,7 +926,7 @@ msgstr "Контакт уже добавлен"
 msgid "Contact already exists with {0}"
 msgstr "Контакт уже существует с {0}"
 
-#: crm/api/contact.py:73
+#: crm/api/contact.py:164
 msgid "Contact not found"
 msgstr "Контакт не найден"
 
@@ -1044,7 +1044,7 @@ msgid "Create Task"
 msgstr "Создать задачу"
 
 #: frontend/src/components/Modals/ViewModal.vue:9
-#: frontend/src/components/ViewControls.vue:885
+#: frontend/src/components/ViewControls.vue:886
 msgid "Create View"
 msgstr "Создать представление"
 
@@ -1196,8 +1196,8 @@ msgstr "По умолчанию"
 #: frontend/src/components/ListBulkActions.vue:94
 #: frontend/src/components/ListBulkActions.vue:100
 #: frontend/src/components/ListBulkActions.vue:180
-#: frontend/src/components/ViewControls.vue:1325
-#: frontend/src/components/ViewControls.vue:1334
+#: frontend/src/components/ViewControls.vue:1340
+#: frontend/src/components/ViewControls.vue:1349
 #: frontend/src/pages/Contact.vue:131 frontend/src/pages/Contact.vue:141
 #: frontend/src/pages/Contact.vue:328 frontend/src/pages/MobileContact.vue:107
 #: frontend/src/pages/MobileContact.vue:320
@@ -1221,8 +1221,8 @@ msgstr "Удалить приглашение"
 msgid "Delete Task"
 msgstr "Удалить задачу"
 
-#: frontend/src/components/ViewControls.vue:1321
-#: frontend/src/components/ViewControls.vue:1329
+#: frontend/src/components/ViewControls.vue:1336
+#: frontend/src/components/ViewControls.vue:1344
 msgid "Delete View"
 msgstr "Удалиить представление"
 
@@ -1283,6 +1283,16 @@ msgstr "Устройство"
 msgid "Disable"
 msgstr "Отключить"
 
+#: frontend/src/components/Settings/GeneralSettings.vue:120
+msgid "Disable Kanban Realtime Updates"
+msgstr "Отключить обновления канбан досок в реальном времени"
+
+#. Label of the disable_realtime_updates (Check) field in DocType 'FCRM
+#. Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "Disable Realtime Updates"
+msgstr "Отключить обновления в реальном времени"
+
 #: frontend/src/components/CommentBox.vue:76
 #: frontend/src/components/EmailEditor.vue:156
 msgid "Discard"
@@ -1340,7 +1350,7 @@ msgid "Due Date"
 msgstr "Срок исполнения"
 
 #: frontend/src/components/Modals/ViewModal.vue:15
-#: frontend/src/components/ViewControls.vue:1277
+#: frontend/src/components/ViewControls.vue:1292
 msgid "Duplicate"
 msgstr "Дублировать"
 
@@ -1398,7 +1408,7 @@ msgstr "ERP не интегрирована с CRM"
 #: frontend/src/components/FieldLayoutEditor.vue:324
 #: frontend/src/components/FieldLayoutEditor.vue:350
 #: frontend/src/components/ListBulkActions.vue:173
-#: frontend/src/components/ViewControls.vue:1295
+#: frontend/src/components/ViewControls.vue:1310
 msgid "Edit"
 msgstr "Редактировать"
 
@@ -1565,7 +1575,7 @@ msgstr "Равно"
 #: frontend/src/components/Settings/SettingsPage.vue:91
 #: frontend/src/components/Settings/TelephonySettings.vue:131
 #: frontend/src/components/Settings/TelephonySettings.vue:156
-#: frontend/src/components/ViewControls.vue:1014
+#: frontend/src/components/ViewControls.vue:1029
 #: frontend/src/pages/Lead.vue:581 frontend/src/pages/Lead.vue:591
 #: frontend/src/pages/MobileLead.vue:502 frontend/src/pages/MobileLead.vue:512
 msgid "Error"
@@ -1693,7 +1703,7 @@ msgstr "Не удалось"
 msgid "Failed to capture Twilio recording"
 msgstr "Не удалось получить запись Twilio"
 
-#: frontend/src/components/ViewControls.vue:1015
+#: frontend/src/components/ViewControls.vue:1030
 msgid "Failed to reset column settings: "
 msgstr "Не удалось сбросить настройки колонки: "
 
@@ -1715,7 +1725,7 @@ msgstr "Фавикон"
 msgid "Female"
 msgstr "Женский"
 
-#: frontend/src/components/ViewControls.vue:985
+#: frontend/src/components/ViewControls.vue:986
 msgid "Fetching latest status values"
 msgstr "Получение последних значений статуса"
 
@@ -1872,8 +1882,8 @@ msgstr "Строки сетки"
 
 #. Label of the group_by_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
-#: frontend/src/components/ViewControls.vue:555
-#: frontend/src/components/ViewControls.vue:809 frontend/src/utils/view.js:16
+#: frontend/src/components/ViewControls.vue:556
+#: frontend/src/components/ViewControls.vue:810 frontend/src/utils/view.js:16
 msgid "Group By"
 msgstr "Группировать по"
 
@@ -1942,7 +1952,7 @@ msgstr "Название списка праздников"
 msgid "Holidays"
 msgstr "Выходные"
 
-#: frontend/src/components/Settings/GeneralSettings.vue:114
+#: frontend/src/components/Settings/GeneralSettings.vue:130
 msgid "Home actions"
 msgstr "Главные действия"
 
@@ -2131,8 +2141,8 @@ msgstr "Мусор"
 
 #. Label of the kanban_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
-#: frontend/src/components/ViewControls.vue:560
-#: frontend/src/components/ViewControls.vue:798 frontend/src/utils/view.js:20
+#: frontend/src/components/ViewControls.vue:561
+#: frontend/src/components/ViewControls.vue:799 frontend/src/utils/view.js:20
 msgid "Kanban"
 msgstr "Канбан"
 
@@ -2300,8 +2310,8 @@ msgstr "Ссылки"
 #. Label of the list_tab (Tab Break) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
-#: frontend/src/components/ViewControls.vue:550
-#: frontend/src/components/ViewControls.vue:787 frontend/src/utils/view.js:12
+#: frontend/src/components/ViewControls.vue:551
+#: frontend/src/components/ViewControls.vue:788 frontend/src/utils/view.js:12
 msgid "List"
 msgstr "Список"
 
@@ -2370,11 +2380,11 @@ msgstr "Низкий"
 msgid "Make Call"
 msgstr "Позвонить"
 
-#: frontend/src/components/ViewControls.vue:1310
+#: frontend/src/components/ViewControls.vue:1325
 msgid "Make Private"
 msgstr "Сделать личным"
 
-#: frontend/src/components/ViewControls.vue:1310
+#: frontend/src/components/ViewControls.vue:1325
 msgid "Make Public"
 msgstr "Сделать публичным"
 
@@ -2521,7 +2531,7 @@ msgstr "Мои открытые сделки"
 #: crm/api/doc.py:346 crm/fcrm/doctype/crm_dropdown_item/crm_dropdown_item.json
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
 #: frontend/src/components/Modals/EmailTemplateModal.vue:24
-#: frontend/src/components/ViewControls.vue:466
+#: frontend/src/components/ViewControls.vue:467
 #: frontend/src/pages/MobileOrganization.vue:530
 #: frontend/src/pages/Organization.vue:539
 msgid "Name"
@@ -3103,7 +3113,7 @@ msgstr "Номера телефонов"
 msgid "Phone call"
 msgstr "Телефонный звонок"
 
-#: frontend/src/components/ViewControls.vue:1302
+#: frontend/src/components/ViewControls.vue:1317
 msgid "Pin View"
 msgstr "Закрепить вид"
 
@@ -3112,7 +3122,7 @@ msgstr "Закрепить вид"
 msgid "Pinned"
 msgstr "Закреплено"
 
-#: frontend/src/components/ViewControls.vue:875
+#: frontend/src/components/ViewControls.vue:876
 msgid "Pinned Views"
 msgstr "Сохраненные виды"
 
@@ -3199,7 +3209,7 @@ msgstr "КП/Заявка"
 msgid "Public"
 msgstr "Публичное"
 
-#: frontend/src/components/ViewControls.vue:870
+#: frontend/src/components/ViewControls.vue:871
 msgid "Public Views"
 msgstr "Общие представления"
 
@@ -3231,7 +3241,7 @@ msgstr "Быстрый ввод"
 msgid "Quick Filters"
 msgstr "Быстрые фильтры"
 
-#: frontend/src/components/ViewControls.vue:417
+#: frontend/src/components/ViewControls.vue:418
 msgid "Quick Filters updated successfully"
 msgstr "Быстрые фильтры успешно обновлены"
 
@@ -3243,6 +3253,16 @@ msgstr "Прочитано"
 #: frontend/src/utils/dealStatusTranslations.js:10
 msgid "Ready to Close"
 msgstr "Готов"
+
+#. Label of the realtime_settings_tab (Tab Break) field in DocType 'FCRM
+#. Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "Realtime Settings"
+msgstr "Настройки реального времени"
+
+#: frontend/src/components/Settings/GeneralSettings.vue:113
+msgid "Realtime Updates"
+msgstr "Обновления в режиме реального времени"
 
 #. Label of the record_calls (Check) field in DocType 'CRM Twilio Settings'
 #. Label of the record_calls (Check) field in DocType 'Twilio Settings'
@@ -3375,7 +3395,7 @@ msgstr "Сброс настроек колонок"
 msgid "Reset to Default"
 msgstr "Восстановить значения по умолчанию"
 
-#: frontend/src/components/ViewControls.vue:984
+#: frontend/src/components/ViewControls.vue:985
 msgid "Resetting columns..."
 msgstr "Сброс колонок..."
 
@@ -3590,7 +3610,7 @@ msgstr "Сохранить"
 msgid "Save Changes"
 msgstr "Сохранить изменения"
 
-#: frontend/src/components/ViewControls.vue:865
+#: frontend/src/components/ViewControls.vue:866
 msgid "Saved Views"
 msgstr "Сохраненные виды"
 
@@ -3690,7 +3710,7 @@ msgstr "Установите все как общедоступные"
 msgid "Set as Primary Contact"
 msgstr "Установить как основной"
 
-#: frontend/src/components/ViewControls.vue:1287
+#: frontend/src/components/ViewControls.vue:1302
 msgid "Set as default"
 msgstr "Установить по умолчанию"
 
@@ -3776,7 +3796,7 @@ msgstr "Название источника"
 msgid "Standard Form Scripts can not be modified, duplicate the Form Script instead."
 msgstr "Стандартные скрипты форм не могут быть изменены, вместо этого дублируйте их."
 
-#: frontend/src/components/ViewControls.vue:832
+#: frontend/src/components/ViewControls.vue:833
 msgid "Standard Views"
 msgstr "Стандартные виды"
 
@@ -3853,7 +3873,7 @@ msgstr "Тема: {0}"
 #: frontend/src/components/Settings/TelephonySettings.vue:123
 #: frontend/src/components/Settings/TelephonySettings.vue:148
 #: frontend/src/components/Settings/TelephonySettings.vue:298
-#: frontend/src/components/ViewControls.vue:1006
+#: frontend/src/components/ViewControls.vue:1021
 msgid "Success"
 msgstr "Успешно"
 
@@ -4149,7 +4169,7 @@ msgstr "Несворачиваемый"
 msgid "Unknown"
 msgstr "Неизвестный"
 
-#: frontend/src/components/ViewControls.vue:1015
+#: frontend/src/components/ViewControls.vue:1030
 msgid "Unknown error"
 msgstr "Неизвестная ошибка"
 
@@ -4157,7 +4177,7 @@ msgstr "Неизвестная ошибка"
 msgid "Unnamed Lead"
 msgstr "Безымянный лид"
 
-#: frontend/src/components/ViewControls.vue:1302
+#: frontend/src/components/ViewControls.vue:1317
 msgid "Unpin View"
 msgstr "Отвязать вид"
 
@@ -4166,7 +4186,7 @@ msgid "Unqualified"
 msgstr "Неквал"
 
 #: frontend/src/components/Modals/ConfirmCloseDialog.vue:5
-#: frontend/src/components/ViewControls.vue:1139
+#: frontend/src/components/ViewControls.vue:1154
 msgid "Unsaved Changes"
 msgstr "Несохраненные изменения"
 
@@ -4186,12 +4206,12 @@ msgstr "Без названия"
 #: frontend/src/components/Modals/EmailTemplateModal.vue:9
 #: frontend/src/components/Modals/NoteModal.vue:8
 #: frontend/src/components/Modals/TaskModal.vue:8
-#: frontend/src/components/Settings/GeneralSettings.vue:129
+#: frontend/src/components/Settings/GeneralSettings.vue:145
 #: frontend/src/components/Settings/ProfileSettings.vue:71
 #: frontend/src/components/Settings/SettingsPage.vue:31
 #: frontend/src/components/Settings/TelephonySettings.vue:70
 #: frontend/src/components/Telephony/ExotelCallUI.vue:219
-#: frontend/src/components/ViewControls.vue:1144
+#: frontend/src/components/ViewControls.vue:1159
 msgid "Update"
 msgstr "Обновить"
 
@@ -4322,6 +4342,16 @@ msgstr "Шаблоны WhatsApp"
 msgid "WhatsApp chat"
 msgstr "WhatsApp чат"
 
+#. Description of the 'Disable Realtime Updates' (Check) field in DocType 'FCRM
+#. Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "When enabled, disables all realtime updates in the kanban board. This can improve performance on slow networks or with large datasets."
+msgstr "Если эта функция включена, она отключает все обновления в реальном времени на доске канбан. Это может повысить производительность в медленных сетях или при работе с большими наборами данных."
+
+#: frontend/src/components/Settings/GeneralSettings.vue:121
+msgid "When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets. Changes apply immediately."
+msgstr "Если эта функция включена, она отключает обновления в реальном времени только на досках канбан. Уведомления и другие функции реального времени будут продолжать работать. Это может повысить производительность в медленных сетях или при работе с большими массивами данных. Изменения применяются немедленно."
+
 #: frontend/src/components/Filter.vue:44 frontend/src/components/Filter.vue:82
 msgid "Where"
 msgstr "Где"
@@ -4385,7 +4415,7 @@ msgstr ""
 "У вас есть несохраненные изменения. \n"
 "Вы уверены, что хотите закрыть это окно?"
 
-#: frontend/src/components/ViewControls.vue:1140
+#: frontend/src/components/ViewControls.vue:1155
 msgid "You have unsaved changes. Do you want to save them?"
 msgstr "У Вас есть несохраненные изменения. Хотите сохранить их?"
 

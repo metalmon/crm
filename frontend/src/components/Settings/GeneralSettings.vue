@@ -107,6 +107,22 @@
         </div>
       </div>
 
+      <!-- Realtime Settings -->
+      <div class="flex flex-col justify-between gap-4">
+        <span class="text-base font-semibold text-ink-gray-9">
+          {{ __('Realtime Updates') }}
+        </span>
+        <div class="flex w-full">
+          <FormControl
+            type="checkbox"
+            class="w-1/2"
+            v-model="settings.doc.disable_realtime_updates"
+            :label="__('Disable Kanban Realtime Updates')"
+            :description="__('When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets. Changes apply immediately.')"
+          />
+        </div>
+      </div>
+
       <!-- Home actions -->
 
       <div class="flex flex-col justify-between gap-4">

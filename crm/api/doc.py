@@ -803,21 +803,3 @@ def on_doc_update(doc, method=None):
 		},
 		after_commit=True
 	)
-	
-	# Additional handling for task status updates
-	if doc.doctype == 'CRM Task' and event == 'modified':
-		if doc.has_value_changed('status'):
-			old_status = None
-			doc_before_save = doc.get_doc_before_save()
-			if doc_before_save:
-				old_status = doc_before_save.status
-				
-			frappe.publish_realtime(
-				'task_status_updated',
-				{
-					'task': doc.name,
-					'old_status': old_status,
-					'new_status': doc.status
-				},
-				after_commit=True
-			)

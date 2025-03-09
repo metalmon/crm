@@ -211,6 +211,19 @@ import { computed, onMounted, onUnmounted, watch, nextTick, ref, reactive } from
 import { useSocket, PRIORITY, startTransaction, endTransaction, isLocalTransaction } from '@/socket'
 import { FeatherIcon, call } from 'frappe-ui'
 
+// Create a logger to conditionally show logs based on environment
+const isDevelopment = process.env.NODE_ENV !== 'production'
+const logger = {
+  log: (...args) => isDevelopment && console.log(...args),
+  error: (...args) => isDevelopment && console.error(...args),
+  warn: (...args) => isDevelopment && console.warn(...args),
+  info: (...args) => isDevelopment && console.info(...args),
+  time: (...args) => isDevelopment && console.time(...args),
+  timeEnd: (...args) => isDevelopment && console.timeEnd(...args),
+  // Always log critical errors regardless of environment
+  critical: (...args) => console.error('[CRITICAL]', ...args)
+}
+
 // Debounce helper
 function debounce(fn, wait) {
   let timeout
@@ -265,11 +278,31 @@ const throttledSubscribe = (() => {
   let timeout = null
   let lastCall = 0
   let pendingUpdate = false
+  let updateCount = 0
   const THROTTLE_DELAY = 2000 // 2 seconds
+  const CONSECUTIVE_UPDATE_LIMIT = 1 // Maximum number of consecutive updates
 
   return () => {
     if (isUpdatingSubscriptions.value) {
       pendingUpdate = true
+      return
+    }
+
+    updateCount++
+    
+    // Prevent consecutive updates beyond our limit
+    if (updateCount > CONSECUTIVE_UPDATE_LIMIT) {
+      logger.log(`[KanbanView] Too many consecutive updates (${updateCount}), limiting rate`)
+      
+      // Reset counter after some time to allow future updates
+      if (timeout) clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        updateCount = 0
+        if (pendingUpdate) {
+          pendingUpdate = false
+          updateSubscriptions()
+        }
+      }, THROTTLE_DELAY)
       return
     }
 
@@ -278,6 +311,7 @@ const throttledSubscribe = (() => {
       if (timeout) clearTimeout(timeout)
       timeout = setTimeout(() => {
         lastCall = now
+        updateCount = 0
         if (pendingUpdate) {
           pendingUpdate = false
           updateSubscriptions()
@@ -288,6 +322,7 @@ const throttledSubscribe = (() => {
 
     lastCall = now
     pendingUpdate = false
+    updateCount = 0
     updateSubscriptions()
   }
 })()
@@ -296,18 +331,18 @@ const throttledSubscribe = (() => {
 async function updateSubscriptions() {
   const doctype = kanban.value?.params?.doctype
   if (!doctype) {
-    console.log(`[KanbanView] Cannot update subscriptions - doctype not available`)
+    logger.log(`[KanbanView] Cannot update subscriptions - doctype not available`)
     return
   }
 
   if (isUpdatingSubscriptions.value) {
-    console.log(`[KanbanView] Subscription update already in progress, skipping`)
+    logger.log(`[KanbanView] Subscription update already in progress, skipping`)
     return
   }
 
   try {
     isUpdatingSubscriptions.value = true
-    console.log(`[KanbanView] Starting subscription update`)
+    logger.log(`[KanbanView] Starting subscription update`)
 
     // Get current visible cards
     const visibleCards = new Set()
@@ -327,7 +362,7 @@ async function updateSubscriptions() {
 
     // Unsubscribe in batch
     if (obsoleteSubscriptions.length > 0) {
-      console.log(`[KanbanView] Removing ${obsoleteSubscriptions.length} obsolete subscriptions`)
+      logger.log(`[KanbanView] Removing ${obsoleteSubscriptions.length} obsolete subscriptions`)
       obsoleteSubscriptions.forEach(([cardName, unsubscribe]) => {
         unsubscribe()
         subscriptions.delete(cardName)
@@ -348,11 +383,11 @@ async function updateSubscriptions() {
 
     // Subscribe in batch
     if (newSubscriptions.length > 0) {
-      console.log(`[KanbanView] Adding ${newSubscriptions.length} new subscriptions`)
+      logger.log(`[KanbanView] Adding ${newSubscriptions.length} new subscriptions`)
       newSubscriptions.forEach(card => {
         const unsubscribe = socket.subscribeToDoc(doctype, card.name, async (data) => {
           if (data._transaction && isLocalTransaction(doctype, card.name, data._transaction)) {
-            console.log(`[KanbanView] Skipping local transaction update for ${card.name}`)
+            logger.log(`[KanbanView] Skipping local transaction update for ${card.name}`)
             return
           }
           
@@ -370,7 +405,7 @@ async function updateSubscriptions() {
       })
     }
 
-    console.log(`[KanbanView] Subscription update complete. Active subscriptions: ${subscriptions.size}`)
+    logger.log(`[KanbanView] Subscription update complete. Active subscriptions: ${subscriptions.size}`)
   } finally {
     isUpdatingSubscriptions.value = false
   }
@@ -378,13 +413,13 @@ async function updateSubscriptions() {
 
 // Handle card deletion separately
 function handleCardDeletion(cardName) {
-  console.log(`[KanbanView] Processing deletion of card ${cardName}`)
+  logger.log(`[KanbanView] Processing deletion of card ${cardName}`)
   const sourceColumn = columns.value.find(col => 
     col.data.some(c => c.name === cardName)
   )
   
   if (sourceColumn) {
-    console.log(`[KanbanView] Removing deleted card ${cardName} from column ${sourceColumn.column.name}`)
+    logger.log(`[KanbanView] Removing deleted card ${cardName} from column ${sourceColumn.column.name}`)
     sourceColumn.data = sourceColumn.data.filter(c => c.name !== cardName)
     cardStates.delete(cardName)
   }
@@ -410,7 +445,7 @@ const columns = computed(() => {
 
 // Helper function to log card updates
 function logCardUpdate(action, cardName, details = {}) {
-  console.log(`[KanbanView] ${action} card ${cardName}:`, details)
+  logger.log(`[KanbanView] ${action} card ${cardName}:`, details)
 }
 
 // Modified updateColumn function
@@ -419,7 +454,7 @@ async function updateColumn(d) {
   let fromColumn = d?.from?.dataset.column
   let itemName = d?.item?.dataset.name
 
-  console.log(`[KanbanView] Updating column:`, {
+  logger.log(`[KanbanView] Updating column:`, {
     from: fromColumn,
     to: toColumn,
     item: itemName
@@ -438,7 +473,7 @@ async function updateColumn(d) {
   const doctype = kanban.value.params.doctype
 
   if (toColumn != fromColumn && itemName) {
-    console.log(`[KanbanView] Moving card ${itemName} from ${fromColumn} to ${toColumn}`)
+    logger.log(`[KanbanView] Moving card ${itemName} from ${fromColumn} to ${toColumn}`)
     
     // Track pending move
     pendingMoves.set(itemName, {
@@ -449,7 +484,7 @@ async function updateColumn(d) {
     
     // Start transaction for card movement
     const transactionId = startTransaction(doctype, itemName)
-    console.log(`[KanbanView] Started transaction ${transactionId} for card movement`)
+    logger.log(`[KanbanView] Started transaction ${transactionId} for card movement`)
     
     data = { 
       item: itemName, 
@@ -460,25 +495,25 @@ async function updateColumn(d) {
     
     try {
       await emit('update', data)
-      console.log(`[KanbanView] Card movement update emitted successfully`)
+      logger.log(`[KanbanView] Card movement update emitted successfully`)
     } catch (error) {
-      console.error(`[KanbanView] Error moving card:`, error)
+      logger.error(`[KanbanView] Error moving card:`, error)
       // Clean up pending move on error
       pendingMoves.delete(itemName)
     } finally {
-      console.log(`[KanbanView] Ending transaction ${transactionId}`)
+      logger.log(`[KanbanView] Ending transaction ${transactionId}`)
       endTransaction(doctype, itemName, transactionId)
       
       // Remove pending move after a delay
       setTimeout(() => {
         if (pendingMoves.has(itemName)) {
-          console.log(`[KanbanView] Cleaning up stale pending move for ${itemName}`)
+          logger.log(`[KanbanView] Cleaning up stale pending move for ${itemName}`)
           pendingMoves.delete(itemName)
         }
       }, 5000) // 5 second timeout
     }
   } else {
-    console.log(`[KanbanView] Updating column order only`)
+    logger.log(`[KanbanView] Updating column order only`)
     emit('update', data)
   }
 }
@@ -486,15 +521,15 @@ async function updateColumn(d) {
 // Helper function to highlight remote updates
 function highlightRemoteUpdate(element, cardName) {
   if (!element) {
-    console.log(`[KanbanView] Cannot highlight card ${cardName} - element not found`)
+    logger.log(`[KanbanView] Cannot highlight card ${cardName} - element not found`)
     return
   }
   
-  console.log(`[KanbanView] Highlighting remote update for card ${cardName}`)
+  logger.log(`[KanbanView] Highlighting remote update for card ${cardName}`)
   element.classList.add('remote-update-highlight')
   
   setTimeout(() => {
-    console.log(`[KanbanView] Removing highlight from card ${cardName}`)
+    logger.log(`[KanbanView] Removing highlight from card ${cardName}`)
     element.classList.remove('remote-update-highlight')
     updatingCards.value.delete(cardName)
   }, 2500)
@@ -516,19 +551,31 @@ async function processCardUpdate(doctype, card, data) {
   const updateKey = `${card.name}-${Date.now()}`
   
   if (pendingUpdates.has(card.name)) {
-    console.log(`[KanbanView] Update already pending for card ${card.name}, skipping`)
+    logger.log(`[KanbanView] Update already pending for card ${card.name}, skipping`)
     return
   }
   
   // Check if this is a pending move
   const pendingMove = pendingMoves.get(card.name)
   if (pendingMove && Date.now() - pendingMove.timestamp < 5000) {
-    console.log(`[KanbanView] Skipping update for card ${card.name} - pending move in progress`)
+    logger.log(`[KanbanView] Skipping update for card ${card.name} - pending move in progress`)
     return
   }
   
+  // Check if the card is already being updated visually
+  if (updatingCards.value.has(card.name)) {
+    logger.log(`[KanbanView] Card ${card.name} is already being updated visually, queueing update`)
+    // Queue this update to run after the current one finishes
+    setTimeout(() => {
+      if (!pendingUpdates.has(card.name) && !updatingCards.value.has(card.name)) {
+        processCardUpdate(doctype, card, data);
+      }
+    }, 3000);
+    return;
+  }
+  
   pendingUpdates.set(card.name, updateKey)
-  console.log(`[KanbanView] Processing modification of card ${card.name}`)
+  logger.log(`[KanbanView] Processing modification of card ${card.name}`)
   
   try {
     updatingCards.value.add(card.name)
@@ -536,19 +583,20 @@ async function processCardUpdate(doctype, card, data) {
     // Get current state before update
     const currentState = getCardCurrentState(card.name)
     
-    console.log(`[KanbanView] Fetching updated data for card ${card.name}`)
+    logger.log(`[KanbanView] Fetching updated data for card ${card.name}`)
     const updatedDoc = await call('frappe.client.get', {
       doctype: doctype,
       name: card.name
     })
     
     if (pendingUpdates.get(card.name) !== updateKey) {
-      console.log(`[KanbanView] Newer update exists for ${card.name}, discarding this one`)
+      logger.log(`[KanbanView] Newer update exists for ${card.name}, discarding this one`)
+      updatingCards.value.delete(card.name)
       return
     }
     
     if (updatedDoc.status !== currentState) {
-      console.log(`[KanbanView] Card ${card.name} status changed from ${currentState} to ${updatedDoc.status}`)
+      logger.log(`[KanbanView] Card ${card.name} status changed from ${currentState} to ${updatedDoc.status}`)
       const targetColumn = columns.value.find(col => 
         col.column.name === updatedDoc.status
       )
@@ -558,7 +606,9 @@ async function processCardUpdate(doctype, card, data) {
           col.data.some(c => c.name === card.name)
         )
         if (sourceColumn && sourceColumn.column.name !== targetColumn.column.name) {
-          console.log(`[KanbanView] Moving card ${card.name} from ${sourceColumn.column.name} to ${targetColumn.column.name}`)
+          logger.log(`[KanbanView] Moving card ${card.name} from ${sourceColumn.column.name} to ${targetColumn.column.name}`)
+          
+          // Use Vue.set equivalent to ensure reactivity
           sourceColumn.data = sourceColumn.data.filter(c => 
             c.name !== card.name
           )
@@ -572,7 +622,7 @@ async function processCardUpdate(doctype, card, data) {
           // Sort if needed
           const order_by = kanban.value?.params?.order_by
           if (order_by) {
-            console.log(`[KanbanView] Sorting column ${targetColumn.column.name} by ${order_by}`)
+            logger.log(`[KanbanView] Sorting column ${targetColumn.column.name} by ${order_by}`)
             const [field, direction] = order_by.split(' ')
             targetColumn.data.sort((a, b) => {
               if (direction === 'desc') {
@@ -583,14 +633,14 @@ async function processCardUpdate(doctype, card, data) {
             })
           }
         } else {
-          console.log(`[KanbanView] Card ${card.name} already in correct column ${targetColumn.column.name}`)
+          logger.log(`[KanbanView] Card ${card.name} already in correct column ${targetColumn.column.name}`)
           Object.assign(card, updatedDoc)
         }
       } else {
-        console.log(`[KanbanView] Target column not found for status ${updatedDoc.status}`)
+        logger.log(`[KanbanView] Target column not found for status ${updatedDoc.status}`)
       }
     } else {
-      console.log(`[KanbanView] Updating card ${card.name} data without column change`)
+      logger.log(`[KanbanView] Updating card ${card.name} data without column change`)
       Object.assign(card, updatedDoc)
     }
     
@@ -600,10 +650,10 @@ async function processCardUpdate(doctype, card, data) {
     highlightRemoteUpdate(cardElement, card.name)
     
   } catch (error) {
-    console.error(`[KanbanView] Error processing card update:`, error)
+    logger.error(`[KanbanView] Error processing card update:`, error)
+    updatingCards.value.delete(card.name)
   } finally {
     pendingUpdates.delete(card.name)
-    updatingCards.value.delete(card.name)
   }
 }
 
@@ -611,27 +661,27 @@ async function processCardUpdate(doctype, card, data) {
 function setupDocCreationListener() {
   const doctype = kanban.value?.params?.doctype;
   if (!doctype) {
-    console.log(`[KanbanView] Cannot setup creation listener - doctype not available`)
+    logger.log(`[KanbanView] Cannot setup creation listener - doctype not available`)
     return;
   }
   
-  console.log(`[KanbanView] Setting up document creation listener for ${doctype}`)
+  logger.log(`[KanbanView] Setting up document creation listener for ${doctype}`)
   
   // Listen for document creation events using CustomEvent
   const handleDocCreated = (event) => {
     const { doctype: eventDoctype, name } = event.detail;
-    console.log(`[KanbanView] Received document creation event: ${eventDoctype}/${name}`);
+    logger.log(`[KanbanView] Received document creation event: ${eventDoctype}/${name}`);
     
     if (eventDoctype === doctype) {
       // Set flag to refresh view on next user interaction or after a delay
       needsRefresh.value = true;
-      console.log(`[KanbanView] Setting refresh flag for ${doctype}`);
+      logger.log(`[KanbanView] Setting refresh flag for ${doctype}`);
       
       // Refresh the view after a short delay to avoid too many refreshes
       // if multiple documents are created in quick succession
       setTimeout(() => {
         if (needsRefresh.value) {
-          console.log(`[KanbanView] Refreshing view for ${doctype}`);
+          logger.log(`[KanbanView] Refreshing view for ${doctype}`);
           refreshView();
           needsRefresh.value = false;
         }
@@ -641,7 +691,7 @@ function setupDocCreationListener() {
   
   // Add event listener
   window.addEventListener('crm:doc_created', handleDocCreated);
-  console.log(`[KanbanView] Document creation listener setup complete`);
+  logger.log(`[KanbanView] Document creation listener setup complete`);
   
   // Store the handler for cleanup
   return handleDocCreated;
@@ -651,16 +701,16 @@ function setupDocCreationListener() {
 function setupDocDeletionListener() {
   const doctype = kanban.value?.params?.doctype;
   if (!doctype) {
-    console.log(`[KanbanView] Cannot setup deletion listener - doctype not available`)
+    logger.log(`[KanbanView] Cannot setup deletion listener - doctype not available`)
     return;
   }
   
-  console.log(`[KanbanView] Setting up document deletion listener for ${doctype}`)
+  logger.log(`[KanbanView] Setting up document deletion listener for ${doctype}`)
   
   // Listen for document deletion events using CustomEvent
   const handleDocDeleted = (event) => {
     const { doctype: eventDoctype, name } = event.detail;
-    console.log(`[KanbanView] Received document deletion event: ${eventDoctype}/${name}`);
+    logger.log(`[KanbanView] Received document deletion event: ${eventDoctype}/${name}`);
     
     if (eventDoctype === doctype) {
       // Check if the document is in any column
@@ -672,7 +722,7 @@ function setupDocDeletionListener() {
           const cardIndex = column.data.findIndex(card => card.name === name);
           
           if (cardIndex !== -1) {
-            console.log(`[KanbanView] Removing deleted card ${name} from column ${column.column.name}`);
+            logger.log(`[KanbanView] Removing deleted card ${name} from column ${column.column.name}`);
             // Remove the card from the column
             column.data.splice(cardIndex, 1);
             found = true;
@@ -683,7 +733,7 @@ function setupDocDeletionListener() {
       // If we didn't find the card in any column, it might be outside our view
       // We'll refresh the view to ensure consistency
       if (!found) {
-        console.log(`[KanbanView] Deleted card ${name} not found in current view, refreshing`);
+        logger.log(`[KanbanView] Deleted card ${name} not found in current view, refreshing`);
         needsRefresh.value = true;
         
         setTimeout(() => {
@@ -698,7 +748,7 @@ function setupDocDeletionListener() {
   
   // Add event listener
   window.addEventListener('crm:doc_deleted', handleDocDeleted);
-  console.log(`[KanbanView] Document deletion listener setup complete`);
+  logger.log(`[KanbanView] Document deletion listener setup complete`);
   
   // Store the handler for cleanup
   return handleDocDeleted;
@@ -706,7 +756,7 @@ function setupDocDeletionListener() {
 
 // Refresh the kanban view to get new documents
 function refreshView() {
-  console.log(`[KanbanView] Reloading kanban view`);
+  logger.log(`[KanbanView] Reloading kanban view`);
   kanban.value.reload();
 }
 
@@ -725,9 +775,15 @@ watch([
     const oldSet = new Set(oldVal)
     const hasChanges = [...newSet].some(card => !oldSet.has(card))
     if (!hasChanges) {
-      console.log(`[KanbanView] Skipping subscription update - only order changed`)
+      logger.log(`[KanbanView] Skipping subscription update - only order changed`)
       return
     }
+  }
+  
+  // Skip if we're in the middle of processing updates
+  if (pendingUpdates.size > 0 || updatingCards.value.size > 0) {
+    logger.log(`[KanbanView] Skipping subscription update - updates in progress`)
+    return
   }
   
   // Update card states
@@ -737,17 +793,17 @@ watch([
     })
   })
   
-  console.log(`[KanbanView] Detected changes in visible cards or doctype, updating subscriptions`)
+  logger.log(`[KanbanView] Detected changes in visible cards or doctype, updating subscriptions`)
   throttledSubscribe()
 }, { deep: true })
 
 onMounted(() => {
-  console.log(`[KanbanView] Component mounted`)
+  logger.log(`[KanbanView] Component mounted`)
   
   // Wait for doctype to be available
   watch(() => kanban.value?.params?.doctype, (doctype) => {
     if (doctype) {
-      console.log(`[KanbanView] Doctype ${doctype} is available, initializing`)
+      logger.log(`[KanbanView] Doctype ${doctype} is available, initializing`)
       updateSubscriptions()
       docCreatedHandler = setupDocCreationListener()
       docDeletedHandler = setupDocDeletionListener()
@@ -756,7 +812,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  console.log(`[KanbanView] Component unmounting, cleaning up subscriptions`)
+  logger.log(`[KanbanView] Component unmounting, cleaning up subscriptions`)
   // Cleanup all subscriptions
   for (const unsubscribe of subscriptions.values()) {
     unsubscribe();
@@ -770,7 +826,7 @@ onUnmounted(() => {
   if (docDeletedHandler) {
     window.removeEventListener('crm:doc_deleted', docDeletedHandler);
   }
-  console.log(`[KanbanView] Cleanup complete`)
+  logger.log(`[KanbanView] Cleanup complete`)
 })
 
 const deletedColumns = computed(() => {

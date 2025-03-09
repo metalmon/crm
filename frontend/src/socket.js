@@ -27,6 +27,10 @@ const logger = {
   critical: (...args) => console.error('[CRITICAL]', ...args)
 }
 
+// Cache for CRM settings
+let crmSettings = null
+let settingsLoaded = false
+
 // Subscription management
 const subscriptions = reactive(new Map()) // { doctype:name: Set of callbacks }
 const subscriptionQueue = new Map() // { doctype:name: priority }
@@ -124,12 +128,21 @@ function cleanupInactiveSubscriptions() {
 // Start the cleanup process after a delay
 setTimeout(cleanupInactiveSubscriptions, 10 * 60 * 1000) // First run after 10 minutes
 
-// Update subscription last used timestamp when document is accessed
+/**
+ * Mark a document as accessed to prevent its subscription from being cleaned up
+ */
 export function markDocumentAccessed(doctype, name) {
-  const key = `${doctype}:${name}`
-  if (subscriptions.has(key)) {
-    subscriptionLastUsed.set(key, Date.now())
+  // Check if this is a kanban doctype and if realtime updates are disabled
+  const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'Task']; // Doctypes that use kanban view
+  const isKanbanDoctype = kanbanDoctypes.includes(doctype);
+  
+  if (isKanbanDoctype && isRealtimeDisabled()) {
+    // Skip updating access timestamp for kanban items when disabled
+    return;
   }
+  
+  const key = `${doctype}:${name}`
+  subscriptionLastUsed.set(key, Date.now())
 }
 
 /**
@@ -155,12 +168,27 @@ function cleanupExpiredTransactions() {
 }
 
 /**
+ * Check if realtime updates are disabled
+ * @returns {boolean} True if realtime updates are disabled
+ */
+function isRealtimeDisabled() {
+  return crmSettings?.disable_realtime_updates === 1;
+}
+
+/**
  * Start a new transaction for document modification
  * @param {string} doctype - Document type
  * @param {string} name - Document name
  * @returns {string} Transaction ID
  */
 export function startTransaction(doctype, name) {
+  // If realtime updates are disabled, return a dummy transaction ID
+  if (isRealtimeDisabled()) {
+    const dummyId = `disabled-${Math.random().toString(36).substring(2, 15)}`
+    logger.log(`[Socket] Creating dummy transaction ${dummyId} for ${doctype}/${name} - realtime updates disabled`)
+    return dummyId
+  }
+  
   // Clean up expired transactions periodically
   cleanupExpiredTransactions()
   
@@ -179,6 +207,12 @@ export function startTransaction(doctype, name) {
  * @param {string} transactionId - Transaction ID to check
  */
 export function endTransaction(doctype, name, transactionId) {
+  // If realtime updates are disabled, do nothing
+  if (isRealtimeDisabled()) {
+    logger.log(`[Socket] Ignoring end transaction ${transactionId} for ${doctype}/${name} - realtime updates disabled`)
+    return
+  }
+  
   const key = `${doctype}:${name}`
   logger.log(`[Socket] Ending transaction ${transactionId} for ${key}`)
   if (localTransactions.get(key) === transactionId) {
@@ -195,6 +229,12 @@ export function endTransaction(doctype, name, transactionId) {
  * @returns {boolean} True if it's a local transaction
  */
 export function isLocalTransaction(doctype, name, transactionId) {
+  // If realtime updates are disabled, all transactions are considered local
+  if (isRealtimeDisabled()) {
+    logger.log(`[Socket] All transactions considered local when realtime updates disabled`)
+    return true
+  }
+  
   const key = `${doctype}:${name}`
   const isLocal = localTransactions.get(key) === transactionId
   logger.log(`[Socket] Checking transaction ${transactionId} for ${key}: ${isLocal ? 'local' : 'remote'}`)
@@ -222,10 +262,12 @@ export function initSocket() {
   
   const socket = io(url, {
     withCredentials: true,
-    reconnectionAttempts: 10, // Increased from 5
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    timeout: 20000 // Increase timeout to 20s
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    timeout: 20000,
+    transports: ['websocket', 'polling'],
   })
   
   // Store socket instance
@@ -461,6 +503,66 @@ export function initSocket() {
   return socket
 }
 
+/**
+ * Load FCRM Settings to check if realtime updates are disabled
+ * This function is called when the socket module is imported
+ */
+function loadSettings() {
+  if (settingsLoaded) return
+
+  // Use frappe.call instead of createDocumentResource
+  try {
+    import('frappe-ui').then(({ call }) => {
+      // Request current value
+      call('frappe.client.get_value', {
+        doctype: 'FCRM Settings',
+        fieldname: 'disable_realtime_updates'
+      })
+        .then(response => {
+          if (response && response.message) {
+            crmSettings = response.message;
+            settingsLoaded = true;
+            logger.log('[Socket] Settings loaded:', crmSettings.disable_realtime_updates ? 'Realtime updates disabled' : 'Realtime updates enabled');
+          }
+        })
+        .catch(error => {
+          logger.error('[Socket] Failed to load settings:', error);
+          // Consider realtime enabled by default
+          settingsLoaded = true;
+        });
+      
+      // Subscribe to settings changes if the function is available
+      if (window.frappe?.realtime?.on) {
+        logger.log('[Socket] Setting up subscription for FCRM Settings changes');
+        window.frappe.realtime.on('doc_update', (data) => {
+          if (data.doctype === 'FCRM Settings' && data.name === 'FCRM Settings') {
+            logger.log('[Socket] Detected settings update');
+            // Reload settings
+            call('frappe.client.get_value', {
+              doctype: 'FCRM Settings',
+              fieldname: 'disable_realtime_updates'
+            }).then(response => {
+              if (response && response.message) {
+                crmSettings = response.message;
+                logger.log('[Socket] Settings updated:', crmSettings.disable_realtime_updates ? 'Kanban realtime updates disabled' : 'Kanban realtime updates enabled');
+              }
+            });
+          }
+        });
+      }
+    }).catch(err => {
+      logger.error('[Socket] Failed to import frappe-ui:', err);
+      settingsLoaded = true;
+    });
+  } catch (error) {
+    logger.error('[Socket] Error in loadSettings:', error);
+    settingsLoaded = true;
+  }
+}
+
+// Load settings immediately when the module is imported
+loadSettings()
+
 // Get singleton socket instance
 const socket = initSocket()
 
@@ -505,6 +607,8 @@ export function useSocket() {
     
     /**
      * Subscribe to document updates.
+     * If kanban updates are disabled and this is a kanban doctype,
+     * it will return a no-op function.
      * @param {string} doctype - Document type
      * @param {string} name - Document name
      * @param {Function} callback - Function called on document update
@@ -548,17 +652,32 @@ export function useSocket() {
   }
 }
 
+/**
+ * Subscribe to document updates
+ * If kanban realtime updates are disabled, it will return a no-op cleanup function
+ * but only for document types that are used in kanban boards
+ */
 export function subscribeToDoc(doctype, name, callback, priority = PRIORITY.BACKGROUND) {
   const key = `${doctype}:${name}`
   logger.log(`[Socket] Attempting to subscribe to ${key} with priority ${priority}`)
   
+  // Check if this doctype is used in kanban and if we should disable updates
+  const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'Task']; // Doctypes that use kanban view
+  const isKanbanDoctype = kanbanDoctypes.includes(doctype);
+  
+  // If this is a kanban doctype and realtime updates are disabled, return a no-op function
+  if (isKanbanDoctype && isRealtimeDisabled()) {
+    logger.log(`[Socket] Not subscribing to ${doctype}/${name} - kanban realtime updates disabled`)
+    return () => {}
+  }
+  
   // Update metrics
   socketMetrics.pendingSubscriptions++
   
-  // Track last usage time for this subscription
+  // Update access timestamp
   subscriptionLastUsed.set(key, Date.now())
   
-  // Update priority in queue
+  // Update priority, preserving the highest one
   const currentPriority = subscriptionQueue.get(key) || 0
   subscriptionQueue.set(key, Math.max(currentPriority, priority))
   logger.log(`[Socket] Updated priority for ${key} to ${Math.max(currentPriority, priority)}`)
@@ -710,17 +829,31 @@ function manageSubscriptions() {
   }, 0)
 }
 
-// Update priorities based on viewport
+/**
+ * Update subscription priorities based on which documents are visible
+ */
 export function updateSubscriptionPriorities(visibleDocs, adjacentDocs) {
-  // Throttle priority updates to prevent excessive processing
+  // If kanban realtime updates are disabled, check if this update is for kanban items
+  if (isRealtimeDisabled()) {
+    // Check if this is a kanban update by examining the first document type
+    if (visibleDocs?.length > 0) {
+      const firstDocType = visibleDocs[0].doctype;
+      const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'Task']; // Doctypes that use kanban view
+      if (kanbanDoctypes.includes(firstDocType)) {
+        logger.log('[Socket] Skipping kanban priority update - realtime updates disabled')
+        return;
+      }
+    }
+  }
+  
   const now = Date.now()
   if (now - lastPriorityUpdate < PRIORITY_UPDATE_THROTTLE) {
     // Skip frequent updates to reduce CPU load
     logger.log('[Socket] Skipping priority update due to throttling')
     return
   }
-  lastPriorityUpdate = now
   
+  lastPriorityUpdate = now
   logger.log('[Socket] Updating subscription priorities')
   logger.time('updatePriorities')
   
@@ -756,6 +889,12 @@ export function updateSubscriptionPriorities(visibleDocs, adjacentDocs) {
  * Sets up interval for collecting metrics and cleanup routines
  */
 export function initSocketMetrics() {
+  // If realtime updates are disabled, do nothing
+  if (isRealtimeDisabled()) {
+    logger.log('[Socket] Metrics initialization skipped - realtime updates disabled')
+    return
+  }
+  
   if (metricsInitialized) {
     logger.log('[Socket] Metrics already initialized')
     return

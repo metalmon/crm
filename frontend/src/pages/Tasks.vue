@@ -212,7 +212,6 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
-import { useSocket } from '@/socket'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Task')
@@ -222,34 +221,13 @@ const router = useRouter()
 
 const tasksListView = ref(null)
 
+const viewControls = ref(null)
+
 // tasks data is loaded in the ViewControls component
 const tasks = ref({})
 const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
-const viewControls = ref(null)
-
-const socket = useSocket()
-
-onMounted(() => {
-  socket.on('task_status_updated', () => {
-    tasks.value.reload()
-  })
-  
-  socket.on('task_created', () => {
-    tasks.value.reload()
-  })
-  
-  socket.on('task_deleted', () => {
-    tasks.value.reload()
-  })
-})
-
-onBeforeUnmount(() => {
-  socket.off('task_status_updated')
-  socket.off('task_created')
-  socket.off('task_deleted')
-})
 
 function getRow(name, field) {
   function getValue(value) {

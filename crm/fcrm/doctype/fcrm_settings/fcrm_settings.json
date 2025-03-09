@@ -8,6 +8,8 @@
   "defaults_tab",
   "default_converted_lead_status",
   "restore_defaults",
+  "realtime_settings_tab",
+  "disable_realtime_updates",
   "branding_tab",
   "brand_name",
   "brand_logo",
@@ -37,6 +39,17 @@
    "label": "Default Status for Converted Lead",
    "description": "Status that will be set when lead is converted to deal. Leave empty to use first status by position.",
    "options": "CRM Deal Status"
+  },
+  {
+   "fieldname": "realtime_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Realtime Settings"
+  },
+  {
+   "fieldname": "disable_realtime_updates",
+   "fieldtype": "Check",
+   "label": "Disable Realtime Updates",
+   "description": "When enabled, disables all realtime updates in the kanban board. This can improve performance on slow networks or with large datasets."
   },
   {
    "fieldname": "branding_tab",
