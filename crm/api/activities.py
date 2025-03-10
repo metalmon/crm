@@ -239,8 +239,7 @@ def get_lead_activities(name, limit=20, offset=0):
 
 	for communication in docinfo.communications + docinfo.automated_messages:
 		activity = prepare_communication_activity(communication, is_lead=True)
-		if activity.get("name"):
-			activities.append(activity)
+		activities.append(activity)
 
 	for attachment_log in docinfo.attachment_logs:
 		activity = {

@@ -299,7 +299,7 @@ const lead = createResource({
 })
 
 const reload = ref(false)
-const activities = ref([])
+const activities = ref(null)
 
 onMounted(() => {
   if (lead.data) return
