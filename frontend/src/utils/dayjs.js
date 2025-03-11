@@ -28,13 +28,20 @@ dayjs.extend(localizedFormat)
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
 
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined'
+
 // Function to set dayjs locale
 export async function setDayjsLocale(locale = null) {
-  // Use provided locale or get from browser/system settings
-  locale = locale || window.frappe?.boot?.lang || window.navigator.language || 'en'
+  // Use provided locale or get from browser/system settings if available
+  let selectedLocale = locale
+  if (!selectedLocale && isBrowser) {
+    selectedLocale = window.frappe?.boot?.lang || window.navigator?.language
+  }
+  selectedLocale = selectedLocale || 'en'
   
   // Handle locales with region codes (e.g., 'en-US' -> 'en')
-  const baseLocale = locale.split('-')[0].toLowerCase()
+  const baseLocale = selectedLocale.split('-')[0].toLowerCase()
   
   try {
     dayjs.locale(baseLocale)
@@ -57,19 +64,23 @@ export function timeAgo(date) {
 }
 
 // Initialize with default locale
-setDayjsLocale()
+if (isBrowser) {
+  setDayjsLocale()
+} else {
+  dayjs.locale('en') // Default to English for SSR
+}
 
 // Convert date to user's timezone
 export function toUserTimezone(date) {
   if (!date) return dayjs()
-  const userTz = window.timezone?.user || dayjs.tz.guess()
+  const userTz = isBrowser ? (window.timezone?.user || dayjs.tz.guess()) : 'UTC'
   return dayjs(date).tz(userTz)
 }
 
 // Convert date to system timezone
 export function toSystemTimezone(date) {
   if (!date) return dayjs()
-  const systemTz = window.timezone?.system || 'UTC'
+  const systemTz = isBrowser ? (window.timezone?.system || 'UTC') : 'UTC'
   return dayjs(date).tz(systemTz)
 }
 

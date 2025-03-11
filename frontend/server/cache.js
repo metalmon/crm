@@ -2,7 +2,7 @@ import LRU from 'lru-cache'
 
 const ssrCache = new LRU({
   max: 100, // Maximum number of cached pages
-  maxAge: 1000 * 60 * 5 // Cache TTL - 5 minutes
+  ttl: 1000 * 60 * 5 // Cache TTL - 5 minutes
 })
 
 export function getCachedPage(key) {
