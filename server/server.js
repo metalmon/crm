@@ -5,7 +5,7 @@ import express from 'express'
 import compression from 'compression'
 import serveStatic from 'serve-static'
 import { createServer as createViteServer } from 'vite'
-import { getCachedPage, setCachedPage, isCacheable, generateCacheKey } from './server/cache.js'
+import { getCachedPage, setCachedPage, isCacheable, generateCacheKey } from './cache.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isTest = process.env.NODE_ENV === 'test' || !!process.env.VITE_TEST_BUILD
@@ -13,13 +13,15 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 async function createServer(root = process.cwd(), isProd = isProduction) {
   const app = express()
-  const resolve = (p) => path.resolve(__dirname, p)
+  // Обновляем resolve для правильного разрешения путей относительно новой директории
+  const frontendDir = path.resolve(__dirname, '../frontend')
+  const resolve = (p) => path.resolve(frontendDir, p)
 
   let vite
   if (!isProd) {
     // Create Vite dev server in middleware mode
     vite = await createViteServer({
-      root,
+      root: frontendDir, // Указываем путь к frontend директории
       logLevel: isTest ? 'error' : 'info',
       server: {
         middlewareMode: true,
@@ -75,7 +77,8 @@ async function createServer(root = process.cwd(), isProd = isProduction) {
       } else {
         // Production: use built files
         template = fs.readFileSync(resolve('dist/client/index.html'), 'utf-8')
-        render = (await import('./dist/server/entry-server.js')).render
+        // Изменяем путь для импорта entry-server.js
+        render = (await import(path.resolve(frontendDir, 'dist/server/entry-server.js'))).render
       }
 
       // Render the app

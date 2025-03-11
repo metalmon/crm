@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server",
+    "dev": "node ../server",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --outDir dist/client --base=/assets/crm/frontend/",
     "build:server": "vite build --outDir dist/server --ssr src/entry-server.js",
-    "serve": "NODE_ENV=production node server",
+    "serve": "NODE_ENV=production node ../server",
     "copy-html-entry": "cp ../crm/public/frontend/index.html ../crm/www/crm.html"
   },
   "dependencies": {
