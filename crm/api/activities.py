@@ -19,9 +19,7 @@ def get_activities(name, limit=20, offset=0):
 		frappe.throw(_("Document not found"), frappe.DoesNotExistError)
 
 
-def get_deal_activities(name, limit=20, offset=0):
-	get_docinfo("", "CRM Deal", name)
-	docinfo = frappe.response["docinfo"]
+def get_deal_activities(name, limit=20, offset=0, activity_type=None):
 	deal_meta = frappe.get_meta("CRM Deal")
 	deal_fields = {
 		field.fieldname: {"label": field.label, "options": field.options} for field in deal_meta.fields
@@ -57,55 +55,11 @@ def get_deal_activities(name, limit=20, offset=0):
 		"is_lead": False,
 	})
 
-	docinfo.versions.reverse()
-
-	for version in docinfo.versions:
-		data = json.loads(version.data)
-		if not data.get("changed"):
-			continue
-
-		if change := data.get("changed")[0]:
-			field = deal_fields.get(change[0], None)
-
-			if not field or change[0] in avoid_fields or (not change[1] and not change[2]):
-				continue
-
-			field_label = field.get("label") or change[0]
-			field_option = field.get("options") or None
-
-			activity_type = "changed"
-			data = {
-				"field": change[0],
-				"field_label": field_label,
-				"old_value": change[1],
-				"value": change[2],
-			}
-
-			if not change[1] and change[2]:
-				activity_type = "added"
-				data = {
-					"field": change[0],
-					"field_label": field_label,
-					"value": change[2],
-				}
-			elif change[1] and not change[2]:
-				activity_type = "removed"
-				data = {
-					"field": change[0],
-					"field_label": field_label,
-					"value": change[1],
-				}
-
-		activity = {
-			"activity_type": activity_type,
-			"creation": version.creation,
-			"owner": version.owner,
-			"data": data,
-			"is_lead": False,
-			"options": field_option,
-		}
-		activities.append(activity)
-
+	# Get docinfo for versions and comments
+	get_docinfo("", "CRM Deal", name)
+	docinfo = frappe.response["docinfo"]
+	
+	# Process comments from docinfo
 	for comment in docinfo.comments:
 		activity = {
 			"name": comment.name,
@@ -118,28 +72,88 @@ def get_deal_activities(name, limit=20, offset=0):
 		}
 		activities.append(activity)
 
-	for communication in docinfo.communications + docinfo.automated_messages:
-		activity = prepare_communication_activity(communication, is_lead=False)
-		activities.append(activity)
+	# Process versions
+	docinfo.versions.reverse()
+	for version in docinfo.versions:
+		if version.data.startswith("{"):
+			data = json.loads(version.data)
 
-	for attachment_log in docinfo.attachment_logs:
-		activity = {
-			"name": attachment_log.get("name"),
-			"activity_type": "attachment_log",
-			"creation": attachment_log.get("creation"),
-			"owner": attachment_log.get("owner"),
-			"data": parse_attachment_log(attachment_log.get("content"), attachment_log.get("comment_type")),
-			"is_lead": False,
-		}
-		activities.append(activity)
+			if "changed" in data:
+				for df in data.get("changed"):
+					if df[0] in avoid_fields:
+						continue
+
+					old_value = df[1]
+					new_value = df[2]
+
+					if df[0] in deal_fields:
+						if deal_fields[df[0]].get("options") == "Email":
+							old_value = old_value and old_value.split("\n")[0]
+							new_value = new_value and new_value.split("\n")[0]
+
+					activities.append({
+						"activity_type": "field_update",
+						"creation": version.creation,
+						"owner": version.owner,
+						"data": {
+							"comment_type": "Updated",
+							"fieldname": df[0],
+							"old_value": old_value,
+							"new_value": new_value,
+							"field_label": deal_fields.get(df[0], {}).get("label", df[0]),
+						},
+						"is_lead": False,
+					})
+
+			if data.get("comment_type") == "Attachment":
+				activities.append({
+					"activity_type": "attachment",
+					"creation": version.creation,
+					"owner": version.owner,
+					"data": {
+						"file_name": data.get("file_name"),
+						"file_url": data.get("file_url"),
+					},
+					"is_lead": False,
+				})
+
+			if data.get("comment_type") == "Communication":
+				activities.append({
+					"activity_type": "communication",
+					"creation": version.creation,
+					"owner": version.owner,
+					"data": data,
+					"is_lead": False,
+				})
 
 	calls = calls + get_linked_calls(name).get("calls", [])
-	notes = notes + get_linked_notes(name) + get_linked_calls(name).get("notes", [])
-	tasks = tasks + get_linked_tasks(name) + get_linked_calls(name).get("tasks", [])
+	
+	# Use the new optimized function to get notes and tasks
+	new_notes, new_tasks = get_linked_items(name)
+	notes = notes + new_notes + get_linked_calls(name).get("notes", [])
+	tasks = tasks + new_tasks + get_linked_calls(name).get("tasks", [])
+	
 	attachments = attachments + get_attachments("CRM Deal", name)
 
 	activities.sort(key=lambda x: x["creation"], reverse=True)
 	activities = handle_multiple_versions(activities)
+
+	# Filter activities based on activity_type if specified
+	if activity_type:
+		activity_type = activity_type.lower()
+		if activity_type == 'emails':
+			activities = [a for a in activities if a.get('activity_type') == 'communication' 
+						 and a.get('data', {}).get('communication_medium') not in ['Phone', 'Chat']]
+		elif activity_type == 'comments':
+			activities = [a for a in activities if a.get('activity_type') == 'comment']
+		elif activity_type == 'calls':
+			return [], calls[offset:offset + limit], [], [], []
+		elif activity_type == 'tasks':
+			return [], [], [], tasks[offset:offset + limit], []
+		elif activity_type == 'notes':
+			return [], [], notes[offset:offset + limit], [], []
+		elif activity_type == 'attachments':
+			return [], [], [], [], attachments[offset:offset + limit]
 
 	total_count = len(activities)
 	activities = activities[offset:offset + limit]
@@ -253,8 +267,11 @@ def get_lead_activities(name, limit=20, offset=0):
 		activities.append(activity)
 
 	calls = get_linked_calls(name).get("calls", [])
-	notes = get_linked_notes(name) + get_linked_calls(name).get("notes", [])
-	tasks = get_linked_tasks(name) + get_linked_calls(name).get("tasks", [])
+	
+	# Use the new optimized function to get notes and tasks
+	new_notes, new_tasks = get_linked_items(name)
+	notes = new_notes + get_linked_calls(name).get("notes", [])
+	tasks = new_tasks + get_linked_calls(name).get("tasks", [])
 	attachments = get_attachments("CRM Lead", name)
 
 	activities.sort(key=lambda x: x["creation"], reverse=True)
@@ -432,31 +449,50 @@ def get_linked_calls(name):
 	return {"calls": calls, "notes": notes, "tasks": tasks}
 
 
-def get_linked_notes(name):
-	notes = frappe.db.get_all(
-		"FCRM Note",
-		filters={"reference_docname": name},
-		fields=["name", "title", "content", "owner", "modified"],
-	)
-	return notes or []
+def get_linked_items(name):
+	"""
+	Optimized function to fetch both notes and tasks in a single query
+	Returns tuple of (notes, tasks)
+	"""
+	items_query = """
+		SELECT 
+			'note' as item_type,
+			name,
+			title,
+			content as description,
+			owner as assigned_to,
+			modified,
+			NULL as due_date,
+			NULL as priority,
+			NULL as status
+		FROM `tabFCRM Note`
+		WHERE reference_docname = %(name)s
+		
+		UNION ALL
+		
+		SELECT 
+			'task' as item_type,
+			name,
+			title,
+			description,
+			assigned_to,
+			modified,
+			due_date,
+			priority,
+			status
+		FROM `tabCRM Task`
+		WHERE reference_docname = %(name)s
+		ORDER BY modified DESC
+	"""
+	
+	items = frappe.db.sql(items_query, {'name': name}, as_dict=True)
+	
+	# Separate items into notes and tasks
+	notes = [item for item in items if item.item_type == 'note']
+	tasks = [item for item in items if item.item_type == 'task']
+	
+	return notes, tasks
 
-
-def get_linked_tasks(name):
-	tasks = frappe.db.get_all(
-		"CRM Task",
-		filters={"reference_docname": name},
-		fields=[
-			"name",
-			"title",
-			"description",
-			"assigned_to",
-			"due_date",
-			"priority",
-			"status",
-			"modified",
-		],
-	)
-	return tasks or []
 
 def parse_attachment_log(html, type):
 	soup = BeautifulSoup(html, "html.parser")

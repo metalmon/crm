@@ -624,7 +624,7 @@ async function loadMore() {
   // Calculate total length based on the current tab
   let currentLength = 0
   if (title.value === 'Activity') {
-    currentLength = (all_activities.data?.versions?.length || 0) + (all_activities.data?.calls?.length || 0)
+    currentLength = (all_activities.data?.versions?.length || 0)
   } else if (title.value === 'Emails') {
     currentLength = all_activities.data?.versions?.filter(a => 
       a.activity_type === 'communication' && 
@@ -649,7 +649,8 @@ async function loadMore() {
       params: {
         name: doc.value.data.name,
         limit: 20,
-        offset: currentLength
+        offset: currentLength,
+        activity_type: title.value.toLowerCase()
       }
     }).submit()
 
@@ -658,7 +659,7 @@ async function loadMore() {
     // Check if we have any new data based on the current tab
     let hasNewData = false
     if (title.value === 'Activity') {
-      hasNewData = versions?.length > 0 || calls?.length > 0
+      hasNewData = versions?.length > 0
     } else if (title.value === 'Emails') {
       hasNewData = versions?.some(a => 
         a.activity_type === 'communication' && 
@@ -679,8 +680,14 @@ async function loadMore() {
 
     if (!hasNewData) {
       noMoreActivities.value = true
+      isLoadingMore.value = false
       return
     }
+
+    // Save current scroll position
+    const scrollEl = scrollContainer.value.$el
+    const oldScrollHeight = scrollEl.scrollHeight
+    const oldScrollTop = scrollEl.scrollTop
 
     // Merge new activities with existing ones
     const mergeUniqueById = (existing = [], newItems = []) => {
@@ -694,11 +701,6 @@ async function loadMore() {
       return merged
     }
 
-    // Save current scroll position
-    const scrollEl = scrollContainer.value.$el
-    const oldScrollHeight = scrollEl.scrollHeight
-    const oldScrollTop = scrollEl.scrollTop
-
     all_activities.data = all_activities.data || {}
     all_activities.data.versions = mergeUniqueById(all_activities.data.versions, versions)
     all_activities.data.calls = mergeUniqueById(all_activities.data.calls, calls)
@@ -707,12 +709,9 @@ async function loadMore() {
     all_activities.data.attachments = mergeUniqueById(all_activities.data.attachments, attachments)
 
     // After data is updated and DOM is re-rendered, restore scroll position
-  nextTick(() => {
-      const newScrollHeight = scrollEl.scrollHeight
-      const heightDiff = newScrollHeight - oldScrollHeight
-      scrollEl.scrollTop = oldScrollTop + heightDiff
-    })
-
+    await nextTick()
+    const newScrollHeight = scrollEl.scrollHeight
+    scrollEl.scrollTop = oldScrollTop + (newScrollHeight - oldScrollHeight)
   } catch (error) {
     console.error('Error loading more activities:', error)
   } finally {
