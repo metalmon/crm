@@ -77,11 +77,14 @@
               @end="updateColumn"
               :delay="isTouchScreenDevice() ? 200 : 0"
               :data-column="column.column.name"
+              :animation="realtimeDisabled ? 0 : 150"
+              :disabled="false"
             >
               <template #item="{ element: fields }">
                 <component
                   :is="options.getRoute ? 'router-link' : 'div'"
-                  class="relative pt-3 px-3.5 pb-2.5 rounded-lg border bg-surface-white text-base flex flex-col text-ink-gray-9 shadow-sm hover:shadow-md transition-all duration-200 dark:bg-surface-gray-1 dark:border-surface-gray-3 hover:border-gray-300 dark:hover:border-surface-gray-4 dark:hover:bg-surface-gray-2 dark:hover:shadow-lg dark:hover:shadow-gray-900/30"
+                  class="relative pt-3 px-3.5 pb-2.5 rounded-lg border bg-surface-white text-base flex flex-col text-ink-gray-9 shadow-sm hover:shadow-md dark:bg-surface-gray-1 dark:border-surface-gray-3 hover:border-gray-300 dark:hover:border-surface-gray-4 dark:hover:bg-surface-gray-2"
+                  :class="{ 'cursor-move': !realtimeDisabled }"
                   :data-name="fields.name"
                   v-bind="{
                     to: options.getRoute ? options.getRoute(fields) : undefined,
@@ -91,7 +94,7 @@
                   }"
                 >
                   <div 
-                    v-if="updatingCards.has(fields.name)"
+                    v-if="!realtimeDisabled && updatingCards.has(fields.name)"
                     class="absolute right-2 top-2 z-10"
                   >
                     <FeatherIcon 
@@ -177,26 +180,21 @@
 
 <style>
 .remote-update-highlight {
-  animation: remote-update 2.5s ease;
+  animation: remote-update 1s ease;
 }
 
 @keyframes remote-update {
   0% {
-    background: linear-gradient(45deg, transparent, var(--info-100), transparent);
-    border-color: var(--info-300);
-  }
-  15% {
-    background: linear-gradient(45deg, transparent, var(--info-200), transparent);
-    border-color: var(--info-500);
-  }
-  85% {
-    background: linear-gradient(45deg, transparent, var(--info-100), transparent);
-    border-color: var(--info-300);
+    background-color: var(--info-100);
   }
   100% {
-    background: transparent;
-    border-color: var(--surface-border);
+    background-color: transparent;
   }
+}
+
+/* Add smooth transition for non-realtime mode */
+.draggable-move {
+  transition: transform 0.15s ease;
 }
 </style>
 
@@ -263,15 +261,18 @@ const pendingMoves = reactive(new Map())
 // Flag to track if view needs refresh
 const needsRefresh = ref(false)
 
-// Store event handlers for cleanup
-let docCreatedHandler = null
-let docDeletedHandler = null
-
 // Track current card states
 const cardStates = reactive(new Map())
 
 // Track subscription update state
 const isUpdatingSubscriptions = ref(false)
+
+// Track if socket is initialized
+const socketInitialized = ref(false)
+
+// Track document creation/deletion handlers
+let docCreatedHandler = null;
+let docDeletedHandler = null;
 
 // Optimize subscription updates with improved throttle
 const throttledSubscribe = (() => {
@@ -327,32 +328,118 @@ const throttledSubscribe = (() => {
   }
 })()
 
-// Separate subscription update logic
-async function updateSubscriptions() {
-  const doctype = kanban.value?.params?.doctype
-  if (!doctype) {
-    logger.log(`[KanbanView] Cannot update subscriptions - doctype not available`)
+// Optimize subscription management with batch processing
+const BATCH_SIZE = 10 // Process subscriptions in batches of 10
+const SUBSCRIPTION_DEBOUNCE = 1000 // Wait 1 second before processing subscription changes
+
+// Optimize event handling with debounced updates
+const debouncedEmit = debounce(async (eventData) => {
+  try {
+    await emit('update', eventData)
+    logger.log(`[KanbanView] Debounced update emitted successfully`)
+  } catch (error) {
+    logger.error(`[KanbanView] Error in debounced emit:`, error)
+  }
+}, 100) // 100ms debounce
+
+// Queue system for updates
+const updateQueue = reactive(new Map())
+const isProcessingQueue = ref(false)
+
+// Process updates in queue
+async function processUpdateQueue() {
+  // Skip queue processing if realtime updates are disabled
+  if (realtimeDisabled.value) return
+
+  if (isProcessingQueue.value || updateQueue.size === 0) return
+
+  isProcessingQueue.value = true
+  const batchSize = 3 // Process 3 updates at a time
+
+  try {
+    const entries = Array.from(updateQueue.entries())
+    for (let i = 0; i < entries.length; i += batchSize) {
+      const batch = entries.slice(i, i + batchSize)
+      await Promise.all(batch.map(async ([key, update]) => {
+        try {
+          await emit('update', update.data)
+          logger.log(`[KanbanView] Processed queued update for ${update.itemName}`)
+        } catch (error) {
+          logger.error(`[KanbanView] Error processing queued update:`, error)
+        } finally {
+          updateQueue.delete(key)
+          if (update.itemName) {
+            updatingCards.value.delete(update.itemName)
+          }
+        }
+      }))
+
+      // Small delay between batches
+      if (i + batchSize < entries.length) {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+    }
+  } finally {
+    isProcessingQueue.value = false
+    // Check if new updates arrived during processing
+    if (updateQueue.size > 0) {
+      processUpdateQueue()
+    }
+  }
+}
+
+// Queue update instead of immediate emit
+function queueUpdate(data, itemName = null) {
+  // If realtime updates are disabled, emit immediately without queueing
+  if (realtimeDisabled.value) {
+    emit('update', data)
+    if (itemName) {
+      updatingCards.value.delete(itemName)
+    }
     return
   }
 
-  if (isUpdatingSubscriptions.value) {
-    logger.log(`[KanbanView] Subscription update already in progress, skipping`)
+  const key = `${itemName || 'column'}-${Date.now()}`
+  updateQueue.set(key, { data, itemName, timestamp: Date.now() })
+  
+  // Start processing queue on next tick
+  nextTick(() => {
+    if (!isProcessingQueue.value) {
+      processUpdateQueue()
+    }
+  })
+}
+
+// Modified subscription update
+async function updateSubscriptions() {
+  // Double check realtime is not disabled
+  if (realtimeDisabled.value) {
+    logger.log('[KanbanView] Skipping subscription update - realtime updates disabled')
+    cleanup() // Ensure cleanup
+    return
+  }
+
+  const doctype = kanban.value?.params?.doctype
+  if (!doctype || isUpdatingSubscriptions.value || !socketInitialized.value) {
     return
   }
 
   try {
     isUpdatingSubscriptions.value = true
-    logger.log(`[KanbanView] Starting subscription update`)
 
-    // Get current visible cards
     const visibleCards = new Set()
+    const columnCards = new Map()
+    
+    // Collect visible cards
     columns.value.forEach(column => {
       if (!column.column.delete) {
-        column.data.forEach(card => visibleCards.add(card.name))
+        const cards = column.data.map(card => card.name)
+        columnCards.set(column.column.name, cards)
+        cards.forEach(card => visibleCards.add(card))
       }
     })
 
-    // Remove obsolete subscriptions
+    // Process unsubscriptions
     const obsoleteSubscriptions = []
     for (const [cardName, unsubscribe] of subscriptions.entries()) {
       if (!visibleCards.has(cardName)) {
@@ -360,69 +447,63 @@ async function updateSubscriptions() {
       }
     }
 
-    // Unsubscribe in batch
-    if (obsoleteSubscriptions.length > 0) {
-      logger.log(`[KanbanView] Removing ${obsoleteSubscriptions.length} obsolete subscriptions`)
-      obsoleteSubscriptions.forEach(([cardName, unsubscribe]) => {
+    // Process new subscriptions
+    const newSubscriptions = []
+    for (const [columnName, cards] of columnCards.entries()) {
+      cards.forEach(cardName => {
+        if (!subscriptions.has(cardName)) {
+          newSubscriptions.push({ cardName, columnName })
+        }
+      })
+    }
+
+    // Process in smaller batches
+    await Promise.all([
+      processBatch(obsoleteSubscriptions, async ([cardName, unsubscribe]) => {
         unsubscribe()
         subscriptions.delete(cardName)
+      }),
+      processBatch(newSubscriptions, async ({ cardName, columnName }) => {
+        const unsubscribe = socket.subscribeToDoc(
+          doctype, 
+          cardName,
+          data => handleCardUpdate(doctype, cardName, columnName, data),
+          PRIORITY.VIEWPORT
+        )
+        subscriptions.set(cardName, unsubscribe)
       })
-    }
+    ])
 
-    // Subscribe to new cards
-    const newSubscriptions = []
-    columns.value.forEach(column => {
-      if (!column.column.delete) {
-        column.data.forEach(card => {
-          if (!subscriptions.has(card.name)) {
-            newSubscriptions.push(card)
-          }
-        })
-      }
-    })
-
-    // Subscribe in batch
-    if (newSubscriptions.length > 0) {
-      logger.log(`[KanbanView] Adding ${newSubscriptions.length} new subscriptions`)
-      newSubscriptions.forEach(card => {
-        const unsubscribe = socket.subscribeToDoc(doctype, card.name, async (data) => {
-          if (data._transaction && isLocalTransaction(doctype, card.name, data._transaction)) {
-            logger.log(`[KanbanView] Skipping local transaction update for ${card.name}`)
-            return
-          }
-          
-          if (data.event === 'deleted') {
-            handleCardDeletion(card.name)
-            return
-          }
-          
-          if (data.event === 'modified') {
-            processCardUpdate(doctype, card, data)
-          }
-        }, PRIORITY.VIEWPORT)
-        
-        subscriptions.set(card.name, unsubscribe)
-      })
-    }
-
-    logger.log(`[KanbanView] Subscription update complete. Active subscriptions: ${subscriptions.size}`)
   } finally {
     isUpdatingSubscriptions.value = false
   }
 }
 
-// Handle card deletion separately
-function handleCardDeletion(cardName) {
-  logger.log(`[KanbanView] Processing deletion of card ${cardName}`)
-  const sourceColumn = columns.value.find(col => 
-    col.data.some(c => c.name === cardName)
-  )
-  
-  if (sourceColumn) {
-    logger.log(`[KanbanView] Removing deleted card ${cardName} from column ${sourceColumn.column.name}`)
-    sourceColumn.data = sourceColumn.data.filter(c => c.name !== cardName)
-    cardStates.delete(cardName)
+// Modified card update handling
+function handleCardUpdate(doctype, cardName, columnName, data) {
+  if (realtimeDisabled.value) {
+    logger.log('[KanbanView] Skipping card update - realtime updates disabled')
+    return
   }
+
+  if (data._transaction && isLocalTransaction(doctype, cardName, data._transaction)) {
+    return
+  }
+
+  if (pendingUpdates.has(cardName)) {
+    return
+  }
+
+  const updateKey = `${cardName}-${Date.now()}`
+  pendingUpdates.set(cardName, updateKey)
+  
+  requestAnimationFrame(() => {
+    processCardUpdate(doctype, { name: cardName }, data)
+      .finally(() => {
+        pendingUpdates.delete(cardName)
+        updatingCards.value.delete(cardName)
+      })
+  })
 }
 
 const titleField = computed(() => {
@@ -448,95 +529,11 @@ function logCardUpdate(action, cardName, details = {}) {
   logger.log(`[KanbanView] ${action} card ${cardName}:`, details)
 }
 
-// Modified updateColumn function
-async function updateColumn(d) {
-  let toColumn = d?.to?.dataset.column
-  let fromColumn = d?.from?.dataset.column
-  let itemName = d?.item?.dataset.name
-
-  logger.log(`[KanbanView] Updating column:`, {
-    from: fromColumn,
-    to: toColumn,
-    item: itemName
-  })
-
-  let _columns = []
-  columns.value.forEach((col) => {
-    col.column['order'] = col.data.map((d) => d.name)
-    if (col.column.page_length) {
-      delete col.column.page_length
-    }
-    _columns.push(col.column)
-  })
-
-  let data = { kanban_columns: _columns }
-  const doctype = kanban.value.params.doctype
-
-  if (toColumn != fromColumn && itemName) {
-    logger.log(`[KanbanView] Moving card ${itemName} from ${fromColumn} to ${toColumn}`)
-    
-    // Track pending move
-    pendingMoves.set(itemName, {
-      from: fromColumn,
-      to: toColumn,
-      timestamp: Date.now()
-    })
-    
-    // Start transaction for card movement
-    const transactionId = startTransaction(doctype, itemName)
-    logger.log(`[KanbanView] Started transaction ${transactionId} for card movement`)
-    
-    data = { 
-      item: itemName, 
-      to: toColumn, 
-      kanban_columns: _columns,
-      _transaction: transactionId 
-    }
-    
-    try {
-      await emit('update', data)
-      logger.log(`[KanbanView] Card movement update emitted successfully`)
-    } catch (error) {
-      logger.error(`[KanbanView] Error moving card:`, error)
-      // Clean up pending move on error
-      pendingMoves.delete(itemName)
-    } finally {
-      logger.log(`[KanbanView] Ending transaction ${transactionId}`)
-      endTransaction(doctype, itemName, transactionId)
-      
-      // Remove pending move after a delay
-      setTimeout(() => {
-        if (pendingMoves.has(itemName)) {
-          logger.log(`[KanbanView] Cleaning up stale pending move for ${itemName}`)
-          pendingMoves.delete(itemName)
-        }
-      }, 5000) // 5 second timeout
-    }
-  } else {
-    logger.log(`[KanbanView] Updating column order only`)
-    emit('update', data)
-  }
-}
-
-// Helper function to highlight remote updates
-function highlightRemoteUpdate(element, cardName) {
-  if (!element) {
-    logger.log(`[KanbanView] Cannot highlight card ${cardName} - element not found`)
-    return
-  }
-  
-  logger.log(`[KanbanView] Highlighting remote update for card ${cardName}`)
-  element.classList.add('remote-update-highlight')
-  
-  setTimeout(() => {
-    logger.log(`[KanbanView] Removing highlight from card ${cardName}`)
-    element.classList.remove('remote-update-highlight')
-    updatingCards.value.delete(cardName)
-  }, 2500)
-}
-
-// Helper function to get current card state
+// Modified getCardCurrentState function
 function getCardCurrentState(cardName) {
+  // Skip state tracking if realtime updates are disabled
+  if (realtimeDisabled.value) return null
+
   let currentState = null
   columns.value.forEach(column => {
     if (column.data.some(card => card.name === cardName)) {
@@ -546,8 +543,168 @@ function getCardCurrentState(cardName) {
   return currentState
 }
 
+// Add new function to handle direct card movement
+function handleDirectCardMove(cardName, fromColumn, toColumn) {
+  const sourceColumn = columns.value.find(col => 
+    col.column.name === fromColumn
+  )
+  const targetColumn = columns.value.find(col => 
+    col.column.name === toColumn
+  )
+  
+  if (sourceColumn && targetColumn) {
+    // Find the card in the source column
+    const cardIndex = sourceColumn.data.findIndex(card => 
+      card.name === cardName
+    )
+    
+    if (cardIndex !== -1) {
+      // Remove card from source column
+      const [card] = sourceColumn.data.splice(cardIndex, 1)
+      
+      // Add card to target column
+      targetColumn.data.push(card)
+      
+      // Sort if needed
+      const order_by = kanban.value?.params?.order_by
+      if (order_by) {
+        const [field, direction] = order_by.split(' ')
+        targetColumn.data.sort((a, b) => {
+          if (direction === 'desc') {
+            return a[field] > b[field] ? -1 : 1
+          } else {
+            return a[field] < b[field] ? -1 : 1
+          }
+        })
+      }
+      
+      return true
+    }
+  }
+  
+  return false
+}
+
+// Modified updateColumn function
+async function updateColumn(d) {
+  // If realtime is disabled, only handle local state
+  if (realtimeDisabled.value) {
+    let toColumn = d?.to?.dataset.column
+    let fromColumn = d?.from?.dataset.column
+    let itemName = d?.item?.dataset.name
+    
+    if (toColumn && fromColumn && itemName) {
+      logger.log(`[KanbanView] Handling local move from ${fromColumn} to ${toColumn}`)
+      handleDirectCardMove(itemName, fromColumn, toColumn)
+    }
+    return
+  }
+  
+  let toColumn = d?.to?.dataset.column
+  let fromColumn = d?.from?.dataset.column
+  let itemName = d?.item?.dataset.name
+
+  // Only collect data from affected columns
+  let _columns = []
+  columns.value.forEach((col) => {
+    if (!col.column.delete && 
+        ((!toColumn && !fromColumn) || // Column reorder
+         col.column.name === toColumn || 
+         col.column.name === fromColumn)) {
+      
+      col.column['order'] = col.data.map((d) => d.name)
+      if (col.column.page_length) {
+        delete col.column.page_length
+      }
+      _columns.push(col.column)
+    }
+  })
+
+  let data = { kanban_columns: _columns }
+  const doctype = kanban.value.params.doctype
+
+  if (toColumn != fromColumn && itemName) {
+    logger.log(`[KanbanView] Moving card ${itemName} from ${fromColumn} to ${toColumn}`)
+    
+    // Track pending move without blocking the UI
+    pendingMoves.set(itemName, {
+      from: fromColumn,
+      to: toColumn,
+      timestamp: Date.now()
+    })
+    
+    // Start transaction for card movement
+    const transactionId = startTransaction(doctype, itemName)
+    
+    data = { 
+      item: itemName, 
+      to: toColumn, 
+      kanban_columns: _columns,
+      _transaction: transactionId 
+    }
+    
+    try {
+      // Mark card as updating
+      updatingCards.value.add(itemName)
+      
+      // Queue update instead of immediate emit
+      queueUpdate(data, itemName)
+      
+      // Remove pending states quickly
+      setTimeout(() => {
+        endTransaction(doctype, itemName, transactionId)
+        pendingMoves.delete(itemName)
+      }, 100) // Very short timeout
+    } catch (error) {
+      logger.error(`[KanbanView] Error moving card:`, error)
+      pendingMoves.delete(itemName)
+      updatingCards.value.delete(itemName)
+      endTransaction(doctype, itemName, transactionId)
+    }
+  } else {
+    // Only queue update if columns actually changed
+    if (_columns.length > 0) {
+      if (realtimeDisabled.value) {
+        // If realtime updates are disabled, just emit without queueing
+        emit('update', data)
+      } else {
+        queueUpdate(data)
+      }
+    }
+  }
+}
+
+// Optimize batch processing
+async function processBatch(items, processFn, batchSize = 3) {
+  const chunks = []
+  for (let i = 0; i < items.length; i += batchSize) {
+    chunks.push(items.slice(i, i + batchSize))
+  }
+
+  for (const chunk of chunks) {
+    await Promise.all(chunk.map(processFn))
+    if (chunks.indexOf(chunk) < chunks.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    }
+  }
+}
+
 // Modified processCardUpdate function
 async function processCardUpdate(doctype, card, data) {
+  // If realtime updates are disabled, just update the card data without visual effects
+  if (realtimeDisabled.value) {
+    try {
+      const updatedDoc = await call('frappe.client.get', {
+        doctype: doctype,
+        name: card.name
+      })
+      Object.assign(card, updatedDoc)
+    } catch (error) {
+      logger.error(`[KanbanView] Error updating card data:`, error)
+    }
+    return
+  }
+
   const updateKey = `${card.name}-${Date.now()}`
   
   if (pendingUpdates.has(card.name)) {
@@ -657,8 +814,13 @@ async function processCardUpdate(doctype, card, data) {
   }
 }
 
-// Listen for document creation events
+// Modified setupDocCreationListener function
 function setupDocCreationListener() {
+  if (realtimeDisabled.value) {
+    logger.log('[KanbanView] Skipping doc creation listener - realtime updates disabled')
+    return () => {}
+  }
+
   const doctype = kanban.value?.params?.doctype;
   if (!doctype) {
     logger.log(`[KanbanView] Cannot setup creation listener - doctype not available`)
@@ -697,8 +859,13 @@ function setupDocCreationListener() {
   return handleDocCreated;
 }
 
-// Listen for document deletion events
+// Modified setupDocDeletionListener function
 function setupDocDeletionListener() {
+  if (realtimeDisabled.value) {
+    logger.log('[KanbanView] Skipping doc deletion listener - realtime updates disabled')
+    return () => {}
+  }
+
   const doctype = kanban.value?.params?.doctype;
   if (!doctype) {
     logger.log(`[KanbanView] Cannot setup deletion listener - doctype not available`)
@@ -760,73 +927,148 @@ function refreshView() {
   kanban.value.reload();
 }
 
-// Modified watch function
-watch([
-  () => columns.value.map(col => col.data.map(card => card.name)).flat(),
-  () => kanban.value?.params?.doctype
-], (newVal, oldVal) => {
-  const doctype = kanban.value?.params?.doctype
-  if (!doctype) return
-  
-  // Skip if only the order changed within columns
-  if (oldVal && newVal?.length === oldVal?.length && 
-      new Set(newVal).size === new Set(oldVal).size) {
-    const newSet = new Set(newVal)
-    const oldSet = new Set(oldVal)
-    const hasChanges = [...newSet].some(card => !oldSet.has(card))
-    if (!hasChanges) {
-      logger.log(`[KanbanView] Skipping subscription update - only order changed`)
-      return
-    }
-  }
-  
-  // Skip if we're in the middle of processing updates
-  if (pendingUpdates.size > 0 || updatingCards.value.size > 0) {
-    logger.log(`[KanbanView] Skipping subscription update - updates in progress`)
-    return
-  }
-  
-  // Update card states
-  columns.value.forEach(column => {
-    column.data.forEach(card => {
-      cardStates.set(card.name, column.column.name)
-    })
-  })
-  
-  logger.log(`[KanbanView] Detected changes in visible cards or doctype, updating subscriptions`)
-  throttledSubscribe()
-}, { deep: true })
+// Settings state
+const realtimeDisabled = ref(false)
 
-onMounted(() => {
-  logger.log(`[KanbanView] Component mounted`)
+// Thoroughly clean up all socket-related features
+function cleanup() {
+  logger.log('[KanbanView] Cleaning up socket-related features');
   
-  // Wait for doctype to be available
-  watch(() => kanban.value?.params?.doctype, (doctype) => {
-    if (doctype) {
-      logger.log(`[KanbanView] Doctype ${doctype} is available, initializing`)
+  // Clear all subscriptions
+  if (subscriptions.size > 0) {
+    logger.log(`[KanbanView] Cleaning up ${subscriptions.size} subscriptions`);
+    subscriptions.forEach((unsubscribe, cardName) => {
+      unsubscribe();
+    });
+    subscriptions.clear();
+  }
+  
+  // Reset states
+  updatingCards.value.clear();
+  pendingUpdates.clear();
+  pendingMoves.clear();
+  isUpdatingSubscriptions.value = false;
+  updateQueue.clear();
+  
+  // Remove event listeners
+  if (docCreatedHandler) {
+    logger.log('[KanbanView] Removing document creation listener');
+    window.removeEventListener('crm:doc_created', docCreatedHandler);
+    docCreatedHandler = null;
+  }
+  
+  if (docDeletedHandler) {
+    logger.log('[KanbanView] Removing document deletion listener');
+    window.removeEventListener('crm:doc_deleted', docDeletedHandler);
+    docDeletedHandler = null;
+  }
+  
+  logger.log('[KanbanView] Cleanup complete');
+}
+
+// Initialize component - load settings and set up socket if enabled
+async function initialize() {
+  logger.log('[KanbanView] Initializing component');
+  
+  // First load settings
+  await loadSettings();
+  
+  if (!realtimeDisabled.value) {
+    logger.log('[KanbanView] Real-time updates are enabled - initializing socket features');
+    socketInitialized.value = true;
+    updateSubscriptions();
+    docCreatedHandler = setupDocCreationListener();
+    docDeletedHandler = setupDocDeletionListener();
+  } else {
+    logger.log('[KanbanView] Real-time updates are disabled - skipping socket initialization');
+    // Ensure socket features are not initialized
+    socketInitialized.value = false;
+    cleanup();
+  }
+}
+
+// Modified loadSettings function
+async function loadSettings() {
+  try {
+    logger.log('[KanbanView] Loading realtime settings')
+    const response = await call('frappe.client.get_value', {
+      doctype: 'FCRM Settings',
+      fieldname: 'disable_realtime_updates'
+    })
+    
+    if (response && response.message) {
+      const wasEnabled = !realtimeDisabled.value
+      const isDisabled = response.message.disable_realtime_updates === 1
+      
+      logger.log('[KanbanView] Settings loaded - realtime updates:', isDisabled ? 'disabled' : 'enabled')
+      
+      realtimeDisabled.value = isDisabled
+      
+      // If realtime was enabled and is now disabled, clean up
+      if (isDisabled && wasEnabled) {
+        logger.log('[KanbanView] Realtime was enabled and is now disabled - cleaning up')
+        cleanup()
+      }
+      
+      // Force cleanup if disabled
+      if (isDisabled) {
+        cleanup()
+      }
+    } else {
+      logger.warn('[KanbanView] No settings found - defaulting to enabled')
+      realtimeDisabled.value = false
+    }
+  } catch (error) {
+    logger.error('[KanbanView] Failed to load settings:', error)
+    // Default to enabled in case of error
+    realtimeDisabled.value = false
+  }
+}
+
+// Modified subscribeToSettings function
+function subscribeToSettings() {
+  // Listen for settings changes from socket.js
+  const handleSettingsChange = (event) => {
+    const { disabled } = event.detail
+    logger.log('[KanbanView] Realtime settings changed:', disabled ? 'disabled' : 'enabled')
+    
+    const wasEnabled = !realtimeDisabled.value
+    realtimeDisabled.value = disabled
+    
+    if (disabled && wasEnabled) {
+      logger.log('[KanbanView] Realtime was enabled and is now disabled - cleaning up')
+      cleanup()
+    } else if (!disabled && !wasEnabled) {
+      logger.log('[KanbanView] Realtime was disabled and is now enabled - initializing')
+      socketInitialized.value = true
       updateSubscriptions()
       docCreatedHandler = setupDocCreationListener()
       docDeletedHandler = setupDocDeletionListener()
     }
-  }, { immediate: true })
+  }
+  
+  window.addEventListener('crm:realtime_settings_changed', handleSettingsChange)
+  
+  // Store handler for cleanup
+  return handleSettingsChange
+}
+
+// Store settings change handler
+let settingsChangeHandler = null
+
+// Modified component setup
+onMounted(() => {
+  initialize()
+  settingsChangeHandler = subscribeToSettings()
 })
 
-onUnmounted(() => {
-  logger.log(`[KanbanView] Component unmounting, cleaning up subscriptions`)
-  // Cleanup all subscriptions
-  for (const unsubscribe of subscriptions.values()) {
-    unsubscribe();
+onBeforeUnmount(() => {
+  cleanup()
+  // Remove settings change listener
+  if (settingsChangeHandler) {
+    window.removeEventListener('crm:realtime_settings_changed', settingsChangeHandler)
+    settingsChangeHandler = null
   }
-  subscriptions.clear();
-  
-  // Remove document event listeners
-  if (docCreatedHandler) {
-    window.removeEventListener('crm:doc_created', docCreatedHandler);
-  }
-  if (docDeletedHandler) {
-    window.removeEventListener('crm:doc_deleted', docDeletedHandler);
-  }
-  logger.log(`[KanbanView] Cleanup complete`)
 })
 
 const deletedColumns = computed(() => {
@@ -861,4 +1103,64 @@ function addColumn(e) {
   column.column['delete'] = false
   updateColumn()
 }
+
+// Modified highlightRemoteUpdate function
+function highlightRemoteUpdate(element, cardName) {
+  // Skip highlighting if realtime updates are disabled
+  if (realtimeDisabled.value) {
+    updatingCards.value.delete(cardName)
+    return
+  }
+
+  if (!element) {
+    logger.log(`[KanbanView] Cannot highlight card ${cardName} - element not found`)
+    return
+  }
+  
+  logger.log(`[KanbanView] Highlighting remote update for card ${cardName}`)
+  element.classList.add('remote-update-highlight')
+  
+  setTimeout(() => {
+    logger.log(`[KanbanView] Removing highlight from card ${cardName}`)
+    element.classList.remove('remote-update-highlight')
+    updatingCards.value.delete(cardName)
+  }, 1000) // Reduced from 2500ms to 1000ms
+}
+
+// Modified watch function
+watch([
+  () => columns.value.map(col => col.data.map(card => card.name)).flat(),
+  () => kanban.value?.params?.doctype
+], (newVal, oldVal) => {
+  // Skip everything if realtime is disabled
+  if (realtimeDisabled.value || !socketInitialized.value) {
+    logger.log('[KanbanView] Skipping watch updates - realtime disabled or socket not initialized')
+    return
+  }
+  
+  const doctype = kanban.value?.params?.doctype
+  if (!doctype) return
+  
+  // Skip unnecessary updates
+  if (oldVal && newVal?.length === oldVal?.length && 
+      new Set(newVal).size === new Set(oldVal).size) {
+    return
+  }
+  
+  // Skip if too many updates are in progress
+  if (pendingUpdates.size > 5 || updatingCards.value.size > 5) {
+    return
+  }
+  
+  // Debounce subscription updates
+  debounce(() => {
+    columns.value.forEach(column => {
+      column.data.forEach(card => {
+        cardStates.set(card.name, column.column.name)
+      })
+    })
+    
+    throttledSubscribe()
+  }, 100)()
+}, { deep: true })
 </script>
