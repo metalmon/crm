@@ -142,14 +142,11 @@ def share_on_assignment(todo):
     """Share the referenced document with the assigned user"""
     try:
         if not todo.reference_type or not todo.reference_name or not todo.allocated_to:
-            frappe.msgprint("[Debug] Missing required fields in ToDo")
             return
             
-        frappe.msgprint(f"[Debug] Processing ToDo assignment - Doc: {todo.reference_type}/{todo.reference_name}, User: {todo.allocated_to}")
         
         # If ToDo is cancelled, remove share
         if todo.status == "Cancelled":
-            frappe.msgprint(f"[Debug] ToDo cancelled, removing share for user {todo.allocated_to}")
             frappe.share.remove(
                 todo.reference_type,
                 todo.reference_name,
@@ -172,7 +169,6 @@ def share_on_assignment(todo):
         )
         
         if existing_share:
-            frappe.msgprint(f"[Debug] Document already shared with user {todo.allocated_to}")
             # Update existing share to ensure correct permissions
             share_doc = frappe.get_doc("DocShare", existing_share)
             share_doc.read = 1
@@ -192,7 +188,6 @@ def share_on_assignment(todo):
             flags={"ignore_share_permission": True}
         )
         
-        frappe.msgprint(f"[Debug] Successfully shared document with user {todo.allocated_to}")
         
     except Exception as e:
         frappe.log_error(f"Error sharing document on assignment: {str(e)}")
