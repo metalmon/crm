@@ -132,6 +132,20 @@ const addValue = (value) => {
   }
 }
 
+// Helper function to show error alerts
+const showErrorAlert = (message) => {
+  console.error(message)
+  // Using __ function that is globally available in Frappe
+  const errorMessage = window.__ ? window.__('Failed to update assignments. Please try again.') : 'Failed to update assignments. Please try again.'
+  // Using the Frappe UI's toast/alert mechanism that is globally available
+  if (window.frappe && window.frappe.show_alert) {
+    window.frappe.show_alert({
+      message: errorMessage,
+      indicator: 'red'
+    })
+  }
+}
+
 function updateAssignees() {
   const removedAssignees = oldAssignees.value
     .filter(
@@ -147,33 +161,46 @@ function updateAssignees() {
 
   if (removedAssignees.length) {
     for (let a of removedAssignees) {
-      call('frappe.desk.form.assign_to.remove', {
+      call('crm.api.assignment.remove_with_retry', {
         doctype: props.doctype,
         name: props.doc.name,
         assign_to: a,
       })
+        .catch(error => {
+          console.error(__('Failed to unassign:'), error)
+          showErrorAlert(__('Failed to unassign: {0}', [(error.message || __('Unknown error'))]))
+        })
     }
   }
 
   if (addedAssignees.length) {
     if (props.docs.size) {
       capture('bulk_assign_to', { doctype: props.doctype })
-      call('frappe.desk.form.assign_to.add_multiple', {
+      call('crm.api.assignment.add_multiple_with_retry', {
         doctype: props.doctype,
         name: JSON.stringify(Array.from(props.docs)),
         assign_to: addedAssignees,
         bulk_assign: true,
         re_assign: true,
-      }).then(() => {
-        emit('reload')
       })
+        .then(() => {
+          emit('reload')
+        })
+        .catch(error => {
+          console.error(__('Failed to assign:'), error)
+          showErrorAlert(__('Failed to assign: {0}', [(error.message || __('Unknown error'))]))
+        })
     } else {
       capture('assign_to', { doctype: props.doctype })
-      call('frappe.desk.form.assign_to.add', {
+      call('crm.api.assignment.add_with_retry', {
         doctype: props.doctype,
         name: props.doc.name,
         assign_to: addedAssignees,
       })
+        .catch(error => {
+          console.error(__('Failed to assign:'), error)
+          showErrorAlert(__('Failed to assign: {0}', [(error.message || __('Unknown error'))]))
+        })
     }
   }
   show.value = false

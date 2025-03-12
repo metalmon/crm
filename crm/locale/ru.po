@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-09 12:55+0000\n"
-"PO-Revision-Date: 2025-03-09 16:56+0400\n"
+"POT-Creation-Date: 2025-03-12 18:32+0000\n"
+"PO-Revision-Date: 2025-03-12 22:35+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -1093,6 +1093,14 @@ msgstr "Данные обновлены"
 msgid "Date"
 msgstr "Дата"
 
+#: crm/api/assignment.py:35
+msgid "Deadlock detected in assignment, retrying... (Attempt {0}/{1})"
+msgstr "Обнаружен тупик при создании назначений, повторная попытка... (Попытка {0}/{1})"
+
+#: crm/api/assignment.py:113
+msgid "Deadlock detected in unassignment, retrying... (Attempt {0}/{1})"
+msgstr "Обнаружен тупик при отмене назначений, повторная попытка... (Попытка {0}/{1})"
+
 #: frontend/src/components/Telephony/ExotelCallUI.vue:205
 #: frontend/src/pages/Tasks.vue:129
 msgid "Deal"
@@ -1192,7 +1200,7 @@ msgstr "По умолчанию"
 #: frontend/src/components/Activities/TaskArea.vue:61
 #: frontend/src/components/Controls/Grid.vue:228
 #: frontend/src/components/DropdownItem.vue:50
-#: frontend/src/components/Kanban/KanbanView.vue:791
+#: frontend/src/components/Kanban/KanbanView.vue:847
 #: frontend/src/components/ListBulkActions.vue:94
 #: frontend/src/components/ListBulkActions.vue:100
 #: frontend/src/components/ListBulkActions.vue:180
@@ -1205,7 +1213,7 @@ msgstr "По умолчанию"
 #: frontend/src/pages/MobileOrganization.vue:79
 #: frontend/src/pages/MobileOrganization.vue:292
 #: frontend/src/pages/Notes.vue:40 frontend/src/pages/Organization.vue:83
-#: frontend/src/pages/Organization.vue:304 frontend/src/pages/Tasks.vue:397
+#: frontend/src/pages/Organization.vue:304 frontend/src/pages/Tasks.vue:375
 msgid "Delete"
 msgstr "Удалить"
 
@@ -1497,7 +1505,7 @@ msgstr "Шаблоны писем"
 msgid "Email from Lead"
 msgstr "Электронное письмо от лида"
 
-#: crm/api/communication.py:257
+#: crm/api/communication.py:325
 msgid "Email references update completed successfully"
 msgstr "Обновление ссылок на электронную почту успешно завершено"
 
@@ -1589,7 +1597,19 @@ msgstr "Ошибка при обновлении сделки"
 msgid "Error Updating Lead"
 msgstr "Ошибка обновлении лида"
 
-#: crm/api/todo.py:199
+#: crm/api/assignment.py:71
+msgid "Error assigning to {0}: {1}"
+msgstr "Ошибка при назначении на {0}: {1}"
+
+#: crm/api/assignment.py:39
+msgid "Error in assignment: {0}"
+msgstr "Ошибка при назначении: {0}"
+
+#: crm/api/assignment.py:117
+msgid "Error in unassignment: {0}"
+msgstr "Ошибка при отмене назначения: {0}"
+
+#: crm/api/todo.py:194
 msgid "Error sharing document on assignment"
 msgstr "Ошибка обмена документами при назначении"
 
@@ -1600,6 +1620,10 @@ msgstr "Ошибка при обновлении сделки"
 #: frontend/src/pages/Lead.vue:412 frontend/src/pages/MobileLead.vue:335
 msgid "Error updating lead"
 msgstr "Ошибка обновлении лида"
+
+#: crm/api/assignment.py:40
+msgid "Error while assigning: {0}"
+msgstr "Ошибка в процессе назначения: {0}"
 
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.py:55
 msgid "Error while creating custom field in ERPNext, check error log for more details"
@@ -1616,6 +1640,10 @@ msgstr "Ошибка при создании перспективы в ERP, пр
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.py:115
 msgid "Error while fetching customer in ERPNext, check error log for more details"
 msgstr "Ошибка при получении клиента в ERP, проверьте журнал ошибок для получения более подробной информации"
+
+#: crm/api/assignment.py:118
+msgid "Error while unassigning: {0}"
+msgstr "Ошибка при отмене назначения: {0}"
 
 #: frontend/src/components/ViewControls.vue:279
 #: frontend/src/components/ViewControls.vue:288
@@ -1699,6 +1727,20 @@ msgstr "Настройки FCRM"
 msgid "Failed"
 msgstr "Не удалось"
 
+#: crm/api/assignment.py:42
+msgid "Failed to assign after multiple attempts"
+msgstr "Не удалось назначить после нескольких попыток"
+
+#: frontend/src/components/Modals/AssignmentModal.vue:190
+#: frontend/src/components/Modals/AssignmentModal.vue:201
+msgid "Failed to assign:"
+msgstr "Не удалось назначить:"
+
+#: frontend/src/components/Modals/AssignmentModal.vue:191
+#: frontend/src/components/Modals/AssignmentModal.vue:202
+msgid "Failed to assign: {0}"
+msgstr "Не удалось назначить: {0}"
+
 #: crm/integrations/twilio/api.py:130
 msgid "Failed to capture Twilio recording"
 msgstr "Не удалось получить запись Twilio"
@@ -1707,11 +1749,27 @@ msgstr "Не удалось получить запись Twilio"
 msgid "Failed to reset column settings: "
 msgstr "Не удалось сбросить настройки колонки: "
 
+#: crm/api/assignment.py:120
+msgid "Failed to unassign after multiple attempts"
+msgstr "Не удалось отменить назначение после нескольких попыток"
+
+#: frontend/src/components/Modals/AssignmentModal.vue:170
+msgid "Failed to unassign:"
+msgstr "Не удалось отменить назначение:"
+
+#: frontend/src/components/Modals/AssignmentModal.vue:171
+msgid "Failed to unassign: {0}"
+msgstr "Не удалось отменить назначение: {0}"
+
 #: crm/integrations/twilio/api.py:152
 msgid "Failed to update Twilio call status"
 msgstr "Не удалось обновить статус вызова Twilio"
 
-#: crm/api/communication.py:261
+#: frontend/src/components/Modals/AssignmentModal.vue:139
+msgid "Failed to update assignments. Please try again."
+msgstr "Не удалось обновить назначения. Пожалуйста, попробуйте еще раз."
+
+#: crm/api/communication.py:333
 msgid "Failed to update email references: {0}"
 msgstr "Не удалось обновить ссылки на электронную почту: {0}"
 
@@ -2865,7 +2923,7 @@ msgstr "Не разрешено устанавливать основной ко
 msgid "Not permitted"
 msgstr "Не разрешено"
 
-#: crm/api/communication.py:249
+#: crm/api/communication.py:317
 msgid "Not permitted to update email references"
 msgstr "Не разрешается обновлять ссылки на электронную почту"
 
@@ -2969,7 +3027,7 @@ msgstr "Открыть в новом окне"
 msgid "Open website"
 msgstr "Открыть веб-сайт"
 
-#: frontend/src/components/Kanban/KanbanView.vue:787
+#: frontend/src/components/Kanban/KanbanView.vue:843
 #: frontend/src/components/Modals/CallLogDetailModal.vue:15
 #: frontend/src/components/ViewControls.vue:207
 msgid "Options"
@@ -3558,6 +3616,7 @@ msgstr "Менеджер по продажам"
 #: crm/fcrm/doctype/crm_communication_status/crm_communication_status.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
+#: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 #: crm/fcrm/doctype/crm_funnel/crm_funnel.json
 #: crm/fcrm/doctype/crm_global_settings/crm_global_settings.json
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json

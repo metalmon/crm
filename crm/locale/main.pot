@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-09 09:34+0000\n"
-"PO-Revision-Date: 2025-03-09 09:34+0000\n"
+"POT-Creation-Date: 2025-03-12 18:32+0000\n"
+"PO-Revision-Date: 2025-03-12 18:32+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
 
-#: frontend/src/components/ViewControls.vue:1202
+#: frontend/src/components/ViewControls.vue:1394
 msgid " (New)"
 msgstr ""
 
@@ -164,8 +164,8 @@ msgid "Account SID"
 msgstr ""
 
 #: frontend/src/components/CustomActions.vue:73
-#: frontend/src/components/ViewControls.vue:666
-#: frontend/src/components/ViewControls.vue:1094
+#: frontend/src/components/ViewControls.vue:882
+#: frontend/src/components/ViewControls.vue:1288
 msgid "Actions"
 msgstr ""
 
@@ -1090,6 +1090,14 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
+#: crm/api/assignment.py:35
+msgid "Deadlock detected in assignment, retrying... (Attempt {0}/{1})"
+msgstr ""
+
+#: crm/api/assignment.py:113
+msgid "Deadlock detected in unassignment, retrying... (Attempt {0}/{1})"
+msgstr ""
+
 #: frontend/src/components/Telephony/ExotelCallUI.vue:205
 #: frontend/src/pages/Tasks.vue:129
 msgid "Deal"
@@ -1187,21 +1195,22 @@ msgstr ""
 #: frontend/src/components/Activities/NoteArea.vue:12
 #: frontend/src/components/Activities/TaskArea.vue:53
 #: frontend/src/components/Activities/TaskArea.vue:61
-#: frontend/src/components/Controls/Grid.vue:232
-#: frontend/src/components/Kanban/KanbanView.vue:225
-#: frontend/src/components/ListBulkActions.vue:96
-#: frontend/src/components/ListBulkActions.vue:104
-#: frontend/src/components/ListBulkActions.vue:186
-#: frontend/src/components/ViewControls.vue:1146
-#: frontend/src/components/ViewControls.vue:1157
-#: frontend/src/pages/Contact.vue:105 frontend/src/pages/Contact.vue:296
-#: frontend/src/pages/MobileContact.vue:81
-#: frontend/src/pages/MobileContact.vue:289
-#: frontend/src/pages/MobileDeal.vue:519
-#: frontend/src/pages/MobileOrganization.vue:72
-#: frontend/src/pages/MobileOrganization.vue:283
+#: frontend/src/components/Controls/Grid.vue:228
+#: frontend/src/components/DropdownItem.vue:50
+#: frontend/src/components/Kanban/KanbanView.vue:847
+#: frontend/src/components/ListBulkActions.vue:94
+#: frontend/src/components/ListBulkActions.vue:100
+#: frontend/src/components/ListBulkActions.vue:180
+#: frontend/src/components/ViewControls.vue:1340
+#: frontend/src/components/ViewControls.vue:1349
+#: frontend/src/pages/Contact.vue:131 frontend/src/pages/Contact.vue:141
+#: frontend/src/pages/Contact.vue:328 frontend/src/pages/MobileContact.vue:107
+#: frontend/src/pages/MobileContact.vue:320
+#: frontend/src/pages/MobileDeal.vue:597
+#: frontend/src/pages/MobileOrganization.vue:79
+#: frontend/src/pages/MobileOrganization.vue:292
 #: frontend/src/pages/Notes.vue:40 frontend/src/pages/Organization.vue:83
-#: frontend/src/pages/Organization.vue:304 frontend/src/pages/Tasks.vue:397
+#: frontend/src/pages/Organization.vue:304 frontend/src/pages/Tasks.vue:375
 msgid "Delete"
 msgstr ""
 
@@ -1217,8 +1226,8 @@ msgstr ""
 msgid "Delete Task"
 msgstr ""
 
-#: frontend/src/components/ViewControls.vue:1142
-#: frontend/src/components/ViewControls.vue:1150
+#: frontend/src/components/ViewControls.vue:1336
+#: frontend/src/components/ViewControls.vue:1344
 msgid "Delete View"
 msgstr ""
 
@@ -1346,7 +1355,7 @@ msgid "Due Date"
 msgstr ""
 
 #: frontend/src/components/Modals/ViewModal.vue:15
-#: frontend/src/components/ViewControls.vue:1098
+#: frontend/src/components/ViewControls.vue:1292
 msgid "Duplicate"
 msgstr ""
 
@@ -1401,10 +1410,10 @@ msgstr ""
 #: frontend/src/components/DropdownItem.vue:38
 #: frontend/src/components/FieldLayout.vue:191
 #: frontend/src/components/FieldLayout/Field.vue:75
-#: frontend/src/components/FieldLayoutEditor.vue:319
-#: frontend/src/components/FieldLayoutEditor.vue:345
-#: frontend/src/components/ListBulkActions.vue:179
-#: frontend/src/components/ViewControls.vue:1116
+#: frontend/src/components/FieldLayoutEditor.vue:324
+#: frontend/src/components/FieldLayoutEditor.vue:350
+#: frontend/src/components/ListBulkActions.vue:173
+#: frontend/src/components/ViewControls.vue:1310
 msgid "Edit"
 msgstr ""
 
@@ -1493,7 +1502,7 @@ msgstr ""
 msgid "Email from Lead"
 msgstr ""
 
-#: crm/api/communication.py:257
+#: crm/api/communication.py:325
 msgid "Email references update completed successfully"
 msgstr ""
 
@@ -1585,7 +1594,19 @@ msgstr ""
 msgid "Error Updating Lead"
 msgstr ""
 
-#: crm/api/todo.py:199
+#: crm/api/assignment.py:71
+msgid "Error assigning to {0}: {1}"
+msgstr ""
+
+#: crm/api/assignment.py:39
+msgid "Error in assignment: {0}"
+msgstr ""
+
+#: crm/api/assignment.py:117
+msgid "Error in unassignment: {0}"
+msgstr ""
+
+#: crm/api/todo.py:194
 msgid "Error sharing document on assignment"
 msgstr ""
 
@@ -1595,6 +1616,10 @@ msgstr ""
 
 #: frontend/src/pages/Lead.vue:412 frontend/src/pages/MobileLead.vue:335
 msgid "Error updating lead"
+msgstr ""
+
+#: crm/api/assignment.py:40
+msgid "Error while assigning: {0}"
 msgstr ""
 
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.py:55
@@ -1611,6 +1636,10 @@ msgstr ""
 
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.py:115
 msgid "Error while fetching customer in ERPNext, check error log for more details"
+msgstr ""
+
+#: crm/api/assignment.py:118
+msgid "Error while unassigning: {0}"
 msgstr ""
 
 #: frontend/src/components/ViewControls.vue:279
@@ -1695,6 +1724,20 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
+#: crm/api/assignment.py:42
+msgid "Failed to assign after multiple attempts"
+msgstr ""
+
+#: frontend/src/components/Modals/AssignmentModal.vue:190
+#: frontend/src/components/Modals/AssignmentModal.vue:201
+msgid "Failed to assign:"
+msgstr ""
+
+#: frontend/src/components/Modals/AssignmentModal.vue:191
+#: frontend/src/components/Modals/AssignmentModal.vue:202
+msgid "Failed to assign: {0}"
+msgstr ""
+
 #: crm/integrations/twilio/api.py:130
 msgid "Failed to capture Twilio recording"
 msgstr ""
@@ -1703,11 +1746,27 @@ msgstr ""
 msgid "Failed to reset column settings: "
 msgstr ""
 
+#: crm/api/assignment.py:120
+msgid "Failed to unassign after multiple attempts"
+msgstr ""
+
+#: frontend/src/components/Modals/AssignmentModal.vue:170
+msgid "Failed to unassign:"
+msgstr ""
+
+#: frontend/src/components/Modals/AssignmentModal.vue:171
+msgid "Failed to unassign: {0}"
+msgstr ""
+
 #: crm/integrations/twilio/api.py:152
 msgid "Failed to update Twilio call status"
 msgstr ""
 
-#: crm/api/communication.py:261
+#: frontend/src/components/Modals/AssignmentModal.vue:139
+msgid "Failed to update assignments. Please try again."
+msgstr ""
+
+#: crm/api/communication.py:333
 msgid "Failed to update email references: {0}"
 msgstr ""
 
@@ -2376,11 +2435,11 @@ msgstr ""
 msgid "Make Call"
 msgstr ""
 
-#: frontend/src/components/ViewControls.vue:1131
+#: frontend/src/components/ViewControls.vue:1325
 msgid "Make Private"
 msgstr ""
 
-#: frontend/src/components/ViewControls.vue:1131
+#: frontend/src/components/ViewControls.vue:1325
 msgid "Make Public"
 msgstr ""
 
@@ -2861,7 +2920,7 @@ msgstr ""
 msgid "Not permitted"
 msgstr ""
 
-#: crm/api/communication.py:249
+#: crm/api/communication.py:317
 msgid "Not permitted to update email references"
 msgstr ""
 
@@ -2965,7 +3024,7 @@ msgstr ""
 msgid "Open website"
 msgstr ""
 
-#: frontend/src/components/Kanban/KanbanView.vue:787
+#: frontend/src/components/Kanban/KanbanView.vue:843
 #: frontend/src/components/Modals/CallLogDetailModal.vue:15
 #: frontend/src/components/ViewControls.vue:207
 msgid "Options"
@@ -3105,7 +3164,11 @@ msgstr ""
 msgid "Phone Numbers"
 msgstr ""
 
-#: frontend/src/components/ViewControls.vue:1123
+#: frontend/src/utils/communicationUtils.js:47
+msgid "Phone call"
+msgstr ""
+
+#: frontend/src/components/ViewControls.vue:1317
 msgid "Pin View"
 msgstr ""
 
@@ -3551,6 +3614,7 @@ msgstr ""
 #: crm/fcrm/doctype/crm_communication_status/crm_communication_status.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
+#: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 #: crm/fcrm/doctype/crm_funnel/crm_funnel.json
 #: crm/fcrm/doctype/crm_global_settings/crm_global_settings.json
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
@@ -3703,7 +3767,7 @@ msgstr ""
 msgid "Set as Primary Contact"
 msgstr ""
 
-#: frontend/src/components/ViewControls.vue:1108
+#: frontend/src/components/ViewControls.vue:1302
 msgid "Set as default"
 msgstr ""
 
@@ -4162,7 +4226,15 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: frontend/src/components/ViewControls.vue:1123
+#: frontend/src/components/ViewControls.vue:1030
+msgid "Unknown error"
+msgstr ""
+
+#: crm/fcrm/doctype/crm_lead/crm_lead.py:64
+msgid "Unnamed Lead"
+msgstr ""
+
+#: frontend/src/components/ViewControls.vue:1317
 msgid "Unpin View"
 msgstr ""
 
@@ -4374,7 +4446,9 @@ msgstr ""
 msgid "Yesterday"
 msgstr ""
 
-#: crm/api/whatsapp.py:36 crm/api/whatsapp.py:216 crm/api/whatsapp.py:230
+#: crm/api/avito.py:241 crm/api/avito.py:260 crm/api/whatsapp.py:216
+#: crm/api/whatsapp.py:230 frontend/src/components/Activities/AvitoArea.vue:34
+#: frontend/src/components/Activities/AvitoBox.vue:14
 #: frontend/src/components/Activities/WhatsAppArea.vue:34
 #: frontend/src/components/Activities/WhatsAppBox.vue:14
 msgid "You"
@@ -4404,11 +4478,7 @@ msgstr ""
 msgid "You need to be in developer mode to edit a Standard Form Script"
 msgstr ""
 
-#: crm/api/todo.py:111
-msgid "Your assignment on task {0} has been removed by {1}"
-msgstr ""
-
-#: crm/api/todo.py:46 crm/api/todo.py:89
+#: crm/api/todo.py:52
 msgid "Your assignment on {0} {1} has been removed by {2}"
 msgstr ""
 
@@ -4427,12 +4497,8 @@ msgstr ""
 msgid "amber"
 msgstr ""
 
-#: crm/api/todo.py:120
-msgid "assigned a new task {0} to you"
-msgstr ""
-
-#: crm/api/todo.py:100
-msgid "assigned a {0} {1} to you"
+#: frontend/src/components/Activities/Activities.vue:839
+msgid "as"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
@@ -4525,7 +4591,7 @@ msgstr ""
 msgid "list"
 msgstr ""
 
-#: crm/api/comment.py:36 frontend/src/components/Notifications.vue:65
+#: frontend/src/components/Notifications.vue:65
 #: frontend/src/pages/MobileNotification.vue:52
 msgid "mentioned you in {0}"
 msgstr ""
@@ -4565,10 +4631,6 @@ msgstr ""
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "purple"
-msgstr ""
-
-#: crm/api/whatsapp.py:37
-msgid "received a whatsapp message in {0}"
 msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
