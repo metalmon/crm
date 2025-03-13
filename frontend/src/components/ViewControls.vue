@@ -608,8 +608,25 @@ const view = ref({
   public: false,
 })
 
-const pageLength = computed(() => list.value?.data?.page_length)
-const pageLengthCount = computed(() => list.value?.data?.page_length_count)
+const pageLength = computed(() => {
+  if (list.value?.params?.page_length) {
+    return list.value.params.page_length
+  }
+  if (route.query.page_length) {
+    return parseInt(route.query.page_length)
+  }
+  return 20
+})
+
+const pageLengthCount = computed(() => {
+  if (list.value?.params?.page_length_count) {
+    return list.value.params.page_length_count
+  }
+  if (route.query.page_length) {
+    return parseInt(route.query.page_length)
+  }
+  return 20
+})
 
 watch(loadMore, (value) => {
   if (!value) return
