@@ -39,28 +39,22 @@ function initTranslations() {
   const cachedTranslations = loadTranslationsFromCache()
   
   if (cachedTranslations) {
+    // Use cached translations immediately
     window.translatedMessages = cachedTranslations
     translationState.initialized.value = true
     translationState.lastUpdated.value = new Date(parseInt(localStorage.getItem(TRANSLATION_TIMESTAMP_KEY) || Date.now()))
   }
   
-  // Always check for updates from server
-  checkTranslationUpdates()
-}
-
-/**
- * Check if translations need updating by comparing hashes
- */
-function checkTranslationUpdates() {
+  // Check for updates from server
   if (!translationResource) {
     translationResource = createResource({
       url: 'crm.api.get_translations',
-      cache: 'translations',
-      auto: false,
+      auto: false, // Don't fetch automatically
       transform: (response) => {
         const { translations, hash } = response
         const cachedHash = localStorage.getItem(TRANSLATION_HASH_KEY)
         
+        // Only update if hash is different or no cache exists
         if (!cachedHash || hash !== cachedHash) {
           updateTranslations(response)
         }
@@ -70,10 +64,15 @@ function checkTranslationUpdates() {
       },
       onError: () => {
         translationState.loading.value = false
+        // If error and no cached translations, set empty translations
+        if (!window.translatedMessages) {
+          window.translatedMessages = {}
+        }
       }
     })
   }
   
+  // Submit request to check for updates
   translationResource.submit()
 }
 
@@ -197,27 +196,4 @@ function saveTranslationsToCache(translations, hash) {
       console.error('Failed to save translations even after clearing cache:', e)
     }
   }
-}
-
-/**
- * Fetch translations from server
- */
-function fetchTranslations() {
-  if (!translationResource) {
-    translationResource = createResource({
-      url: 'crm.api.get_translations',
-      cache: 'translations',
-      auto: false,
-      transform: (response) => {
-        updateTranslations(response)
-        translationState.loading.value = false
-        return response.translations
-      },
-      onError: () => {
-        translationState.loading.value = false
-      }
-    })
-  }
-  
-  translationResource.submit()
 }
