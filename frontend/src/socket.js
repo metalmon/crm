@@ -62,7 +62,7 @@ const socketMetrics = {
 
 // Constants
 const THROTTLE_DELAY = 1000 // ms between updates for the same document
-const MAX_SUBSCRIPTIONS = 100 // Maximum active subscriptions
+const MAX_SUBSCRIPTIONS = 50 // Maximum active subscriptions
 const INACTIVE_SUBSCRIPTION_TIMEOUT = 10 * 60 * 1000 // 10 minutes
 const LOCAL_TRANSACTION_TIMEOUT = 10000 // 10 seconds max for a transaction
 const PRIORITY_UPDATE_THROTTLE = 500 // ms
