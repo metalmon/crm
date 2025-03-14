@@ -5,7 +5,6 @@ import { ref, nextTick } from 'vue'
 const TRANSLATION_STORAGE_KEY = 'crm_translations'
 const TRANSLATION_HASH_KEY = 'crm_translations_hash'
 const TRANSLATION_TIMESTAMP_KEY = 'crm_translations_timestamp'
-const TRANSLATION_TTL = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 
 // State for tracking translation loading
 export const translationState = {
@@ -13,32 +12,30 @@ export const translationState = {
   initialized: ref(false),
   lastUpdated: ref(null),
   isLatestVersion: ref(true),
-  // This reactive reference will be updated when translations change
   translationsUpdated: ref(0)
 }
 
 // Global Vue app instance reference for force update
 let appInstance = null
+let translationResource = null
 
 export default function translationPlugin(app) {
   appInstance = app
   app.config.globalProperties.__ = translate
   window.__ = translate
-  // Add a global refresh function
-  window.__refreshTranslations = fetchTranslations
   
-  // Initialize translations from localStorage and fetch from server
+  // Initialize translations
   initTranslations()
 }
 
 /**
- * Initialize translations by first loading from localStorage if available
- * and then fetching from server to ensure up-to-date translations
+ * Initialize translations by first loading from localStorage
+ * and then checking server for updates
  */
 function initTranslations() {
   translationState.loading.value = true
   
-  // First try to load from localStorage to have translations immediately available
+  // Try to load from localStorage first
   const cachedTranslations = loadTranslationsFromCache()
   
   if (cachedTranslations) {
@@ -47,69 +44,59 @@ function initTranslations() {
     translationState.lastUpdated.value = new Date(parseInt(localStorage.getItem(TRANSLATION_TIMESTAMP_KEY) || Date.now()))
   }
   
-  // Then fetch from server to check if translations have changed
+  // Always check for updates from server
   checkTranslationUpdates()
 }
 
 /**
- * Check if translations need to be updated by comparing hashes
+ * Check if translations need updating by comparing hashes
  */
 function checkTranslationUpdates() {
-  const cachedHash = localStorage.getItem(TRANSLATION_HASH_KEY)
-  
-  createResource({
-    url: 'crm.api.get_translations',
-    cache: 'translations_hash_check',
-    auto: true,
-    transform: (response) => {
-      const { hash } = response
-      
-      if (!cachedHash || cachedHash !== hash) {
-        // Hash is different or not available, need to update translations
-        translationState.isLatestVersion.value = false
-        // Update translations with full data
-        updateTranslations(response)
-      } else {
-        // Translations are up to date
+  if (!translationResource) {
+    translationResource = createResource({
+      url: 'crm.api.get_translations',
+      cache: 'translations',
+      auto: false,
+      transform: (response) => {
+        const { translations, hash } = response
+        const cachedHash = localStorage.getItem(TRANSLATION_HASH_KEY)
+        
+        if (!cachedHash || hash !== cachedHash) {
+          updateTranslations(response)
+        }
+        
         translationState.loading.value = false
-        translationState.isLatestVersion.value = true
+        return translations
+      },
+      onError: () => {
+        translationState.loading.value = false
       }
-      
-      return hash
-    },
-    onError: () => {
-      translationState.loading.value = false
-    }
-  })
+    })
+  }
+  
+  translationResource.submit()
 }
 
 /**
- * Update translations with new data from server
+ * Update translations in memory and localStorage
  */
 function updateTranslations(response) {
   const { translations, hash } = response
-  const previousTranslations = window.translatedMessages || {}
-  const hadPreviousTranslations = Object.keys(previousTranslations).length > 0
   
-  // Update window translations
+  // Update in-memory translations
   window.translatedMessages = translations
   
-  // Save to localStorage for future use
+  // Save to localStorage
   saveTranslationsToCache(translations, hash)
   
-  // Update translation state
-  translationState.loading.value = false
-  translationState.initialized.value = true
-  translationState.isLatestVersion.value = true
+  // Update state
   translationState.lastUpdated.value = new Date()
-  
-  // Increment translations updated counter to trigger reactivity
+  translationState.isLatestVersion.value = true
+  translationState.initialized.value = true
   translationState.translationsUpdated.value++
   
-  // If we had previous translations and they were updated, force UI refresh
-  if (hadPreviousTranslations && hash !== localStorage.getItem(TRANSLATION_HASH_KEY)) {
-    forceUiRefresh()
-  }
+  // Force UI refresh
+  forceUiRefresh()
 }
 
 /**
@@ -170,25 +157,14 @@ function translate(message, replace, context = null) {
 }
 
 /**
- * Load translations from localStorage if available and not expired
+ * Load translations from localStorage if available
  * @returns {Object|null} Translations object or null if not available
  */
 function loadTranslationsFromCache() {
   try {
-    const timestamp = localStorage.getItem(TRANSLATION_TIMESTAMP_KEY)
     const translations = localStorage.getItem(TRANSLATION_STORAGE_KEY)
     
-    if (!translations || !timestamp) {
-      return null
-    }
-    
-    // Check if translations are expired
-    const now = Date.now()
-    if (now - parseInt(timestamp) > TRANSLATION_TTL) {
-      // Clear expired translations
-      localStorage.removeItem(TRANSLATION_STORAGE_KEY)
-      localStorage.removeItem(TRANSLATION_HASH_KEY)
-      localStorage.removeItem(TRANSLATION_TIMESTAMP_KEY)
+    if (!translations) {
       return null
     }
     
@@ -224,27 +200,24 @@ function saveTranslationsToCache(translations, hash) {
 }
 
 /**
- * Fetch translations from server and update localStorage cache
- * @param {string} lang - Optional language code
- * @returns {Promise} - Resource promise
+ * Fetch translations from server
  */
-function fetchTranslations(lang) {
-  translationState.loading.value = true
+function fetchTranslations() {
+  if (!translationResource) {
+    translationResource = createResource({
+      url: 'crm.api.get_translations',
+      cache: 'translations',
+      auto: false,
+      transform: (response) => {
+        updateTranslations(response)
+        translationState.loading.value = false
+        return response.translations
+      },
+      onError: () => {
+        translationState.loading.value = false
+      }
+    })
+  }
   
-  return createResource({
-    url: 'crm.api.get_translations',
-    cache: 'translations',
-    auto: true,
-    transform: (response) => {
-      const { translations, hash } = response
-      
-      // Update translations
-      updateTranslations(response)
-      
-      return translations
-    },
-    onError: () => {
-      translationState.loading.value = false
-    }
-  })
+  translationResource.submit()
 }
