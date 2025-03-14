@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
 import frappe
+import hashlib
+import json
 from frappe.translate import get_all_translations
 from frappe.utils import validate_email_address, split_emails, cstr
 from frappe.utils.telemetry import POSTHOG_HOST_FIELD, POSTHOG_PROJECT_FIELD
@@ -14,10 +16,19 @@ def get_translations():
 		else:
 			language = frappe.db.get_single_value("System Settings", "language")
 
-		return get_all_translations(language)
+		translations = get_all_translations(language)
+		
+		# Generate hash for translations to detect changes
+		translations_json = json.dumps(translations, sort_keys=True)
+		translations_hash = hashlib.md5(translations_json.encode()).hexdigest()
+		
+		return {
+			"translations": translations,
+			"hash": translations_hash
+		}
 	except Exception as e:
 		frappe.log_error("Translation Error", str(e))
-		return {}
+		return {"translations": {}, "hash": ""}
 
 
 @frappe.whitelist()
