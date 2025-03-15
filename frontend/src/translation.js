@@ -6,18 +6,12 @@ const TRANSLATION_STORAGE_KEY = 'crm_translations'
 const TRANSLATION_HASH_KEY = 'crm_translations_hash'
 const TRANSLATION_TIMESTAMP_KEY = 'crm_translations_timestamp'
 
-// State for tracking translation loading
-export const translationState = {
-  loading: ref(false),
-  initialized: ref(false),
-  lastUpdated: ref(null),
-  isLatestVersion: ref(true),
-  translationsUpdated: ref(0)
-}
-
 // Global Vue app instance reference for force update
 let appInstance = null
 let translationResource = null
+
+// Export timestamp ref for components that need to react to translation updates
+export const lastTranslationUpdate = ref(parseInt(localStorage.getItem(TRANSLATION_TIMESTAMP_KEY) || Date.now()))
 
 export default function translationPlugin(app) {
   appInstance = app
@@ -33,16 +27,12 @@ export default function translationPlugin(app) {
  * and then checking server for updates
  */
 function initTranslations() {
-  translationState.loading.value = true
-  
-  // Try to load from localStorage first
+   // Try to load from localStorage first
   const cachedTranslations = loadTranslationsFromCache()
   
   if (cachedTranslations) {
     // Use cached translations immediately
     window.translatedMessages = cachedTranslations
-    translationState.initialized.value = true
-    translationState.lastUpdated.value = new Date(parseInt(localStorage.getItem(TRANSLATION_TIMESTAMP_KEY) || Date.now()))
   }
   
   // Check for updates from server
@@ -58,12 +48,9 @@ function initTranslations() {
         if (!cachedHash || hash !== cachedHash) {
           updateTranslations(response)
         }
-        
-        translationState.loading.value = false
         return translations
       },
       onError: () => {
-        translationState.loading.value = false
         // If error and no cached translations, set empty translations
         if (!window.translatedMessages) {
           window.translatedMessages = {}
@@ -88,36 +75,8 @@ function updateTranslations(response) {
   // Save to localStorage
   saveTranslationsToCache(translations, hash)
   
-  // Update state
-  translationState.lastUpdated.value = new Date()
-  translationState.isLatestVersion.value = true
-  translationState.initialized.value = true
-  translationState.translationsUpdated.value++
-  
-  // Force UI refresh
-  forceUiRefresh()
-}
-
-/**
- * Force UI to refresh after translations have changed
- */
-function forceUiRefresh() {
-  console.log('Translations updated, refreshing UI components')
-  
-  if (!appInstance) return
-  
-  // Use nextTick to ensure DOM updates happen after current render cycle
-  nextTick(() => {
-    // Notify all components that translations have changed
-    appInstance.config.globalProperties.$forceUpdate()
-    
-    // Find all Vue component instances and force update them
-    const rootElement = document.getElementById('app')
-    if (rootElement && rootElement.__vue_app__) {
-      // This triggers a refresh of reactive components
-      document.dispatchEvent(new CustomEvent('translations-updated'))
-    }
-  })
+  // Update timestamp ref to trigger reactivity
+  lastTranslationUpdate.value = Date.now()
 }
 
 /**

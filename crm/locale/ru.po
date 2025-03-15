@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-13 20:45+0000\n"
-"PO-Revision-Date: 2025-03-14 00:56+0400\n"
+"POT-Creation-Date: 2025-03-15 04:28+0000\n"
+"PO-Revision-Date: 2025-03-15 06:37+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
-"Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
+"Language-Team: shariq@frappe.io\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "Generated-By: Babel 2.13.1\n"
-"X-Generator: Poedit 3.5\n"
 
 #: frontend/src/components/ViewControls.vue:1411
 msgid " (New)"
@@ -452,6 +451,10 @@ msgstr "Назад"
 msgid "Back to file upload"
 msgstr "Вернуться к загрузке файлов"
 
+#: frontend/src/components/common/LoadingView.vue:32
+msgid "Background Workers"
+msgstr "Фоновые воркеры"
+
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/utils/taskStatusTranslations.js:7
@@ -757,6 +760,10 @@ msgstr "Чат"
 #: frontend/src/utils/communicationUtils.js:45
 msgid "Chat initiated with"
 msgstr "Чат инициирован с"
+
+#: frontend/src/App.vue:250
+msgid "Checking system readiness..."
+msgstr "Проверка готовности системы..."
 
 #: frontend/src/pages/Lead.vue:225 frontend/src/pages/Lead.vue:252
 #: frontend/src/pages/MobileLead.vue:166 frontend/src/pages/MobileLead.vue:193
@@ -1064,6 +1071,10 @@ msgstr "Создать Лида"
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 msgid "Currency"
 msgstr "Валюта"
+
+#: frontend/src/components/common/LoadingView.vue:47
+msgid "Current processes:"
+msgstr "Текущие процессы:"
 
 #: frontend/src/pages/Deal.vue:442
 msgid "Customer created successfully"
@@ -1747,7 +1758,7 @@ msgstr "Не удалось получить запись Twilio"
 
 #: frontend/src/components/ViewControls.vue:1047
 msgid "Failed to reset column settings: "
-msgstr "Не удалось сбросить настройки колонки:"
+msgstr "Не удалось сбросить настройки колонки: "
 
 #: crm/api/assignment.py:120
 msgid "Failed to unassign after multiple attempts"
@@ -2236,7 +2247,7 @@ msgstr "Название"
 msgid "Last 6 Months"
 msgstr "Последние 6 месяцев"
 
-#: crm/api/doc.py:347
+#: crm/api/doc.py:349
 msgid "Last Modified"
 msgstr "Последнее изменение"
 
@@ -2388,12 +2399,25 @@ msgstr "Загрузка колонок по умолчанию"
 msgid "Load More"
 msgstr "Загрузить больше"
 
+#: frontend/src/components/common/LoadingView.vue:61
+msgid "Loading data..."
+msgstr "Загрузка данных..."
+
 #: frontend/src/components/Activities/Activities.vue:25
 msgid "Loading more..."
 msgstr "Загружаю больше..."
 
+#: frontend/src/components/common/LoadingView.vue:16
+msgid "Loading required components in background..."
+msgstr "Загрузка необходимых компонентов в фоновом режиме..."
+
+#: frontend/src/components/TranslationIndicator.vue:13
+msgid "Loading translations..."
+msgstr "Загрузка переводов..."
+
 #: frontend/src/components/Activities/Activities.vue:33
 #: frontend/src/components/Activities/DataFields.vue:35
+#: frontend/src/components/common/LoadingView.vue:28
 #: frontend/src/pages/Deal.vue:187 frontend/src/pages/Deal.vue:514
 #: frontend/src/pages/MobileDeal.vue:111 frontend/src/pages/MobileDeal.vue:448
 msgid "Loading..."
@@ -2586,7 +2610,7 @@ msgstr "Мои открытые сделки"
 
 #. Label of the name1 (Data) field in DocType 'CRM Dropdown Item'
 #. Label of the brand_name (Data) field in DocType 'FCRM Settings'
-#: crm/api/doc.py:346 crm/fcrm/doctype/crm_dropdown_item/crm_dropdown_item.json
+#: crm/api/doc.py:348 crm/fcrm/doctype/crm_dropdown_item/crm_dropdown_item.json
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
 #: frontend/src/components/Modals/EmailTemplateModal.vue:24
 #: frontend/src/components/ViewControls.vue:467
@@ -2919,7 +2943,7 @@ msgstr "Не разрешается удалять контакты из сде�
 msgid "Not allowed to set primary contact for Deal"
 msgstr "Не разрешено устанавливать основной контакт для сделки"
 
-#: crm/api/doc.py:763
+#: crm/api/doc.py:765
 msgid "Not permitted"
 msgstr "Не разрешено"
 
@@ -3213,6 +3237,10 @@ msgstr "Пожалуйста, выберите существующую орга
 msgid "Please setup Exotel intergration"
 msgstr "Пожалуйста, настройте интеграцию с Exotel"
 
+#: frontend/src/components/common/LoadingView.vue:11
+msgid "Please wait while the system is being prepared."
+msgstr "Пожалуйста, подождите, пока система готовится."
+
 #. Label of the position (Int) field in DocType 'CRM Deal Status'
 #. Label of the position (Int) field in DocType 'CRM Lead Status'
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
@@ -3307,6 +3335,11 @@ msgstr "Быстрые фильтры успешно обновлены"
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "Read"
 msgstr "Прочитано"
+
+#: frontend/src/components/common/LoadingView.vue:28
+#: frontend/src/components/common/LoadingView.vue:33
+msgid "Ready"
+msgstr "Готово"
 
 #: frontend/src/utils/dealStatusTranslations.js:10
 msgid "Ready to Close"
@@ -3423,6 +3456,10 @@ msgstr "Ответить"
 #: frontend/src/components/Activities/EmailArea.vue:44
 msgid "Reply All"
 msgstr "Ответить всем"
+
+#: frontend/src/components/common/LoadingView.vue:37
+msgid "Required Data"
+msgstr "Обязательные данные"
 
 #. Option for the 'Type' (Select) field in DocType 'CRM Fields Layout'
 #: crm/fcrm/doctype/crm_fields_layout/crm_fields_layout.json
@@ -3874,6 +3911,10 @@ msgstr "Дата начала"
 msgid "Start Time"
 msgstr "Время начала"
 
+#: frontend/src/components/common/LoadingView.vue:33
+msgid "Starting..."
+msgstr "Запуск..."
+
 #. Label of the status (Select) field in DocType 'CRM Call Log'
 #. Label of the status (Data) field in DocType 'CRM Communication Status'
 #. Label of the status (Link) field in DocType 'CRM Deal'
@@ -3947,6 +3988,14 @@ msgstr "Воскресенье"
 msgid "Switch camera"
 msgstr "Другая камера"
 
+#: frontend/src/components/common/LoadingView.vue:42
+msgid "System Cache"
+msgstr "Системный кэш"
+
+#: frontend/src/components/common/LoadingView.vue:7
+msgid "System Initialization"
+msgstr "Инициализация системы"
+
 #. Name of a role
 #: crm/fcrm/doctype/crm_exotel_settings/crm_exotel_settings.json
 #: crm/fcrm/doctype/crm_fields_layout/crm_fields_layout.json
@@ -3961,6 +4010,14 @@ msgstr "Другая камера"
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 msgid "System Manager"
 msgstr "Системный менеджер"
+
+#: frontend/src/components/common/LoadingView.vue:9
+msgid "System initialization in progress..."
+msgstr "Идет инициализация системы..."
+
+#: frontend/src/App.vue:166
+msgid "System is not ready. Please wait or contact administrator if the issue persists."
+msgstr "Система не готова. Пожалуйста, подождите или свяжитесь с администратором, если проблема не решена."
 
 #: frontend/src/components/EmailEditor.vue:23
 msgid "TO"
@@ -4043,6 +4100,10 @@ msgstr "На этой неделе"
 #: frontend/src/utils/timeOptions.js:14
 msgid "This Year"
 msgstr "В этом году"
+
+#: frontend/src/components/common/LoadingView.vue:65
+msgid "This is taking longer than usual. Please wait..."
+msgstr "Это занимает больше времени, чем обычно. Пожалуйста, подождите..."
 
 #: frontend/src/components/SidePanelLayoutEditor.vue:117
 msgid "This section is not editable"
@@ -4133,6 +4194,18 @@ msgstr "Созвонился с Джоном Доу и обсудил новый
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
 msgid "Total Holidays"
 msgstr "Всего праздников"
+
+#: frontend/src/components/common/LoadingView.vue:27
+msgid "Translations"
+msgstr "Переводы"
+
+#: frontend/src/components/TranslationIndicator.vue:16
+msgid "Translations loaded"
+msgstr "Переводы загружены"
+
+#: frontend/src/components/TranslationIndicator.vue:15
+msgid "Translations updated!"
+msgstr "Переводы обновлены!"
 
 #: frontend/src/components/SignupBanner.vue:12
 msgid "Try Frappe CRM for free with a 14-day trial."
@@ -4281,6 +4354,10 @@ msgstr "Обновление {0} записей"
 #: frontend/src/components/Settings/SettingsPage.vue:61
 msgid "Updated Successfully"
 msgstr "Успешно обновленно"
+
+#: frontend/src/components/TranslationIndicator.vue:14
+msgid "Updating translations..."
+msgstr "Обновление переводов..."
 
 #: frontend/src/components/Controls/ImageUploader.vue:19
 #: frontend/src/components/FilesUploader/FilesUploader.vue:86
@@ -4584,7 +4661,7 @@ msgstr "протянул руку помощи"
 msgid "kanban"
 msgstr "канбан"
 
-#: crm/api/doc.py:38 crm/api/doc.py:156 crm/api/doc.py:513
+#: crm/api/doc.py:39 crm/api/doc.py:157 crm/api/doc.py:515
 msgid "label"
 msgstr "название"
 
@@ -4692,3 +4769,4 @@ msgstr "{0} - обязательное поле"
 #: frontend/src/components/Settings/InviteMemberPage.vue:15
 msgid "{0} is an invalid email address"
 msgstr "{0} - недопустимый адрес электронной почты"
+
