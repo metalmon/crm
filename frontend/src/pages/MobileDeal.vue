@@ -252,6 +252,18 @@
     </Button>
 
     <Button
+      v-if="primaryContactMobileNo"
+      size="sm"
+      class="dark:text-white dark:hover:bg-gray-700"
+      @click="showMessageTemplateModal = true"
+    >
+      <template #prefix>
+        <CommentIcon class="h-4 w-4" />
+      </template>
+      {{ __('Template') }}
+    </Button>
+
+    <Button
       size="sm"
       class="dark:text-white dark:hover:bg-gray-700"
       @click="
@@ -281,6 +293,11 @@
       redirect: false,
       afterInsert: (doc) => addContact(doc.name),
     }"
+  />
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Deal"
+    @apply="applyMessageTemplate"
   />
 </template>
 <script setup>
@@ -336,6 +353,7 @@ import { ref, computed, h, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket } = globalStore()
@@ -735,5 +753,24 @@ function triggerCall() {
   }
 
   makeCall(mobile_no)
+}
+
+const showMessageTemplateModal = ref(false)
+
+function applyMessageTemplate(template) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact) return errorMessage(__('No primary contact set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContactMobileNo.value,
+    activities: activities.value,
+    contactName: primaryContact.full_name,
+    message: template,
+    modelValue: deal.data
+  })
+  showMessageTemplateModal.value = false
 }
 </script>

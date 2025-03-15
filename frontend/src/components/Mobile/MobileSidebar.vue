@@ -143,7 +143,7 @@ const links = [
     to: 'Organizations',
   },
   {
-    label: __('Email Templates'),
+    label: __('Message Templates'),
     icon: Email2Icon,
     to: 'Email Templates',
   },

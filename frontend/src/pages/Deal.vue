@@ -98,6 +98,15 @@
                 <WhatsAppIcon class="h-4 w-4" />
               </Button>
             </Tooltip>
+            <Tooltip :text="__('Send WhatsApp Template')">
+              <Button
+                v-if="primaryContactMobileNo"
+                size="sm"
+                @click="showMessageTemplateModal = true"
+              >
+                <CommentIcon class="h-4 w-4" />
+              </Button>
+            </Tooltip>
             <Tooltip :text="__('Send an email')">
               <Button class="h-7 w-7">
                 <Email2Icon
@@ -314,6 +323,11 @@
       }
     "
   />
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Deal"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -373,6 +387,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
@@ -460,6 +475,7 @@ const reload = ref(false)
 const showOrganizationModal = ref(false)
 const showFilesUploader = ref(false)
 const _organization = ref({})
+const showMessageTemplateModal = ref(false)
 
 function updateDeal(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -777,4 +793,21 @@ function openEmailBox() {
 const primaryContactMobileNo = computed(() => {
   return dealContacts.data?.find(c => c.is_primary)?.mobile_no
 })
+
+function applyMessageTemplate(template) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact) return errorMessage(__('No primary contact set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContactMobileNo.value,
+    activities: activities.value,
+    contactName: primaryContact.full_name,
+    message: template,
+    modelValue: deal.data
+  })
+  showMessageTemplateModal.value = false
+}
 </script>

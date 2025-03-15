@@ -1,4 +1,4 @@
-import { createResource, getCachedDocumentResource } from 'frappe-ui'
+import { createResource, call } from 'frappe-ui'
 import { errorMessage } from '@/utils'
 import { capture } from '@/telemetry'
 import { usersStore } from '@/stores/users'
@@ -17,7 +17,7 @@ function debounce(func, wait) {
   }
 }
 
-function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activities, contactName }) {
+function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activities, contactName, message, modelValue }) {
   if (!phoneNumber) return errorMessage(__('No phone number set'))
 
   const formattedNumber = normalizePhoneNumber(phoneNumber)
@@ -25,48 +25,72 @@ function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activitie
 
   if (type === 'phone') {
     window.location.href = `tel:${formattedNumber}`
+    logCommunication()
   } else {
-    window.open(`https://wa.me/${formattedNumber}`, '_blank')
-  }
-
-  const params = {
-    doc: {
-      doctype: 'Communication',
-      communication_type: 'Communication',
-      communication_medium: type === 'phone' ? 'Phone' : 'Chat',
-      sent_or_received: 'Sent',
-      recipients: contactName,
-      status: 'Linked',
-      reference_doctype: doctype,
-      reference_name: docname,
-      phone_no: formattedNumber,
-      content: type === 'phone' 
-        ? __('Outgoing call to') + ' ' + formattedNumber
-        : __('Chat initiated with') + ' ' + formattedNumber,
-      subject: type === 'phone' 
-        ? __('Phone call')
-        : __('WhatsApp chat'),
-      sender: user?.email || undefined,
-      sender_full_name: user?.full_name || undefined
+    let messageText = ''
+    if (message) {
+      // Use email template endpoint to render template with variables
+      call('frappe.email.doctype.email_template.email_template.get_email_template', {
+        template_name: message.name,
+        doc: modelValue
+      }).then(data => {
+        messageText = data.message
+        // Remove HTML tags but preserve line breaks
+        messageText = messageText.replace(/<br\s*\/?>/g, '\n')
+        messageText = messageText.replace(/<[^>]+>/g, '')
+        // Encode for URL
+        const encodedMessage = encodeURIComponent(messageText)
+        window.open(`https://wa.me/${formattedNumber}${encodedMessage ? '?text=' + encodedMessage : ''}`, '_blank')
+        // Log communication with processed message
+        logCommunication(messageText)
+      })
+    } else {
+      window.open(`https://wa.me/${formattedNumber}`, '_blank')
+      logCommunication()
     }
   }
 
-  const logCommunication = createResource({
-    url: 'crm.api.communication.track_communication',
-    params: params,
-    onSuccess: () => {
-      activities?.all_activities?.reload()
-      capture(type === 'phone' ? 'phone_call_initiated' : 'whatsapp_chat_initiated')
-    },
-    onError: (error) => {
-      errorMessage(error.message)
+  function logCommunication(processedMessage = '') {
+    const params = {
+      doc: {
+        doctype: 'Communication',
+        communication_type: 'Communication',
+        communication_medium: type === 'phone' ? 'Phone' : 'Chat',
+        sent_or_received: 'Sent',
+        recipients: contactName || '',
+        status: 'Linked',
+        reference_doctype: doctype,
+        reference_name: docname,
+        phone_no: formattedNumber,
+        content: type === 'phone' 
+          ? __('Outgoing call to') + ' ' + formattedNumber
+          : __('Chat initiated with') + ' ' + formattedNumber + 
+            (processedMessage ? '<br><br>' + processedMessage.replace(/\n/g, '<br>') : ''),
+        subject: type === 'phone' 
+          ? __('Phone call')
+          : __('WhatsApp chat'),
+        sender: user?.email || undefined,
+        sender_full_name: user?.full_name || undefined
+      }
     }
-  })
 
-  try {
-    logCommunication.submit()
-  } catch (e) {
-    console.error('Error submitting communication:', e)
+    const logCommunicationResource = createResource({
+      url: 'crm.api.communication.track_communication',
+      params: params,
+      onSuccess: () => {
+        activities?.all_activities?.reload()
+        capture(type === 'phone' ? 'phone_call_initiated' : 'whatsapp_chat_initiated')
+      },
+      onError: (error) => {
+        errorMessage(error.message)
+      }
+    })
+
+    try {
+      logCommunicationResource.submit()
+    } catch (e) {
+      console.error('Error submitting communication:', e)
+    }
   }
 }
 

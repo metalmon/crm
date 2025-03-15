@@ -147,6 +147,15 @@
                     <WhatsAppIcon class="h-4 w-4" />
                   </Button>
                 </Tooltip>
+                <Tooltip :text="__('Send WhatsApp Template')">
+                  <Button
+                    v-if="lead.data.mobile_no"
+                    size="sm"
+                    @click="showMessageTemplateModal = true"
+                  >
+                    <CommentIcon class="h-4 w-4" />
+                  </Button>
+                </Tooltip>
                 <Tooltip :text="__('Send an email')">
                   <Button class="h-7 w-7">
                     <Email2Icon
@@ -279,6 +288,11 @@
       }
     "
   />
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Lead"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -340,6 +354,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
@@ -382,6 +397,7 @@ onMounted(() => {
 
 const reload = ref(false)
 const showFilesUploader = ref(false)
+const showMessageTemplateModal = ref(false)
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -658,5 +674,21 @@ function trackPhoneActivities(type = 'phone') {
     activities: activities.value,
     contactName: lead.data.lead_name,
   })
+}
+
+function applyMessageTemplate(template) {
+  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+    message: template,
+    modelValue: lead.data
+  })
+  showMessageTemplateModal.value = false
 }
 </script>

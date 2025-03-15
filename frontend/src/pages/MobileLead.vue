@@ -128,6 +128,18 @@
     </Button>
 
     <Button
+      v-if="lead.data?.mobile_no"
+      size="sm"
+      class="dark:text-white dark:hover:bg-gray-700"
+      @click="showMessageTemplateModal = true"
+    >
+      <template #prefix>
+        <CommentIcon class="h-4 w-4" />
+      </template>
+      {{ __('Template') }}
+    </Button>
+
+    <Button
       size="sm"
       class="dark:text-white dark:hover:bg-gray-700"
       @click="
@@ -208,6 +220,11 @@
       </div>
     </template>
   </Dialog>
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Lead"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -260,6 +277,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket } = globalStore()
@@ -592,5 +610,23 @@ function openWebsite(url) {
     url = 'https://' + url
   }
   window.open(url, '_blank')
+}
+
+const showMessageTemplateModal = ref(false)
+
+function applyMessageTemplate(template) {
+  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+    message: template,
+    modelValue: lead.data
+  })
+  showMessageTemplateModal.value = false
 }
 </script>
