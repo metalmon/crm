@@ -77,6 +77,7 @@
         </div>
         <Activities
           v-else
+          ref="activities"
           doctype="CRM Lead"
           :tabs="tabs"
           v-model:reload="reload"
@@ -87,72 +88,52 @@
     </Tabs>
   </div>
   <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
-    <Button
-      v-if="lead.data?.mobile_no && callEnabled"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="
-        lead.data?.mobile_no
-          ? makeCall(lead.data.mobile_no)
-          : errorMessage(__('No phone number set'))
-      "
-    >
-      <template #prefix>
-        <PhoneIcon class="h-4 w-4" />
-      </template>
-      {{ __('Make Call') }}
-    </Button>
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <Button
+        v-if="lead.data?.mobile_no && callEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="triggerCall"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
 
-    <Button
-      v-if="lead.data?.mobile_no && !callEnabled"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="trackPhoneActivities('phone')"
-    >
-      <template #prefix>
-        <PhoneIcon class="h-4 w-4" />
-      </template>
-      {{ __('Make Call') }}
-    </Button>
-    
-    <Button
-      v-if="lead.data?.mobile_no"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700" 
-      @click="trackPhoneActivities('whatsapp')"
-    >
-      <template #prefix>
-        <WhatsAppIcon class="h-4 w-4" />
-      </template>
-      {{ __('Chat') }}
-    </Button>
+      <Button
+        v-if="lead.data?.mobile_no && !callEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('phone')"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+      
+      <Button
+        v-if="lead.data?.mobile_no"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('whatsapp')"
+      >
+        <WhatsAppIcon class="h-5 w-5" />
+      </Button>
 
-    <Button
-      v-if="lead.data?.mobile_no"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="showMessageTemplateModal = true"
-    >
-      <template #prefix>
-        <CommentIcon class="h-4 w-4" />
-      </template>
-      {{ __('Template') }}
-    </Button>
+      <Button
+        v-if="lead.data?.mobile_no"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="showMessageTemplateModal = true"
+      >
+        <CommentIcon class="h-5 w-5" />
+      </Button>
 
-    <Button
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="
-        lead.data.website
-          ? openWebsite(lead.data.website)
-          : errorMessage(__('No website set'))
-      "
-    >
-      <template #prefix>
-        <LinkIcon class="h-4 w-4" />
-      </template>
-      {{ __('Website') }}
-    </Button>
+      <Button
+        v-if="lead.data?.website"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="openWebsite(lead.data.website)"
+      >
+        <LinkIcon class="h-5 w-5" />
+      </Button>
+    </div>
   </div>
   <Dialog
     v-model="showConvertToDealModal"
@@ -273,7 +254,7 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
@@ -582,11 +563,6 @@ async function convertToDeal(updated) {
 }
 
 function trackPhoneActivities(type = 'phone') {
-  if (!lead.data?.mobile_no) {
-    errorMessage(__('No phone number set'))
-    return
-  }
-  
   trackCommunication({
     type,
     doctype: 'CRM Lead',
@@ -629,4 +605,5 @@ function applyMessageTemplate(template) {
   })
   showMessageTemplateModal.value = false
 }
+
 </script>

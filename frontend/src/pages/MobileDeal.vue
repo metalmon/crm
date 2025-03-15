@@ -205,6 +205,7 @@
         </div>
         <Activities
           v-else
+          ref="activities"
           doctype="CRM Deal"
           :tabs="tabs"
           v-model:reload="reload"
@@ -215,68 +216,51 @@
     </Tabs>
   </div>
   <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
-    <Button
-      v-if="primaryContactMobileNo && callEnabled"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="triggerCall"
-    >
-      <template #prefix>
-        <PhoneIcon class="h-4 w-4" />
-      </template>
-      {{ __('Make Call') }}
-    </Button>
+    <div ref="bottomToolbar" class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <Button
+        v-if="primaryContactMobileNo && callEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="triggerCall"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
 
-    <Button
-      v-if="primaryContactMobileNo && !callEnabled"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="trackPhoneActivities('phone')"
-    >
-      <template #prefix>
-        <PhoneIcon class="h-4 w-4" />
-      </template>
-      {{ __('Make Call') }}
-    </Button>
-    
-    <Button
-      v-if="primaryContactMobileNo"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="trackPhoneActivities('whatsapp')"
-    >
-      <template #prefix>
-        <WhatsAppIcon class="h-4 w-4" />
-      </template>
-      {{ __('Chat') }}
-    </Button>
+      <Button
+        v-if="primaryContactMobileNo && !callEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('phone')"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+      
+      <Button
+        v-if="primaryContactMobileNo"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('whatsapp')"
+      >
+        <WhatsAppIcon class="h-5 w-5" />
+      </Button>
 
-    <Button
-      v-if="primaryContactMobileNo"
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="showMessageTemplateModal = true"
-    >
-      <template #prefix>
-        <CommentIcon class="h-4 w-4" />
-      </template>
-      {{ __('Template') }}
-    </Button>
+      <Button
+        v-if="primaryContactMobileNo"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="showMessageTemplateModal = true"
+      >
+        <CommentIcon class="h-5 w-5" />
+      </Button>
 
-    <Button
-      size="sm"
-      class="dark:text-white dark:hover:bg-gray-700"
-      @click="
-        deal.data.website
-          ? openWebsite(deal.data.website)
-          : errorMessage(__('No website set'))
-      "
-    >
-      <template #prefix>
-        <LinkIcon class="h-4 w-4" />
-      </template>
-      {{ __('Website') }}
-    </Button>    
+      <Button
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="openWebsite"
+      >
+        <LinkIcon class="h-5 w-5" />
+      </Button>
+    </div>
   </div>
   <OrganizationModal
     v-model="showOrganizationModal"
@@ -349,7 +333,7 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
-import { ref, computed, h, onMounted } from 'vue'
+import { ref, computed, h, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
@@ -756,6 +740,7 @@ function triggerCall() {
 }
 
 const showMessageTemplateModal = ref(false)
+const activities = ref(null)
 
 function applyMessageTemplate(template) {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)
@@ -773,4 +758,17 @@ function applyMessageTemplate(template) {
   })
   showMessageTemplateModal.value = false
 }
+
+
 </script>
+
+<style scoped>
+.bottom-toolbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bottom-toolbar::-webkit-scrollbar {
+  display: none;
+}
+</style>
