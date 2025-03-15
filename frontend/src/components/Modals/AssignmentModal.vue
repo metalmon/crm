@@ -207,6 +207,6 @@ function updateAssignees() {
 }
 
 onMounted(() => {
-  oldAssignees.value = [...assignees.value]
+  oldAssignees.value = assignees.value ? [...assignees.value] : []
 })
 </script>
