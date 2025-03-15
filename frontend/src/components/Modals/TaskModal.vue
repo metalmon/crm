@@ -34,7 +34,10 @@
       </div>
     </template>
     <template #body-content>
-      <div class="flex flex-col gap-4">
+      <div :class="[
+        'flex flex-col gap-4 w-full',
+        isMobileView && 'space-y-2'
+      ]">
         <div>
           <FormControl
             ref="title"
@@ -60,16 +63,35 @@
             "
           />
         </div>
-        <div class="flex flex-nowrap items-center gap-2">
-          <Dropdown :options="taskStatusOptions(updateTaskStatus)">
-            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="w-full justify-between whitespace-nowrap">
+        <div :class="[
+          'w-full',
+          isMobileView 
+            ? 'grid grid-cols-12 grid-rows-2 gap-2' 
+            : 'flex items-center gap-2'
+        ]">
+          <Dropdown 
+            :options="taskStatusOptions(updateTaskStatus)" 
+            :class="[
+              'min-w-0',
+              isMobileView 
+                ? 'col-span-5 row-start-1' 
+                : 'flex'
+            ]"
+          >
+            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="w-full justify-between">
               <template #prefix>
-                <TaskStatusIcon :status="extractValue(_task.status)" />
+                <TaskStatusIcon :status="extractValue(_task.status)" class="flex-shrink-0" />
               </template>
+              <span class="truncate">{{ extractLabel(_task.status, translateTaskStatus) }}</span>
             </Button>
           </Dropdown>
           <Link
-            class="form-control flex-1"
+            class="form-control min-w-0"
+            :class="[
+              isMobileView 
+                ? 'col-span-7 row-start-1 w-full' 
+                : 'flex max-w-[200px] min-w-0'
+            ]"
             :value="getUser(_task.assigned_to).full_name"
             doctype="User"
             @change="(option) => (_task.assigned_to = option)"
@@ -77,33 +99,47 @@
             :hideMe="true"
           >
             <template #prefix>
-              <UserAvatar class="mr-2 !h-4 !w-4" :user="_task.assigned_to" />
+              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.assigned_to" />
             </template>
             <template #item-prefix="{ option }">
               <UserAvatar class="mr-2" :user="option.value" size="sm" />
             </template>
             <template #item-label="{ option }">
               <Tooltip :text="option.value">
-                <div class="cursor-pointer text-ink-gray-9">
+                <div class="cursor-pointer text-ink-gray-9 truncate">
                   {{ getUser(option.value).full_name }}
                 </div>
               </Tooltip>
             </template>
           </Link>
+          <Dropdown 
+            :options="taskPriorityOptions(updateTaskPriority)" 
+            :class="[
+              'min-w-0',
+              isMobileView 
+                ? 'col-span-4 row-start-2' 
+                : 'flex'
+            ]"
+          >
+            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
+              <template #prefix>
+                <TaskPriorityIcon :priority="extractValue(_task.priority)" class="flex-shrink-0" />
+              </template>
+              <span class="truncate">{{ extractLabel(_task.priority, translateTaskPriority) }}</span>
+            </Button>
+          </Dropdown>
           <input
             type="datetime-local"
             v-model="_task.due_date"
-            class="flex-1"
+            :class="[
+              'min-w-0',
+              isMobileView 
+                ? 'col-span-8 row-start-2 w-full' 
+                : 'min-w-0 flex-1'
+            ]"
             @click.stop
             @update:modelValue="handleFieldChange"
           />
-          <Dropdown :options="taskPriorityOptions(updateTaskPriority)">
-            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
-              <template #prefix>
-                <TaskPriorityIcon :priority="extractValue(_task.priority)" />
-              </template>
-            </Button>
-          </Dropdown>
         </div>
       </div>
     </template>
@@ -130,6 +166,7 @@ import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
+import { isMobileView } from '@/composables/settings'
 
 const props = defineProps({
   task: {
