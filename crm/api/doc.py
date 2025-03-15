@@ -10,6 +10,7 @@ from pypika import Criterion
 
 from crm.api.views import get_views
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
+from .performance import track_performance
 
 
 @frappe.whitelist()
@@ -283,6 +284,7 @@ def create_update_global_settings(doctype, quick_filters):
 
 
 @frappe.whitelist()
+@track_performance
 def get_data(
 	doctype: str,
 	filters: dict,
