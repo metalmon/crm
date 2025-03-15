@@ -68,7 +68,11 @@
               />
             </div>
           </div>
-          <div class="overflow-y-auto flex flex-col gap-2 h-full dark-scrollbar">
+          <div 
+            class="overflow-y-auto flex flex-col gap-2 h-full dark-scrollbar"
+            :ref="el => { if (el) setupColumnScroll(el, column.column.name) }"
+            :data-column-name="column.column.name"
+          >
             <Draggable
               :list="column.data"
               group="fields"
@@ -210,6 +214,11 @@ import { Dropdown } from 'frappe-ui'
 import { computed, onMounted, onUnmounted, watch, nextTick, ref, reactive } from 'vue'
 import { useSocket, PRIORITY, startTransaction, endTransaction, isLocalTransaction } from '@/socket'
 import { FeatherIcon, call } from 'frappe-ui'
+import { useStorage } from '@vueuse/core'
+import { useRoute } from 'vue-router'
+
+// Initialize route
+const route = useRoute()
 
 // Create a logger to conditionally show logs based on environment
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -223,6 +232,10 @@ const logger = {
   // Always log critical errors regardless of environment
   critical: (...args) => console.error('[CRITICAL]', ...args)
 }
+
+// Store event handlers for cleanup
+let docCreatedHandler = null
+let docDeletedHandler = null
 
 // Debounce helper
 function debounce(fn, wait) {
@@ -262,10 +275,6 @@ const pendingMoves = reactive(new Map())
 
 // Flag to track if view needs refresh
 const needsRefresh = ref(false)
-
-// Store event handlers for cleanup
-let docCreatedHandler = null
-let docDeletedHandler = null
 
 // Track current card states
 const cardStates = reactive(new Map())
@@ -797,6 +806,59 @@ watch([
   throttledSubscribe()
 }, { deep: true })
 
+// Generate unique key for current kanban view
+const kanbanStorageKey = computed(() => {
+  const doctype = kanban.value?.params?.doctype
+  const viewName = route.query.view || 'default'
+  const filters = JSON.stringify(kanban.value?.params?.filters || {})
+  
+  return `kanbanScrollPositions_${doctype}_${viewName}_${filters}`
+})
+
+// Store scroll positions with the unique key
+const columnScrollPositions = useStorage(kanbanStorageKey, new Map())
+
+// Watch for changes that should reset scroll positions
+watch([
+  () => route.params.viewType,
+  () => kanban.value?.params?.doctype,
+  () => route.query.view,
+  () => JSON.stringify(kanban.value?.params?.filters || {})
+], () => {
+  // Clear scroll positions when view type changes or significant parameters change
+  if (route.params.viewType !== 'kanban') {
+    columnScrollPositions.value.clear()
+  }
+}, { immediate: true })
+
+function setupColumnScroll(element, columnName) {
+  if (!element || !columnName) return
+
+  // Add a small delay to ensure the DOM is fully rendered
+  nextTick(() => {
+    // Restore scroll position
+    const savedPosition = columnScrollPositions.value.get(columnName)
+    if (savedPosition) {
+      element.scrollTop = savedPosition
+    }
+
+    // Create a named handler function so we can remove it later
+    const scrollHandler = () => {
+      clearTimeout(element._scrollTimeout)
+      element._scrollTimeout = setTimeout(() => {
+        columnScrollPositions.value.set(columnName, element.scrollTop)
+        logger.log(`Saved scroll position for ${columnName}: ${element.scrollTop}`)
+      }, 100) // Debounce scroll events
+    }
+
+    // Store the handler on the element for cleanup
+    element._scrollHandler = scrollHandler
+
+    // Add scroll listener
+    element.addEventListener('scroll', scrollHandler)
+  })
+}
+
 onMounted(() => {
   logger.log(`[KanbanView] Component mounted`)
   
@@ -827,6 +889,19 @@ onUnmounted(() => {
     window.removeEventListener('crm:doc_deleted', docDeletedHandler);
   }
   logger.log(`[KanbanView] Cleanup complete`)
+
+  // Clean up scroll event listeners and timeouts
+  const columns = document.querySelectorAll('.overflow-y-auto')
+  columns.forEach(column => {
+    // Clear timeout if exists
+    if (column._scrollTimeout) {
+      clearTimeout(column._scrollTimeout)
+    }
+    // Remove scroll listener if exists
+    if (column._scrollHandler) {
+      column.removeEventListener('scroll', column._scrollHandler)
+    }
+  })
 })
 
 const deletedColumns = computed(() => {
