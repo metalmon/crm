@@ -115,11 +115,11 @@ export function extractLabel(field, translator) {
   return translator ? translator(field) : field
 }
 
-const taskMeta = getMeta('CRM Task')
-
 export function taskStatusOptions(action, data) {
   let options = ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled']
-  let statusMeta = taskMeta.getFields()?.find((field) => field.fieldname == 'status')
+  let statusMeta = getMeta('CRM Task')
+    .getFields()
+    ?.find((field) => field.fieldname == 'status')
   if (statusMeta) {
     options = statusMeta.options
       .map((option) => option.value)
@@ -137,7 +137,9 @@ export function taskStatusOptions(action, data) {
 
 export function taskPriorityOptions(action, data) {
   let options = ['Low', 'Medium', 'High']
-  let priorityMeta = taskMeta.getFields()?.find((field) => field.fieldname == 'priority')
+  let priorityMeta = getMeta('CRM Task')
+    .getFields()
+    ?.find((field) => field.fieldname == 'priority')
   if (priorityMeta) {
     options = priorityMeta.options
       .map((option) => option.value)

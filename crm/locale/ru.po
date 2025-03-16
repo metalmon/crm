@@ -4626,6 +4626,14 @@ msgstr "назначил(а) вам лид {0}"
 msgid "assigned task {0} to you"
 msgstr "назначил(а) вам задачу {0}"
 
+#: crm/api/todo.py:120
+msgid "assigned a new task {0} to you"
+msgstr ""
+
+#: crm/api/todo.py:100
+msgid "assigned a {0} {1} to you"
+msgstr ""
+
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
@@ -4769,6 +4777,10 @@ msgstr "публичное"
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "purple"
 msgstr "пурпурный"
+
+#: crm/api/whatsapp.py:37
+msgid "received a whatsapp message in {0}"
+msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'

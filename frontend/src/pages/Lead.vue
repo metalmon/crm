@@ -71,7 +71,7 @@
               <Avatar
                 size="3xl"
                 class="size-12"
-                :label="lead.data.first_name || __('Untitled')"
+                :label="title"
                 :image="lead.data.image"
               />
               <component
@@ -112,7 +112,7 @@
             <div class="flex flex-col gap-2.5 truncate">
               <Tooltip :text="lead.data.lead_name || __('Set first name')">
                 <div class="truncate text-2xl font-medium text-ink-gray-9">
-                  {{ lead.data.lead_name || __('Untitled') }}
+                  {{ title }}
                 </div>
               </Tooltip>
               <div class="flex gap-1.5">
@@ -332,9 +332,13 @@ import {
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
-import { contactsStore } from '@/stores/contacts'
 import { statusesStore } from '@/stores/statuses'
-import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { getMeta } from '@/stores/meta'
+import {
+  whatsappEnabled,
+  callEnabled,
+  isMobileView,
+} from '@/composables/settings'
 import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
 import {
@@ -358,8 +362,8 @@ import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSel
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
-const { getContactByName, contacts } = contactsStore()
-const { statusOptions, getLeadStatus } = statusesStore()
+const { statusOptions, getLeadStatus, getDealStatus } = statusesStore()
+const { doctypeMeta } = getMeta('CRM Lead')
 const route = useRoute()
 const router = useRouter()
 
@@ -467,15 +471,20 @@ const breadcrumbs = computed(() => {
   }
 
   items.push({
-    label: lead.data.lead_name || __('Untitled'),
+    label: title.value,
     route: { name: 'Lead', params: { leadId: lead.data.name } },
   })
   return items
 })
 
+const title = computed(() => {
+  let t = doctypeMeta['CRM Lead']?.title_field || 'name'
+  return lead.data?.[t] || props.leadId
+})
+
 usePageMeta(() => {
   return {
-    title: lead.data?.lead_name || lead.data?.name,
+    title: title.value,
     icon: brand.favicon,
   }
 })
@@ -589,9 +598,7 @@ const existingOrganizationChecked = ref(false)
 const existingContact = ref('')
 const existingOrganization = ref('')
 
-async function convertToDeal(updated) {
-  let valueUpdated = false
-
+async function convertToDeal() {
   if (existingContactChecked.value && !existingContact.value) {
     createToast({
       title: __('Error'),
@@ -612,50 +619,35 @@ async function convertToDeal(updated) {
     return
   }
 
-  if (existingContactChecked.value && existingContact.value) {
-    lead.data.salutation = getContactByName(existingContact.value).salutation
-    lead.data.first_name = getContactByName(existingContact.value).first_name
-    lead.data.last_name = getContactByName(existingContact.value).last_name
-    lead.data.email_id = getContactByName(existingContact.value).email_id
-    lead.data.mobile_no = getContactByName(existingContact.value).mobile_no
-    existingContactChecked.value = false
-    valueUpdated = true
+  if (!existingContactChecked.value && existingContact.value) {
+    existingContact.value = ''
   }
 
-  if (existingOrganizationChecked.value && existingOrganization.value) {
-    lead.data.organization = existingOrganization.value
-    existingOrganizationChecked.value = false
-    valueUpdated = true
+  if (!existingOrganizationChecked.value && existingOrganization.value) {
+    existingOrganization.value = ''
   }
 
-  if (valueUpdated) {
-    updateLead(
-      {
-        salutation: lead.data.salutation,
-        first_name: lead.data.first_name,
-        last_name: lead.data.last_name,
-        email_id: lead.data.email_id,
-        mobile_no: lead.data.mobile_no,
-        organization: lead.data.organization,
-      },
-      '',
-      () => convertToDeal(true),
-    )
+  let _deal = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
+    lead: lead.data.name,
+    deal,
+    existing_contact: existingContact.value,
+    existing_organization: existingOrganization.value,
+  }).catch((err) => {
+    createToast({
+      title: __('Error converting to deal'),
+      text: __(err.messages?.[0]),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
+  })
+  if (_deal) {
     showConvertToDealModal.value = false
-  } else {
-    let deal = await call(
-      'crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal',
-      {
-        lead: lead.data.name,
-      },
-    )
-    if (deal) {
-      capture('convert_lead_to_deal')
-      if (updated) {
-        await contacts.reload()
-      }
-      router.push({ name: 'Deal', params: { dealId: deal } })
-    }
+    existingContactChecked.value = false
+    existingOrganizationChecked.value = false
+    existingContact.value = ''
+    existingOrganization.value = ''
+    capture('convert_lead_to_deal')
+    router.push({ name: 'Deal', params: { dealId: _deal } })
   }
 }
 

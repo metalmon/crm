@@ -371,6 +371,7 @@ import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { statusesStore } from '@/stores/statuses'
+import { getMeta } from '@/stores/meta'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
 import {
   createResource,
@@ -392,6 +393,7 @@ import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSel
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
+const { doctypeMeta } = getMeta('CRM Deal')
 const route = useRoute()
 const router = useRouter()
 
@@ -399,19 +401,6 @@ const props = defineProps({
   dealId: {
     type: String,
     required: true,
-  },
-})
-
-const dealContacts = createResource({
-  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
-  params: { name: props.dealId },
-  cache: ['deal_contacts', props.dealId],
-  auto: true,
-  transform: (data) => {
-    data.forEach((contact) => {
-      contact.opened = false
-    })
-    return data
   },
 })
 
@@ -568,6 +557,11 @@ const breadcrumbs = computed(() => {
   return items
 })
 
+const title = computed(() => {
+  let t = doctypeMeta['CRM Deal']?.title_field || 'name'
+  return deal.data?.[t] || props.dealId
+})
+
 usePageMeta(() => {
   return {
     title: displayName.value,
@@ -633,9 +627,10 @@ const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
   cache: ['sidePanelSections', 'CRM Deal'],
   params: { doctype: 'CRM Deal' },
-  auto: true,
   transform: (data) => getParsedSections(data),
 })
+
+if (!sections.data) sections.fetch()
 
 function getParsedSections(_sections) {
   _sections.forEach((section) => {
@@ -751,6 +746,19 @@ function trackPhoneActivities(type = 'phone') {
     contactName: primaryContact.name
   })
 }
+const dealContacts = createResource({
+  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
+  params: { name: props.dealId },
+  cache: ['deal_contacts', props.dealId],
+  transform: (data) => {
+    data.forEach((contact) => {
+      contact.opened = false
+    })
+    return data
+  },
+})
+
+if (!dealContacts.data) dealContacts.fetch()
 
 function triggerCall() {
   let primaryContact = dealContacts.data?.find((c) => c.is_primary)

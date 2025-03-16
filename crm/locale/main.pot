@@ -4768,6 +4768,10 @@ msgstr ""
 msgid "purple"
 msgstr ""
 
+#: crm/api/whatsapp.py:37
+msgid "received a whatsapp message in {0}"
+msgstr ""
+
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json

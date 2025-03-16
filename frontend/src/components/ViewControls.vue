@@ -379,170 +379,6 @@ const defaultParams = ref('')
 const viewUpdated = ref(false)
 const showViewModal = ref(false)
 
-const { getFields } = getMeta(props.doctype)
-
-const customizeQuickFilter = ref(false)
-
-function showCustomizeQuickFilter() {
-  customizeQuickFilter.value = true
-  setupNewQuickFilters(quickFilters.data)
-}
-
-const newQuickFilters = ref([])
-
-function addQuickFilter(f) {
-  if (!newQuickFilters.value.some((filter) => filter.fieldname === f.value)) {
-    newQuickFilters.value.push({
-      label: f.label,
-      fieldname: f.value,
-      fieldtype: f.fieldtype,
-    })
-  }
-}
-
-function removeQuickFilter(f) {
-  newQuickFilters.value = newQuickFilters.value.filter(
-    (filter) => filter.fieldname !== f.fieldname,
-  )
-}
-
-const updateQuickFilters = createResource({
-  url: 'crm.api.doc.update_quick_filters',
-  onSuccess() {
-    customizeQuickFilter.value = false
-
-    quickFilters.update({ params: { doctype: props.doctype, cached: false } })
-    quickFilters.reload()
-
-    createToast({
-      title: __('Quick Filters updated successfully'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
-  },
-})
-
-function saveQuickFilters() {
-  let new_filters =
-    newQuickFilters.value?.map((filter) => filter.fieldname) || []
-  let old_filters = quickFilters.data?.map((filter) => filter.fieldname) || []
-
-  updateQuickFilters.update({
-    params: {
-      quick_filters: JSON.stringify(new_filters),
-      old_filters: JSON.stringify(old_filters),
-      doctype: props.doctype,
-    },
-  })
-
-  updateQuickFilters.fetch()
-}
-
-const quickFilterOptions = computed(() => {
-  let fields = getFields()
-  if (!fields) return []
-
-  let restrictedFieldtypes = [
-    'Tab Break',
-    'Section Break',
-    'Column Break',
-    'Table',
-    'Table MultiSelect',
-    'HTML',
-    'Button',
-    'Image',
-    'Fold',
-    'Heading',
-  ]
-  let options = fields
-    .filter((f) => f.label && !restrictedFieldtypes.includes(f.fieldtype))
-    .map((field) => ({
-      label: __(field.label),
-      value: field.fieldname,
-      fieldtype: field.fieldtype,
-    }))
-
-  if (!options.some((f) => f.fieldname === 'name')) {
-    options.push({
-      label: __('Name'),
-      value: 'name',
-      fieldtype: 'Data',
-    })
-  }
-
-  return options
-})
-
-const quickFilterList = computed(() => {
-  let filters = quickFilters.data || []
-
-  filters.forEach((filter) => {
-    filter['value'] = filter.fieldtype == 'Check' ? false : ''
-    if (list.value.params?.filters[filter.fieldname]) {
-      let value = list.value.params.filters[filter.fieldname]
-      if (Array.isArray(value)) {
-        if (
-          (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
-            filter.fieldtype,
-          ) &&
-            value[0]?.toLowerCase() == 'like') ||
-          value[0]?.toLowerCase() != 'like'
-        )
-          return
-        filter['value'] = value[1]?.replace(/%/g, '')
-      } else if (typeof value == 'boolean') {
-        filter['value'] = value
-      } else {
-        filter['value'] = value?.replace(/%/g, '')
-      }
-    }
-  })
-
-  return filters
-})
-
-const quickFilters = createResource({
-  url: 'crm.api.doc.get_quick_filters',
-  params: { doctype: props.doctype },
-  cache: ['Quick Filters', props.doctype],
-  auto: true,
-  onSuccess(filters) {
-    setupNewQuickFilters(filters)
-  },
-})
-
-function setupNewQuickFilters(filters) {
-  newQuickFilters.value = filters.map((f) => ({
-    label: f.label,
-    fieldname: f.fieldname,
-    fieldtype: f.fieldtype,
-  }))
-}
-
-function applyQuickFilter(filter, value) {
-  let filters = { ...list.value.params.filters }
-  let field = filter.fieldname
-  if (value) {
-    if (['Check', 'Select', 'Link'].includes(filter.fieldtype)) {
-      filters[field] = value
-    } else if (['Date', 'Datetime'].includes(filter.fieldtype)) {
-      // Handle timespan filters for date fields
-      if (timespanOptions.find(opt => opt.value === value)) {
-        filters[field] = ['timespan', value]
-      } else {
-        filters[field] = value
-      }
-    } else {
-      filters[field] = ['LIKE', `%${value}%`]
-    }
-    filter['value'] = value
-  } else {
-    delete filters[field]
-    filter['value'] = ''
-  }
-  updateFilter(filters)
-}
-
 function getViewType() {
   let viewType = route.params.viewType || 'list'
   let types = {
@@ -732,6 +568,7 @@ onMounted(() => useDebounceFn(reload, 100)())
 const isLoading = computed(() => list.value?.loading)
 
 function reload() {
+  if (isLoading.value) return
   list.value.params = getParams()
   list.value.reload()
 }
@@ -909,6 +746,171 @@ const viewsDropdownOptions = computed(() => {
 
   return _views
 })
+
+const { getFields } = getMeta(props.doctype)
+
+const customizeQuickFilter = ref(false)
+
+function showCustomizeQuickFilter() {
+  customizeQuickFilter.value = true
+  setupNewQuickFilters(quickFilters.data)
+}
+
+const newQuickFilters = ref([])
+
+function addQuickFilter(f) {
+  if (!newQuickFilters.value.some((filter) => filter.fieldname === f.value)) {
+    newQuickFilters.value.push({
+      label: f.label,
+      fieldname: f.value,
+      fieldtype: f.fieldtype,
+    })
+  }
+}
+
+function removeQuickFilter(f) {
+  newQuickFilters.value = newQuickFilters.value.filter(
+    (filter) => filter.fieldname !== f.fieldname,
+  )
+}
+
+const updateQuickFilters = createResource({
+  url: 'crm.api.doc.update_quick_filters',
+  onSuccess() {
+    customizeQuickFilter.value = false
+
+    quickFilters.update({ params: { doctype: props.doctype, cached: false } })
+    quickFilters.reload()
+
+    createToast({
+      title: __('Quick Filters updated successfully'),
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
+  },
+})
+
+function saveQuickFilters() {
+  let new_filters =
+    newQuickFilters.value?.map((filter) => filter.fieldname) || []
+  let old_filters = quickFilters.data?.map((filter) => filter.fieldname) || []
+
+  updateQuickFilters.update({
+    params: {
+      quick_filters: JSON.stringify(new_filters),
+      old_filters: JSON.stringify(old_filters),
+      doctype: props.doctype,
+    },
+  })
+
+  updateQuickFilters.fetch()
+}
+
+const quickFilterOptions = computed(() => {
+  let fields = getFields()
+  if (!fields) return []
+
+  let restrictedFieldtypes = [
+    'Tab Break',
+    'Section Break',
+    'Column Break',
+    'Table',
+    'Table MultiSelect',
+    'HTML',
+    'Button',
+    'Image',
+    'Fold',
+    'Heading',
+  ]
+  let options = fields
+    .filter((f) => f.label && !restrictedFieldtypes.includes(f.fieldtype))
+    .map((field) => ({
+      label: field.label,
+      value: field.fieldname,
+      fieldtype: field.fieldtype,
+    }))
+
+  if (!options.some((f) => f.fieldname === 'name')) {
+    options.push({
+      label: __('Name'),
+      value: 'name',
+      fieldtype: 'Data',
+    })
+  }
+
+  return options
+})
+
+const quickFilterList = computed(() => {
+  let filters = quickFilters.data || []
+
+  filters.forEach((filter) => {
+    filter['value'] = filter.fieldtype == 'Check' ? false : ''
+    if (list.value.params?.filters[filter.fieldname]) {
+      let value = list.value.params.filters[filter.fieldname]
+      if (Array.isArray(value)) {
+        if (
+          (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
+            filter.fieldtype,
+          ) &&
+            value[0]?.toLowerCase() == 'like') ||
+          value[0]?.toLowerCase() != 'like'
+        )
+          return
+        filter['value'] = value[1]?.replace(/%/g, '')
+      } else if (typeof value == 'boolean') {
+        filter['value'] = value
+      } else {
+        filter['value'] = value?.replace(/%/g, '')
+      }
+    }
+  })
+
+  return filters
+})
+
+const quickFilters = createResource({
+  url: 'crm.api.doc.get_quick_filters',
+  params: { doctype: props.doctype },
+  cache: ['Quick Filters', props.doctype],
+  onSuccess(filters) {
+    setupNewQuickFilters(filters)
+  },
+})
+
+if (!quickFilters.data) quickFilters.fetch()
+
+function setupNewQuickFilters(filters) {
+  newQuickFilters.value = filters.map((f) => ({
+    label: f.label,
+    fieldname: f.fieldname,
+    fieldtype: f.fieldtype,
+  }))
+}
+
+function applyQuickFilter(filter, value) {
+  let filters = { ...list.value.params.filters }
+  let field = filter.fieldname
+  if (value) {
+    if (['Check', 'Select', 'Link'].includes(filter.fieldtype)) {
+      filters[field] = value
+    } else if (['Date', 'Datetime'].includes(filter.fieldtype)) {
+      // Handle timespan filters for date fields
+      if (timespanOptions.find(opt => opt.value === value)) {
+        filters[field] = ['timespan', value]
+      } else {
+        filters[field] = value
+      }
+    } else {
+      filters[field] = ['LIKE', `%${value}%`]
+    }
+    filter['value'] = value
+  } else {
+    delete filters[field]
+    filter['value'] = ''
+  }
+  updateFilter(filters)
+}
 
 function updateFilter(filters) {
   viewUpdated.value = true
