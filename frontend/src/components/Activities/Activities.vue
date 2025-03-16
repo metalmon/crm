@@ -767,11 +767,11 @@ const activities = computed(() => {
       noMoreActivities.value = true
     }
   } else if (title.value == 'Calls') {
-    const calls = sortByCreation(all_activities.data.calls || [])
+    const calls = all_activities.data.calls || []
     if (!calls.length) {
       noMoreActivities.value = true
     }
-    return calls
+    return calls.sort((a, b) => new Date(a.creation) - new Date(b.creation))
   } else if (title.value == 'Tasks') {
     const tasks = sortByModified(all_activities.data.tasks || [])
     if (!tasks.length) {
@@ -793,35 +793,32 @@ const activities = computed(() => {
   }
 
   if (_activities.length) {
-  _activities.forEach((activity) => {
-    activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
+    _activities.forEach((activity) => {
+      activity.icon = timelineIcon(activity.activity_type, activity.is_lead)
 
-    if (
-      activity.activity_type == 'incoming_call' ||
-      activity.activity_type == 'outgoing_call' ||
-      activity.activity_type == 'communication'
-    )
-      return
+      if (
+        activity.activity_type == 'incoming_call' ||
+        activity.activity_type == 'outgoing_call' ||
+        activity.activity_type == 'communication'
+      )
+        return
 
-    update_activities_details(activity)
+      update_activities_details(activity)
 
-    if (activity.other_versions) {
-      activity.show_others = false
-      activity.other_versions.forEach((other_version) => {
-        update_activities_details(other_version)
-      })
-    }
-  })
-  return sortByCreation(_activities)
+      if (activity.other_versions) {
+        activity.show_others = false
+        activity.other_versions.forEach((other_version) => {
+          update_activities_details(other_version)
+        })
+      }
+    })
+    return _activities.sort((a, b) => new Date(a.creation) - new Date(b.creation))
   }
   
   noMoreActivities.value = true
   return []
 })
 
-function sortByCreation(list) {
-  return list.sort((a, b) => new Date(a.creation) - new Date(b.creation))
-}
 function sortByModified(list) {
   return list.sort((b, a) => new Date(a.modified) - new Date(b.modified))
 }
@@ -981,7 +978,7 @@ const whatsappMessages = createResource({
     reference_name: doc.value.data.name,
   },
   auto: true,
-  transform: (data) => sortByCreation(data),
+  transform: (data) => sortByModified(data),
   onSuccess: () => nextTick(() => scroll()),
 })
 
@@ -993,7 +990,7 @@ const avitoMessages = createResource({
     reference_name: doc.value.data.name,
   },
   auto: true,
-  transform: (data) => sortByCreation(data),
+  transform: (data) => sortByModified(data),
   onSuccess: () => nextTick(() => scroll()),
 })
 
