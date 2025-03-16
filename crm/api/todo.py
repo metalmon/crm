@@ -82,50 +82,72 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
     if doctype.startswith("CRM "):
         doctype = doctype[4:].lower()
 
-    if doctype in ["lead", "deal"]:
-        name = (
-            reference_doc.lead_name or name
-            if doctype == "lead"
-            else reference_doc.organization or reference_doc.lead_name or name
-        )
-
+    if doctype == "lead":
+        name = reference_doc.lead_name or name
+        
         if is_cancelled:
+            # Extract translation strings separately for better extraction
+            message = _('Your assignment on lead {0} has been removed by {1}')
+            formatted_name = f'<span class="font-medium text-ink-gray-9">{ name }</span>'
+            formatted_owner = f'<span class="font-medium text-ink-gray-9">{ owner }</span>'
             return f"""
                 <div class="mb-2 leading-5 text-ink-gray-5">
-                    <span>{ _('Your assignment on {0} {1} has been removed by {2}').format(
-                        doctype,
-                        f'<span class="font-medium text-ink-gray-9">{ name }</span>',
-                        f'<span class="font-medium text-ink-gray-9">{ owner }</span>'
-                    ) }</span>
+                    <span>{ message.format(formatted_name, formatted_owner) }</span>
                 </div>
             """
 
+        # Extract translation strings separately for better extraction
+        message = _('assigned lead {0} to you')
+        formatted_name = f'<span class="font-medium text-ink-gray-9">{ name }</span>'
         return f"""
             <div class="mb-2 leading-5 text-ink-gray-5">
                 <span class="font-medium text-ink-gray-9">{ owner }</span>
-                <span>{ _('assigned a {0} {1} to you').format(
-                    doctype,
-                    f'<span class="font-medium text-ink-gray-9">{ name }</span>'
-                ) }</span>
+                <span>{ message.format(formatted_name) }</span>
+            </div>
+        """
+    elif doctype == "deal":
+        name = reference_doc.organization or reference_doc.lead_name or name
+        
+        if is_cancelled:
+            # Extract translation strings separately for better extraction
+            message = _('Your assignment on deal {0} has been removed by {1}')
+            formatted_name = f'<span class="font-medium text-ink-gray-9">{ name }</span>'
+            formatted_owner = f'<span class="font-medium text-ink-gray-9">{ owner }</span>'
+            return f"""
+                <div class="mb-2 leading-5 text-ink-gray-5">
+                    <span>{ message.format(formatted_name, formatted_owner) }</span>
+                </div>
+            """
+
+        # Extract translation strings separately for better extraction
+        message = _('assigned deal {0} to you')
+        formatted_name = f'<span class="font-medium text-ink-gray-9">{ name }</span>'
+        return f"""
+            <div class="mb-2 leading-5 text-ink-gray-5">
+                <span class="font-medium text-ink-gray-9">{ owner }</span>
+                <span>{ message.format(formatted_name) }</span>
             </div>
         """
 
     if doctype == "task":
         if is_cancelled:
+            # Extract translation strings separately for better extraction
+            message = _('Your assignment on task {0} has been removed by {1}')
+            formatted_title = f'<span class="font-medium text-ink-gray-9">{ reference_doc.title }</span>'
+            formatted_owner = f'<span class="font-medium text-ink-gray-9">{ owner }</span>'
             return f"""
                 <div class="mb-2 leading-5 text-ink-gray-5">
-                    <span>{ _('Your assignment on task {0} has been removed by {1}').format(
-                        f'<span class="font-medium text-ink-gray-9">{ reference_doc.title }</span>',
-                        f'<span class="font-medium text-ink-gray-9">{ owner }</span>'
-                    ) }</span>
+                    <span>{ message.format(formatted_title, formatted_owner) }</span>
                 </div>
             """
+            
+        # Extract translation strings separately for better extraction
+        message = _('assigned task {0} to you')
+        formatted_title = f'<span class="font-medium text-ink-gray-9">{ reference_doc.title }</span>'
         return f"""
             <div class="mb-2 leading-5 text-ink-gray-5">
                 <span class="font-medium text-ink-gray-9">{ owner }</span>
-                <span>{ _('assigned a new task {0} to you').format(
-                    f'<span class="font-medium text-ink-gray-9">{ reference_doc.title }</span>'
-                ) }</span>
+                <span>{ message.format(formatted_title) }</span>
             </div>
         """
 

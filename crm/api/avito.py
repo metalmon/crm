@@ -49,13 +49,36 @@ def notify_agent(doc):
         doctype = doc.reference_doctype
         if doctype.startswith("CRM "):
             doctype = doctype[4:].lower()
-        notification_text = f"""
-            <div class="mb-2 leading-5 text-gray-600">
-                <span class="font-medium text-gray-900">{ _('You') }</span>
-                <span>{ _('received a avito message in {0}').format(doctype) }</span>
-                <span class="font-medium text-gray-900">{ doc.reference_name }</span>
-            </div>
-        """
+            
+        if doctype == "lead":
+            # Extract translation string separately for better extraction
+            message = _('You received an Avito message in lead')
+            notification_text = f"""
+                <div class="mb-2 leading-5 text-gray-600">
+                    <span>{ message }</span>
+                    <span class="font-medium text-gray-900">{ doc.reference_name }</span>
+                </div>
+            """
+        elif doctype == "deal":
+            # Extract translation string separately for better extraction
+            message = _('You received an Avito message in deal')
+            notification_text = f"""
+                <div class="mb-2 leading-5 text-gray-600">
+                    <span>{ message }</span>
+                    <span class="font-medium text-gray-900">{ doc.reference_name }</span>
+                </div>
+            """
+        else:
+            # Generic message for other doctypes
+            # Extract translation string separately for better extraction
+            message = _('You received an Avito message in {0}')
+            notification_text = f"""
+                <div class="mb-2 leading-5 text-gray-600">
+                    <span>{ message.format(doctype) }</span>
+                    <span class="font-medium text-gray-900">{ doc.reference_name }</span>
+                </div>
+            """
+            
         assigned_users = get_assigned_users(doc.reference_doctype, doc.reference_name)
         for user in assigned_users:
             notify_user({
