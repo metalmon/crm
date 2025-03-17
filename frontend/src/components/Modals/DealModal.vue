@@ -165,6 +165,7 @@ const deal = reactive({
   gender: '',
   status: '',
   deal_owner: '',
+  currency: window.sysdefaults?.currency || '',
 })
 
 function createDeal() {
@@ -331,6 +332,11 @@ onMounted(() => {
   if (!deal.deal_owner) {
     deal.deal_owner = getUser().name
   }
+  
+  if (!deal.currency) {
+    deal.currency = window.sysdefaults?.currency || ''
+  }
+  
   if (!deal.status && dealStatuses.value[0].value) {
     deal.status = dealStatuses.value[0].value
   }

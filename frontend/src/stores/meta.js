@@ -40,15 +40,25 @@ export function getMeta(doctype) {
   }
 
   function getFormattedCurrency(fieldname, doc) {
+    // Get system default currency
     let currency = window.sysdefaults.currency || 'USD'
     let df = doctypeMeta[doctype]?.fields.find((f) => f.fieldname == fieldname)
     let precision = df?.precision || null
 
     if (df && df.options) {
       if (df.options.indexOf(':') != -1) {
+        // Currency specified in options with colon separator
         currency = currency
       } else if (doc && doc[df.options]) {
-        currency = doc[df.options]
+        // Check if document's currency field has an explicitly set value
+        // and it's different from the system default
+        const docCurrency = doc[df.options];
+        
+        // Only use document's currency if it's explicitly set (not empty)
+        // This ensures system default is used when the field isn't set
+        if (docCurrency && docCurrency.trim() !== '') {
+          currency = docCurrency;
+        }
       }
     }
 
