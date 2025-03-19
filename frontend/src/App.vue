@@ -3,12 +3,9 @@
     <!-- Loading overlay for Redis warmup or network errors -->
     <LoadingView 
       v-if="redisWarmup.isWarmingUp || hasNetworkErrors"
-      :is-loading="redisWarmup.isWarmingUp || hasNetworkErrors"
       :redis-warmup="redisWarmup.isWarmingUp" 
       :redis-warmup-progress="redisWarmup.progress"
       :redis-warmup-details="redisWarmup.details"
-      :redis-error="redisWarmup.error"
-      :redis-error-message="redisWarmup.errorMessage"
       :network-errors="hasNetworkErrors"
       :error-details="networkErrorDetails"
       @retry="handleRetry"
@@ -39,9 +36,7 @@ import { lastTranslationUpdate } from './translation'
 const redisWarmup = ref({
   isWarmingUp: false,
   progress: 0,
-  details: null,
-  error: false,
-  errorMessage: ''
+  details: null
 })
 
 // Network error tracking
@@ -125,9 +120,7 @@ const redisCacheStatus = createResource({
       redisWarmup.value = {
         isWarmingUp: isCurrentlyWarmingUp,
         progress: data.data.progress || 0,
-        details: data.data.details || null,
-        error: false,
-        errorMessage: ''
+        details: data.data.details || null
       }
       
       if (!isCurrentlyWarmingUp) {
@@ -156,12 +149,11 @@ function handleRedisError(error) {
   // Stop any existing polling
   stopRedisPolling()
   
-  // Show error state with more detailed message
+  // Continue showing progress but don't set an error state
   redisWarmup.value = {
     isWarmingUp: true,
     progress: 0,
-    error: true,
-    errorMessage: __('System is not ready. Please wait or contact administrator if the issue persists.')
+    details: null
   }
   
   // Try to reconnect after delay

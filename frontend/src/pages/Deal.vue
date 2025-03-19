@@ -23,7 +23,7 @@
         <template #default="{ open }">
           <Button :label="translateDealStatus(deal.data.status)">
             <template #prefix>
-              <IndicatorIcon :class="getDealStatus(deal.data.status).color" />
+              <IndicatorIcon :class="getDealStatus(deal.data.status)?.color || 'text-gray-400'" />
             </template>
             <template #suffix>
               <FeatherIcon
