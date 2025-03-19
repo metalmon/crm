@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-17 16:58+0000\n"
-"PO-Revision-Date: 2025-03-17 16:58+0000\n"
+"POT-Creation-Date: 2025-03-19 18:12+0000\n"
+"PO-Revision-Date: 2025-03-19 18:12+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -169,7 +169,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:576 frontend/src/pages/Lead.vue:496
+#: frontend/src/pages/Deal.vue:576 frontend/src/pages/Lead.vue:538
 #: frontend/src/pages/MobileDeal.vue:521 frontend/src/pages/MobileLead.vue:405
 msgid "Activity"
 msgstr ""
@@ -301,7 +301,7 @@ msgstr ""
 msgid "Annual Revenue"
 msgstr ""
 
-#: frontend/src/components/Modals/DealModal.vue:191
+#: frontend/src/components/Modals/DealModal.vue:192
 #: frontend/src/components/Modals/LeadModal.vue:159
 msgid "Annual Revenue should be a number"
 msgstr ""
@@ -416,7 +416,7 @@ msgid "Attach a file"
 msgstr ""
 
 #: frontend/src/components/Activities/ActivityHeader.vue:62
-#: frontend/src/pages/Deal.vue:612 frontend/src/pages/Lead.vue:532
+#: frontend/src/pages/Deal.vue:612 frontend/src/pages/Lead.vue:574
 #: frontend/src/pages/MobileDeal.vue:557 frontend/src/pages/MobileLead.vue:441
 msgid "Attachments"
 msgstr ""
@@ -431,7 +431,7 @@ msgstr ""
 #. Option for the 'Type' (Select) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: frontend/src/components/Settings/Settings.vue:124
-#: frontend/src/pages/Lead.vue:543 frontend/src/pages/MobileLead.vue:452
+#: frontend/src/pages/Lead.vue:585 frontend/src/pages/MobileLead.vue:452
 msgid "Avito"
 msgstr ""
 
@@ -449,7 +449,7 @@ msgstr ""
 msgid "Back to file upload"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:32
+#: frontend/src/components/common/LoadingView.vue:47
 msgid "Background Workers"
 msgstr ""
 
@@ -693,7 +693,7 @@ msgstr ""
 msgid "Calling..."
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:596 frontend/src/pages/Lead.vue:516
+#: frontend/src/pages/Deal.vue:596 frontend/src/pages/Lead.vue:558
 #: frontend/src/pages/MobileDeal.vue:541 frontend/src/pages/MobileLead.vue:425
 msgid "Calls"
 msgstr ""
@@ -758,11 +758,11 @@ msgstr ""
 msgid "Chat initiated with"
 msgstr ""
 
-#: frontend/src/App.vue:227
+#: frontend/src/App.vue:219
 msgid "Checking system readiness..."
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:234 frontend/src/pages/Lead.vue:261
+#: frontend/src/pages/Lead.vue:259 frontend/src/pages/Lead.vue:285
 #: frontend/src/pages/MobileLead.vue:159 frontend/src/pages/MobileLead.vue:186
 msgid "Choose Existing"
 msgstr ""
@@ -854,7 +854,7 @@ msgid "Comment"
 msgstr ""
 
 #: frontend/src/components/Activities/ActivityHeader.vue:20
-#: frontend/src/pages/Deal.vue:586 frontend/src/pages/Lead.vue:506
+#: frontend/src/pages/Deal.vue:586 frontend/src/pages/Lead.vue:548
 #: frontend/src/pages/MobileDeal.vue:531 frontend/src/pages/MobileLead.vue:415
 msgid "Comments"
 msgstr ""
@@ -897,10 +897,14 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
+#: frontend/src/components/common/LoadingView.vue:128
+msgid "Connecting to messaging system..."
+msgstr ""
+
 #. Label of the contact (Link) field in DocType 'CRM Contacts'
 #. Label of the contact (Link) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
-#: crm/fcrm/doctype/crm_deal/crm_deal.json frontend/src/pages/Lead.vue:257
+#: crm/fcrm/doctype/crm_deal/crm_deal.json frontend/src/pages/Lead.vue:281
 #: frontend/src/pages/MobileLead.vue:182
 msgid "Contact"
 msgstr ""
@@ -930,7 +934,7 @@ msgstr ""
 msgid "Contact already exists with {0}"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:672 frontend/src/pages/MobileLead.vue:577
+#: frontend/src/pages/Lead.vue:766 frontend/src/pages/MobileLead.vue:577
 msgid "Contact name not set"
 msgstr ""
 
@@ -976,14 +980,14 @@ msgid "Content Type"
 msgstr ""
 
 #: frontend/src/components/ListBulkActions.vue:68
-#: frontend/src/pages/Lead.vue:220 frontend/src/pages/MobileLead.vue:49
+#: frontend/src/pages/Lead.vue:219 frontend/src/pages/MobileLead.vue:49
 #: frontend/src/pages/MobileLead.vue:145
 msgid "Convert"
 msgstr ""
 
 #: frontend/src/components/ListBulkActions.vue:62
 #: frontend/src/components/ListBulkActions.vue:198
-#: frontend/src/pages/Lead.vue:38 frontend/src/pages/Lead.vue:216
+#: frontend/src/pages/Lead.vue:38 frontend/src/pages/Lead.vue:230
 #: frontend/src/pages/MobileLead.vue:141
 msgid "Convert to Deal"
 msgstr ""
@@ -1074,7 +1078,7 @@ msgstr ""
 msgid "Currency"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:47
+#: frontend/src/components/common/LoadingView.vue:62
 msgid "Current processes:"
 msgstr ""
 
@@ -1087,7 +1091,7 @@ msgid "Customize quick filters"
 msgstr ""
 
 #: frontend/src/components/Activities/DataFields.vue:6
-#: frontend/src/pages/Deal.vue:591 frontend/src/pages/Lead.vue:511
+#: frontend/src/pages/Deal.vue:591 frontend/src/pages/Lead.vue:553
 #: frontend/src/pages/MobileDeal.vue:536 frontend/src/pages/MobileLead.vue:420
 msgid "Data"
 msgstr ""
@@ -1520,7 +1524,7 @@ msgstr ""
 msgid "Email references update completed successfully"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:581 frontend/src/pages/Lead.vue:501
+#: frontend/src/pages/Deal.vue:581 frontend/src/pages/Lead.vue:543
 #: frontend/src/pages/MobileDeal.vue:526 frontend/src/pages/MobileLead.vue:410
 msgid "Emails"
 msgstr ""
@@ -1595,7 +1599,7 @@ msgstr ""
 #: frontend/src/components/Settings/TelephonySettings.vue:131
 #: frontend/src/components/Settings/TelephonySettings.vue:156
 #: frontend/src/components/ViewControls.vue:1048
-#: frontend/src/pages/Lead.vue:604 frontend/src/pages/Lead.vue:614
+#: frontend/src/pages/Lead.vue:698 frontend/src/pages/Lead.vue:708
 #: frontend/src/pages/MobileLead.vue:505 frontend/src/pages/MobileLead.vue:515
 msgid "Error"
 msgstr ""
@@ -1604,7 +1608,7 @@ msgstr ""
 msgid "Error Updating Deal"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:445 frontend/src/pages/MobileLead.vue:348
+#: frontend/src/pages/Lead.vue:487 frontend/src/pages/MobileLead.vue:348
 msgid "Error Updating Lead"
 msgstr ""
 
@@ -1612,7 +1616,7 @@ msgstr ""
 msgid "Error assigning to {0}: {1}"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:637
+#: frontend/src/pages/Lead.vue:731
 msgid "Error converting to deal"
 msgstr ""
 
@@ -1632,7 +1636,7 @@ msgstr ""
 msgid "Error updating deal"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:432 frontend/src/pages/MobileLead.vue:335
+#: frontend/src/pages/Lead.vue:474 frontend/src/pages/MobileLead.vue:335
 msgid "Error updating lead"
 msgstr ""
 
@@ -1740,6 +1744,10 @@ msgstr ""
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Failed"
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:16
+msgid "Failed modules:"
 msgstr ""
 
 #: crm/api/assignment.py:42
@@ -2095,6 +2103,10 @@ msgstr ""
 msgid "Industry"
 msgstr ""
 
+#: frontend/src/components/common/LoadingView.vue:127
+msgid "Initializing database..."
+msgstr ""
+
 #. Option for the 'Status' (Select) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 msgid "Initiated"
@@ -2117,7 +2129,7 @@ msgstr ""
 msgid "Invalid Account SID or Auth Token."
 msgstr ""
 
-#: frontend/src/components/Modals/DealModal.vue:200
+#: frontend/src/components/Modals/DealModal.vue:201
 #: frontend/src/components/Modals/LeadModal.vue:168
 msgid "Invalid Email"
 msgstr ""
@@ -2341,7 +2353,7 @@ msgstr ""
 msgid "Lead Statuses"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:424 frontend/src/pages/MobileLead.vue:327
+#: frontend/src/pages/Lead.vue:466 frontend/src/pages/MobileLead.vue:327
 msgid "Lead updated"
 msgstr ""
 
@@ -2349,7 +2361,7 @@ msgstr ""
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/components/Layouts/AppSidebar.vue:133
 #: frontend/src/components/Mobile/MobileSidebar.vue:116
-#: frontend/src/pages/Lead.vue:456 frontend/src/pages/MobileLead.vue:359
+#: frontend/src/pages/Lead.vue:498 frontend/src/pages/MobileLead.vue:359
 msgid "Leads"
 msgstr ""
 
@@ -2403,8 +2415,16 @@ msgstr ""
 msgid "Load More"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:61
-msgid "Loading data..."
+#: frontend/src/components/common/LoadingView.vue:126
+msgid "Loading background document types..."
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:125
+msgid "Loading critical components..."
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:129
+msgid "Loading language packs..."
 msgstr ""
 
 #: frontend/src/components/Activities/Activities.vue:25
@@ -2413,13 +2433,14 @@ msgstr ""
 msgid "Loading more..."
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:16
+#: frontend/src/components/common/LoadingView.vue:31
 msgid "Loading required components in background..."
 msgstr ""
 
 #: frontend/src/components/Activities/Activities.vue:33
 #: frontend/src/components/Activities/DataFields.vue:35
-#: frontend/src/components/common/LoadingView.vue:28
+#: frontend/src/components/common/LoadingView.vue:43
+#: frontend/src/components/common/LoadingView.vue:58
 #: frontend/src/pages/Deal.vue:196 frontend/src/pages/Deal.vue:519
 #: frontend/src/pages/MobileDeal.vue:111 frontend/src/pages/MobileDeal.vue:452
 msgid "Loading..."
@@ -2563,7 +2584,7 @@ msgstr ""
 msgid "Mobile No"
 msgstr ""
 
-#: frontend/src/components/Modals/DealModal.vue:196
+#: frontend/src/components/Modals/DealModal.vue:197
 #: frontend/src/components/Modals/LeadModal.vue:164
 msgid "Mobile No should be a number"
 msgstr ""
@@ -2634,6 +2655,10 @@ msgstr ""
 msgid "Negotiation"
 msgstr ""
 
+#: frontend/src/components/common/LoadingView.vue:11
+msgid "Network connection error"
+msgstr ""
+
 #: frontend/src/components/Activities/ActivityHeader.vue:90
 #: frontend/src/utils/leadStatusTranslations.js:7
 msgid "New"
@@ -2701,11 +2726,11 @@ msgstr ""
 msgid "New WhatsApp Message"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:274 frontend/src/pages/MobileLead.vue:199
+#: frontend/src/pages/Lead.vue:297 frontend/src/pages/MobileLead.vue:199
 msgid "New contact will be created based on the person's details"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:248 frontend/src/pages/MobileLead.vue:173
+#: frontend/src/pages/Lead.vue:272 frontend/src/pages/MobileLead.vue:173
 msgid "New organization will be created based on the data in details section"
 msgstr ""
 
@@ -2965,7 +2990,7 @@ msgstr ""
 #: frontend/src/components/Activities/ActivityHeader.vue:40
 #: frontend/src/components/Layouts/AppSidebar.vue:143
 #: frontend/src/components/Mobile/MobileSidebar.vue:126
-#: frontend/src/pages/Deal.vue:607 frontend/src/pages/Lead.vue:527
+#: frontend/src/pages/Deal.vue:607 frontend/src/pages/Lead.vue:569
 #: frontend/src/pages/MobileDeal.vue:552 frontend/src/pages/MobileLead.vue:436
 msgid "Notes"
 msgstr ""
@@ -3016,7 +3041,7 @@ msgstr ""
 msgid "Old Parent"
 msgstr ""
 
-#: frontend/src/pages/Contact.vue:314 frontend/src/pages/Lead.vue:567
+#: frontend/src/pages/Contact.vue:314 frontend/src/pages/Lead.vue:609
 #: frontend/src/pages/MobileContact.vue:306
 #: frontend/src/pages/MobileOrganization.vue:278
 #: frontend/src/pages/Organization.vue:290
@@ -3074,7 +3099,7 @@ msgstr ""
 #. Label of the organization (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/pages/Contact.vue:638
-#: frontend/src/pages/Lead.vue:230 frontend/src/pages/MobileContact.vue:634
+#: frontend/src/pages/Lead.vue:255 frontend/src/pages/MobileContact.vue:634
 #: frontend/src/pages/MobileLead.vue:155
 #: frontend/src/pages/MobileOrganization.vue:497
 #: frontend/src/pages/MobileOrganization.vue:551
@@ -3232,11 +3257,11 @@ msgstr ""
 msgid "Please enter a valid URL"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:605 frontend/src/pages/MobileLead.vue:506
+#: frontend/src/pages/Lead.vue:699 frontend/src/pages/MobileLead.vue:506
 msgid "Please select an existing contact"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:615 frontend/src/pages/MobileLead.vue:516
+#: frontend/src/pages/Lead.vue:709 frontend/src/pages/MobileLead.vue:516
 msgid "Please select an existing organization"
 msgstr ""
 
@@ -3244,7 +3269,7 @@ msgstr ""
 msgid "Please setup Exotel intergration"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:11
+#: frontend/src/components/common/LoadingView.vue:26
 msgid "Please wait while the system is being prepared."
 msgstr ""
 
@@ -3347,8 +3372,9 @@ msgstr ""
 msgid "Read"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:28
-#: frontend/src/components/common/LoadingView.vue:33
+#: frontend/src/components/common/LoadingView.vue:43
+#: frontend/src/components/common/LoadingView.vue:48
+#: frontend/src/components/common/LoadingView.vue:58
 msgid "Ready"
 msgstr ""
 
@@ -3468,7 +3494,7 @@ msgstr ""
 msgid "Reply All"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:37
+#: frontend/src/components/common/LoadingView.vue:52
 msgid "Required Data"
 msgstr ""
 
@@ -3539,6 +3565,10 @@ msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploader.vue:54
 msgid "Retake"
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:19
+msgid "Retry"
 msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:57
@@ -3927,7 +3957,11 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:33
+#: frontend/src/components/common/LoadingView.vue:130
+msgid "Starting background processes..."
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:48
 msgid "Starting..."
 msgstr ""
 
@@ -3960,7 +3994,7 @@ msgstr ""
 msgid "Status Change Log"
 msgstr ""
 
-#: frontend/src/components/Modals/DealModal.vue:204
+#: frontend/src/components/Modals/DealModal.vue:205
 #: frontend/src/components/Modals/LeadModal.vue:172
 msgid "Status is required"
 msgstr ""
@@ -4005,7 +4039,7 @@ msgstr ""
 msgid "Switch camera"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:42
+#: frontend/src/components/common/LoadingView.vue:57
 msgid "System Cache"
 msgstr ""
 
@@ -4028,14 +4062,6 @@ msgstr ""
 msgid "System Manager"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:9
-msgid "System initialization in progress..."
-msgstr ""
-
-#: frontend/src/App.vue:164
-msgid "System is not ready. Please wait or contact administrator if the issue persists."
-msgstr ""
-
 #: frontend/src/components/EmailEditor.vue:23
 msgid "TO"
 msgstr ""
@@ -4052,7 +4078,7 @@ msgstr ""
 #: frontend/src/components/Activities/ActivityHeader.vue:51
 #: frontend/src/components/Layouts/AppSidebar.vue:148
 #: frontend/src/components/Mobile/MobileSidebar.vue:131
-#: frontend/src/pages/Deal.vue:602 frontend/src/pages/Lead.vue:522
+#: frontend/src/pages/Deal.vue:602 frontend/src/pages/Lead.vue:564
 #: frontend/src/pages/MobileDeal.vue:547 frontend/src/pages/MobileLead.vue:431
 msgid "Tasks"
 msgstr ""
@@ -4116,10 +4142,6 @@ msgstr ""
 
 #: frontend/src/utils/timeOptions.js:14
 msgid "This Year"
-msgstr ""
-
-#: frontend/src/components/common/LoadingView.vue:65
-msgid "This is taking longer than usual. Please wait..."
 msgstr ""
 
 #: frontend/src/components/SidePanelLayoutEditor.vue:117
@@ -4212,7 +4234,7 @@ msgstr ""
 msgid "Total Holidays"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:27
+#: frontend/src/components/common/LoadingView.vue:42
 msgid "Translations"
 msgstr ""
 
@@ -4467,7 +4489,7 @@ msgstr ""
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: frontend/src/components/Activities/ActivityHeader.vue:72
 #: frontend/src/components/Settings/Settings.vue:118
-#: frontend/src/pages/Deal.vue:617 frontend/src/pages/Lead.vue:537
+#: frontend/src/pages/Deal.vue:617 frontend/src/pages/Lead.vue:579
 #: frontend/src/pages/MobileDeal.vue:562 frontend/src/pages/MobileLead.vue:446
 msgid "WhatsApp"
 msgstr ""
@@ -4820,7 +4842,7 @@ msgstr ""
 msgid "{0} assigned a {1} {2} to you"
 msgstr ""
 
-#: frontend/src/pages/Deal.vue:509 frontend/src/pages/Lead.vue:446
+#: frontend/src/pages/Deal.vue:509 frontend/src/pages/Lead.vue:488
 #: frontend/src/pages/MobileDeal.vue:442 frontend/src/pages/MobileLead.vue:349
 msgid "{0} is a required field"
 msgstr ""
