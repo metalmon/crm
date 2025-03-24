@@ -77,16 +77,28 @@ function handleResourceError(e) {
       const moduleMatch = resourceUrl.match(/\/assets\/([^\/]+)-[a-f0-9]+\.js/);
       const moduleName = moduleMatch ? moduleMatch[1] : 'Unknown module';
       
-      console.error('Network resource loading error:', {
-        moduleName,
-        resourceUrl,
-        error: e.message || 'Unknown error'
-      });
+      // Get more detailed error information
+      const errorDetails = {
+        type: e.type || 'Unknown error type',
+        message: e.message || 'No error message available',
+        stack: e.stack || 'No stack trace available',
+        resourceType: e.target.tagName || 'Unknown resource type',
+        resourceUrl: resourceUrl,
+        moduleName: moduleName,
+        timestamp: new Date().toISOString()
+      };
       
-      // Add to set of failed modules
+      console.error('Network resource loading error:', errorDetails);
+      
+      // Add to set of failed modules with more context
       networkErrorDetails.value.failedModules.add(moduleName);
       networkErrorDetails.value.count++;
-      networkErrorDetails.value.lastError = e.message || 'Unknown error';
+      networkErrorDetails.value.lastError = {
+        message: errorDetails.message,
+        type: errorDetails.type,
+        resource: errorDetails.resourceType,
+        url: errorDetails.resourceUrl
+      };
       
       // Show network error state
       hasNetworkErrors.value = true;
@@ -97,7 +109,6 @@ function handleResourceError(e) {
       }
       
       // Auto-hide network errors after a longer timeout (20 seconds)
-      // This gives the user time to see the error and retry if needed
       networkErrorTimer = setTimeout(() => {
         console.log('Auto-hiding network error screen after timeout');
         hasNetworkErrors.value = false;

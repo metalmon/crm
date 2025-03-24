@@ -23,8 +23,11 @@ const logger = {
   info: (...args) => isDevelopment && console.info(...args),
   time: (...args) => isDevelopment && console.time(...args),
   timeEnd: (...args) => isDevelopment && console.timeEnd(...args),
-  // Always log critical errors regardless of environment
-  critical: (...args) => console.error('[CRITICAL]', ...args)
+  // Always log critical errors and socket events regardless of environment
+  critical: (...args) => console.error('[CRITICAL]', ...args),
+  socket: (...args) => console.log('[SOCKET]', ...args),
+  socketError: (...args) => console.error('[SOCKET ERROR]', ...args),
+  socketWarn: (...args) => console.warn('[SOCKET WARN]', ...args)
 }
 
 // Cache for CRM settings
@@ -278,8 +281,9 @@ export function initSocket() {
   
   // Connection event handlers
   socket.on('connect', () => {
-    logger.log('[Socket] Connected successfully')
-    logger.log(`[Socket] Socket ID: ${socket.id}`)
+    logger.socket('Connected successfully')
+    logger.socket(`Socket ID: ${socket.id}`)
+    logger.socket(`Current transport: ${socket.io.engine.transport.name}`)
     
     // Update metrics
     socketMetrics.connected = true
@@ -287,10 +291,7 @@ export function initSocket() {
     
     // Show reconnection notification if this was a reconnection
     if (socketMetrics.connectionAttempts > 0) {
-      // Optional: Show a notification to the user that connection was restored
-      logger.log('[Socket] Connection restored after disconnection')
-      
-      // Could dispatch an event for UI components to respond to
+      logger.socket(`Connection restored after ${socketMetrics.connectionAttempts} attempts`)
       window.dispatchEvent(new CustomEvent('socket:reconnected'))
     }
     
@@ -352,26 +353,32 @@ export function initSocket() {
   })
 
   socket.on('connect_error', (error) => {
-    logger.error('[Socket] Connection error:', error)
+    logger.socketError('Connection error:', error)
+    logger.socketError(`Current transport: ${socket.io.engine.transport.name}`)
     
     // Track error
     socketMetrics.errors.push({
       type: 'connect_error',
       message: error.message,
+      transport: socket.io.engine.transport.name,
       timestamp: new Date().toISOString()
     })
     
     // Could show a user-friendly error
     if (socketMetrics.errors.length > 3) {
-      // Optional: Show persistent error to user if connection keeps failing
       window.dispatchEvent(new CustomEvent('socket:connection_issues', { 
-        detail: { message: 'Having trouble connecting to server' }
+        detail: { 
+          message: 'Having trouble connecting to server',
+          transport: socket.io.engine.transport.name,
+          error: error.message
+        }
       }))
     }
   })
 
   socket.on('disconnect', (reason) => {
-    logger.log(`[Socket] Disconnected. Reason: ${reason}`)
+    logger.socket(`Disconnected. Reason: ${reason}`)
+    logger.socket(`Last transport: ${socket.io.engine.transport.name}`)
     
     // Update metrics
     socketMetrics.connected = false
@@ -380,29 +387,54 @@ export function initSocket() {
     
     // Show a temporary disconnection message for certain reasons
     if (reason === 'io server disconnect' || reason === 'transport close') {
-      // These are more serious disconnections
       window.dispatchEvent(new CustomEvent('socket:disconnected', {
-        detail: { reason }
+        detail: { 
+          reason,
+          transport: socket.io.engine.transport.name
+        }
       }))
     }
   })
 
   socket.on('reconnect_attempt', (attemptNumber) => {
-    logger.log(`[Socket] Reconnection attempt ${attemptNumber}`)
+    logger.socket(`Reconnection attempt ${attemptNumber}`)
+    logger.socket(`Current transport: ${socket.io.engine.transport.name}`)
     socketMetrics.connectionAttempts = attemptNumber
   })
 
   socket.on('reconnect', (attemptNumber) => {
-    logger.log(`[Socket] Reconnected after ${attemptNumber} attempts`)
+    logger.socket(`Reconnected after ${attemptNumber} attempts`)
+    logger.socket(`New transport: ${socket.io.engine.transport.name}`)
   })
 
   socket.on('error', (error) => {
-    logger.error('[Socket] Socket error:', error)
+    logger.socketError('Socket error:', error)
+    logger.socketError(`Current transport: ${socket.io.engine.transport.name}`)
     
     // Track error
     socketMetrics.errors.push({
       type: 'socket_error',
       message: error.message || 'Unknown socket error',
+      transport: socket.io.engine.transport.name,
+      timestamp: new Date().toISOString()
+    })
+  })
+
+  // Add transport switching event handler
+  socket.io.engine.on('upgrade', (transport) => {
+    logger.socket(`Transport upgraded to: ${transport.name}`)
+    socketMetrics.errors.push({
+      type: 'transport_upgrade',
+      message: `Transport upgraded to ${transport.name}`,
+      timestamp: new Date().toISOString()
+    })
+  })
+
+  socket.io.engine.on('downgrade', (transport) => {
+    logger.socketWarn(`Transport downgraded to: ${transport.name}`)
+    socketMetrics.errors.push({
+      type: 'transport_downgrade',
+      message: `Transport downgraded to ${transport.name}`,
       timestamp: new Date().toISOString()
     })
   })

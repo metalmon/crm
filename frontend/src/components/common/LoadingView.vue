@@ -10,7 +10,16 @@
         <div v-if="networkErrors" class="redis-error-message">
           <p class="redis-error-text">{{ __('Network connection error') }}</p>
           <p class="redis-error-details" v-if="errorDetails?.lastError">
-            {{ errorDetails.lastError }}
+            {{ errorDetails.lastError.message || __('No error message available') }}
+            <template v-if="errorDetails.lastError.type">
+              <br><small>{{ __('Error type:') }} {{ errorDetails.lastError.type }}</small>
+            </template>
+            <template v-if="errorDetails.lastError.resource">
+              <br><small>{{ __('Resource type:') }} {{ errorDetails.lastError.resource }}</small>
+            </template>
+            <template v-if="errorDetails.lastError.url">
+              <br><small>{{ __('Resource URL:') }} {{ errorDetails.lastError.url }}</small>
+            </template>
           </p>
           <p class="redis-error-modules" v-if="errorDetails?.failedModules?.size">
             {{ __('Failed modules:') }} {{ Array.from(errorDetails.failedModules).join(', ') }}
