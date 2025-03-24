@@ -16,9 +16,14 @@ export default defineConfig({
     }),
     vueJsx(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      injectRegister: 'script',
+      strategies: 'generateSW',
+      srcDir: 'src',
+      filename: 'sw.js',
       devOptions: {
         enabled: true,
+        type: 'module',
       },
       manifest: {
         display: 'standalone',
@@ -59,6 +64,30 @@ export default defineConfig({
           },
         ],
       },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\/(api|crm)/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'crm-api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ],
+        navigateFallback: '/crm/',
+        navigateFallbackDenylist: [/^\/api/, /^\/raven/],
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true
+      }
     }),
     {
       name: 'transform-index.html',
