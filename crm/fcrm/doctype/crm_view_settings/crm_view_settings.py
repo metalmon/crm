@@ -135,7 +135,7 @@ def sync_default_columns(view):
 			columns = frappe.get_all(
 				field_meta.options,
 				fields=["name"],
-				order_by="modified asc",
+				order_by="position asc",
 			)
 		elif field_meta.fieldtype == "Select":
 			columns = [{"name": option} for option in field_meta.options.split("\n")]
@@ -264,7 +264,7 @@ def reset_kanban_columns(doctype, column_field):
 		new_columns = frappe.get_all(
 			field_meta.options,
 			fields=["name"],
-			order_by="modified asc",
+			order_by="position asc",
 		)
 	elif field_meta.fieldtype == "Select":
 		new_columns = [{"name": option} for option in field_meta.options.split("\n")]

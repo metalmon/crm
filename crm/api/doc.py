@@ -407,8 +407,8 @@ def get_data(
 			if field_meta.fieldtype == "Link":
 				kanban_columns = frappe.get_all(
 					field_meta.options,
-					fields=["name"],
-					order_by="modified asc",
+					fields=["name", "position"],
+					order_by="position asc",
 				)
 			elif field_meta and field_meta.fieldtype == "Select":
 				kanban_columns = [{"name": option} for option in field_meta.options.split("\n")]
