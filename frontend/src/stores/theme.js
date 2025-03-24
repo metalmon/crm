@@ -18,15 +18,18 @@ export function setTheme(value) {
 }
 
 function updateThemeColor(currentTheme) {
-  const themeColor = currentTheme === 'dark' ? '#1f2937' : '#ffffff'
-  const metaThemeColor = document.querySelector('meta[name="theme-color"]:not([media])')
+  const themeColor = currentTheme === 'dark' ? '#0f0f0f' : '#ffffff'
   
-  if (metaThemeColor) {
-    metaThemeColor.setAttribute('content', themeColor)
-  } else {
-    const newMeta = document.createElement('meta')
-    newMeta.name = 'theme-color'
-    newMeta.content = themeColor
-    document.head.appendChild(newMeta)
+  // Update theme-color meta tags
+  const metaTags = document.querySelectorAll('meta[name="theme-color"], meta[name="msapplication-TileColor"]')
+  metaTags.forEach(tag => tag.content = themeColor)
+  
+  // Force update manifest theme color
+  const manifestLink = document.querySelector('link[rel="manifest"]')
+  if (manifestLink) {
+    const currentHref = manifestLink.href
+    manifestLink.href = currentHref.includes('?') ? 
+      currentHref.split('?')[0] + '?t=' + Date.now() :
+      currentHref + '?t=' + Date.now()
   }
 }

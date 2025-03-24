@@ -26,10 +26,12 @@ export default defineConfig({
         short_name: 'Frappe CRM',
         start_url: '/crm/',
         scope: '/crm/',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#0f0f0f',
+        background_color: '#0f0f0f',
         description:
           'Modern & 100% Open-source CRM tool to supercharge your sales operations',
+        orientation: 'any',
+        categories: ['productivity', 'business'],
         icons: [
           {
             src: '/assets/crm/manifest/manifest-icon-192.maskable.png',
