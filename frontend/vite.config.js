@@ -58,7 +58,6 @@ export default defineConfig({
             }
           }
         ],
-        navigateFallback: '/crm/',
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true
@@ -66,14 +65,12 @@ export default defineConfig({
       manifest: {
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',
-        start_url: '/crm/',
+        start_url: '/crm',
         display: 'standalone',
         background_color: '#0f0f0f',
         theme_color: '#0f0f0f',
         description: 'Modern & 100% Open-source CRM tool to supercharge your sales operations',
-        lang: 'ru',
-        scope: '/crm/',
-        orientation: 'any',
+        scope: '/crm',
         categories: ['productivity', 'business'],
         icons: [
           {
@@ -101,8 +98,7 @@ export default defineConfig({
             purpose: 'maskable',
           }
         ],
-        id: '/crm/',
-        dir: 'ltr',
+        id: 'crm',
         prefer_related_applications: false,
         display_override: ['window-controls-overlay']
       },
