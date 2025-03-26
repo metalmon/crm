@@ -541,6 +541,7 @@ import { filterEmailActivities } from '@/utils/activity_filters'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 import dayjs from '@/utils/dayjs'
+import moment from 'moment'
 
 const { makeCall, $socket } = globalStore()
 const { getUser } = usersStore()
@@ -742,6 +743,12 @@ function get_activities() {
   return [...all_activities.data.versions, ...all_activities.data.calls]
 }
 
+const sortByModified = (a, b) => {
+  const dateA = moment(a.modified || a.creation)
+  const dateB = moment(b.modified || b.creation)
+  return dateA.diff(dateB)
+}
+
 const activities = computed(() => {
   if (!all_activities.data) return []
   
@@ -765,29 +772,25 @@ const activities = computed(() => {
       noMoreActivities.value = true
     }
   } else if (title.value == 'Calls') {
-    const calls = all_activities.data.calls || []
-    if (!calls.length) {
+    _activities = all_activities.data.calls || []
+    if (!_activities.length) {
       noMoreActivities.value = true
     }
-    return calls.sort((a, b) => new Date(a.creation) - new Date(b.creation))
   } else if (title.value == 'Tasks') {
-    const tasks = sortByModified(all_activities.data.tasks || [])
-    if (!tasks.length) {
+    _activities = all_activities.data.tasks || []
+    if (!_activities.length) {
       noMoreActivities.value = true
     }
-    return tasks
   } else if (title.value == 'Notes') {
-    const notes = sortByModified(all_activities.data.notes || [])
-    if (!notes.length) {
+    _activities = all_activities.data.notes || []
+    if (!_activities.length) {
       noMoreActivities.value = true
     }
-    return notes
   } else if (title.value == 'Attachments') {
-    const attachments = sortByModified(all_activities.data.attachments || [])
-    if (!attachments.length) {
+    _activities = all_activities.data.attachments || []
+    if (!_activities.length) {
       noMoreActivities.value = true
     }
-    return attachments
   }
 
   if (_activities.length) {
@@ -810,15 +813,39 @@ const activities = computed(() => {
         })
       }
     })
-    return _activities.sort((a, b) => new Date(a.creation) - new Date(b.creation))
+    return _activities.sort(sortByModified)
   }
   
   noMoreActivities.value = true
   return []
 })
 
-function sortByModified(list) {
-  return list.sort((b, a) => new Date(a.modified) - new Date(b.modified))
+function timelineIcon(activity_type, is_lead) {
+  let icon
+  switch (activity_type) {
+    case 'creation':
+      icon = is_lead ? LeadsIcon : DealsIcon
+      break
+    case 'deal':
+      icon = DealsIcon
+      break
+    case 'comment':
+      icon = CommentIcon
+      break
+    case 'incoming_call':
+      icon = InboundCallIcon
+      break
+    case 'outgoing_call':
+      icon = OutboundCallIcon
+      break
+    case 'attachment_log':
+      icon = AttachmentIcon
+      break
+    default:
+      icon = DotIcon
+  }
+
+  return markRaw(icon)
 }
 
 function update_activities_details(activity) {
@@ -904,34 +931,6 @@ const emptyTextIcon = computed(() => {
   return h(icon, { class: 'text-ink-gray-4' })
 })
 
-function timelineIcon(activity_type, is_lead) {
-  let icon
-  switch (activity_type) {
-    case 'creation':
-      icon = is_lead ? LeadsIcon : DealsIcon
-      break
-    case 'deal':
-      icon = DealsIcon
-      break
-    case 'comment':
-      icon = CommentIcon
-      break
-    case 'incoming_call':
-      icon = InboundCallIcon
-      break
-    case 'outgoing_call':
-      icon = OutboundCallIcon
-      break
-    case 'attachment_log':
-      icon = AttachmentIcon
-      break
-    default:
-      icon = DotIcon
-  }
-
-  return markRaw(icon)
-}
-
 const emailBox = ref(null)
 const whatsappBox = ref(null)
 const avitoBox = ref(null)
@@ -976,7 +975,7 @@ const whatsappMessages = createResource({
     reference_name: doc.value.data.name,
   },
   auto: true,
-  transform: (data) => sortByModified(data),
+  transform: (data) => data.sort(sortByModified),
   onSuccess: () => nextTick(() => scroll()),
 })
 
@@ -988,7 +987,7 @@ const avitoMessages = createResource({
     reference_name: doc.value.data.name,
   },
   auto: true,
-  transform: (data) => sortByModified(data),
+  transform: (data) => data.sort(sortByModified),
   onSuccess: () => nextTick(() => scroll()),
 })
 
