@@ -423,15 +423,32 @@ async function updateSubscriptions() {
 // Handle card deletion separately
 function handleCardDeletion(cardName) {
   logger.log(`[KanbanView] Processing deletion of card ${cardName}`)
-  const sourceColumn = columns.value.find(col => 
-    col.data.some(c => c.name === cardName)
-  )
   
-  if (sourceColumn) {
-    logger.log(`[KanbanView] Removing deleted card ${cardName} from column ${sourceColumn.column.name}`)
-    sourceColumn.data = sourceColumn.data.filter(c => c.name !== cardName)
-    cardStates.delete(cardName)
+  // Find and remove the card from all columns
+  columns.value.forEach(column => {
+    if (!column.column.delete) {
+      const cardIndex = column.data.findIndex(card => card.name === cardName)
+      if (cardIndex !== -1) {
+        logger.log(`[KanbanView] Removing deleted card ${cardName} from column ${column.column.name}`)
+        column.data.splice(cardIndex, 1)
+      }
+    }
+  })
+  
+  // Clean up any pending updates or moves for this card
+  pendingUpdates.delete(cardName)
+  pendingMoves.delete(cardName)
+  updatingCards.value.delete(cardName)
+  cardStates.delete(cardName)
+  
+  // Unsubscribe from this card's updates
+  if (subscriptions.has(cardName)) {
+    subscriptions.get(cardName)()
+    subscriptions.delete(cardName)
   }
+  
+  // Emit update event to refresh the view
+  emit('update', {})
 }
 
 const titleField = computed(() => {

@@ -383,10 +383,28 @@ function actions(name) {
 }
 
 async function deletetask(name) {
-  await call('frappe.client.delete', {
-    doctype: 'CRM Task',
-    name,
-  })
+  try {
+    await call('frappe.client.delete', {
+      doctype: 'CRM Task',
+      name,
+    })
+    
+    // Dispatch a custom event to notify about the deletion
+    window.dispatchEvent(new CustomEvent('crm:doc_deleted', {
+      detail: {
+        doctype: 'CRM Task',
+        name: name
+      }
+    }))
+    
+    // Remove the task from the rows array
+    const index = rows.value.findIndex(row => row.name === name)
+    if (index !== -1) {
+      rows.value.splice(index, 1)
+    }
+  } catch (error) {
+    console.error('Error deleting task:', error)
+  }
 }
 
 function redirect(doctype, docname) {
