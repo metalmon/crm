@@ -364,13 +364,20 @@ export function initSocket() {
       timestamp: new Date().toISOString()
     })
     
-    // Could show a user-friendly error
-    if (socketMetrics.errors.length > 3) {
+    // Only show critical errors to user
+    const isCriticalError = 
+      error.message.includes('Connection refused') ||
+      error.message.includes('Cannot connect to host') ||
+      error.message.includes('Timeout') ||
+      error.message.includes('Authentication failed')
+    
+    if (isCriticalError && socketMetrics.errors.length > 3) {
       window.dispatchEvent(new CustomEvent('socket:connection_issues', { 
         detail: { 
           message: 'Having trouble connecting to server',
           transport: socket.io.engine.transport.name,
-          error: error.message
+          error: error.message,
+          is_critical: true
         }
       }))
     }
@@ -385,12 +392,19 @@ export function initSocket() {
     socketMetrics.lastDisconnected = new Date().toISOString()
     socketMetrics.disconnectionReason = reason
     
-    // Show a temporary disconnection message for certain reasons
-    if (reason === 'io server disconnect' || reason === 'transport close') {
+    // Only show critical disconnection reasons
+    const isCriticalReason = 
+      reason === 'io server disconnect' || 
+      reason === 'transport close' ||
+      reason === 'ping timeout' ||
+      reason === 'forced close'
+    
+    if (isCriticalReason) {
       window.dispatchEvent(new CustomEvent('socket:disconnected', {
         detail: { 
           reason,
-          transport: socket.io.engine.transport.name
+          transport: socket.io.engine.transport.name,
+          is_critical: true
         }
       }))
     }

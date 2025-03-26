@@ -302,15 +302,31 @@ def check_websocket():
         
         return {
             "status": "healthy",
-            "details": stats
+            "details": stats,
+            "is_critical": False
         }
         
     except Exception as e:
         error_msg = f"WebSocket check failed: {str(e)}"
         frappe.log_error(error_msg)
+        
+        # Determine if error is critical
+        is_critical = False
+        if "Connection refused" in str(e) or "Cannot connect to host" in str(e):
+            is_critical = True
+        elif "Timeout" in str(e):
+            is_critical = True
+        elif "Authentication failed" in str(e):
+            is_critical = True
+            
         return {
             "status": "unhealthy",
-            "error": error_msg
+            "error": error_msg,
+            "is_critical": is_critical,
+            "details": {
+                "error_type": type(e).__name__,
+                "error_message": str(e)
+            }
         }
 
 def ensure_doctypes_loaded():
@@ -365,7 +381,8 @@ def get_redis_cache_status():
                 "status": "error",
                 "message": "Cannot connect to system cache",
                 "error_type": "redis_connection",
-                "error_details": str(e)
+                "error_details": str(e),
+                "is_critical": True  # Redis connection is critical
             }
         
         # Check if warmup is in progress
@@ -451,11 +468,11 @@ def get_redis_cache_status():
 
         # System is considered warming up if:
         # - Any critical DocTypes are missing
-        # - WebSocket is unhealthy
+        # - WebSocket is unhealthy (but only if it's a critical error)
         # - Workers are not ready
         is_warming_up = (
             bool(missing_critical) or
-            ws_status["status"] != "healthy" or
+            (ws_status["status"] != "healthy" and ws_status.get("is_critical", False)) or
             not workers_ready
         )
 
@@ -474,7 +491,7 @@ def get_redis_cache_status():
                 "warming_up_reasons": [
                     *(["missing_critical_doctypes"] if missing_critical else []),
                     *(["missing_background_doctypes"] if missing_background else []),
-                    *(["websocket_unhealthy"] if ws_status["status"] != "healthy" else []),
+                    *(["websocket_unhealthy"] if ws_status["status"] != "healthy" and ws_status.get("is_critical", False) else []),
                     *(["workers_not_ready"] if not workers_ready else [])
                 ]
             }
@@ -490,7 +507,8 @@ def get_redis_cache_status():
         frappe.log_error(error_msg)
         return {
             "status": "error",
-            "message": error_msg
+            "message": error_msg,
+            "is_critical": True  # System check errors are critical
         }
 
 def check_background_workers():
