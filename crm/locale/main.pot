@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-29 19:53+0000\n"
-"PO-Revision-Date: 2025-03-29 19:53+0000\n"
+"POT-Creation-Date: 2025-03-29 21:18+0000\n"
+"PO-Revision-Date: 2025-03-29 21:18+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -242,7 +242,7 @@ msgstr ""
 msgid "Add note"
 msgstr ""
 
-#: frontend/src/pages/Welcome.vue:24
+#: frontend/src/pages/Welcome.vue:40
 msgid "Add sample data"
 msgstr ""
 
@@ -824,6 +824,10 @@ msgstr ""
 msgid "Choose Existing Organization"
 msgstr ""
 
+#: frontend/src/pages/Welcome.vue:9
+msgid "Choose how you want to start with Frappe CRM"
+msgstr ""
+
 #: frontend/src/components/Settings/EmailAdd.vue:7
 msgid "Choose the email service provider you want to configure."
 msgstr ""
@@ -955,7 +959,11 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: frontend/src/pages/Welcome.vue:35
+#: frontend/src/pages/Welcome.vue:54
+msgid "Connect with Google"
+msgstr ""
+
+#: frontend/src/pages/Welcome.vue:63
 msgid "Connect your email"
 msgstr ""
 
@@ -2149,6 +2157,10 @@ msgstr ""
 msgid "General"
 msgstr ""
 
+#: frontend/src/pages/Welcome.vue:34
+msgid "Get 10 sample leads to explore CRM features and functionality"
+msgstr ""
+
 #: frontend/src/components/custom-ui/onboarding/GettingStartedBanner.vue:17
 #: frontend/src/components/custom-ui/onboarding/HelpModal.vue:117
 #: frontend/src/components/custom-ui/onboarding/HelpModal.vue:149
@@ -2288,6 +2300,10 @@ msgstr ""
 #. Label of the image (Attach Image) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Image"
+msgstr ""
+
+#: frontend/src/pages/Welcome.vue:57
+msgid "Import your contacts, sync emails and manage calendar events"
 msgstr ""
 
 #: frontend/src/components/Filter.vue:262
@@ -3364,7 +3380,7 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: frontend/src/pages/Welcome.vue:40
+#: frontend/src/pages/Welcome.vue:73
 msgid "Or create leads manually"
 msgstr ""
 
@@ -4369,12 +4385,16 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
+#: frontend/src/pages/Welcome.vue:81
+msgid "Start from scratch and add your leads one by one"
+msgstr ""
+
 #: frontend/src/components/custom-ui/onboarding/GettingStartedBanner.vue:49
 msgid "Start now"
 msgstr ""
 
-#: frontend/src/pages/Welcome.vue:21
-msgid "Start with sample 10 leads"
+#: frontend/src/pages/Welcome.vue:31
+msgid "Start with sample leads"
 msgstr ""
 
 #: frontend/src/components/common/LoadingView.vue:139
@@ -4466,10 +4486,6 @@ msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploader.vue:49
 msgid "Switch camera"
-msgstr ""
-
-#: frontend/src/pages/Welcome.vue:32
-msgid "Sync your contacts,email and calenders"
 msgstr ""
 
 #: frontend/src/components/common/LoadingView.vue:66
@@ -4937,7 +4953,7 @@ msgstr ""
 msgid "Welcome to {0}"
 msgstr ""
 
-#: frontend/src/pages/Welcome.vue:4
+#: frontend/src/pages/Welcome.vue:6
 msgid "Welcome {0}, lets add your first lead"
 msgstr ""
 
