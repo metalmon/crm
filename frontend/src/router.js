@@ -116,6 +116,11 @@ const routes = [
     props: true,
   },
   {
+    path: '/welcome',
+    name: 'Welcome',
+    component: () => import('@/pages/Welcome.vue'),
+  },
+  {
     path: '/:invalidpath',
     name: 'Invalid Page',
     component: () => import('@/pages/InvalidPage.vue'),

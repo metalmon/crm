@@ -54,12 +54,18 @@ def get_user_signature():
 		return
 
 	soup = BeautifulSoup(signature, "html.parser")
-	
-	# Replace paragraphs with plain text and newlines
-	for p in soup.find_all('p'):
-		p.replace_with(p.get_text() + '\n')
-
-	return '\n' + soup.get_text()
+	html_signature = soup.find("div", {"class": "ql-editor read-mode"})
+	_signature = None
+	if html_signature:
+		_signature = html_signature.renderContents()
+		# Replace paragraphs with plain text and newlines for better line spacing
+		for p in _signature.find_all('p'):
+			p.replace_with(p.get_text() + '\n')
+		signature = _signature.get_text()
+	content = ""
+	if cstr(_signature) or signature:
+		content = f'<br><p class="signature">{signature}</p>'
+	return content
 
 
 @frappe.whitelist()
@@ -77,14 +83,16 @@ def check_app_permission():
 		return True
 
 	roles = frappe.get_roles()
-	if any(role in ["System Manager", "Sales User", "Sales Manager", "Sales Master Manager"] for role in roles):
+	if any(
+		role in ["System Manager", "Sales User", "Sales Manager", "Sales Master Manager"] for role in roles
+	):
 		return True
 
 	return False
 
 
 @frappe.whitelist(allow_guest=True)
-def accept_invitation(key: str = None):
+def accept_invitation(key: str | None = None):
 	if not key:
 		frappe.throw("Invalid or expired key")
 
@@ -104,6 +112,7 @@ def accept_invitation(key: str = None):
 
 @frappe.whitelist()
 def invite_by_email(emails: str, role: str):
+	frappe.only_for("Sales Manager")
 	if not emails:
 		return
 	email_string = validate_email_address(emails, throw=False)
@@ -133,8 +142,8 @@ def get_file_uploader_defaults(doctype: str):
 		make_attachments_public = meta.get("make_attachments_public")
 
 	return {
-		'allowed_file_types': frappe.get_system_settings("allowed_file_extensions"),
-		'max_file_size': get_max_file_size(),
-		'max_number_of_files': max_number_of_files,
-		'make_attachments_public': bool(make_attachments_public),
+		"allowed_file_types": frappe.get_system_settings("allowed_file_extensions"),
+		"max_file_size": get_max_file_size(),
+		"max_number_of_files": max_number_of_files,
+		"make_attachments_public": bool(make_attachments_public),
 	}

@@ -53,6 +53,7 @@ import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import ERPNextIcon from '@/components/Icons/ERPNextIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
+import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import GeneralSettings from '@/components/Settings/GeneralSettings.vue'
 import InviteMemberPage from '@/components/Settings/InviteMemberPage.vue'
 import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
@@ -99,7 +100,7 @@ const tabs = computed(() => {
         },
         {
           label: __('Invite Members'),
-          icon: 'user-plus',
+          icon: InviteIcon,
           component: markRaw(InviteMemberPage),
           condition: () => isManager(),
         },

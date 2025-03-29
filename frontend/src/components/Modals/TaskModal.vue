@@ -160,7 +160,8 @@ import Link from '@/components/Controls/Link.vue'
 import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
-import { TextEditor, Dropdown, Tooltip, call } from 'frappe-ui'
+import { TextEditor, Dropdown, Tooltip, call, DateTimePicker } from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
@@ -192,6 +193,7 @@ const emit = defineEmits(['updateTask', 'after'])
 
 const router = useRouter()
 const { getUser } = usersStore()
+const { updateOnboardingStep } = useOnboarding('frappecrm')
 
 const title = ref(null)
 const editMode = ref(false)
@@ -256,6 +258,7 @@ async function updateTask() {
       },
     })
     if (d.name) {
+      updateOnboardingStep('create_first_task')
       capture('task_created')
       tasks.value?.reload()
       emit('after', d, true)

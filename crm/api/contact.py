@@ -4,42 +4,7 @@ from crm.utils import parse_phone_number
 
 
 def validate(doc, method):
-	set_primary_email(doc)
-	set_primary_mobile_no(doc)
-	normalize_phone_numbers(doc)
-	doc.set_primary_email()
-	doc.set_primary("mobile_no")
 	update_deals_email_mobile_no(doc)
-
-
-def set_primary_email(doc):
-	if not doc.email_ids:
-		return
-
-	if len(doc.email_ids) == 1:
-		doc.email_ids[0].is_primary = 1
-
-
-def set_primary_mobile_no(doc):
-	if not doc.phone_nos:
-		return
-
-	if len(doc.phone_nos) == 1:
-		doc.phone_nos[0].is_primary_mobile_no = 1
-
-
-def normalize_phone_numbers(doc):
-	"""Normalize all phone numbers in the document"""
-	if doc.phone_nos:
-		for phone in doc.phone_nos:
-			if phone.phone:
-				# Use the phonenumbers library for proper validation and formatting
-				parsed = parse_phone_number(phone.phone)
-				if parsed.get("success"):
-					phone.phone = parsed.get("formats", {}).get("E164", phone.phone)
-				else:
-					# Fallback to basic normalization if parsing fails
-					phone.phone = "".join([c for c in phone.phone if c.isdigit() or c == "+"])
 
 
 def update_deals_email_mobile_no(doc):
@@ -152,12 +117,7 @@ def get_contact_personal_data(contact_name):
 def get_contact(name):
 	Contact = frappe.qb.DocType("Contact")
 
-	query = (
-		frappe.qb.from_(Contact)
-		.select("*")
-		.where(Contact.name == name)
-		.limit(1)
-	)
+	query = frappe.qb.from_(Contact).select("*").where(Contact.name == name).limit(1)
 
 	contact = query.run(as_dict=True)
 	if not len(contact):
@@ -172,6 +132,7 @@ def get_contact(name):
 		"Contact Phone", filters={"parent": name}, fields=["name", "phone", "is_primary_mobile_no"]
 	)
 	return contact
+
 
 @frappe.whitelist()
 def get_linked_deals(contact):
@@ -216,12 +177,14 @@ def create_new(contact, field, value):
 	if not frappe.has_permission("Contact", "write", contact):
 		frappe.throw("Not permitted", frappe.PermissionError)
 
-	contact = frappe.get_doc("Contact", contact)
+	contact = frappe.get_cached_doc("Contact", contact)
 
 	if field == "email":
-		contact.append("email_ids", {"email_id": value})
+		email = {"email_id": value, "is_primary": 1 if len(contact.email_ids) == 0 else 0}
+		contact.append("email_ids", email)
 	elif field in ("mobile_no", "phone"):
-		contact.append("phone_nos", {"phone": value})
+		mobile_no = {"phone": value, "is_primary_mobile_no": 1 if len(contact.phone_nos) == 0 else 0}
+		contact.append("phone_nos", mobile_no)
 	else:
 		frappe.throw("Invalid field")
 
@@ -281,7 +244,7 @@ def search_emails(txt: str):
 		or_filters=or_filters,
 		limit_start=0,
 		limit_page_length=20,
-		order_by='email_id, full_name, name',
+		order_by="email_id, full_name, name",
 		ignore_permissions=False,
 		as_list=True,
 		strict=False,

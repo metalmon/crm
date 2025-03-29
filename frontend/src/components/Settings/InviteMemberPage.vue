@@ -8,14 +8,20 @@
         <label class="block text-xs text-ink-gray-5 mb-1.5">
           {{ __('Invite by email') }}
         </label>
-        <MultiValueInput
-          v-model="invitees"
-          :validate="validateEmail"
-          :error-message="
-            (value) => __('{0} is an invalid email address', [value])
-          "
-          :description="__('Press enter to add email')"
-        />
+        <div
+          class="p-2 group bg-surface-gray-2 hover:bg-surface-gray-3 rounded"
+        >
+          <MultiSelectEmailInput
+            class="flex-1"
+            inputClass="!bg-surface-gray-2 hover:!bg-surface-gray-3 group-hover:!bg-surface-gray-3"
+            :placeholder="__('john@doe.com')"
+            v-model="invitees"
+            :validate="validateEmail"
+            :error-message="
+              (value) => __('{0} is an invalid email address', [value])
+            "
+          />
+        </div>
         <FormControl
           type="select"
           class="mt-4"
@@ -51,15 +57,17 @@
               </div>
               <div>
                 <Tooltip :text="__('Delete Invitation')">
-                  <Button
-                    icon="x"
-                    variant="ghost"
-                    :loading="
-                      pendingInvitations.delete.loading &&
-                      pendingInvitations.delete.params.name === user.name
-                    "
-                    @click="pendingInvitations.delete.submit(user.name)"
-                  />
+                  <div>
+                    <Button
+                      icon="x"
+                      variant="ghost"
+                      :loading="
+                        pendingInvitations.delete.loading &&
+                        pendingInvitations.delete.params.name === user.name
+                      "
+                      @click="pendingInvitations.delete.submit(user.name)"
+                    />
+                  </div>
                 </Tooltip>
               </div>
             </li>
@@ -72,6 +80,7 @@
       <Button
         :label="__('Send Invites')"
         variant="solid"
+        :disabled="!invitees.length"
         @click="inviteByEmail.submit()"
         :loading="inviteByEmail.loading"
       />
@@ -79,7 +88,7 @@
   </div>
 </template>
 <script setup>
-import MultiValueInput from '@/components/Controls/MultiValueInput.vue'
+import MultiSelectEmailInput from '@/components/Controls/MultiSelectEmailInput.vue'
 import { validateEmail, convertArrayToString } from '@/utils'
 import {
   createListResource,
@@ -87,7 +96,10 @@ import {
   FormControl,
   Tooltip,
 } from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, computed } from 'vue'
+
+const { updateOnboardingStep } = useOnboarding('frappecrm')
 
 const invitees = ref([])
 const role = ref('Sales User')
@@ -120,6 +132,7 @@ const inviteByEmail = createResource({
     role.value = 'Sales User'
     error.value = null
     pendingInvitations.reload()
+    updateOnboardingStep('invite_your_team')
   },
   onError(err) {
     error.value = err?.messages?.[0]

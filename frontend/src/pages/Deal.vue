@@ -75,9 +75,11 @@
           </Tooltip>
           <div class="flex gap-1.5">
             <Tooltip v-if="callEnabled" :text="__('Make a call')">
-              <Button class="h-7 w-7" @click="triggerCall">
-                <PhoneIcon class="h-4 w-4" />
-              </Button>
+              <div>
+                <Button class="h-7 w-7" @click="triggerCall">
+                  <PhoneIcon class="h-4 w-4" />
+                </Button>
+              </div>
             </Tooltip>
 
             <Tooltip :text="__('Call via phone app')">
@@ -108,33 +110,39 @@
               </Button>
             </Tooltip>
             <Tooltip :text="__('Send an email')">
-              <Button class="h-7 w-7">
-                <Email2Icon
-                  class="h-4 w-4"
-                  @click="
-                    deal.data.email
-                      ? openEmailBox()
-                      : errorMessage(__('No email set'))
-                  "
-                />
-              </Button>
+              <div>
+                <Button class="h-7 w-7">
+                  <Email2Icon
+                    class="h-4 w-4"
+                    @click="
+                      deal.data.email
+                        ? openEmailBox()
+                        : errorMessage(__('No email set'))
+                    "
+                  />
+                </Button>
+              </div>
             </Tooltip>
             <Tooltip :text="__('Go to website')">
-              <Button class="h-7 w-7">
-                <LinkIcon
-                  class="h-4 w-4"
-                  @click="
-                    deal.data.website
-                      ? openWebsite(deal.data.website)
-                      : errorMessage(__('No website set'))
-                  "
-                />
-              </Button>
+              <div>
+                <Button class="h-7 w-7">
+                  <LinkIcon
+                    class="h-4 w-4"
+                    @click="
+                      deal.data.website
+                        ? openWebsite(deal.data.website)
+                        : errorMessage(__('No website set'))
+                    "
+                  />
+                </Button>
+              </div>
             </Tooltip>
             <Tooltip :text="__('Attach a file')">
-              <Button class="size-7" @click="showFilesUploader = true">
-                <AttachmentIcon class="size-4" />
-              </Button>
+              <div>
+                <Button class="size-7" @click="showFilesUploader = true">
+                  <AttachmentIcon class="size-4" />
+                </Button>
+              </div>
             </Tooltip>
           </div>
         </div>
@@ -383,6 +391,7 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
@@ -394,6 +403,10 @@ const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
 const { doctypeMeta } = getMeta('CRM Deal')
+
+const { updateOnboardingStep, isOnboardingStepsCompleted } =
+  useOnboarding('frappecrm')
+
 const route = useRoute()
 const router = useRouter()
 
@@ -778,6 +791,10 @@ function triggerCall() {
 }
 
 function updateField(name, value, callback) {
+  if (name == 'status' && !isOnboardingStepsCompleted.value) {
+    updateOnboardingStep('change_deal_status')
+  }
+
   updateDeal(name, value, () => {
     deal.data[name] = value
     callback?.()
