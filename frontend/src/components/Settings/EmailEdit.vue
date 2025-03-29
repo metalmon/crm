@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full gap-4 max-w-3xl mx-auto">
     <!-- title and desc -->
-    <div role="heading" aria-level="1" class="flex justify-between gap-1">
+    <div role="heading" aria-level="1" class="flex justify-between gap-1 pr-12">
       <h5 class="text-lg font-semibold">{{ __('Edit Email') }}</h5>
     </div>
     <div class="w-fit">

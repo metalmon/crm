@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full gap-6 max-w-3xl mx-auto">
     <!-- header -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between pr-12">
       <h1 class="text-xl font-semibold">{{ __('Email Accounts') }}</h1>
       <Button :label="__('Add Account')" theme="gray" variant="solid" @click="emit('update:step', 'email-add')" class="flex items-center gap-2">
         <template #prefix>

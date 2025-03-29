@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-29 16:14+0000\n"
-"PO-Revision-Date: 2025-03-29 16:14+0000\n"
+"POT-Creation-Date: 2025-03-29 19:53+0000\n"
+"PO-Revision-Date: 2025-03-29 19:53+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -119,6 +119,8 @@ msgstr ""
 #: crm/fcrm/doctype/crm_twilio_settings/crm_twilio_settings.json
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
+#: frontend/src/components/Settings/EmailAdd.vue:129
+#: frontend/src/components/Settings/EmailEdit.vue:130
 msgid "API Key"
 msgstr ""
 
@@ -128,6 +130,8 @@ msgstr ""
 #: crm/fcrm/doctype/crm_twilio_settings/crm_twilio_settings.json
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
+#: frontend/src/components/Settings/EmailAdd.vue:135
+#: frontend/src/components/Settings/EmailEdit.vue:136
 msgid "API Secret"
 msgstr ""
 
@@ -154,6 +158,11 @@ msgstr ""
 msgid "Accepted At"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:70
+#: frontend/src/components/Settings/EmailEdit.vue:71
+msgid "Account Name"
+msgstr ""
+
 #. Label of the account_sid (Data) field in DocType 'CRM Exotel Settings'
 #. Label of the account_sid (Data) field in DocType 'CRM Twilio Settings'
 #. Label of the account_sid (Data) field in DocType 'Twilio Settings'
@@ -172,6 +181,10 @@ msgstr ""
 #: frontend/src/pages/Deal.vue:589 frontend/src/pages/Lead.vue:550
 #: frontend/src/pages/MobileDeal.vue:521 frontend/src/pages/MobileLead.vue:405
 msgid "Activity"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAccountList.vue:6
+msgid "Add Account"
 msgstr ""
 
 #: frontend/src/components/ColumnSettings.vue:65
@@ -446,7 +459,7 @@ msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
-#: frontend/src/components/Settings/Settings.vue:125
+#: frontend/src/components/Settings/Settings.vue:133
 #: frontend/src/pages/Lead.vue:597 frontend/src/pages/MobileLead.vue:452
 msgid "Avito"
 msgstr ""
@@ -458,6 +471,8 @@ msgid "BCC"
 msgstr ""
 
 #: frontend/src/components/FilesUploader/FilesUploader.vue:31
+#: frontend/src/components/Settings/EmailAdd.vue:45
+#: frontend/src/components/Settings/EmailEdit.vue:36
 msgid "Back"
 msgstr ""
 
@@ -792,7 +807,7 @@ msgstr ""
 msgid "Chat initiated with"
 msgstr ""
 
-#: frontend/src/App.vue:230
+#: frontend/src/App.vue:231
 msgid "Checking system readiness..."
 msgstr ""
 
@@ -807,6 +822,10 @@ msgstr ""
 
 #: frontend/src/components/Modals/DealModal.vue:34
 msgid "Choose Existing Organization"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:7
+msgid "Choose the email service provider you want to configure."
 msgstr ""
 
 #: frontend/src/components/Controls/Link.vue:60
@@ -1069,6 +1088,7 @@ msgstr ""
 #: frontend/src/components/Modals/OrganizationModal.vue:38
 #: frontend/src/components/Modals/TaskModal.vue:8
 #: frontend/src/components/Modals/ViewModal.vue:16
+#: frontend/src/components/Settings/EmailAdd.vue:47
 #: frontend/src/pages/CallLogs.vue:11 frontend/src/pages/Contacts.vue:20
 #: frontend/src/pages/Contacts.vue:72 frontend/src/pages/Deals.vue:21
 #: frontend/src/pages/Deals.vue:250 frontend/src/pages/EmailTemplates.vue:13
@@ -1259,15 +1279,37 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAccountCard.vue:60
+msgid "Default Inbox"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:97
+#: frontend/src/components/Settings/EmailEdit.vue:98
+msgid "Default Incoming"
+msgstr ""
+
 #. Label of the default_medium (Select) field in DocType 'CRM Telephony Agent'
 #: crm/fcrm/doctype/crm_telephony_agent/crm_telephony_agent.json
 msgid "Default Medium"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:103
+#: frontend/src/components/Settings/EmailEdit.vue:104
+msgid "Default Outgoing"
 msgstr ""
 
 #. Label of the default_priority (Check) field in DocType 'CRM Service Level
 #. Priority'
 #: crm/fcrm/doctype/crm_service_level_priority/crm_service_level_priority.json
 msgid "Default Priority"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAccountCard.vue:63
+msgid "Default Sending"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAccountCard.vue:57
+msgid "Default Sending and Inbox"
 msgstr ""
 
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.py:33
@@ -1483,7 +1525,7 @@ msgid "Duration"
 msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:563
-#: frontend/src/components/Settings/Settings.vue:131
+#: frontend/src/components/Settings/Settings.vue:139
 msgid "ERPNext"
 msgstr ""
 
@@ -1536,6 +1578,10 @@ msgstr ""
 
 #: frontend/src/components/Modals/DataFieldsModal.vue:7
 msgid "Edit Data Fields Layout"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailEdit.vue:5
+msgid "Edit Email"
 msgstr ""
 
 #: frontend/src/components/Modals/SidePanelModal.vue:7
@@ -1600,6 +1646,16 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAccountList.vue:5
+#: frontend/src/components/Settings/Settings.vue:110
+msgid "Email Accounts"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:76
+#: frontend/src/components/Settings/EmailEdit.vue:77
+msgid "Email ID"
+msgstr ""
+
 #. Label of the email_sent_at (Datetime) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
 msgid "Email Sent At"
@@ -1607,6 +1663,14 @@ msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateSelectorModal.vue:4
 msgid "Email Templates"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:254
+msgid "Email account created successfully"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailEdit.vue:336
+msgid "Email account updated successfully"
 msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:537
@@ -1644,6 +1708,16 @@ msgstr ""
 
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.js:30
 msgid "Enable"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:85
+#: frontend/src/components/Settings/EmailEdit.vue:86
+msgid "Enable Incoming"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:91
+#: frontend/src/components/Settings/EmailEdit.vue:92
+msgid "Enable Outgoing"
 msgstr ""
 
 #. Label of the enabled (Check) field in DocType 'CRM Exotel Settings'
@@ -1874,6 +1948,10 @@ msgstr ""
 msgid "Failed to capture Twilio recording"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:261
+msgid "Failed to create email account, Invalid credentials"
+msgstr ""
+
 #: frontend/src/components/ViewControls.vue:1049
 msgid "Failed to reset column settings: "
 msgstr ""
@@ -1896,6 +1974,10 @@ msgstr ""
 
 #: frontend/src/components/Modals/AssignmentModal.vue:138
 msgid "Failed to update assignments. Please try again."
+msgstr ""
+
+#: frontend/src/components/Settings/EmailEdit.vue:344
+msgid "Failed to update email account, Invalid credentials"
 msgstr ""
 
 #: crm/api/communication.py:333
@@ -2008,6 +2090,11 @@ msgstr ""
 msgid "Frappe CRM mobile"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:123
+#: frontend/src/components/Settings/EmailEdit.vue:124
+msgid "Frappe Mail Site"
+msgstr ""
+
 #. Option for the 'Weekly Off' (Select) field in DocType 'CRM Holiday List'
 #. Option for the 'Workday' (Select) field in DocType 'CRM Service Day'
 #: crm/fcrm/doctype/crm_holiday_list/crm_holiday_list.json
@@ -2058,7 +2145,7 @@ msgid "Gender"
 msgstr ""
 
 #: frontend/src/components/Settings/GeneralSettings.vue:4
-#: frontend/src/components/Settings/Settings.vue:96
+#: frontend/src/components/Settings/Settings.vue:98
 msgid "General"
 msgstr ""
 
@@ -2178,6 +2265,26 @@ msgstr ""
 msgid "Icon"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:106
+#: frontend/src/components/Settings/EmailEdit.vue:107
+msgid "If enabled, all outgoing emails will be sent from this account. Note: Only one account can be default outgoing."
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:100
+#: frontend/src/components/Settings/EmailEdit.vue:101
+msgid "If enabled, all replies to your company (eg: replies@yourcomany.com) will come to this account. Note: Only one account can be default incoming."
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:94
+#: frontend/src/components/Settings/EmailEdit.vue:95
+msgid "If enabled, outgoing emails can be sent from this account."
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:88
+#: frontend/src/components/Settings/EmailEdit.vue:89
+msgid "If enabled, tickets can be created from the incoming emails on this account."
+msgstr ""
+
 #. Label of the image (Attach Image) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 msgid "Image"
@@ -2205,6 +2312,10 @@ msgstr ""
 
 #: frontend/src/components/Activities/CallArea.vue:35
 msgid "Inbound Call"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAccountCard.vue:66
+msgid "Inbox"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'CRM Call Log'
@@ -2253,7 +2364,7 @@ msgstr ""
 msgid "Integration Not Enabled"
 msgstr ""
 
-#: frontend/src/components/Settings/Settings.vue:110
+#: frontend/src/components/Settings/Settings.vue:118
 msgid "Integrations"
 msgstr ""
 
@@ -2280,7 +2391,7 @@ msgstr ""
 msgid "Invalid credentials"
 msgstr ""
 
-#: frontend/src/components/Settings/Settings.vue:102
+#: frontend/src/components/Settings/Settings.vue:104
 msgid "Invite Members"
 msgstr ""
 
@@ -2998,6 +3109,10 @@ msgstr ""
 msgid "No WhatsApp Messages"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailEdit.vue:274
+msgid "No changes made"
+msgstr ""
+
 #: frontend/src/components/Modals/SidePanelModal.vue:51
 #: frontend/src/pages/Deal.vue:289 frontend/src/pages/MobileDeal.vue:199
 msgid "No contacts added"
@@ -3344,6 +3459,11 @@ msgstr ""
 msgid "Parent CRM Territory"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:113
+#: frontend/src/components/Settings/EmailEdit.vue:114
+msgid "Password"
+msgstr ""
+
 #: crm/api/demo.py:21 crm/api/demo.py:29
 msgid "Password cannot be reset by Demo User {}"
 msgstr ""
@@ -3424,12 +3544,46 @@ msgstr ""
 msgid "Playback speed"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAccountList.vue:21
+msgid "Please add an email account to continue."
+msgstr ""
+
 #: crm/integrations/twilio/twilio_handler.py:119
 msgid "Please enable twilio settings before making a call."
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:236
+#: frontend/src/components/Settings/EmailEdit.vue:247
+msgid "Please enter API key"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:239
+#: frontend/src/components/Settings/EmailEdit.vue:250
+msgid "Please enter API secret"
+msgstr ""
+
 #: frontend/src/components/FilesUploader/FilesUploader.vue:170
 msgid "Please enter a valid URL"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:222
+#: frontend/src/components/Settings/EmailEdit.vue:233
+msgid "Please enter account name"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:225
+#: frontend/src/components/Settings/EmailEdit.vue:236
+msgid "Please enter email address"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:232
+#: frontend/src/components/Settings/EmailEdit.vue:243
+msgid "Please enter password"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:229
+#: frontend/src/components/Settings/EmailEdit.vue:240
+msgid "Please enter valid email address"
 msgstr ""
 
 #: frontend/src/pages/Lead.vue:711 frontend/src/pages/MobileLead.vue:506
@@ -3486,7 +3640,7 @@ msgid "Probability"
 msgstr ""
 
 #: frontend/src/components/Layouts/AppSidebar.vue:497
-#: frontend/src/components/Settings/Settings.vue:86
+#: frontend/src/components/Settings/Settings.vue:88
 msgid "Profile"
 msgstr ""
 
@@ -4086,10 +4240,49 @@ msgstr ""
 msgid "Setting up"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:188
+#: frontend/src/components/Settings/EmailEdit.vue:189
+msgid "Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:146
+#: frontend/src/components/Settings/EmailEdit.vue:147
+msgid "Setting up GMail requires you to enable two factor authentication and app specific passwords. Read more"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:153
+#: frontend/src/components/Settings/EmailEdit.vue:154
+msgid "Setting up Outlook requires you to enable two factor authentication and app specific passwords. Read more"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:160
+#: frontend/src/components/Settings/EmailEdit.vue:161
+msgid "Setting up Sendgrid requires you to enable two factor authentication and app specific passwords. Read more"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:167
+#: frontend/src/components/Settings/EmailEdit.vue:168
+msgid "Setting up SparkPost requires you to enable two factor authentication and app specific passwords. Read more"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:174
+#: frontend/src/components/Settings/EmailEdit.vue:175
+msgid "Setting up Yahoo requires you to enable two factor authentication and app specific passwords. Read more"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:181
+#: frontend/src/components/Settings/EmailEdit.vue:182
+msgid "Setting up Yandex requires you to enable two factor authentication and app specific passwords. Read more"
+msgstr ""
+
 #: frontend/src/components/Layouts/AppSidebar.vue:494
 #: frontend/src/components/Settings/Settings.vue:11
-#: frontend/src/components/Settings/Settings.vue:82
+#: frontend/src/components/Settings/Settings.vue:84
 msgid "Settings"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:5
+msgid "Setup Email"
 msgstr ""
 
 #: frontend/src/components/Activities/Activities.vue:252
@@ -4262,6 +4455,11 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:73
+#: frontend/src/components/Settings/EmailEdit.vue:74
+msgid "Support / Sales"
+msgstr ""
+
 #: frontend/src/components/FieldLayout/Field.vue:217
 msgid "Supported formats: PNG, JPG, GIF, SVG, BMP, WebP"
 msgstr ""
@@ -4319,7 +4517,7 @@ msgstr ""
 msgid "Tasks"
 msgstr ""
 
-#: frontend/src/components/Settings/Settings.vue:113
+#: frontend/src/components/Settings/Settings.vue:121
 msgid "Telephony"
 msgstr ""
 
@@ -4432,6 +4630,11 @@ msgstr ""
 #. Label of the to_user (Link) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 msgid "To User"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailEdit.vue:14
+#: frontend/src/components/Settings/EmailEdit.vue:216
+msgid "To know more about setting up email accounts, click"
 msgstr ""
 
 #: frontend/src/utils/timeOptions.js:9
@@ -4609,6 +4812,10 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailEdit.vue:38
+msgid "Update Account"
+msgstr ""
+
 #: frontend/src/components/Modals/EditValueModal.vue:30
 msgid "Update {0} Records"
 msgstr ""
@@ -4738,7 +4945,7 @@ msgstr ""
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: frontend/src/components/Activities/ActivityHeader.vue:72
 #: frontend/src/components/Layouts/AppSidebar.vue:562
-#: frontend/src/components/Settings/Settings.vue:119
+#: frontend/src/components/Settings/Settings.vue:127
 #: frontend/src/pages/Deal.vue:630 frontend/src/pages/Lead.vue:591
 #: frontend/src/pages/MobileDeal.vue:562 frontend/src/pages/MobileLead.vue:446
 msgid "WhatsApp"
@@ -4986,8 +5193,23 @@ msgstr ""
 msgid "has reached out"
 msgstr ""
 
+#: frontend/src/components/Settings/EmailAdd.vue:23
+#: frontend/src/components/Settings/EmailEdit.vue:15
+msgid "here"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:126
+#: frontend/src/components/Settings/EmailEdit.vue:127
+msgid "https://frappemail.com"
+msgstr ""
+
 #: frontend/src/components/Settings/InviteMemberPage.vue:17
 msgid "john@doe.com"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailAdd.vue:79
+#: frontend/src/components/Settings/EmailEdit.vue:80
+msgid "johndoe@example.com"
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'CRM View Settings'
