@@ -59,7 +59,7 @@ import { isMobileView } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import { createResource } from 'frappe-ui'
 import { computed, onMounted, ref, reactive, nextTick, watch } from 'vue'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({

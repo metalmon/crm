@@ -173,13 +173,12 @@ import { FeatherIcon, call } from 'frappe-ui'
 import {
   SignupBanner,
   TrialBanner,
-  HelpModal,
-  GettingStartedBanner,
-  useOnboarding,
-  showHelpModal,
-  minimize,
-  IntermediateStepModal,
 } from 'frappe-ui/frappe'
+import GettingStartedBanner from '../custom-ui/onboarding/GettingStartedBanner.vue'
+import HelpModal from '../custom-ui/onboarding/HelpModal.vue'
+import { useOnboarding } from '../custom-ui/onboarding/onboarding'
+import { showHelpModal, minimize } from '../custom-ui/onboarding/help'
+import IntermediateStepModal from '../custom-ui/onboarding/IntermediateStepModal.vue'
 import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'

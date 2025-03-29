@@ -161,7 +161,7 @@ import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } fr
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
 import { TextEditor, Dropdown, Tooltip, call, DateTimePicker } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
