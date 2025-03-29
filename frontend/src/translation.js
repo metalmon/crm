@@ -9,9 +9,11 @@ const TRANSLATION_TIMESTAMP_KEY = 'crm_translations_timestamp'
 // Global Vue app instance reference for force update
 let appInstance = null
 let translationResource = null
+let isTranslationsLoaded = false
 
 // Export timestamp ref for components that need to react to translation updates
 export const lastTranslationUpdate = ref(parseInt(localStorage.getItem(TRANSLATION_TIMESTAMP_KEY) || Date.now()))
+export const translationsLoading = ref(false)
 
 export default function translationPlugin(app) {
   appInstance = app
@@ -27,12 +29,17 @@ export default function translationPlugin(app) {
  * and then checking server for updates
  */
 function initTranslations() {
-   // Try to load from localStorage first
+  // Try to load from localStorage first
   const cachedTranslations = loadTranslationsFromCache()
   
   if (cachedTranslations) {
     // Use cached translations immediately
     window.translatedMessages = cachedTranslations
+    isTranslationsLoaded = true
+    translationsLoading.value = false
+  } else {
+    // If no cached translations, set loading state
+    translationsLoading.value = true
   }
   
   // Check for updates from server
@@ -48,6 +55,8 @@ function initTranslations() {
         if (!cachedHash || hash !== cachedHash) {
           updateTranslations(response)
         }
+        isTranslationsLoaded = true
+        translationsLoading.value = false
         return translations
       },
       onError: () => {
@@ -55,6 +64,8 @@ function initTranslations() {
         if (!window.translatedMessages) {
           window.translatedMessages = {}
         }
+        isTranslationsLoaded = true
+        translationsLoading.value = false
       }
     })
   }

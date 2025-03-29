@@ -1,19 +1,20 @@
 <template>
   <div class="app-container">
-    <!-- Loading overlay for Redis warmup or network errors -->
+    <!-- Loading overlay for Redis warmup, network errors, or translations loading -->
     <LoadingView 
-      v-if="redisWarmup.isWarmingUp || hasNetworkErrors"
+      v-if="redisWarmup.isWarmingUp || hasNetworkErrors || translationsLoading"
       :redis-warmup="redisWarmup.isWarmingUp" 
       :redis-warmup-progress="redisWarmup.progress"
       :redis-warmup-details="redisWarmup.details"
       :network-errors="hasNetworkErrors"
       :error-details="networkErrorDetails"
+      :translations-loading="translationsLoading"
       @retry="handleRetry"
       class="app-overlay"
     />
     
-    <!-- Main app content - only hidden during Redis warmup or network errors -->
-    <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors" class="app-content">
+    <!-- Main app content - only hidden during Redis warmup, network errors, or translations loading -->
+    <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
       <Layout v-if="session().isLoggedIn">
         <router-view :key="translationKey" />
       </Layout>
@@ -30,7 +31,7 @@ import { setTheme } from '@/stores/theme'
 import { Toasts, setConfig, createResource } from 'frappe-ui'
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue'
 import LoadingView from './components/common/LoadingView.vue'
-import { lastTranslationUpdate } from './translation'
+import { lastTranslationUpdate, translationsLoading } from './translation'
 
 // Redis warmup state
 const redisWarmup = ref({

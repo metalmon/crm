@@ -117,6 +117,12 @@ export default {
     errorDetails: {
       type: Object,
       default: () => ({})
+    },
+
+    // Translations loading state
+    translationsLoading: {
+      type: Boolean,
+      default: false
     }
   },
   
@@ -139,7 +145,14 @@ export default {
         'workers_not_ready': __('Starting background processes...')
       };
       
-      return this.redisWarmupDetails?.warming_up_reasons?.map(reason => reasonMap[reason] || reason) || [];
+      let reasons = this.redisWarmupDetails?.warming_up_reasons?.map(reason => reasonMap[reason] || reason) || [];
+      
+      // Add translations loading reason if applicable
+      if (this.translationsLoading) {
+        reasons.push(__('Loading translations...'))
+      }
+      
+      return reasons;
     }
   },
   
