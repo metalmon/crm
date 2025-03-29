@@ -60,7 +60,6 @@ import { capture } from '@/telemetry'
 import { createResource } from 'frappe-ui'
 import { computed, onMounted, ref, reactive, nextTick, watch } from 'vue'
 import { useOnboarding } from 'frappe-ui/frappe'
-import { computed, onMounted, ref, reactive, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
