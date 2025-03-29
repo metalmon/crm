@@ -15,6 +15,7 @@
    "in_list_view": 1,
    "label": "Status",
    "reqd": 1,
+   "translatable": 1,
    "unique": 1
   }
  ],

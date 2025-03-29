@@ -15,7 +15,7 @@
           "
         >
           <template #default="{ open }">
-            <Button :label="lead.data.status">
+            <Button :label="translateLeadStatus(lead.data.status)">
               <template #prefix>
                 <IndicatorIcon :class="getLeadStatus(lead.data.status).color" />
               </template>
@@ -53,7 +53,7 @@
     </div>
   </div>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto pb-20">
       <TabList class="!px-3" />
       <TabPanel v-slot="{ tab }">
         <div v-if="tab.name == 'Details'">
@@ -77,6 +77,7 @@
         </div>
         <Activities
           v-else
+          ref="activities"
           doctype="CRM Lead"
           :tabs="tabs"
           v-model:reload="reload"
@@ -85,6 +86,54 @@
         />
       </TabPanel>
     </Tabs>
+  </div>
+  <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <Button
+        v-if="lead.data?.mobile_no && callEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="triggerCall"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="lead.data?.mobile_no && !callEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('phone')"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+      
+      <Button
+        v-if="lead.data?.mobile_no"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('whatsapp')"
+      >
+        <WhatsAppIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="lead.data?.mobile_no"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="showMessageTemplateModal = true"
+      >
+        <CommentIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="lead.data?.website"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="openWebsite(lead.data.website)"
+      >
+        <LinkIcon class="h-5 w-5" />
+      </Button>
+    </div>
   </div>
   <Dialog
     v-model="showConvertToDealModal"
@@ -152,6 +201,11 @@
       </div>
     </template>
   </Dialog>
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Lead"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -164,7 +218,9 @@ import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
+import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
@@ -185,6 +241,7 @@ import {
   callEnabled,
   isMobileView,
 } from '@/composables/settings'
+import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import {
@@ -198,8 +255,11 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { trackCommunication } from '@/utils/communicationUtils'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket } = globalStore()
@@ -238,12 +298,13 @@ const lead = createResource({
   },
 })
 
+const reload = ref(false)
+const activities = ref(null)
+
 onMounted(() => {
   if (lead.data) return
   lead.fetch()
 })
-
-const reload = ref(false)
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -386,6 +447,12 @@ const tabs = computed(() => {
       icon: WhatsAppIcon,
       condition: () => whatsappEnabled.value,
     },
+    {
+      name: 'Avito',
+      label: __('Avito'),
+      icon: AvitoIcon,
+      condition: () => avitoEnabled.value,
+    },
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
@@ -477,4 +544,49 @@ async function convertToDeal() {
     router.push({ name: 'Deal', params: { dealId: deal } })
   }
 }
+
+function trackPhoneActivities(type = 'phone') {
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
+}
+
+function errorMessage(message) {
+  createToast({
+    title: message,
+    icon: 'x',
+    iconClasses: 'text-ink-red-4',
+  })
+}
+
+function openWebsite(url) {
+  if (!url.startsWith('http')) {
+    url = 'https://' + url
+  }
+  window.open(url, '_blank')
+}
+
+const showMessageTemplateModal = ref(false)
+
+function applyMessageTemplate(template) {
+  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+    message: template,
+    modelValue: lead.data
+  })
+  showMessageTemplateModal.value = false
+}
+
 </script>

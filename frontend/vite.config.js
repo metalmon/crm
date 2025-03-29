@@ -22,16 +22,61 @@ export default defineConfig({
     vueJsx(),
     VitePWA({
       registerType: 'autoUpdate',
-      devOptions: {
-        enabled: true,
+      injectRegister: 'auto',
+      strategies: 'generateSW',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json}'],
+        navigateFallbackDenylist: [/^\/assets\/.*$/, /^\/api/, /^\/raven/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'crm-images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/.*\.(css|js)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'crm-assets-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/.*\/(api|crm)/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'crm-api-cache',
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 24 * 60 * 60 // 24 hours
+              }
+            }
+          }
+        ],
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true
       },
       manifest: {
-        display: 'standalone',
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',
         start_url: '/crm',
-        description:
-          'Modern & 100% Open-source CRM tool to supercharge your sales operations',
+        display: 'standalone',
+        background_color: '#0f0f0f',
+        theme_color: '#0f0f0f',
+        description: 'Modern & 100% Open-source CRM tool to supercharge your sales operations',
+        scope: '/crm',
+        categories: ['productivity', 'business'],
         icons: [
           {
             src: '/assets/crm/manifest/manifest-icon-192.maskable.png',
@@ -40,6 +85,12 @@ export default defineConfig({
             purpose: 'any',
           },
           {
+            src: '/assets/crm/manifest/manifest-icon-512.maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
             src: '/assets/crm/manifest/manifest-icon-192.maskable.png',
             sizes: '192x192',
             type: 'image/png',
@@ -49,16 +100,19 @@ export default defineConfig({
             src: '/assets/crm/manifest/manifest-icon-512.maskable.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any',
-          },
-          {
-            src: '/assets/crm/manifest/manifest-icon-512.maskable.png',
-            sizes: '512x512',
-            type: 'image/png',
             purpose: 'maskable',
-          },
+          }
         ],
+        id: 'crm',
+        prefer_related_applications: false,
+        display_override: ['window-controls-overlay']
       },
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      manifestFilename: 'manifest.json'
     }),
   ],
   resolve: {

@@ -11,11 +11,13 @@ from crm.fcrm.doctype.crm_service_level_agreement.utils import get_sla
 from crm.fcrm.doctype.crm_status_change_log.crm_status_change_log import (
 	add_status_change_log,
 )
+from crm.utils import parse_phone_number
 
 
 class CRMLead(Document):
 	def before_validate(self):
 		self.set_sla()
+		self.normalize_phone_numbers()
 
 	def validate(self):
 		self.set_full_name()
@@ -59,7 +61,7 @@ class CRMLead(Document):
 			elif self.email:
 				self.lead_name = self.email.split("@")[0]
 			else:
-				self.lead_name = "Unnamed Lead"
+				self.lead_name = _("Unnamed Lead")
 
 	def set_title(self):
 		self.title = self.organization or self.lead_name
@@ -86,7 +88,7 @@ class CRMLead(Document):
 					# the agent is already set as an assignee
 					return
 
-		assign({"assign_to": [agent], "doctype": "CRM Lead", "name": self.name})
+		assign({"assign_to": [agent], "doctype": "CRM Lead", "name": self.name}, ignore_permissions=True)
 
 	def share_with_agent(self, agent):
 		if not agent:
@@ -399,6 +401,21 @@ class CRMLead(Document):
 			"kanban_fields": '["organization", "email", "mobile_no", "_assign", "modified"]',
 		}
 
+	def normalize_phone_numbers(self):
+		"""Normalize phone and mobile numbers"""
+		if self.phone:
+			parsed = parse_phone_number(self.phone)
+			if parsed.get("success"):
+				self.phone = parsed.get("formats", {}).get("E164", self.phone)
+			else:
+				self.phone = "".join([c for c in self.phone if c.isdigit() or c == "+"])
+				
+		if self.mobile_no:
+			parsed = parse_phone_number(self.mobile_no)
+			if parsed.get("success"):
+				self.mobile_no = parsed.get("formats", {}).get("E164", self.mobile_no)
+			else:
+				self.mobile_no = "".join([c for c in self.mobile_no if c.isdigit() or c == "+"])
 
 @frappe.whitelist()
 def convert_to_deal(lead, doc=None, deal=None, existing_contact=None, existing_organization=None):
@@ -408,12 +425,33 @@ def convert_to_deal(lead, doc=None, deal=None, existing_contact=None, existing_o
 		frappe.throw(_("Not allowed to convert Lead to Deal"), frappe.PermissionError)
 
 	lead = frappe.get_cached_doc("CRM Lead", lead)
-	if frappe.db.exists("CRM Lead Status", "Qualified"):
-		lead.db_set("status", "Qualified")
+	
+	# Get default status from settings
+	settings = frappe.get_single("FCRM Settings")
+	default_status = settings.default_converted_lead_status
+	
+	# If no default status is set, get the first status by position
+	if not default_status:
+		first_status = frappe.get_all(
+			"CRM Deal Status",
+			filters={},
+			order_by="position asc",
+			limit=1,
+			pluck="deal_status"
+		)
+		default_status = first_status[0] if first_status else None
+	
+	# Create new deal with the status
 	lead.db_set("converted", 1)
 	if lead.sla and frappe.db.exists("CRM Communication Status", "Replied"):
 		lead.db_set("communication_status", "Replied")
-	contact = lead.create_contact(existing_contact, False)
-	organization = lead.create_organization(existing_organization)
-	_deal = lead.create_deal(contact, organization, deal)
+	contact = lead.create_contact(existing_contact)
+	organization = lead.create_organization()
+	
+	# Create deal with status
+	deal_data = deal or {}
+	if default_status:
+		deal_data["status"] = default_status
+	
+	_deal = lead.create_deal(contact, organization, deal_data)
 	return _deal

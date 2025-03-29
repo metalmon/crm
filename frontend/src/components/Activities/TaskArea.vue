@@ -3,42 +3,42 @@
     <div v-for="(task, i) in tasks" :key="task.name">
       <div
         class="activity flex cursor-pointer gap-6 rounded p-2.5 duration-300 ease-in-out hover:bg-surface-gray-1"
-        @click="modalRef.showTask(task)"
+        @click="modalRef?.showTask(task)"
       >
         <div class="flex flex-1 flex-col gap-1.5 text-base truncate">
           <div class="font-medium text-ink-gray-9 truncate">
             {{ task.title }}
           </div>
-          <div class="flex gap-1.5 text-ink-gray-8">
-            <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 text-ink-gray-8">
+            <div class="flex items-center gap-1.5 shrink-0">
               <UserAvatar :user="task.assigned_to" size="xs" />
               {{ getUser(task.assigned_to).full_name }}
             </div>
-            <div v-if="task.due_date" class="flex items-center justify-center">
+            <div v-if="task.due_date" class="flex items-center justify-center shrink-0">
               <DotIcon class="h-2.5 w-2.5 text-ink-gray-5" :radius="2" />
             </div>
-            <div v-if="task.due_date">
+            <div v-if="task.due_date" class="flex-1 min-w-0">
               <Tooltip
-                :text="formatDate(task.due_date, 'ddd, MMM D, YYYY | hh:mm a')"
+                :text="formatTaskDate(task.due_date, 'ddd, MMM D, YYYY | hh:mm a')"
               >
-                <div class="flex gap-2">
-                  <CalendarIcon />
-                  <div>{{ formatDate(task.due_date, 'D MMM, hh:mm a') }}</div>
+                <div class="flex gap-2 truncate">
+                  <CalendarIcon class="shrink-0" />
+                  <div class="truncate">{{ formatTaskDate(task.due_date, 'D MMM, hh:mm a') }}</div>
                 </div>
               </Tooltip>
             </div>
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center shrink-0">
               <DotIcon class="h-2.5 w-2.5 text-ink-gray-5" :radius="2" />
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 shrink-0">
               <TaskPriorityIcon class="!h-2 !w-2" :priority="task.priority" />
-              {{ task.priority }}
+              {{ translateTaskPriority(task.priority) }}
             </div>
           </div>
         </div>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1 shrink-0">
           <Dropdown
-            :options="taskStatusOptions(modalRef.updateTaskStatus, task)"
+            :options="taskStatusOptions(modalRef?.updateTaskStatus, task)"
             @click.stop
           >
             <Tooltip :text="__('Change Status')">
@@ -63,9 +63,9 @@
                         label: __('Delete'),
                         theme: 'red',
                         variant: 'solid',
-                        onClick(close) {
-                          modalRef.deleteTask(task.name)
-                          close()
+                        onClick(context) {
+                          modalRef?.deleteTask(task.name)
+                          context.close()
                         },
                       },
                     ],
@@ -97,9 +97,11 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import DotIcon from '@/components/Icons/DotIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { formatDate, taskStatusOptions } from '@/utils'
+import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import { usersStore } from '@/stores/users'
 import { globalStore } from '@/stores/global'
 import { Tooltip, Dropdown } from 'frappe-ui'
+import dayjs, { formatDateInUserTimezone } from '@/utils/dayjs'
 
 const props = defineProps({
   tasks: Array,
@@ -108,4 +110,14 @@ const props = defineProps({
 
 const { getUser } = usersStore()
 const { $dialog } = globalStore()
+
+function formatTaskDate(date, format) {
+  if (!date) return ''
+  try {
+    return formatDateInUserTimezone(date, format)
+  } catch (e) {
+    console.warn('Error formatting task date:', e)
+    return ''
+  }
+}
 </script>

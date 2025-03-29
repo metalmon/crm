@@ -26,7 +26,15 @@ class CRMDeal(Document):
 			add_status_change_log(self)
 
 	def after_insert(self):
-		if self.deal_owner:
+		# Only create assignment if there are no active assignment rules
+		assignment_rules = frappe.get_all(
+			"Assignment Rule",
+			filters={
+				"document_type": "CRM Deal",
+				"disabled": 0
+			}, ignore_permissions=True
+		)
+		if not assignment_rules and self.deal_owner:
 			self.assign_agent(self.deal_owner)
 
 	def before_save(self):
@@ -236,7 +244,25 @@ def set_primary_contact(deal, contact):
 		frappe.throw(_("Not allowed to set primary contact for Deal"), frappe.PermissionError)
 
 	deal = frappe.get_cached_doc("CRM Deal", deal)
+	
+	# Set primary contact in the contacts table
 	deal.set_primary_contact(contact)
+	
+	# Update deal fields with contact's personal data
+	if contact:
+		from crm.api.contact import get_contact_personal_data
+		contact_data = get_contact_personal_data(contact)
+		
+		# Update deal fields with contact personal data
+		if contact_data:
+			deal.update({
+				"first_name": contact_data.get("first_name", ""),
+				"last_name": contact_data.get("last_name", ""),
+				"salutation": contact_data.get("salutation", ""),
+				"email": contact_data.get("email", ""),
+				"mobile_no": contact_data.get("mobile_no", "")
+			})
+	
 	deal.save()
 	return True
 
@@ -290,6 +316,7 @@ def create_contact(doc):
 			"last_name": doc.get("last_name"),
 			"salutation": doc.get("salutation"),
 			"company_name": doc.get("organization") or doc.get("organization_name"),
+			"designation": doc.get("job_title"),
 		}
 	)
 
@@ -309,15 +336,21 @@ def create_contact(doc):
 def create_deal(args):
 	deal = frappe.new_doc("CRM Deal")
 
+	# Create organization first if needed
+	organization = args.get("organization") or create_organization(args)
+
+	# Then create contact if needed
 	contact = args.get("contact")
 	if not contact and (
 		args.get("first_name") or args.get("last_name") or args.get("email") or args.get("mobile_no")
 	):
+		# Pass organization to contact creation
+		args["organization"] = organization
 		contact = create_contact(args)
 
 	deal.update(
 		{
-			"organization": args.get("organization") or create_organization(args),
+			"organization": organization,
 			"contacts": [{"contact": contact, "is_primary": 1}] if contact else [],
 		}
 	)

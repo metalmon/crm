@@ -25,18 +25,42 @@ def notify_mentions(doc):
         doctype = doc.reference_doctype
         if doctype.startswith("CRM "):
             doctype = doctype[4:].lower()
-        name = (
-            reference_doc.lead_name
-            if doctype == "lead"
-            else reference_doc.organization or reference_doc.lead_name
-        )
-        notification_text = f"""
-            <div class="mb-2 leading-5 text-ink-gray-5">
-                <span class="font-medium text-ink-gray-9">{ owner }</span>
-                <span>{ _('mentioned you in {0}').format(doctype) }</span>
-                <span class="font-medium text-ink-gray-9">{ name }</span>
-            </div>
-        """
+            
+        if doctype == "lead":
+            name = reference_doc.lead_name or doc.reference_name
+            # Extract translation string separately for better extraction
+            message = _('mentioned you in lead')
+            notification_text = f"""
+                <div class="mb-2 leading-5 text-ink-gray-5">
+                    <span class="font-medium text-ink-gray-9">{ owner }</span>
+                    <span>{ message }</span>
+                    <span class="font-medium text-ink-gray-9">{ name }</span>
+                </div>
+            """
+        elif doctype == "deal":
+            name = reference_doc.organization or reference_doc.lead_name or doc.reference_name
+            # Extract translation string separately for better extraction
+            message = _('mentioned you in deal')
+            notification_text = f"""
+                <div class="mb-2 leading-5 text-ink-gray-5">
+                    <span class="font-medium text-ink-gray-9">{ owner }</span>
+                    <span>{ message }</span>
+                    <span class="font-medium text-ink-gray-9">{ name }</span>
+                </div>
+            """
+        else:
+            # Generic notification for other doctypes
+            name = getattr(reference_doc, 'name', doc.reference_name)
+            # Extract translation string separately for better extraction
+            message = _('mentioned you in {0}')
+            notification_text = f"""
+                <div class="mb-2 leading-5 text-ink-gray-5">
+                    <span class="font-medium text-ink-gray-9">{ owner }</span>
+                    <span>{ message.format(doctype) }</span>
+                    <span class="font-medium text-ink-gray-9">{ name }</span>
+                </div>
+            """
+        
         notify_user(
             {
                 "owner": doc.owner,

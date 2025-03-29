@@ -30,7 +30,7 @@ class CRMTask(Document):
 				"doctype": self.doctype,
 				"name": self.name,
 				"description": self.title or self.description,
-			})
+			}, ignore_permissions=True)
 
 
 	@staticmethod

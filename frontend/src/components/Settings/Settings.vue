@@ -6,8 +6,8 @@
   >
     <template #body>
       <div class="flex h-[calc(100vh_-_8rem)]">
-        <div class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2">
-          <h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
+        <div class="flex flex-col p-2 w-52 shrink-0 bg-surface-gray-2">
+          <h1 class="px-2 pt-2 mb-3 text-lg font-semibold text-ink-gray-9">
             {{ __('Settings') }}
           </h1>
           <div v-for="tab in tabs">
@@ -34,7 +34,7 @@
           </div>
         </div>
         <div
-          class="flex relative flex-1 flex-col overflow-y-auto bg-surface-modal"
+          class="flex relative flex-1 flex-col overflow-y-auto bg-surface-modal dark-scrollbar"
         >
           <Button
             class="absolute right-5 top-5"
@@ -50,15 +50,19 @@
 </template>
 <script setup>
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import ERPNextIcon from '@/components/Icons/ERPNextIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
+import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import GeneralSettings from '@/components/Settings/GeneralSettings.vue'
 import InviteMemberPage from '@/components/Settings/InviteMemberPage.vue'
 import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
 import WhatsAppSettings from '@/components/Settings/WhatsAppSettings.vue'
+import AvitoSettings from '@/components/Settings/AvitoSettings.vue'
 import ERPNextSettings from '@/components/Settings/ERPNextSettings.vue'
 import TelephonySettings from '@/components/Settings/TelephonySettings.vue'
+import EmailConfig from '@/components/Settings/EmailConfig.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { usersStore } from '@/stores/users'
 import {
@@ -66,6 +70,7 @@ import {
   showSettings,
   activeSettingsPage,
 } from '@/composables/settings'
+import { isAvitoInstalled } from '@/composables/avito'
 import { Dialog, Button, Avatar } from 'frappe-ui'
 import { ref, markRaw, computed, watch, h } from 'vue'
 
@@ -101,6 +106,12 @@ const tabs = computed(() => {
           component: markRaw(InviteMemberPage),
           condition: () => isManager(),
         },
+        {
+          label: __('Email Accounts'),
+          icon: Email2Icon,
+          component: markRaw(EmailConfig),
+          condition: () => isManager(),
+        },
       ],
     },
     {
@@ -117,6 +128,12 @@ const tabs = computed(() => {
           icon: WhatsAppIcon,
           component: markRaw(WhatsAppSettings),
           condition: () => isWhatsappInstalled.value && isManager(),
+        },
+        {
+          label: __('Avito'),
+          icon: AvitoIcon,
+          component: markRaw(AvitoSettings),
+          condition: () => isAvitoInstalled.value && isManager(),
         },
         {
           label: __('ERPNext'),

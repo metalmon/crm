@@ -6,7 +6,7 @@
     <div>
       <UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
     </div>
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto dark-scrollbar">
       <div class="mb-3 flex flex-col">
         <SidebarLink
           id="notifications-btn"
@@ -173,17 +173,17 @@ import { FeatherIcon, call } from 'frappe-ui'
 import {
   SignupBanner,
   TrialBanner,
-  HelpModal,
-  GettingStartedBanner,
-  useOnboarding,
-  showHelpModal,
-  minimize,
-  IntermediateStepModal,
 } from 'frappe-ui/frappe'
+import GettingStartedBanner from '../custom-ui/onboarding/GettingStartedBanner.vue'
+import HelpModal from '../custom-ui/onboarding/HelpModal.vue'
+import { useOnboarding } from '../custom-ui/onboarding/onboarding'
+import { showHelpModal, minimize } from '../custom-ui/onboarding/help'
+import IntermediateStepModal from '../custom-ui/onboarding/IntermediateStepModal.vue'
 import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'
 import { ref, reactive, computed, h, markRaw, onMounted } from 'vue'
+import { callEnabled } from '@/composables/settings'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
@@ -195,51 +195,51 @@ const isDemoSite = ref(window.is_demo_site)
 
 const links = [
   {
-    label: 'Leads',
+    label: __('Leads'),
     icon: LeadsIcon,
     to: 'Leads',
   },
   {
-    label: 'Deals',
+    label: __('Deals'),
     icon: DealsIcon,
     to: 'Deals',
   },
   {
-    label: 'Contacts',
-    icon: ContactsIcon,
-    to: 'Contacts',
-  },
-  {
-    label: 'Organizations',
-    icon: OrganizationsIcon,
-    to: 'Organizations',
-  },
-  {
-    label: 'Notes',
+    label: __('Notes'),
     icon: NoteIcon,
     to: 'Notes',
   },
   {
-    label: 'Tasks',
+    label: __('Tasks'),
     icon: TaskIcon,
     to: 'Tasks',
   },
   {
-    label: 'Call Logs',
-    icon: PhoneIcon,
-    to: 'Call Logs',
+    label: __('Contacts'),
+    icon: ContactsIcon,
+    to: 'Contacts',
   },
   {
-    label: 'Email Templates',
+    label: __('Organizations'),
+    icon: OrganizationsIcon,
+    to: 'Organizations',
+  },
+  {
+    label: __('Message Templates'),
     icon: Email2Icon,
     to: 'Email Templates',
   },
+  ...(callEnabled.value ? [{
+    label: __('Call Logs'),
+    icon: PhoneIcon,
+    to: 'Call Logs',
+  }] : []),
 ]
 
 const allViews = computed(() => {
   let _views = [
     {
-      name: 'All Views',
+      name: __('All Views'),
       hideLabel: true,
       opened: true,
       views: links,
@@ -247,7 +247,7 @@ const allViews = computed(() => {
   ]
   if (getPublicViews().length) {
     _views.push({
-      name: 'Public views',
+      name: __('Public views'),
       opened: true,
       views: parseView(getPublicViews()),
     })
@@ -255,7 +255,7 @@ const allViews = computed(() => {
 
   if (getPinnedViews().length) {
     _views.push({
-      name: 'Pinned views',
+      name: __('Pinned views'),
       opened: true,
       views: parseView(getPinnedViews()),
     })

@@ -3,15 +3,25 @@ from frappe.query_builder import Order
 
 
 @frappe.whitelist()
-def get_notifications():
+def get_notifications(limit=20, offset=0):
+    limit = int(limit)
+    offset = int(offset)
+    
     Notification = frappe.qb.DocType("CRM Notification")
     query = (
         frappe.qb.from_(Notification)
         .select("*")
         .where(Notification.to_user == frappe.session.user)
         .orderby("creation", order=Order.desc)
+        .limit(limit)
+        .offset(offset)
     )
     notifications = query.run(as_dict=True)
+
+    # Get total count for pagination
+    total_count = frappe.db.count("CRM Notification", {"to_user": frappe.session.user})
+    # Get unread count
+    unread_count = frappe.db.count("CRM Notification", {"to_user": frappe.session.user, "read": 0})
 
     _notifications = []
     for notification in notifications:
@@ -41,7 +51,11 @@ def get_notifications():
             }
         )
 
-    return _notifications
+    return {
+        "data": _notifications,
+        "total_count": total_count,
+        "unread_count": unread_count
+    }
 
 
 @frappe.whitelist()

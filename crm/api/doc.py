@@ -10,6 +10,7 @@ from pypika import Criterion
 
 from crm.api.views import get_views
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
+from .performance import track_performance
 
 
 @frappe.whitelist()
@@ -204,7 +205,7 @@ def get_quick_filters(doctype: str, cached: bool = True):
 		options = field.get("options")
 		if field.get("fieldtype") == "Select" and options and isinstance(options, str):
 			options = options.split("\n")
-			options = [{"label": option, "value": option} for option in options]
+			options = [{"label": _(option), "value": option} for option in options]
 			if not any([not option.get("value") for option in options]):
 				options.insert(0, {"label": "", "value": ""})
 		quick_filters.append(
@@ -242,16 +243,9 @@ def update_quick_filters(quick_filters: str, old_filters: str, doctype: str):
 		update_in_standard_filter(filter, doctype, 1)
 
 
-def create_update_global_settings(doctype, quick_filters):
-	if global_settings := frappe.db.exists("CRM Global Settings", {"dt": doctype, "type": "Quick Filters"}):
-		frappe.db.set_value("CRM Global Settings", global_settings, "json", json.dumps(quick_filters))
-	else:
-		# create CRM Global Settings doc
-		doc = frappe.new_doc("CRM Global Settings")
-		doc.dt = doctype
-		doc.type = "Quick Filters"
-		doc.json = json.dumps(quick_filters)
-		doc.insert()
+def clear_quick_filters_cache(doctype):
+	"""Clear the quick filters cache for a specific doctype"""
+	frappe.cache().delete_key(['Quick Filters', doctype])
 
 
 def update_in_standard_filter(fieldname, doctype, value):
@@ -269,9 +263,28 @@ def update_in_standard_filter(fieldname, doctype, value):
 			"Check",
 			validate_fields_for_doctype=False,
 		)
+	
+	# Clear cache after updating standard filter
+	clear_quick_filters_cache(doctype)
+
+
+def create_update_global_settings(doctype, quick_filters):
+	if global_settings := frappe.db.exists("CRM Global Settings", {"dt": doctype, "type": "Quick Filters"}):
+		frappe.db.set_value("CRM Global Settings", global_settings, "json", json.dumps(quick_filters))
+	else:
+		# create CRM Global Settings doc
+		doc = frappe.new_doc("CRM Global Settings")
+		doc.dt = doctype
+		doc.type = "Quick Filters"
+		doc.json = json.dumps(quick_filters)
+		doc.insert()
+	
+	# Clear cache after updating global settings
+	clear_quick_filters_cache(doctype)
 
 
 @frappe.whitelist()
+@track_performance
 def get_data(
 	doctype: str,
 	filters: dict,
@@ -332,8 +345,8 @@ def get_data(
 
 		if not columns:
 			columns = [
-				{"label": "Name", "type": "Data", "key": "name", "width": "16rem"},
-				{"label": "Last Modified", "type": "Datetime", "key": "modified", "width": "8rem"},
+				{"label": _("Name"), "type": "Data", "key": "name", "width": "16rem"},
+				{"label": _("Last Modified"), "type": "Datetime", "key": "modified", "width": "8rem"},
 			]
 
 		if not rows:
@@ -394,11 +407,13 @@ def get_data(
 			if field_meta.fieldtype == "Link":
 				kanban_columns = frappe.get_all(
 					field_meta.options,
-					fields=["name"],
-					order_by="modified asc",
+					fields=["name", "position"],
+					order_by="position asc",
 				)
-			elif field_meta.fieldtype == "Select":
+			elif field_meta and field_meta.fieldtype == "Select":
 				kanban_columns = [{"name": option} for option in field_meta.options.split("\n")]
+			else:
+				kanban_columns = []
 
 		if not title_field:
 			title_field = "name"
@@ -551,9 +566,9 @@ def get_data(
 		"page_length_count": page_length_count,
 		"is_default": is_default,
 		"views": get_views(doctype),
-		"total_count": frappe.get_list(doctype, filters=filters, fields="count(*) as total_count")[
-			0
-		].total_count,
+		"total_count": frappe.get_list(
+			doctype, filters=filters, fields="count(*) as total_count"
+		)[0].total_count,
 		"row_count": len(data),
 		"form_script": get_form_script(doctype),
 		"list_script": get_form_script(doctype, "List"),
@@ -725,3 +740,68 @@ def getCounts(d, doctype):
 		"FCRM Note", filters={"reference_doctype": doctype, "reference_docname": d.get("name")}
 	)
 	return d
+
+
+def get_changed_fields(doc):
+	"""Get fields that were changed in the document"""
+	if not doc._doc_before_save:
+		return {}
+		
+	changed = {}
+	for key, value in doc.as_dict().items():
+		if (
+			key not in ['modified', 'creation'] and 
+			doc._doc_before_save.get(key) != value
+		):
+			changed[key] = value
+			
+	return changed
+
+
+@frappe.whitelist()
+def subscribe_doc(doctype, name):
+	"""Subscribe to document updates"""
+	if not frappe.has_permission(doctype, "read", name):
+		frappe.throw(_("Not permitted"))
+		
+	# Add to session subscriptions
+	if not hasattr(frappe.local, 'document_subscriptions'):
+		frappe.local.document_subscriptions = set()
+	
+	frappe.local.document_subscriptions.add(f"{doctype}:{name}")
+	return True
+
+
+@frappe.whitelist()
+def unsubscribe_doc(doctype, name):
+	"""Unsubscribe from document updates"""
+	if hasattr(frappe.local, 'document_subscriptions'):
+		frappe.local.document_subscriptions.remove(f"{doctype}:{name}")
+	return True
+
+
+def on_doc_update(doc, method=None):
+	"""Publish updates to subscribed clients"""
+	# Handle CRM Lead, CRM Deal and CRM Task
+	if doc.doctype not in ['CRM Lead', 'CRM Deal', 'CRM Task']:
+		return
+		
+	# Determine event type based on method
+	event = 'modified'
+	if method == 'after_insert':
+		event = 'created'
+	elif method == 'on_trash':
+		event = 'deleted'
+		
+	# Send document identifier and event type
+	frappe.publish_realtime(
+		'doc_update',
+		{
+			'doctype': doc.doctype,
+			'name': doc.name,
+			'data': {
+				'event': event  # Signal the type of document event
+			}
+		},
+		after_commit=True
+	)
