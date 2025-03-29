@@ -168,6 +168,59 @@
       :disabled="Boolean(field.read_only)"
       @change="data[field.fieldname] = flt($event.target.value)"
     />
+    <div v-else-if="field.fieldtype === 'Attach Image'" class="w-full">
+      <FileUploader
+        @success="(file) => data[field.fieldname] = file.file_url"
+        :validateFile="validateFile"
+      >
+        <template #default="{ openFileSelector }">
+          <div class="flex flex-col gap-4">
+            <div v-if="data[field.fieldname]" class="relative group">
+              <img 
+                :src="data[field.fieldname]" 
+                class="w-full h-auto rounded-lg object-contain max-h-[300px]"
+                alt=""
+              />
+              <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col items-center justify-center gap-2">
+                <Button
+                  variant="ghost"
+                  class="text-white hover:text-white"
+                  @click="openFileSelector"
+                >
+                  <template #prefix>
+                    <CameraIcon class="h-4 w-4" />
+                  </template>
+                  {{ __('Change Image') }}
+                </Button>
+                <Button
+                  variant="ghost"
+                  class="text-white hover:text-white w-40"
+                  @click="data[field.fieldname] = ''"
+                >
+                  <template #prefix>
+                    <FeatherIcon name="trash-2" class="h-4 w-4" />
+                  </template>
+                  {{ __('Remove') }}
+                </Button>
+              </div>
+            </div>
+            <div 
+              v-else
+              class="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+              @click="openFileSelector"
+            >
+              <CameraIcon class="h-8 w-8 mx-auto mb-2 text-gray-400" />
+              <div class="text-sm text-gray-600">
+                {{ __('Click to upload image') }}
+              </div>
+              <div class="text-xs text-gray-500 mt-1">
+                {{ __('Supported formats: PNG, JPG, GIF, SVG, BMP, WebP') }}
+              </div>
+            </div>
+          </div>
+        </template>
+      </FileUploader>
+    </div>
     <FormControl
       v-else
       type="text"
@@ -188,8 +241,9 @@ import { getFormat, evaluateDependsOnValue } from '@/utils'
 import { flt } from '@/utils/numberFormat.js'
 import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
-import { Tooltip } from 'frappe-ui'
+import { Tooltip, FileUploader, Dropdown, Avatar, FeatherIcon } from 'frappe-ui'
 import { computed, inject } from 'vue'
+import CameraIcon from '@/components/Icons/CameraIcon.vue'
 
 const props = defineProps({
   field: Object,
@@ -202,6 +256,13 @@ const preview = inject('preview')
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(doctype)
 const { getUser } = usersStore()
+
+function validateFile(file) {
+  let extn = file.name.split('.').pop().toLowerCase()
+  if (!['png', 'jpg', 'jpeg', 'gif', 'svg', 'bmp', 'webp'].includes(extn)) {
+    return __('Only PNG, JPG, GIF, SVG, BMP and WebP images are allowed')
+  }
+}
 
 const field = computed(() => {
   let field = props.field

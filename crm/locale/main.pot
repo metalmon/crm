@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-19 18:12+0000\n"
-"PO-Revision-Date: 2025-03-19 18:12+0000\n"
+"POT-Creation-Date: 2025-03-29 13:07+0000\n"
+"PO-Revision-Date: 2025-03-29 13:07+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -213,7 +213,7 @@ msgstr ""
 msgid "Add Weekly Holidays"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:431
+#: frontend/src/components/FieldLayoutEditor.vue:430
 msgid "Add column"
 msgstr ""
 
@@ -449,7 +449,7 @@ msgstr ""
 msgid "Back to file upload"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:47
+#: frontend/src/components/common/LoadingView.vue:56
 msgid "Background Workers"
 msgstr ""
 
@@ -739,6 +739,10 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
+#: frontend/src/components/FieldLayout/Field.vue:193
+msgid "Change Image"
+msgstr ""
+
 #: frontend/src/components/Activities/TaskArea.vue:44
 msgid "Change Status"
 msgstr ""
@@ -758,7 +762,7 @@ msgstr ""
 msgid "Chat initiated with"
 msgstr ""
 
-#: frontend/src/App.vue:219
+#: frontend/src/App.vue:230
 msgid "Checking system readiness..."
 msgstr ""
 
@@ -798,6 +802,10 @@ msgstr ""
 msgid "Clear all Filter"
 msgstr ""
 
+#: frontend/src/components/FieldLayout/Field.vue:214
+msgid "Click to upload image"
+msgstr ""
+
 #: frontend/src/components/Notifications.vue:28
 msgid "Close"
 msgstr ""
@@ -815,7 +823,7 @@ msgstr ""
 msgid "Collapse"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:355
+#: frontend/src/components/FieldLayoutEditor.vue:354
 msgid "Collapsible"
 msgstr ""
 
@@ -826,7 +834,7 @@ msgstr ""
 msgid "Color"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:428
+#: frontend/src/components/FieldLayoutEditor.vue:427
 msgid "Column"
 msgstr ""
 
@@ -897,7 +905,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:128
+#: frontend/src/components/common/LoadingView.vue:137
 msgid "Connecting to messaging system..."
 msgstr ""
 
@@ -1078,7 +1086,7 @@ msgstr ""
 msgid "Currency"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:62
+#: frontend/src/components/common/LoadingView.vue:71
 msgid "Current processes:"
 msgstr ""
 
@@ -1217,7 +1225,7 @@ msgstr ""
 #: frontend/src/components/Activities/TaskArea.vue:61
 #: frontend/src/components/Controls/Grid.vue:228
 #: frontend/src/components/DropdownItem.vue:50
-#: frontend/src/components/Kanban/KanbanView.vue:922
+#: frontend/src/components/Kanban/KanbanView.vue:939
 #: frontend/src/components/ListBulkActions.vue:94
 #: frontend/src/components/ListBulkActions.vue:100
 #: frontend/src/components/ListBulkActions.vue:180
@@ -1430,8 +1438,8 @@ msgstr ""
 #: frontend/src/components/DropdownItem.vue:38
 #: frontend/src/components/FieldLayout.vue:191
 #: frontend/src/components/FieldLayout/Field.vue:75
-#: frontend/src/components/FieldLayoutEditor.vue:324
-#: frontend/src/components/FieldLayoutEditor.vue:350
+#: frontend/src/components/FieldLayoutEditor.vue:323
+#: frontend/src/components/FieldLayoutEditor.vue:349
 #: frontend/src/components/ListBulkActions.vue:173
 #: frontend/src/components/ViewControls.vue:1329
 msgid "Edit"
@@ -1579,7 +1587,7 @@ msgstr ""
 msgid "Enter"
 msgstr ""
 
-#: frontend/src/components/FieldLayout/Field.vue:258
+#: frontend/src/components/FieldLayout/Field.vue:319
 msgid "Enter {0}"
 msgstr ""
 
@@ -1630,6 +1638,10 @@ msgstr ""
 
 #: crm/api/todo.py:216
 msgid "Error sharing document on assignment"
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:15
+msgid "Error type:"
 msgstr ""
 
 #: frontend/src/pages/Deal.vue:495 frontend/src/pages/MobileDeal.vue:428
@@ -1746,7 +1758,7 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:16
+#: frontend/src/components/common/LoadingView.vue:25
 msgid "Failed modules:"
 msgstr ""
 
@@ -1994,11 +2006,11 @@ msgstr ""
 msgid "Hide Recording"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:365
+#: frontend/src/components/FieldLayoutEditor.vue:364
 msgid "Hide border"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:360
+#: frontend/src/components/FieldLayoutEditor.vue:359
 msgid "Hide label"
 msgstr ""
 
@@ -2103,7 +2115,7 @@ msgstr ""
 msgid "Industry"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:127
+#: frontend/src/components/common/LoadingView.vue:136
 msgid "Initializing database..."
 msgstr ""
 
@@ -2415,15 +2427,15 @@ msgstr ""
 msgid "Load More"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:126
+#: frontend/src/components/common/LoadingView.vue:135
 msgid "Loading background document types..."
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:125
+#: frontend/src/components/common/LoadingView.vue:134
 msgid "Loading critical components..."
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:129
+#: frontend/src/components/common/LoadingView.vue:138
 msgid "Loading language packs..."
 msgstr ""
 
@@ -2433,14 +2445,14 @@ msgstr ""
 msgid "Loading more..."
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:31
+#: frontend/src/components/common/LoadingView.vue:40
 msgid "Loading required components in background..."
 msgstr ""
 
 #: frontend/src/components/Activities/Activities.vue:33
 #: frontend/src/components/Activities/DataFields.vue:35
-#: frontend/src/components/common/LoadingView.vue:43
-#: frontend/src/components/common/LoadingView.vue:58
+#: frontend/src/components/common/LoadingView.vue:52
+#: frontend/src/components/common/LoadingView.vue:67
 #: frontend/src/pages/Deal.vue:196 frontend/src/pages/Deal.vue:519
 #: frontend/src/pages/MobileDeal.vue:111 frontend/src/pages/MobileDeal.vue:452
 msgid "Loading..."
@@ -2615,19 +2627,19 @@ msgstr ""
 msgid "Monday"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:459
+#: frontend/src/components/FieldLayoutEditor.vue:458
 msgid "Move to next section"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:412
+#: frontend/src/components/FieldLayoutEditor.vue:411
 msgid "Move to next tab"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:469
+#: frontend/src/components/FieldLayoutEditor.vue:468
 msgid "Move to previous section"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:398
+#: frontend/src/components/FieldLayoutEditor.vue:397
 msgid "Move to previous tab"
 msgstr ""
 
@@ -2711,8 +2723,8 @@ msgstr ""
 msgid "New Section"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:304
-#: frontend/src/components/FieldLayoutEditor.vue:309
+#: frontend/src/components/FieldLayoutEditor.vue:303
+#: frontend/src/components/FieldLayoutEditor.vue:308
 msgid "New Tab"
 msgstr ""
 
@@ -2763,7 +2775,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:860
+#: frontend/src/components/Activities/Activities.vue:887
 msgid "No Activities"
 msgstr ""
 
@@ -2772,19 +2784,19 @@ msgstr ""
 msgid "No Answer"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:874
+#: frontend/src/components/Activities/Activities.vue:901
 msgid "No Attachments"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:878
+#: frontend/src/components/Activities/Activities.vue:905
 msgid "No Avito Messages"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:868
+#: frontend/src/components/Activities/Activities.vue:895
 msgid "No Call Logs"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:864
+#: frontend/src/components/Activities/Activities.vue:891
 msgid "No Comments"
 msgstr ""
 
@@ -2792,7 +2804,7 @@ msgstr ""
 msgid "No Contacts Found"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:866
+#: frontend/src/components/Activities/Activities.vue:893
 #: frontend/src/components/Controls/Grid.vue:221
 msgid "No Data"
 msgstr ""
@@ -2801,7 +2813,7 @@ msgstr ""
 msgid "No Deals Found"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:862
+#: frontend/src/components/Activities/Activities.vue:889
 msgid "No Email Communications"
 msgstr ""
 
@@ -2817,7 +2829,7 @@ msgstr ""
 msgid "No Logs Found"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:870
+#: frontend/src/components/Activities/Activities.vue:897
 msgid "No Notes"
 msgstr ""
 
@@ -2829,7 +2841,7 @@ msgstr ""
 msgid "No Organizations Found"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:872
+#: frontend/src/components/Activities/Activities.vue:899
 msgid "No Tasks"
 msgstr ""
 
@@ -2843,7 +2855,7 @@ msgstr ""
 msgid "No Title"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:876
+#: frontend/src/components/Activities/Activities.vue:903
 msgid "No WhatsApp Messages"
 msgstr ""
 
@@ -2854,6 +2866,10 @@ msgstr ""
 
 #: frontend/src/pages/Deal.vue:117 frontend/src/pages/Lead.vue:166
 msgid "No email set"
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:13
+msgid "No error message available"
 msgstr ""
 
 #: frontend/src/components/FieldLayoutEditor.vue:92
@@ -3048,6 +3064,10 @@ msgstr ""
 msgid "Only PNG and JPG images are allowed"
 msgstr ""
 
+#: frontend/src/components/FieldLayout/Field.vue:263
+msgid "Only PNG, JPG, GIF, SVG, BMP and WebP images are allowed"
+msgstr ""
+
 #: crm/fcrm/doctype/crm_deal/crm_deal.py:64
 #: crm/fcrm/doctype/crm_telephony_agent/crm_telephony_agent.py:23
 msgid "Only one {0} can be set as primary."
@@ -3082,7 +3102,7 @@ msgstr ""
 msgid "Open website"
 msgstr ""
 
-#: frontend/src/components/Kanban/KanbanView.vue:918
+#: frontend/src/components/Kanban/KanbanView.vue:935
 #: frontend/src/components/Modals/CallLogDetailModal.vue:15
 #: frontend/src/components/ViewControls.vue:207
 msgid "Options"
@@ -3269,7 +3289,7 @@ msgstr ""
 msgid "Please setup Exotel intergration"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:26
+#: frontend/src/components/common/LoadingView.vue:35
 msgid "Please wait while the system is being prepared."
 msgstr ""
 
@@ -3372,9 +3392,9 @@ msgstr ""
 msgid "Read"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:43
-#: frontend/src/components/common/LoadingView.vue:48
-#: frontend/src/components/common/LoadingView.vue:58
+#: frontend/src/components/common/LoadingView.vue:52
+#: frontend/src/components/common/LoadingView.vue:57
+#: frontend/src/components/common/LoadingView.vue:67
 msgid "Ready"
 msgstr ""
 
@@ -3454,6 +3474,7 @@ msgid "Reject"
 msgstr ""
 
 #: frontend/src/components/Controls/ImageUploader.vue:23
+#: frontend/src/components/FieldLayout/Field.vue:203
 #: frontend/src/pages/Deal.vue:663
 msgid "Remove"
 msgstr ""
@@ -3462,11 +3483,11 @@ msgstr ""
 msgid "Remove all"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:449
+#: frontend/src/components/FieldLayoutEditor.vue:448
 msgid "Remove and move fields to previous column"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:443
+#: frontend/src/components/FieldLayoutEditor.vue:442
 msgid "Remove column"
 msgstr ""
 
@@ -3477,11 +3498,11 @@ msgstr ""
 msgid "Remove image"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:370
+#: frontend/src/components/FieldLayoutEditor.vue:369
 msgid "Remove section"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:329
+#: frontend/src/components/FieldLayoutEditor.vue:328
 msgid "Remove tab"
 msgstr ""
 
@@ -3494,7 +3515,7 @@ msgstr ""
 msgid "Reply All"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:52
+#: frontend/src/components/common/LoadingView.vue:61
 msgid "Required Data"
 msgstr ""
 
@@ -3529,6 +3550,14 @@ msgstr ""
 
 #: frontend/src/components/ViewControls.vue:1004
 msgid "Resetting columns..."
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:21
+msgid "Resource URL:"
+msgstr ""
+
+#: frontend/src/components/common/LoadingView.vue:18
+msgid "Resource type:"
 msgstr ""
 
 #. Label of the response_by (Datetime) field in DocType 'CRM Deal'
@@ -3567,7 +3596,7 @@ msgstr ""
 msgid "Retake"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:19
+#: frontend/src/components/common/LoadingView.vue:28
 msgid "Retry"
 msgstr ""
 
@@ -3774,7 +3803,7 @@ msgstr ""
 msgid "Search by website or industry..."
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:347
+#: frontend/src/components/FieldLayoutEditor.vue:346
 msgid "Section"
 msgstr ""
 
@@ -3789,7 +3818,7 @@ msgstr ""
 msgid "Select All"
 msgstr ""
 
-#: frontend/src/components/FieldLayout/Field.vue:256
+#: frontend/src/components/FieldLayout/Field.vue:317
 msgid "Select {0}"
 msgstr ""
 
@@ -3881,11 +3910,11 @@ msgstr ""
 msgid "Show"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:365
+#: frontend/src/components/FieldLayoutEditor.vue:364
 msgid "Show border"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:360
+#: frontend/src/components/FieldLayoutEditor.vue:359
 msgid "Show label"
 msgstr ""
 
@@ -3957,11 +3986,11 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:130
+#: frontend/src/components/common/LoadingView.vue:139
 msgid "Starting background processes..."
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:48
+#: frontend/src/components/common/LoadingView.vue:57
 msgid "Starting..."
 msgstr ""
 
@@ -4035,11 +4064,15 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
+#: frontend/src/components/FieldLayout/Field.vue:217
+msgid "Supported formats: PNG, JPG, GIF, SVG, BMP, WebP"
+msgstr ""
+
 #: frontend/src/components/FilesUploader/FilesUploader.vue:49
 msgid "Switch camera"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:57
+#: frontend/src/components/common/LoadingView.vue:66
 msgid "System Cache"
 msgstr ""
 
@@ -4234,7 +4267,7 @@ msgstr ""
 msgid "Total Holidays"
 msgstr ""
 
-#: frontend/src/components/common/LoadingView.vue:42
+#: frontend/src/components/common/LoadingView.vue:51
 msgid "Translations"
 msgstr ""
 
@@ -4323,7 +4356,7 @@ msgstr ""
 msgid "Unauthorized request"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:355
+#: frontend/src/components/FieldLayoutEditor.vue:354
 msgid "Uncollapsible"
 msgstr ""
 
@@ -4621,7 +4654,7 @@ msgstr ""
 msgid "Your assignment on {0} {1} has been removed by {2}"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:833
+#: frontend/src/components/Activities/Activities.vue:860
 msgid "added"
 msgstr ""
 
@@ -4636,7 +4669,7 @@ msgstr ""
 msgid "amber"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:834
+#: frontend/src/components/Activities/Activities.vue:861
 msgid "as"
 msgstr ""
 
@@ -4666,7 +4699,7 @@ msgstr ""
 msgid "blue"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:839
+#: frontend/src/components/Activities/Activities.vue:866
 msgid "changed"
 msgstr ""
 
@@ -4697,7 +4730,7 @@ msgstr ""
 msgid "cyan"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:840
+#: frontend/src/components/Activities/Activities.vue:867
 msgid "from"
 msgstr ""
 
@@ -4759,7 +4792,7 @@ msgstr ""
 msgid "mentioned you in {0}"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:379
+#: frontend/src/components/FieldLayoutEditor.vue:378
 msgid "next"
 msgstr ""
 
@@ -4777,7 +4810,7 @@ msgstr ""
 msgid "pink"
 msgstr ""
 
-#: frontend/src/components/FieldLayoutEditor.vue:379
+#: frontend/src/components/FieldLayoutEditor.vue:378
 msgid "previous"
 msgstr ""
 
@@ -4803,7 +4836,7 @@ msgstr ""
 msgid "red"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:836
+#: frontend/src/components/Activities/Activities.vue:863
 msgid "removed"
 msgstr ""
 
@@ -4816,11 +4849,11 @@ msgstr ""
 
 #: frontend/src/components/Activities/Activities.vue:296
 #: frontend/src/components/Activities/Activities.vue:359
-#: frontend/src/components/Activities/Activities.vue:841
+#: frontend/src/components/Activities/Activities.vue:868
 msgid "to"
 msgstr ""
 
-#: frontend/src/components/Activities/Activities.vue:837
+#: frontend/src/components/Activities/Activities.vue:864
 msgid "value"
 msgstr ""
 
