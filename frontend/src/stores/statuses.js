@@ -21,6 +21,7 @@ export const statusesStore = defineStore('crm-statuses', () => {
     auto: true,
     transform(statuses) {
       for (let status of statuses) {
+        status.kanbanColor = status.color
         status.color = parseColor(status.color)
         leadStatusesByName[status.name] = status
       }
@@ -37,6 +38,7 @@ export const statusesStore = defineStore('crm-statuses', () => {
     auto: true,
     transform(statuses) {
       for (let status of statuses) {
+        status.kanbanColor = status.color
         status.color = parseColor(status.color)
         dealStatusesByName[status.name] = status
       }

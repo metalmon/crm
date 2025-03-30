@@ -991,7 +991,7 @@ function updateColumns(obj) {
   }
 }
 
-function resetColumnSettings() {
+async function resetColumnSettings() {
   if (!defaultParams.value) {
     defaultParams.value = getParams()
   }
@@ -999,40 +999,36 @@ function resetColumnSettings() {
   // Get the current column field
   const columnField = list.value.params.column_field || defaultParams.value.column_field
   
-  // Show a loading indicator - with auto-dismiss (short duration)
+  // Show a loading indicator
   createToast({
     title: __('Resetting columns...'),
     text: __('Fetching latest status values'),
     icon: 'refresh-cw',
     position: 'bottom-right',
     iconClasses: 'animate-spin',
-    duration: 3000 // Short duration with auto-dismiss
+    duration: 3000
   })
   
-  // Reset the columns directly via a special API call
-  call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
-    doctype: props.doctype,
-    column_field: columnField
-  }).then((newColumns) => {
-    // Clear local columns data
-    list.value.params.kanban_columns = ''
-    view.value.kanban_columns = ''
+  try {
+    // Reset the columns via API call
+    const newColumns = await call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
+      doctype: props.doctype,
+      column_field: columnField
+    })
+
+    // Clear local columns data and force reload
+    await updateKanbanSettings({
+      kanban_columns: '',
+      _force_reload: true,
+      column_field: columnField
+    })
     
-    // Force reload the view
-    reload()
-    
-    // Also reload the statuses store to refresh colors and status information
-    try {
-      const store = statusesStore()
-      
-      // Determine which status type to reload based on doctype
-      if (props.doctype === 'CRM Deal') {
-        store.dealStatuses.reload()
-      } else if (props.doctype === 'CRM Lead') {
-        store.leadStatuses.reload()
-      }
-    } catch (e) {
-      console.error("Error reloading status store:", e)
+    // Reload the statuses store
+    const store = statusesStore()
+    if (props.doctype === 'CRM Deal') {
+      await store.dealStatuses.reload()
+    } else if (props.doctype === 'CRM Lead') {
+      await store.leadStatuses.reload()
     }
     
     // Show success message
@@ -1042,7 +1038,7 @@ function resetColumnSettings() {
       icon: 'check',
       position: 'bottom-right',
     })
-  }).catch((error) => {
+  } catch (error) {
     // Show error message
     createToast({
       title: __('Error'),
@@ -1050,7 +1046,7 @@ function resetColumnSettings() {
       icon: 'alert-triangle',
       position: 'bottom-right',
     })
-  })
+  }
 }
 
 function applyFilter({ event, idx, column, item, firstColumn }) {
@@ -1132,7 +1128,6 @@ async function updateKanbanSettings(data) {
   
   if (isResetRequest) {
     // For reset requests, explicitly clear columns and force a sync 
-    console.log('Resetting kanban columns to fresh data from directory')
     list.value.params.kanban_columns = ''
     view.value.kanban_columns = ''
     // Call backend to sync the default columns

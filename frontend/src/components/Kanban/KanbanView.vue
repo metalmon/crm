@@ -216,6 +216,8 @@ import { useSocket, PRIORITY, startTransaction, endTransaction, isLocalTransacti
 import { FeatherIcon, call } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
 import { useRoute } from 'vue-router'
+import { statusesStore } from '@/stores/statuses'
+import { taskStatusColors } from '@/utils/taskStatus'
 
 // Initialize route
 const route = useRoute()
@@ -460,10 +462,26 @@ const columns = computed(() => {
     return []
   let _columns = kanban.value.data.data
 
-  let has_color = _columns.some((column) => column.column?.color)
+  // Check if any column has custom color set
+  let has_color = _columns.some((column) => column.column?.color && !column.column._force_reload)
+  
   if (!has_color) {
-    _columns.forEach((column, i) => {
-      column.column['color'] = colors[i % colors.length]
+    // Get doctype from kanban params
+    const doctype = kanban.value?.params?.doctype
+    const store = statusesStore()
+
+    // Use appropriate status colors based on doctype
+    _columns.forEach((column) => {
+      if (doctype === 'CRM Task') {
+        column.column['color'] = taskStatusColors[column.column.name]
+      } else if (doctype === 'CRM Deal') {
+        const status = store.dealStatuses.data?.find(s => s.name === column.column.name)
+        column.column['color'] = status?.kanbanColor
+      } else {
+        // Default to Lead statuses
+        const status = store.leadStatuses.data?.find(s => s.name === column.column.name)
+        column.column['color'] = status?.kanbanColor
+      }
     })
   }
   return _columns
@@ -936,7 +954,7 @@ function actions(column) {
       hideLabel: true,
       items: [
         {
-          label: __('Delete'),
+          label: __('Hide'),
           icon: 'trash-2',
           onClick: () => {
             column.column['delete'] = true
