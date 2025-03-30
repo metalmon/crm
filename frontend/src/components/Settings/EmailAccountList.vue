@@ -34,7 +34,8 @@ const emit = defineEmits(["update:step"]);
 const emailAccounts = createListResource({
   doctype: "Email Account",
   cache: true,
-  fields: ["*"],
+  fields: ["name", "email_account_name", "email_id", "service", "owner", 
+           "enable_incoming", "enable_outgoing", "default_incoming", "default_outgoing"],
   filters: {
     email_id: ["Not Like", "%example%"],
   },

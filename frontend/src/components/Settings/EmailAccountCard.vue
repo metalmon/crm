@@ -1,13 +1,21 @@
 <template>
-  <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+  <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
     <!-- avatar and name -->
     <div class="flex items-center gap-3">
-      <EmailProviderIcon :logo="emailIcon[emailAccount.service]" />
+      <div v-if="emailAccount.service && emailIcon[emailAccount.service]" class="flex-shrink-0">
+        <EmailProviderIcon :logo="emailIcon[emailAccount.service]" />
+      </div>
+      <Avatar 
+        v-else 
+        size="md" 
+        class="w-8 h-8" 
+        :label="emailAccount.email_id.split('@')[0]" 
+      />
       <div>
-        <p class="text-sm font-medium text-gray-900">
+        <p class="text-sm font-medium text-gray-900 dark:text-white">
           {{ emailAccount.email_account_name }}
         </p>
-        <div class="text-sm text-gray-500">{{ emailAccount.email_id }}</div>
+        <div class="text-sm text-gray-500 dark:text-gray-300">{{ emailAccount.email_id }}</div>
       </div>
     </div>
     <div>
@@ -18,6 +26,7 @@
 
 <script setup>
 import EmailProviderIcon from "./EmailProviderIcon.vue";
+import { Avatar } from 'frappe-ui';
 import { computed } from "vue";
 
 const LogoGmail = '/assets/crm/frontend/images/gmail.png'

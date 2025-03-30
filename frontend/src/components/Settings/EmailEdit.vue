@@ -4,15 +4,23 @@
     <div role="heading" aria-level="1" class="flex justify-between gap-1 pr-12">
       <h5 class="text-lg font-semibold">{{ __('Edit Email') }}</h5>
     </div>
-    <div class="w-fit">
-      <EmailProviderIcon :logo="emailIcon[accountData.service]" :service-name="accountData.service" />
-    </div>
-    <!-- banner for setting up email account -->
-    <div class="flex items-center gap-2 p-3 rounded-lg bg-blue-50">
-      <CircleAlert class="w-5 h-5 text-blue-500 flex-shrink-0" />
-      <div class="text-sm text-gray-700">
-        {{ __('To know more about setting up email accounts, click') }}
-        <a :href="info.link" target="_blank" class="text-blue-600 hover:text-blue-800 underline">{{ __('here') }}</a>
+    <!-- avatar and info message in one row -->
+    <div class="flex items-center gap-4">
+      <div class="w-fit">
+        <EmailProviderIcon v-if="accountData.service && emailIcon[accountData.service]" :logo="emailIcon[accountData.service]" :service-name="accountData.service" />
+        <Avatar 
+          v-else 
+          size="md" 
+          class="w-8 h-8" 
+          :label="accountData.email_id.split('@')[0]" 
+        />
+      </div>
+      <div class="flex items-center gap-2 p-3 rounded-lg bg-blue-50 flex-1">
+        <CircleAlert class="w-5 h-5 text-blue-500 flex-shrink-0" />
+        <div class="text-sm text-gray-700">
+          {{ __('To know more about setting up email accounts, click') }}
+          <a :href="info.link" target="_blank" class="text-blue-600 hover:text-blue-800 underline">{{ __('here') }}</a>
+        </div>
       </div>
     </div>
     <!-- fields -->
@@ -42,7 +50,7 @@
 
 <script setup>
 import { computed, reactive, ref } from "vue";
-import { call } from "frappe-ui";
+import { call, Avatar } from "frappe-ui";
 import EmailProviderIcon from "./EmailProviderIcon.vue";
 import { createToast } from "@/utils";
 import { validateEmail } from '../../utils'
