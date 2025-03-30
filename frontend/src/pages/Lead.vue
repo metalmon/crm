@@ -434,7 +434,6 @@ const lead = createResource({
   cache: ['lead', props.leadId],
   auto: true,
   onSuccess: (data) => {
-    console.log('Lead data received:', data)
     setupAssignees(lead)
     setupCustomizations(lead, {
       doc: data,
@@ -448,11 +447,6 @@ const lead = createResource({
       call,
     })
   },
-})
-
-onMounted(() => {
-  console.log('Card mounted, data:', lead.data)
-  console.log('Lead will auto-update if needed')
 })
 
 const reload = ref(false)
