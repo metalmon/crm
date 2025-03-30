@@ -58,6 +58,8 @@ def get_user_signature():
 	_signature = None
 	if html_signature:
 		_signature = html_signature.renderContents()
+		if isinstance(_signature, bytes):
+			_signature = BeautifulSoup(_signature.decode('utf-8'), "html.parser")
 		# Replace paragraphs with plain text and newlines for better line spacing
 		for p in _signature.find_all('p'):
 			p.replace_with(p.get_text() + '\n')
