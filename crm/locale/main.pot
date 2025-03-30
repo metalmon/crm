@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-03-30 20:35+0000\n"
-"PO-Revision-Date: 2025-03-30 20:35+0000\n"
+"POT-Creation-Date: 2025-03-30 20:49+0000\n"
+"PO-Revision-Date: 2025-03-30 20:49+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -2407,6 +2407,10 @@ msgstr ""
 msgid "Invalid credentials"
 msgstr ""
 
+#: frontend/src/pages/InvalidPage.vue:6
+msgid "Invalid page or not permitted to access"
+msgstr ""
+
 #: frontend/src/components/Settings/Settings.vue:104
 msgid "Invite Members"
 msgstr ""
@@ -2635,7 +2639,8 @@ msgstr ""
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/components/Layouts/AppSidebar.vue:198
 #: frontend/src/components/Mobile/MobileSidebar.vue:117
-#: frontend/src/pages/Lead.vue:506 frontend/src/pages/MobileLead.vue:360
+#: frontend/src/pages/InvalidPage.vue:9 frontend/src/pages/Lead.vue:506
+#: frontend/src/pages/MobileLead.vue:360
 msgid "Leads"
 msgstr ""
 
