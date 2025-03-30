@@ -432,7 +432,9 @@ const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
+  auto: true,
   onSuccess: (data) => {
+    console.log('Lead data received:', data)
     setupAssignees(lead)
     setupCustomizations(lead, {
       doc: data,
@@ -449,8 +451,8 @@ const lead = createResource({
 })
 
 onMounted(() => {
-  if (lead.data) return
-  lead.fetch()
+  console.log('Card mounted, data:', lead.data)
+  console.log('Lead will auto-update if needed')
 })
 
 const reload = ref(false)

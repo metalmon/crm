@@ -279,6 +279,7 @@ const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
+  auto: true,
   onSuccess: (data) => {
     setupAssignees(lead)
     setupCustomizations(lead, {

@@ -421,6 +421,7 @@ const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
   params: { name: props.dealId },
   cache: ['deal', props.dealId],
+  auto: true,
   onSuccess: (data) => {
     if (data.organization) {
       organization.update({
