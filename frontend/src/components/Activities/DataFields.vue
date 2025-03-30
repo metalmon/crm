@@ -64,7 +64,7 @@ import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
 import { createToast } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { isMobileView } from '@/composables/settings'
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 const props = defineProps({
   doctype: {
@@ -103,6 +103,20 @@ const data = createDocumentResource({
     },
   },
 })
+
+onMounted(() => {
+  if (!data.doc) {
+    data.reload()
+  }
+})
+
+// Watch for changes in the document
+watch(() => data.doc, (newDoc) => {
+  if (newDoc) {
+    // Force isDirty check by comparing with originalDoc
+    data.isDirty = JSON.stringify(data.doc) !== JSON.stringify(data.originalDoc)
+  }
+}, { deep: true })
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
