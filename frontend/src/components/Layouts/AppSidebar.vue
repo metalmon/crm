@@ -427,7 +427,7 @@ const steps = reactive([
   },
   {
     name: 'send_first_email',
-    title: __('Send email'),
+    title: __('Send email', null, 'onboarding_step'),
     icon: markRaw(EmailIcon),
     completed: false,
     onClick: async () => {

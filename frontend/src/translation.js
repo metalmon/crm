@@ -34,6 +34,9 @@ function initTranslations() {
   if (cachedTranslations) {
     // Use cached translations immediately
     window.translatedMessages = cachedTranslations
+  } else {
+    // If no cached translations, set the loading flag to block UI
+    translationsLoading.value = true
   }
   
   // Check for updates from server
@@ -42,16 +45,30 @@ function initTranslations() {
       url: 'crm.api.get_translations',
       auto: false, // Don't fetch automatically
       onSubmit: () => {
-        translationsLoading.value = true
+        // Only show loading indicator if we don't have translations yet
+        if (!window.translatedMessages || Object.keys(window.translatedMessages).length === 0) {
+          translationsLoading.value = true
+        }
       },
       transform: (response) => {
-        translationsLoading.value = false
         const { translations, hash } = response
         const cachedHash = localStorage.getItem(TRANSLATION_HASH_KEY)
         
-        // Only update if hash is different or no cache exists
+        // If hash is different or no cache exists, update translations
         if (!cachedHash || hash !== cachedHash) {
-          updateTranslations(response)
+          // If hash changed and we had previous translations, show loading during update
+          if (cachedHash && hash !== cachedHash) {
+            translationsLoading.value = true
+            // Update translations and force a complete UI refresh
+            updateTranslations(response)
+          } else {
+            // Initial load or no previous hash
+            updateTranslations(response)
+            translationsLoading.value = false
+          }
+        } else {
+          // Hash matches, no update needed
+          translationsLoading.value = false
         }
         return translations
       },
@@ -83,6 +100,11 @@ function updateTranslations(response) {
   
   // Update timestamp ref to trigger reactivity
   lastTranslationUpdate.value = Date.now()
+  
+  // After a small delay to allow components to update, remove the loading state
+  setTimeout(() => {
+    translationsLoading.value = false
+  }, 300)
 }
 
 /**

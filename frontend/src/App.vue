@@ -13,7 +13,7 @@
       class="app-overlay"
     />
     
-    <!-- Main app content - only hidden during Redis warmup, network errors, or translations loading -->
+    <!-- Main app content - only shown when everything is loaded -->
     <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
       <Layout v-if="session().isLoggedIn">
         <router-view :key="translationKey" />

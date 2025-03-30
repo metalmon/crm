@@ -117,6 +117,12 @@ export default {
     errorDetails: {
       type: Object,
       default: () => ({})
+    },
+    
+    // Translations loading state
+    translationsLoading: {
+      type: Boolean,
+      default: false
     }
   },
   
@@ -145,17 +151,28 @@ export default {
   
   watch: {
     redisWarmup(newValue) {
-      // Only show component when redisWarmup is true or network errors exist
-      this.isRedisWarmupVisible = newValue || this.networkErrors
+      // Update visibility when any of the conditions change
+      this.updateVisibility();
     },
     
     networkErrors(newValue) {
-      this.isRedisWarmupVisible = newValue || this.redisWarmup
+      this.updateVisibility();
+    },
+    
+    translationsLoading(newValue) {
+      this.updateVisibility();
+    }
+  },
+  
+  methods: {
+    updateVisibility() {
+      // Show component when any of the loading conditions are true
+      this.isRedisWarmupVisible = this.redisWarmup || this.networkErrors || this.translationsLoading;
     }
   },
   
   mounted() {
-    this.isRedisWarmupVisible = this.redisWarmup || this.networkErrors
+    this.updateVisibility();
   }
 }
 </script>
