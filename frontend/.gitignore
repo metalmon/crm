@@ -3,3 +3,13 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Compilation files
+*.map
+workbox-*.js
+workbox-*.js.map
+sw.js
+sw.js.map
+*-*.js.map
+public/crm/*.js
+public/crm/*.js.map

@@ -7,7 +7,7 @@
         <h3 class="redis-warmup-title">{{ __('System Initialization') }}</h3>
         
         <!-- Show network error message -->
-        <div v-if="networkErrors" class="redis-error-message">
+        <div v-if="networkErrors && !isPosthogError" class="redis-error-message">
           <p class="redis-error-text">{{ __('Network connection error') }}</p>
           <p class="redis-error-details" v-if="errorDetails?.lastError">
             {{ errorDetails.lastError.message || __('No error message available') }}
@@ -135,6 +135,10 @@ export default {
   },
   
   computed: {
+    isPosthogError() {
+      return this.errorDetails?.lastError?.url?.includes('posthog.com') || false;
+    },
+    
     localizedReasons() {
       const reasonMap = {
         'missing_critical_doctypes': __('Loading critical components...'),

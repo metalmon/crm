@@ -10,3 +10,8 @@ crm/public/frontend
 frontend/yarn.lock
 crm/www/crm.html
 build
+*.map
+*.css.map
+/public/crm/*.js.map
+*.workbox-*.js.map
+sw.js.map

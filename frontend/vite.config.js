@@ -21,9 +21,10 @@ export default defineConfig({
     vue(),
     vueJsx(),
     VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      strategies: 'generateSW',
+      registerType: "autoUpdate",
+      strategies: "generateSW",
+      injectRegister: null,
+      outDir: "../crm/public/crm",
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json}'],
         navigateFallbackDenylist: [/^\/assets\/.*$/, /^\/api/, /^\/raven/],
@@ -63,8 +64,6 @@ export default defineConfig({
             }
           }
         ],
-        skipWaiting: true,
-        clientsClaim: true,
         cleanupOutdatedCaches: true
       },
       manifest: {
@@ -103,9 +102,7 @@ export default defineConfig({
             purpose: 'maskable',
           }
         ],
-        id: 'crm',
-        prefer_related_applications: false,
-        display_override: ['window-controls-overlay']
+        id: 'crm'
       },
       devOptions: {
         enabled: true,
