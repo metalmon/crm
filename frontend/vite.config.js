@@ -22,50 +22,11 @@ export default defineConfig({
     vueJsx(),
     VitePWA({
       registerType: "autoUpdate",
-      strategies: "generateSW",
+      strategies: "injectManifest",
+      srcDir: 'public',
+      filename: 'sw.js',
       injectRegister: null,
       outDir: "../crm/public/crm",
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json}'],
-        navigateFallbackDenylist: [/^\/assets\/.*$/, /^\/api/, /^\/raven/],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'crm-images-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/.*\.(css|js)$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'crm-assets-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/.*\/(api|crm)/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'crm-api-cache',
-              networkTimeoutSeconds: 10,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 24 * 60 * 60 // 24 hours
-              }
-            }
-          }
-        ],
-        cleanupOutdatedCaches: true
-      },
       manifest: {
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',
