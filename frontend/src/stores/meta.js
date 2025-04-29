@@ -58,6 +58,7 @@ export function getMeta(doctype) {
 
     if (df && df.options) {
       if (df.options.indexOf(':') != -1) {
+        // Currency specified in options with colon separator
         currency = currency
         // TODO: Handle this case
       } else if (doc && doc[df.options]) {

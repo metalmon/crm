@@ -394,6 +394,7 @@ import { flt } from '@/utils/numberFormat.js'
 import { Tooltip, DateTimePicker, DatePicker } from 'frappe-ui'
 import { useDocument } from '@/data/document'
 import { ref, computed } from 'vue'
+import dayjs, { toUserTimezone, toSystemTimezone } from '@/utils/dayjs'
 
 const props = defineProps({
   sections: {
@@ -471,7 +472,9 @@ function parsedField(field) {
   let _field = {
     ...field,
     filters: field.link_filters && JSON.parse(field.link_filters),
-    placeholder: field.placeholder || field.label,
+    placeholder: ['Select', 'Link'].includes(field.fieldtype) ? 
+        `${__('Select')} ${__(field.label)}` : 
+        `${__('Enter')} ${__(field.label)}`,
     display_via_depends_on: evaluateDependsOnValue(
       field.depends_on,
       document.doc,

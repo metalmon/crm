@@ -96,7 +96,7 @@ import { capture } from '@/telemetry'
 import { usersStore } from '@/stores/users'
 import { useStorage } from '@vueuse/core'
 import { call, createResource } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, watch, computed } from 'vue'
 
 const props = defineProps({
@@ -139,14 +139,15 @@ const signature = createResource({
   auto: true,
 })
 
-function setSignature(editor) {
+async function setSignature(editor) {
   if (!signature.data) return
-  signature.data = signature.data.replace(/\n/g, '<br>')
   let emailContent = editor.getHTML()
   emailContent = emailContent.startsWith('<p></p>')
     ? emailContent.slice(7)
     : emailContent
-  editor.commands.setContent(signature.data + emailContent)
+  editor.commands.setContent(emailContent)
+  await newEmailEditor.value.addSignature(editor)
+  newEmail.value = editor.getHTML()
   editor.commands.focus('start')
 }
 

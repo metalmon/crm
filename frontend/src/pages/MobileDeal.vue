@@ -15,7 +15,7 @@
           "
         >
           <template #default="{ open }">
-            <Button :label="deal.data.status">
+            <Button :label="translateDealStatus(deal.data.status)">
               <template #prefix>
                 <IndicatorIcon :class="getDealStatus(deal.data.status).color" />
               </template>
@@ -48,7 +48,7 @@
     </div>
   </div>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto pb-20">
       <TabList class="!px-3" />
       <TabPanel v-slot="{ tab }">
         <div v-if="tab.name == 'Details'">
@@ -204,6 +204,7 @@
         </div>
         <Activities
           v-else
+          ref="activities"
           doctype="CRM Deal"
           :tabs="tabs"
           v-model:reload="reload"
@@ -212,6 +213,53 @@
         />
       </TabPanel>
     </Tabs>
+  </div>
+  <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+    <div ref="bottomToolbar" class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <Button
+        v-if="primaryContactMobileNo && ipTelephonyEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="triggerCall"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="primaryContactMobileNo && !ipTelephonyEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('phone')"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+      
+      <Button
+        v-if="primaryContactMobileNo"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('whatsapp')"
+      >
+        <WhatsAppIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="primaryContactMobileNo"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="showMessageTemplateModal = true"
+      >
+        <CommentIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="openWebsite"
+      >
+        <LinkIcon class="h-5 w-5" />
+      </Button>
+    </div>
   </div>
   <OrganizationModal
     v-model="showOrganizationModal"
@@ -228,6 +276,11 @@
       redirect: false,
       afterInsert: (doc) => addContact(doc.name),
     }"
+  />
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Deal"
+    @apply="applyMessageTemplate"
   />
 </template>
 <script setup>
@@ -246,6 +299,7 @@ import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import SuccessIcon from '@/components/Icons/SuccessIcon.vue'
+import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
@@ -265,6 +319,7 @@ import { getMeta } from '@/stores/meta'
 import {
   whatsappEnabled,
   callEnabled,
+  ipTelephonyEnabled,
   isMobileView,
 } from '@/composables/settings'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
@@ -280,8 +335,11 @@ import {
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { ref, computed, h, onMounted } from 'vue'
+import { ref, computed, h, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { trackCommunication } from '@/utils/communicationUtils'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket } = globalStore()
@@ -301,6 +359,7 @@ const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
   params: { name: props.dealId },
   cache: ['deal', props.dealId],
+  auto: true,
   onSuccess: (data) => {
     if (data.organization) {
       organization.update({
@@ -378,6 +437,29 @@ function validateRequired(fieldname, value) {
   return false
 }
 
+const displayName = computed(() => {
+  if (!deal.data) return __('Loading...')
+  
+  if (organization.data?.name) {
+    return organization.data.name
+  }
+  
+  if (dealContacts.data) {
+    const primaryContact = dealContacts.data.find(c => c.is_primary)
+    if (primaryContact?.full_name) {
+      return primaryContact.full_name
+    }
+  }
+  
+  return __('Untitled')
+})
+
+const primaryContactMobileNo = computed(() => {
+  if (!dealContacts.data) return null
+  const primaryContact = dealContacts.data.find(c => c.is_primary)
+  return primaryContact?.mobile_no || null
+})
+
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Deals'), route: { name: 'Deals' } }]
 
@@ -397,7 +479,7 @@ const breadcrumbs = computed(() => {
   }
 
   items.push({
-    label: title.value,
+    label: displayName.value,
     route: { name: 'Deal', params: { dealId: deal.data.name } },
   })
   return items
@@ -410,7 +492,7 @@ const title = computed(() => {
 
 usePageMeta(() => {
   return {
-    title: title.value,
+    title: displayName.value,
     icon: brand.favicon,
   }
 })
@@ -603,4 +685,70 @@ async function deleteDeal(name) {
   })
   router.push({ name: 'Deals' })
 }
+
+function trackPhoneActivities(type) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact?.mobile_no) {
+    errorMessage(__('No phone number set'))
+    return
+  }
+  trackCommunication({
+    type,
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContact.mobile_no,
+    activities: activities.value,
+    contactName: primaryContact.name
+  })
+}
+
+function triggerCall() {
+  const primaryContact = dealContacts.data?.find((c) => c.is_primary)
+  const mobile_no = primaryContact?.mobile_no || null
+
+  if (!primaryContact) {
+    errorMessage(__('No primary contact set'))
+    return
+  }
+
+  if (!mobile_no) {
+    errorMessage(__('No mobile number set'))
+    return
+  }
+
+  makeCall(mobile_no)
+}
+
+const showMessageTemplateModal = ref(false)
+const activities = ref(null)
+
+function applyMessageTemplate(template) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact) return errorMessage(__('No primary contact set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContactMobileNo.value,
+    activities: activities.value,
+    contactName: primaryContact.full_name,
+    message: template,
+    modelValue: deal.data
+  })
+  showMessageTemplateModal.value = false
+}
+
+
 </script>
+
+<style scoped>
+.bottom-toolbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bottom-toolbar::-webkit-scrollbar {
+  display: none;
+}
+</style>

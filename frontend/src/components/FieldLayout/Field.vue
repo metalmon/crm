@@ -37,7 +37,7 @@
       type="select"
       class="form-control"
       :class="field.prefix ? 'prefix' : ''"
-      :options="field.options"
+      :options="translatedOptions"
       v-model="data[field.fieldname]"
       @change="(e) => fieldChange(e.target.value, field)"
       :placeholder="getPlaceholder(field)"
@@ -133,7 +133,7 @@
         </Tooltip>
       </template>
     </Link>
-    <DateTimePicker
+    <input
       v-else-if="field.fieldtype === 'Datetime'"
       :value="data[field.fieldname]"
       :formatter="(date) => getFormat(date, '', true, true)"
@@ -141,7 +141,7 @@
       input-class="border-none"
       @change="(v) => fieldChange(v, field)"
     />
-    <DatePicker
+    <input
       v-else-if="field.fieldtype === 'Date'"
       :value="data[field.fieldname]"
       :formatter="(date) => getFormat(date, '', true)"
@@ -202,6 +202,15 @@
       :description="field.description"
       @change="fieldChange(flt($event.target.value), field)"
     />
+    <div v-else-if="field.fieldtype === 'Attach Image'" class="w-full">
+        <SingleImageUploader 
+            :image-url="data[field.fieldname]"
+            :doctype="doctype"
+            :docname="data.name"  
+            @upload="(file_url) => { data[field.fieldname] = file_url }" 
+            @remove="() => { data[field.fieldname] = null }" 
+        />
+    </div>
     <FormControl
       v-else
       type="text"
@@ -321,14 +330,7 @@ function isFieldVisible(field) {
 }
 
 const getPlaceholder = (field) => {
-  if (field.placeholder) {
-    return __(field.placeholder)
-  }
-  if (['Select', 'Link'].includes(field.fieldtype)) {
-    return __('Select {0}', [__(field.label)])
-  } else {
-    return __('Enter {0}', [__(field.label)])
-  }
+  return __(field.placeholder || field.label || field.fieldname)
 }
 
 function fieldChange(value, df) {

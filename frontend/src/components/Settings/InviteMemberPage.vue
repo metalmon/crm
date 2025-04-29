@@ -57,7 +57,7 @@
                 </span>
               </div>
               <div>
-                <Tooltip text="Delete Invitation">
+                <Tooltip :text="__('Delete Invitation')">
                   <div>
                     <Button
                       icon="x"
@@ -97,7 +97,7 @@ import {
   FormControl,
   Tooltip,
 } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, computed } from 'vue'
 
 const { updateOnboardingStep } = useOnboarding('frappecrm')
@@ -109,9 +109,9 @@ const error = ref(null)
 const description = computed(() => {
   return {
     'Sales Manager':
-      'Can manage and invite new members, and create public & private views (reports).',
+      __('Can manage and invite new members, and create public & private views (reports).'),
     'Sales User':
-      'Can work with leads and deals and create private views (reports).',
+      __('Can work with leads and deals and create private views (reports).'),
   }[role.value]
 })
 

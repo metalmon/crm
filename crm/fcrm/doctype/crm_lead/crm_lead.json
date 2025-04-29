@@ -15,13 +15,14 @@
   "website",
   "territory",
   "industry",
-  "job_title",
   "source",
+  "sales_funnel",
   "lead_owner",
   "person_tab",
   "salutation",
   "first_name",
   "last_name",
+  "job_title",
   "email",
   "mobile_no",
   "organization_tab",
@@ -155,12 +156,14 @@
   {
    "fieldname": "source",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Source",
    "options": "CRM Lead Source"
   },
   {
    "fieldname": "industry",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Industry",
    "options": "CRM Industry"
   },
@@ -277,6 +280,7 @@
   {
    "fieldname": "territory",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Territory",
    "options": "CRM Territory"
   },

@@ -21,9 +21,9 @@
         :options="statusOptions('deal', updateField, deal.data._customStatuses)"
       >
         <template #default="{ open }">
-          <Button :label="deal.data.status">
+          <Button :label="translateDealStatus(deal.data.status)">
             <template #prefix>
-              <IndicatorIcon :class="getDealStatus(deal.data.status).color" />
+              <IndicatorIcon :class="getDealStatus(deal.data.status)?.color || 'text-gray-400'" />
             </template>
             <template #suffix>
               <FeatherIcon
@@ -62,24 +62,52 @@
             <Avatar
               size="3xl"
               class="size-12"
-              :label="title"
+              :label="displayName"
               :image="organization.data?.organization_logo"
             />
           </div>
         </Tooltip>
         <div class="flex flex-col gap-2.5 truncate text-ink-gray-9">
-          <Tooltip :text="organization.data?.name || __('Set an organization')">
+          <Tooltip :text="displayName">
             <div class="truncate text-2xl font-medium">
-              {{ title }}
+              {{ displayName }}
             </div>
           </Tooltip>
           <div class="flex gap-1.5">
-            <Tooltip v-if="callEnabled" :text="__('Make a call')">
+            <Tooltip v-if="ipTelephonyEnabled" :text="__('Make a call')">
               <div>
                 <Button class="h-7 w-7" @click="triggerCall">
                   <PhoneIcon class="h-4 w-4" />
                 </Button>
               </div>
+            </Tooltip>
+
+            <Tooltip :text="__('Call via phone app')">
+              <Button
+                v-if="primaryContactMobileNo && !ipTelephonyEnabled"
+                size="sm"
+                @click="trackPhoneActivities('phone')"
+              >
+                <PhoneIcon class="h-4 w-4" />
+              </Button>
+            </Tooltip>
+            <Tooltip :text="__('Open WhatsApp')">
+              <Button
+                v-if="primaryContactMobileNo"
+                size="sm"
+                @click="trackPhoneActivities('whatsapp')"
+              >
+                <WhatsAppIcon class="h-4 w-4" />
+              </Button>
+            </Tooltip>
+            <Tooltip :text="__('Send WhatsApp Template')">
+              <Button
+                v-if="primaryContactMobileNo"
+                size="sm"
+                @click="showMessageTemplateModal = true"
+              >
+                <CommentIcon class="h-4 w-4" />
+              </Button>
             </Tooltip>
             <Tooltip :text="__('Send an email')">
               <div>
@@ -144,7 +172,6 @@
                 :onCreate="
                   (value, close) => {
                     _contact = {
-                      first_name: value,
                       company_name: deal.data.organization,
                     }
                     showContactModal = true
@@ -281,11 +308,20 @@
   />
   <ContactModal
     v-model="showContactModal"
+    v-model:showQuickEntryModal="showQuickEntryModal"
     :contact="_contact"
+    :initial-values="{
+      company_name: deal.data?.organization,
+    }"
     :options="{
       redirect: false,
       afterInsert: (doc) => addContact(doc.name),
     }"
+  />
+  <QuickEntryModal 
+    v-if="showQuickEntryModal" 
+    v-model="showQuickEntryModal" 
+    doctype="Contact"
   />
   <FilesUploader
     v-if="deal.data?.name"
@@ -298,6 +334,11 @@
         changeTabTo('attachments')
       }
     "
+  />
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Deal"
+    @apply="applyMessageTemplate"
   />
 </template>
 <script setup>
@@ -325,6 +366,7 @@ import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
 import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
+import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import Link from '@/components/Controls/Link.vue'
 import Section from '@/components/Section.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
@@ -341,7 +383,7 @@ import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { statusesStore } from '@/stores/statuses'
 import { getMeta } from '@/stores/meta'
-import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { whatsappEnabled, callEnabled, ipTelephonyEnabled } from '@/composables/settings'
 import {
   createResource,
   Dropdown,
@@ -353,10 +395,13 @@ import {
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
+import { trackCommunication } from '@/utils/communicationUtils'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
@@ -383,6 +428,7 @@ const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
   params: { name: props.dealId },
   cache: ['deal', props.dealId],
+  auto: true,
   onSuccess: (data) => {
     errorTitle.value = ''
     errorMessage.value = ''
@@ -447,6 +493,7 @@ const reload = ref(false)
 const showOrganizationModal = ref(false)
 const showFilesUploader = ref(false)
 const _organization = ref({})
+const showMessageTemplateModal = ref(false)
 
 function updateDeal(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -483,6 +530,23 @@ function validateRequired(fieldname, value) {
   return false
 }
 
+const displayName = computed(() => {
+  if (!deal.data) return __('Loading...')
+  
+  if (organization.data?.name) {
+    return organization.data.name
+  }
+  
+  if (dealContacts.data) {
+    const primaryContact = dealContacts.data.find(c => c.is_primary)
+    if (primaryContact?.full_name) {
+      return primaryContact.full_name
+    }
+  }
+  
+  return __('Untitled')
+})
+
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Deals'), route: { name: 'Deals' } }]
 
@@ -502,7 +566,7 @@ const breadcrumbs = computed(() => {
   }
 
   items.push({
-    label: title.value,
+    label: displayName.value,
     route: { name: 'Deal', params: { dealId: deal.data.name } },
   })
   return items
@@ -515,7 +579,7 @@ const title = computed(() => {
 
 usePageMeta(() => {
   return {
-    title: title.value,
+    title: displayName.value,
     icon: brand.favicon,
   }
 })
@@ -605,6 +669,7 @@ function getParsedSections(_sections) {
 
 const showContactModal = ref(false)
 const _contact = ref({})
+const showQuickEntryModal = ref(false)
 
 function contactOptions(contact) {
   let options = [
@@ -664,6 +729,21 @@ async function setPrimaryContact(contact) {
   }
 }
 
+function trackPhoneActivities(type = 'phone') {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact?.mobile_no) {
+    errorMessage(__('No phone number set'))
+    return
+  }
+  trackCommunication({
+    type,
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContact.mobile_no,
+    activities: activities.value,
+    contactName: primaryContact.name
+  })
+}
 const dealContacts = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
   params: { name: props.dealId },
@@ -718,5 +798,26 @@ const activities = ref(null)
 
 function openEmailBox() {
   activities.value.emailBox.show = true
+}
+
+const primaryContactMobileNo = computed(() => {
+  return dealContacts.data?.find(c => c.is_primary)?.mobile_no
+})
+
+function applyMessageTemplate(template) {
+  const primaryContact = dealContacts.data?.find(c => c.is_primary)
+  if (!primaryContact) return errorMessage(__('No primary contact set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Deal',
+    docname: deal.data.name,
+    phoneNumber: primaryContactMobileNo.value,
+    activities: activities.value,
+    contactName: primaryContact.full_name,
+    message: template,
+    modelValue: deal.data
+  })
+  showMessageTemplateModal.value = false
 }
 </script>

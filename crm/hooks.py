@@ -117,13 +117,11 @@ before_uninstall = "crm.uninstall.before_uninstall"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# "Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"CRM Deal": "crm.permissions.get_permission_query_conditions_for_crm_deal",
+	"CRM Lead": "crm.permissions.get_permission_query_conditions_for_crm_lead",
+	"CRM Task": "crm.permissions.get_permission_query_conditions_for_crm_task"
+}
 
 # DocType Class
 # ---------------
@@ -139,6 +137,24 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
+	"CRM Lead": {
+		"on_update": "crm.api.doc.on_doc_update",
+		"after_insert": "crm.api.doc.on_doc_update",
+		"on_trash": "crm.api.doc.on_doc_update",
+	},
+	"CRM Deal": {
+		"on_update": [
+			"crm.api.doc.on_doc_update",
+			"crm.fcrm.doctype.erpnext_crm_settings.erpnext_crm_settings.create_customer_in_erpnext"
+		],
+		"after_insert": "crm.api.doc.on_doc_update",
+		"on_trash": "crm.api.doc.on_doc_update",
+	},
+	"CRM Task": {
+		"on_update": "crm.api.doc.on_doc_update",
+		"after_insert": "crm.api.doc.on_doc_update",
+		"on_trash": "crm.api.doc.on_doc_update",
+	},
 	"Contact": {
 		"validate": ["crm.api.contact.validate"],
 	},
@@ -153,37 +169,27 @@ doc_events = {
 		"validate": ["crm.api.whatsapp.validate"],
 		"on_update": ["crm.api.whatsapp.on_update"],
 	},
-	"CRM Deal": {
-		"on_update": [
-			"crm.fcrm.doctype.erpnext_crm_settings.erpnext_crm_settings.create_customer_in_erpnext"
-		],
+	"Avito Message": {
+		"validate": ["crm.api.avito.validate"],
+		"on_update": ["crm.api.avito.on_update"],
 	},
 	"User": {
 		"before_validate": ["crm.api.demo.validate_user"],
 		"validate_reset_password": ["crm.api.demo.validate_reset_password"],
-	},
+	}
 }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# "all": [
-# "crm.tasks.all"
-# ],
-# "daily": [
-# "crm.tasks.daily"
-# ],
-# "hourly": [
-# "crm.tasks.hourly"
-# ],
-# "weekly": [
-# "crm.tasks.weekly"
-# ],
-# "monthly": [
-# "crm.tasks.monthly"
-# ],
-# }
+scheduler_events = {
+	"hourly": [
+		"crm.api.communication.update_email_references"
+	]
+}
+
+# Workspace
+# ---------------
 
 # Testing
 # -------

@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="show" :options="{ size: '3xl' }">
+  <Dialog v-model="dialogShow" :options="{ size: '3xl' }">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
@@ -17,13 +17,16 @@
             >
               <EditIcon class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" class="w-7" @click="show = false">
+            <Button variant="ghost" class="w-7" @click="handleClose">
               <FeatherIcon name="x" class="h-4 w-4" />
             </Button>
           </div>
         </div>
         <div>
-          <FieldLayout v-if="tabs.data" :tabs="tabs.data" :data="lead" />
+          <FieldLayout v-if="tabs.data"
+          :tabs="tabs.data"
+          :data="lead"
+          @change="handleFieldChange" />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
         </div>
       </div>
@@ -39,19 +42,25 @@
       </div>
     </template>
   </Dialog>
+  <ConfirmCloseDialog 
+    v-model="showConfirmClose"
+    @confirm="confirmClose"
+    @cancel="cancelClose"
+  />
 </template>
 
 <script setup>
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
+import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { sessionStore } from '@/stores/session'
 import { isMobileView } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import { createResource } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
-import { computed, onMounted, ref, reactive, nextTick } from 'vue'
+import { computed, onMounted, ref, reactive, nextTick, watch } from 'vue'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -64,9 +73,13 @@ const { getLeadStatus, statusOptions } = statusesStore()
 const { updateOnboardingStep } = useOnboarding('frappecrm')
 
 const show = defineModel()
+const dialogShow = ref(false)
+const showConfirmClose = ref(false)
+
 const router = useRouter()
 const error = ref(null)
 const isLeadCreating = ref(false)
+const isDirty = ref(false)
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
@@ -186,13 +199,80 @@ function createNewLead() {
 }
 
 const showQuickEntryModal = defineModel('quickEntry')
+const shouldOpenLayoutSettings = ref(false)
 
 function openQuickEntryModal() {
-  showQuickEntryModal.value = true
-  nextTick(() => {
-    show.value = false
-  })
+  if (isDirty.value) {
+    shouldOpenLayoutSettings.value = true
+    showConfirmClose.value = true
+  } else {
+    showQuickEntryModal.value = true
+    nextTick(() => {
+      dialogShow.value = false
+      show.value = false
+    })
+  }
 }
+
+function handleFieldChange() {
+  isDirty.value = true
+}
+
+function handleClose() {
+  if (isDirty.value) {
+    showConfirmClose.value = true
+  } else {
+    dialogShow.value = false
+    show.value = false
+  }
+}
+
+function confirmClose() {
+  isDirty.value = false
+  dialogShow.value = false
+  show.value = false
+  
+  if (shouldOpenLayoutSettings.value) {
+    showQuickEntryModal.value = true
+    nextTick(() => {
+      shouldOpenLayoutSettings.value = false
+    })
+  }
+}
+
+function cancelClose() {
+  showConfirmClose.value = false
+  shouldOpenLayoutSettings.value = false
+}
+
+watch(
+  () => dialogShow.value,
+  (value) => {
+    if (value) return
+    if (isDirty.value) {
+      showConfirmClose.value = true
+      nextTick(() => {
+        dialogShow.value = true
+      })
+    } else {
+      show.value = false
+    }
+  }
+)
+
+watch(
+  () => show.value,
+  (value) => {
+    if (value === dialogShow.value) return
+    if (value) {
+      isDirty.value = false
+      dialogShow.value = true
+    } else {
+      dialogShow.value = true
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   Object.assign(lead, props.defaults)

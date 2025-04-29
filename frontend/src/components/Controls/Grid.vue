@@ -177,7 +177,7 @@
                       @change="(e) => fieldChange(e.target.checked, field, row)"
                     />
                   </div>
-                  <DatePicker
+                  <input
                     v-else-if="field.fieldtype === 'Date'"
                     :value="row[field.fieldname]"
                     icon-left=""
@@ -186,7 +186,7 @@
                     input-class="border-none text-sm text-ink-gray-8"
                     @change="(v) => fieldChange(v, field, row)"
                   />
-                  <DateTimePicker
+                  <input
                     v-else-if="field.fieldtype === 'Datetime'"
                     :value="row[field.fieldname]"
                     icon-left=""

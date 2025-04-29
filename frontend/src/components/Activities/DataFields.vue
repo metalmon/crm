@@ -7,7 +7,7 @@
       <Badge
         v-if="document.isDirty"
         class="ml-3"
-        :label="'Not Saved'"
+        :label="__('Not Saved')"
         theme="orange"
       />
     </div>
@@ -81,6 +81,15 @@ const { isManager } = usersStore()
 const showDataFieldsModal = ref(false)
 
 const { document } = useDocument(props.doctype, props.docname)
+
+
+// Watch for changes in the document
+watch(() => data.doc, (newDoc) => {
+  if (newDoc) {
+    // Force isDirty check by comparing with originalDoc
+    data.isDirty = JSON.stringify(data.doc) !== JSON.stringify(data.originalDoc)
+  }
+}, { deep: true })
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',

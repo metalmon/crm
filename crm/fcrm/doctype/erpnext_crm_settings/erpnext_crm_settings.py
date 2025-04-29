@@ -39,7 +39,6 @@ class ERPNextCRMSettings(Document):
 	def create_custom_fields(self):
 		if not self.is_erpnext_in_different_site:
 			from erpnext.crm.frappe_crm_api import create_custom_fields_for_frappe_crm
-
 			create_custom_fields_for_frappe_crm()
 		else:
 			self.create_custom_fields_in_remote_site()
@@ -53,7 +52,7 @@ class ERPNextCRMSettings(Document):
 				frappe.get_traceback(),
 				f"Error while creating custom field in the remote erpnext site: {self.erpnext_site_url}",
 			)
-			frappe.throw("Error while creating custom field in ERPNext, check error log for more details")
+			frappe.throw(_("Error while creating custom field in ERPNext, check error log for more details"))
 
 	def create_crm_form_script(self):
 		if not frappe.db.exists("CRM Form Script", "Create Quotation from CRM Deal"):
@@ -81,7 +80,6 @@ class ERPNextCRMSettings(Document):
 		except Exception:
 			frappe.log_error(frappe.get_traceback(), "Error while resetting form script")
 			return False
-
 
 def get_erpnext_site_client(erpnext_crm_settings):
 	site_url = erpnext_crm_settings.erpnext_site_url
@@ -218,7 +216,6 @@ def get_organization_address(organization):
 		"pincode": address.pincode,
 	}
 
-
 def create_customer_in_erpnext(doc, method):
 	erpnext_crm_settings = frappe.get_single("ERPNext CRM Settings")
 	if (
@@ -227,7 +224,6 @@ def create_customer_in_erpnext(doc, method):
 		or doc.status != erpnext_crm_settings.deal_status
 	):
 		return
-
 	contacts = get_contacts(doc)
 	address = get_organization_address(doc.organization)
 	customer = {
@@ -244,13 +240,11 @@ def create_customer_in_erpnext(doc, method):
 	}
 	if not erpnext_crm_settings.is_erpnext_in_different_site:
 		from erpnext.crm.frappe_crm_api import create_customer
-
 		create_customer(customer)
 	else:
 		create_customer_in_remote_site(customer, erpnext_crm_settings)
 
 	frappe.publish_realtime("crm_customer_created")
-
 
 def create_customer_in_remote_site(customer, erpnext_crm_settings):
 	client = get_erpnext_site_client(erpnext_crm_settings)

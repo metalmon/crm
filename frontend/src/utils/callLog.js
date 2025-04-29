@@ -1,5 +1,6 @@
 import { formatDate, timeAgo } from '@/utils'
 import { getMeta } from '@/stores/meta'
+import dayjs, { formatDateInUserTimezone, formatDateInSystemTimezone } from '@/utils/dayjs'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Call Log')
@@ -24,25 +25,36 @@ export function getCallLogDetail(row, log, columns = []) {
     }
   } else if (row === 'type') {
     return {
-      label: log.type,
+      label: __(log.type),
       icon: incoming ? 'phone-incoming' : 'phone-outgoing',
     }
   } else if (row === 'status') {
     return {
       label: statusLabelMap[log.status],
       color: statusColorMap[log.status],
+      value: log.status,
     }
   } else if (['modified', 'creation'].includes(row)) {
-    return {
-      label: formatDate(log[row]),
-      timeAgo: __(timeAgo(log[row])),
+    try {
+      return {
+        label: formatDate(log[row], undefined, false, false, true),
+        timeAgo: log[row] ? __(timeAgo(log[row])) : '',
+      }
+    } catch (e) {
+      console.warn('Error formatting system date:', e)
+      return { label: '', timeAgo: '' }
     }
   }
 
   let fieldType = columns?.find((col) => (col.key || col.value) == row)?.type
 
   if (fieldType && ['Date', 'Datetime'].includes(fieldType)) {
-    return formatDate(log[row], '', true, fieldType == 'Datetime')
+    try {
+      return formatDate(log[row], undefined, true, fieldType == 'Datetime', false)
+    } catch (e) {
+      console.warn('Error formatting field date:', e)
+      return ''
+    }
   }
 
   if (fieldType && fieldType == 'Currency') {
@@ -57,19 +69,23 @@ export function getCallLogDetail(row, log, columns = []) {
     return getFormattedPercent(row, log)
   }
 
+  if (row === 'telephony_medium') {
+    return __(log[row]);
+  }
+
   return log[row]
 }
 
 export const statusLabelMap = {
-  Completed: 'Completed',
-  Initiated: 'Initiated',
-  Busy: 'Declined',
-  Failed: 'Failed',
-  Queued: 'Queued',
-  Canceled: 'Canceled',
-  Ringing: 'Ringing',
-  'No Answer': 'Missed Call',
-  'In Progress': 'In Progress',
+  Completed: __('Completed'),
+  Initiated: __('Initiated'),
+  Busy: __('Declined'),
+  Failed: __('Failed'),
+  Queued: __('Queued'),
+  Canceled: __('Canceled'),
+  Ringing: __('Ringing'),
+  'No Answer': __('Missed Call'),
+  'In Progress': __('In Progress'),
 }
 
 export const statusColorMap = {

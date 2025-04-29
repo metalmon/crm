@@ -37,10 +37,10 @@
     <template #title="{ titleField, itemName }">
       <div class="flex items-center gap-2">
         <div v-if="titleField === 'status'">
-          <TaskStatusIcon :status="getRow(itemName, titleField).label" />
+          <TaskStatusIcon :status="getRow(itemName, titleField).value" />
         </div>
         <div v-else-if="titleField === 'priority'">
-          <TaskPriorityIcon :priority="getRow(itemName, titleField).label" />
+          <TaskPriorityIcon :priority="getRow(itemName, titleField).value" />
         </div>
         <div v-else-if="titleField === 'assigned_to'">
           <Avatar
@@ -76,11 +76,11 @@
         <div v-if="fieldName === 'status'">
           <TaskStatusIcon
             class="size-3"
-            :status="getRow(itemName, fieldName).label"
+            :status="getRow(itemName, fieldName).value"
           />
         </div>
         <div v-else-if="fieldName === 'priority'">
-          <TaskPriorityIcon :priority="getRow(itemName, fieldName).label" />
+          <TaskPriorityIcon :priority="getRow(itemName, fieldName).value" />
         </div>
         <div v-else-if="fieldName === 'assigned_to'">
           <Avatar
@@ -181,7 +181,7 @@
       class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
     >
       <Email2Icon class="h-10 w-10" />
-      <span>{{ __('No {0} Found', [__('Tasks')]) }}</span>
+      <span>{{ __('No Tasks Found') }}</span>
       <Button :label="__('Create')" @click="showTaskModal = true">
         <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
       </Button>
@@ -211,8 +211,10 @@ import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { formatDate, timeAgo } from '@/utils'
 import { Tooltip, Avatar, TextEditor, Dropdown, call } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import { translateTaskStatus } from '@/utils/taskStatusTranslations'
+import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Task')
@@ -222,12 +224,13 @@ const router = useRouter()
 
 const tasksListView = ref(null)
 
+const viewControls = ref(null)
+
 // tasks data is loaded in the ViewControls component
 const tasks = ref({})
 const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
-const viewControls = ref(null)
 
 function getRow(name, field) {
   function getValue(value) {
@@ -303,6 +306,17 @@ function parseRows(rows, columns = []) {
           label: task.assigned_to && getUser(task.assigned_to).full_name,
           ...(task.assigned_to && getUser(task.assigned_to)),
         }
+
+      } else if (row === 'status') {
+        _rows[row] = {
+          label: translateTaskStatus(task[row]),
+          value: task[row]
+        }
+      } else if (row === 'priority') {
+        _rows[row] = {
+          label: translateTaskPriority(task[row]),
+          value: task[row]
+        }
       }
     })
     return _rows
@@ -376,10 +390,28 @@ function actions(name) {
 }
 
 async function deletetask(name) {
-  await call('frappe.client.delete', {
-    doctype: 'CRM Task',
-    name,
-  })
+  try {
+    await call('frappe.client.delete', {
+      doctype: 'CRM Task',
+      name,
+    })
+    
+    // Dispatch a custom event to notify about the deletion
+    window.dispatchEvent(new CustomEvent('crm:doc_deleted', {
+      detail: {
+        doctype: 'CRM Task',
+        name: name
+      }
+    }))
+    
+    // Remove the task from the rows array
+    const index = rows.value.findIndex(row => row.name === name)
+    if (index !== -1) {
+      rows.value.splice(index, 1)
+    }
+  } catch (error) {
+    console.error('Error deleting task:', error)
+  }
 }
 
 function redirect(doctype, docname) {
@@ -390,5 +422,19 @@ function redirect(doctype, docname) {
     params = { dealId: docname }
   }
   router.push({ name: name, params: params })
+}
+
+async function updateTaskStatus(name, status) {
+  try {
+    await call('frappe.client.set_value', {
+      doctype: 'CRM Task',
+      name: name,
+      fieldname: 'status',
+      value: status
+    })
+    tasks.value.reload()
+  } catch (error) {
+    console.error('Error updating task status:', error)
+  }
 }
 </script>

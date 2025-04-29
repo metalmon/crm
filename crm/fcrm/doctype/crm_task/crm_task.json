@@ -32,7 +32,8 @@
    "fieldname": "priority",
    "fieldtype": "Select",
    "label": "Priority",
-   "options": "Low\nMedium\nHigh"
+   "options": "Low\nMedium\nHigh",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "start_date",
@@ -60,7 +61,8 @@
   {
    "fieldname": "due_date",
    "fieldtype": "Datetime",
-   "label": "Due Date"
+   "label": "Due Date",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "section_break_bzhd",

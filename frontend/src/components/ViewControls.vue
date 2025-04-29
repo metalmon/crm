@@ -64,8 +64,12 @@
   >
     <div class="flex flex-1 items-center overflow-hidden pl-1 gap-2">
       <FadedScrollableDiv
-        class="flex items-center gap-2 overflow-x-auto -ml-1"
+        class="flex items-center gap-2 overflow-x-auto -ml-1 scroll-smooth"
         orientation="horizontal"
+        @wheel.prevent="(e) => {
+          const container = e.currentTarget
+          container.scrollLeft += e.deltaY
+        }"
       >
         <Draggable
           class="flex gap-2"
@@ -131,10 +135,14 @@
       </Button>
     </div>
   </div>
-  <div v-else class="flex items-center justify-between gap-2 px-5 py-4">
+  <div v-else class="flex items-start justify-between gap-2 px-5 py-4">
     <FadedScrollableDiv
-      class="flex flex-1 items-center overflow-x-auto -ml-1"
+      class="flex flex-1 items-center overflow-x-auto -ml-1 -mt-1 scroll-smooth"
       orientation="horizontal"
+      @wheel.prevent="(e) => {
+        const container = e.currentTarget
+        container.scrollLeft += e.deltaY
+      }"
     >
       <div
         v-for="filter in quickFilterList"
@@ -148,7 +156,7 @@
       </div>
     </FadedScrollableDiv>
     <div class="-ml-2 h-[70%] border-l" />
-    <div class="flex items-center gap-2">
+    <div class="flex items-start gap-2 flex-shrink-0">
       <div
         v-if="viewUpdated && route.query.view && (!view.public || isManager())"
         class="flex items-center gap-2 border-r pr-2"
@@ -156,7 +164,7 @@
         <Button :label="__('Cancel')" @click="cancelChanges" />
         <Button :label="__('Save Changes')" @click="saveView" />
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-start gap-2">
         <Button :label="__('Refresh')" @click="reload()" :loading="isLoading">
           <template #icon>
             <RefreshIcon class="h-4 w-4" />
@@ -193,7 +201,7 @@
           @update="(isDefault) => updateColumns(isDefault)"
         />
         <Dropdown
-          v-if="route.params.viewType !== 'kanban' || isManager()"
+          v-if="isManager()"
           :options="[
             {
               group: __('Options'),
@@ -203,15 +211,18 @@
                   label: __('Export'),
                   icon: () => h(ExportIcon, { class: 'h-4 w-4' }),
                   onClick: () => (showExportDialog = true),
-                  condition: () =>
-                    !options.hideColumnsButton &&
-                    route.params.viewType !== 'kanban',
+                  condition: () => !options.hideColumnsButton,
                 },
                 {
                   label: __('Customize quick filters'),
                   icon: () => h(QuickFilterIcon, { class: 'h-4 w-4' }),
                   onClick: () => showCustomizeQuickFilter(),
-                  condition: () => isManager(),
+                },
+                {
+                  label: __('Reset column settings'),
+                  icon: () => h(RefreshIcon, { class: 'h-4 w-4' }),
+                  onClick: () => resetColumnSettings(),
+                  condition: () => route.params.viewType === 'kanban',
                 },
               ],
             },
@@ -281,6 +292,7 @@
           type="checkbox"
           :label="__('Export All {0} Record(s)', [list.data.total_count])"
           v-model="export_all"
+          :disabled="route.params.viewType === 'kanban'"
         />
       </div>
     </template>
@@ -328,6 +340,8 @@ import { useDebounceFn } from '@vueuse/core'
 import { isMobileView } from '@/composables/settings'
 import Draggable from 'vuedraggable'
 import _ from 'lodash'
+import { timespanOptions } from '@/utils/timeOptions'
+import { statusesStore } from '@/stores/statuses'
 
 const props = defineProps({
   doctype: {
@@ -431,8 +445,25 @@ const view = ref({
   public: false,
 })
 
-const pageLength = computed(() => list.value?.data?.page_length)
-const pageLengthCount = computed(() => list.value?.data?.page_length_count)
+const pageLength = computed(() => {
+  if (list.value?.params?.page_length) {
+    return list.value.params.page_length
+  }
+  if (route.query.page_length) {
+    return parseInt(route.query.page_length)
+  }
+  return 20
+})
+
+const pageLengthCount = computed(() => {
+  if (list.value?.params?.page_length_count) {
+    return list.value.params.page_length_count
+  }
+  if (route.query.page_length) {
+    return parseInt(route.query.page_length)
+  }
+  return 20
+})
 
 watch(loadMore, (value) => {
   if (!value) return
@@ -552,8 +583,44 @@ function updateSelections(selections) {
   selectedRows.value = Array.from(selections)
 }
 
+watch(() => route.params.viewType, (newType) => {
+  export_all.value = newType === 'kanban'
+})
+
+onMounted(() => {
+  export_all.value = route.params.viewType === 'kanban'
+})
+
 async function exportRows() {
-  let fields = JSON.stringify(list.value.data.columns.map((f) => f.key))
+  let fields = []
+  if (route.params.viewType === 'kanban') {
+    // Get fields from kanban_fields
+    let kanbanFields = list.value.data.kanban_fields
+    if (typeof kanbanFields === 'string') {
+      kanbanFields = JSON.parse(kanbanFields)
+    }
+    fields = kanbanFields || []
+
+    // Ensure we have the column field (status) if it's not already included
+    if (view.value.column_field && !fields.includes(view.value.column_field)) {
+      fields.push(view.value.column_field)
+    }
+
+    // Ensure we have the name field if it's not already included
+    if (!fields.includes('name')) {
+      fields.unshift('name')
+    }
+  } else {
+    // For list view, get fields from columns
+    fields = list.value.data.columns
+      .filter(f => f && f.key)
+      .map(f => f.key)
+  }
+
+  // Ensure we have at least one field
+  if (!fields.length) {
+    fields = ['name']
+  }
 
   let filters = JSON.stringify({
     ...props.filters,
@@ -576,7 +643,7 @@ async function exportRows() {
   window.location.href = url
 
   showExportDialog.value = false
-  export_all.value = false
+  export_all.value = route.params.viewType === 'kanban'
   export_type.value = 'Excel'
 }
 
@@ -590,7 +657,7 @@ if (allowedViews.includes('list')) {
     icon: markRaw(ListIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name })
+      router.push({ name: route.name, params: { viewType: 'list' }, replace: true })
     },
   })
 }
@@ -601,7 +668,7 @@ if (allowedViews.includes('kanban')) {
     icon: markRaw(KanbanIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'kanban' } })
+      router.push({ name: route.name, params: { viewType: 'kanban' }, replace: true })
     },
   })
 }
@@ -612,7 +679,7 @@ if (allowedViews.includes('group_by')) {
     icon: markRaw(GroupByIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'group_by' } })
+      router.push({ name: route.name, params: { viewType: 'group_by' }, replace: true })
     },
   })
 }
@@ -834,10 +901,15 @@ function applyQuickFilter(filter, value) {
   let filters = { ...list.value.params.filters }
   let field = filter.fieldname
   if (value) {
-    if (
-      ['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.fieldtype)
-    ) {
+    if (['Check', 'Select', 'Link'].includes(filter.fieldtype)) {
       filters[field] = value
+    } else if (['Date', 'Datetime'].includes(filter.fieldtype)) {
+      // Handle timespan filters for date fields
+      if (timespanOptions.find(opt => opt.value === value)) {
+        filters[field] = ['timespan', value]
+      } else {
+        filters[field] = value
+      }
     } else {
       filters[field] = ['LIKE', `%${value}%`]
     }
@@ -928,7 +1000,125 @@ function updateColumns(obj) {
   }
 }
 
+async function resetColumnSettings() {
+  if (!defaultParams.value) {
+    defaultParams.value = getParams()
+  }
+  
+  // Get the current column field
+  const columnField = list.value.params.column_field || defaultParams.value.column_field
+  
+  // Show a loading indicator
+  createToast({
+    title: __('Resetting columns...'),
+    text: __('Fetching latest status values'),
+    icon: 'refresh-cw',
+    position: 'bottom-right',
+    iconClasses: 'animate-spin',
+    duration: 3000
+  })
+  
+  try {
+    // Reset the columns via API call
+    const newColumns = await call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
+      doctype: props.doctype,
+      column_field: columnField
+    })
+
+    // Clear local columns data and force reload
+    await updateKanbanSettings({
+      kanban_columns: '',
+      _force_reload: true,
+      column_field: columnField
+    })
+    
+    // Reload the statuses store
+    const store = statusesStore()
+    if (props.doctype === 'CRM Deal') {
+      await store.dealStatuses.reload()
+    } else if (props.doctype === 'CRM Lead') {
+      await store.leadStatuses.reload()
+    }
+    
+    // Show success message
+    createToast({
+      title: __('Success'),
+      text: __('Column settings have been reset'),
+      icon: 'check',
+      position: 'bottom-right',
+    })
+  } catch (error) {
+    // Show error message
+    createToast({
+      title: __('Error'),
+      text: __('Failed to reset column settings: ') + (error.message || __('Unknown error')),
+      icon: 'alert-triangle',
+      position: 'bottom-right',
+    })
+  }
+}
+
+function applyFilter({ event, idx, column, item, firstColumn }) {
+  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
+  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
+  if (idx === 1 && firstColumn.key == '_liked_by') return
+
+  event.stopPropagation()
+  event.preventDefault()
+
+  let filters = { ...list.value.params.filters }
+
+  let value = item
+  // For status field, use the original value (name) instead of translated label
+  if (column.key === 'status' && typeof item === 'object') {
+    value = item.name || item.value || item
+  } else {
+    value = item.name || item.label || item
+  }
+
+  if (value) {
+    filters[column.key] = value
+  } else {
+    delete filters[column.key]
+  }
+
+  if (column.key == '_assign') {
+    if (item.length > 1) {
+      let target = event.target.closest('.user-avatar')
+      if (target) {
+        let name = target.getAttribute('data-name')
+        filters['_assign'] = ['LIKE', `%${name}%`]
+      }
+    } else {
+      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
+    }
+  }
+  updateFilter(filters)
+}
+
+function applyLikeFilter() {
+  let filters = { ...list.value.params.filters }
+  if (!filters._liked_by) {
+    filters['_liked_by'] = ['LIKE', '%@me%']
+  } else {
+    delete filters['_liked_by']
+  }
+  updateFilter(filters)
+}
+
+function likeDoc({ name, liked }) {
+  createResource({
+    url: 'frappe.desk.like.toggle_like',
+    params: { doctype: props.doctype, name: name, add: liked ? 'No' : 'Yes' },
+    auto: true,
+    onSuccess: () => reload(),
+  })
+}
+
 async function updateKanbanSettings(data) {
+  // Special handling for column reset requests
+  const isResetRequest = data._force_reload && data.kanban_columns === '';
+  
   if (data.item && data.to) {
     await call('frappe.client.set_value', {
       doctype: props.doctype,
@@ -944,10 +1134,24 @@ async function updateKanbanSettings(data) {
     defaultParams.value = getParams()
   }
   list.value.params = defaultParams.value
-  if (data.kanban_columns) {
-    list.value.params.kanban_columns = data.kanban_columns
-    view.value.kanban_columns = data.kanban_columns
+  
+  if (isResetRequest) {
+    // For reset requests, explicitly clear columns and force a sync 
+    list.value.params.kanban_columns = ''
+    view.value.kanban_columns = ''
+    // Call backend to sync the default columns
+    await call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
+      doctype: props.doctype,
+      column_field: data.column_field || view.value.column_field
+    })
+  } else {
+    // Normal updates
+    if (data.kanban_columns) {
+      list.value.params.kanban_columns = data.kanban_columns
+      view.value.kanban_columns = data.kanban_columns
+    }
   }
+  
   if (data.kanban_fields) {
     list.value.params.kanban_fields = data.kanban_fields
     view.value.kanban_fields = data.kanban_fields
@@ -967,7 +1171,7 @@ async function updateKanbanSettings(data) {
 
   if (!route.query.view) {
     createOrUpdateStandardView()
-  } else if (!data.column_field) {
+  } else if (!data.column_field && !isResetRequest) {
     if (isDirty) {
       $dialog({
         title: __('Unsaved Changes'),
@@ -1161,9 +1365,7 @@ const viewActions = (view) => {
           onClick: () =>
             $dialog({
               title: __('Delete View'),
-              message: __('Are you sure you want to delete "{0}" view?', [
-                _view.label,
-              ]),
+              message: __('Are you sure you want to delete {0} view?', [_view.label]),
               variant: 'danger',
               actions: [
                 {
@@ -1285,57 +1487,6 @@ function saveView() {
   showViewModal.value = true
 }
 
-function applyFilter({ event, idx, column, item, firstColumn }) {
-  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
-  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
-  if (idx === 1 && firstColumn.key == '_liked_by') return
-
-  event.stopPropagation()
-  event.preventDefault()
-
-  let filters = { ...list.value.params.filters }
-
-  let value = item.name || item.label || item
-
-  if (value) {
-    filters[column.key] = value
-  } else {
-    delete filters[column.key]
-  }
-
-  if (column.key == '_assign') {
-    if (item.length > 1) {
-      let target = event.target.closest('.user-avatar')
-      if (target) {
-        let name = target.getAttribute('data-name')
-        filters['_assign'] = ['LIKE', `%${name}%`]
-      }
-    } else {
-      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
-    }
-  }
-  updateFilter(filters)
-}
-
-function applyLikeFilter() {
-  let filters = { ...list.value.params.filters }
-  if (!filters._liked_by) {
-    filters['_liked_by'] = ['LIKE', '%@me%']
-  } else {
-    delete filters['_liked_by']
-  }
-  updateFilter(filters)
-}
-
-function likeDoc({ name, liked }) {
-  createResource({
-    url: 'frappe.desk.like.toggle_like',
-    params: { doctype: props.doctype, name: name, add: liked ? 'No' : 'Yes' },
-    auto: true,
-    onSuccess: () => reload(),
-  })
-}
-
 defineExpose({
   applyFilter,
   applyLikeFilter,
@@ -1345,6 +1496,7 @@ defineExpose({
   viewActions,
   viewsDropdownOptions,
   currentView,
+  resetColumnSettings,
   updateSelections,
 })
 

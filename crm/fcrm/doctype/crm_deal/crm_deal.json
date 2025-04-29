@@ -14,6 +14,7 @@
   "probability",
   "column_break_ijan",
   "status",
+  "sales_funnel",
   "close_date",
   "deal_owner",
   "contacts_tab",
@@ -222,12 +223,14 @@
    "fetch_from": ".territory",
    "fieldname": "territory",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Territory",
    "options": "CRM Territory"
   },
   {
    "fieldname": "source",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Source",
    "options": "CRM Lead Source"
   },
@@ -295,6 +298,7 @@
   {
    "fieldname": "industry",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Industry",
    "options": "CRM Industry"
   },

@@ -21,17 +21,22 @@ export default defineConfig({
     vue(),
     vueJsx(),
     VitePWA({
-      registerType: 'autoUpdate',
-      devOptions: {
-        enabled: true,
-      },
+      registerType: "autoUpdate",
+      strategies: "injectManifest",
+      srcDir: 'public',
+      filename: 'sw.js',
+      injectRegister: null,
+      outDir: "../crm/public/crm",
       manifest: {
-        display: 'standalone',
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',
         start_url: '/crm',
-        description:
-          'Modern & 100% Open-source CRM tool to supercharge your sales operations',
+        display: 'standalone',
+        background_color: '#0f0f0f',
+        theme_color: '#0f0f0f',
+        description: 'Modern & 100% Open-source CRM tool to supercharge your sales operations',
+        scope: '/crm',
+        categories: ['productivity', 'business'],
         icons: [
           {
             src: '/assets/crm/manifest/manifest-icon-192.maskable.png',
@@ -40,6 +45,12 @@ export default defineConfig({
             purpose: 'any',
           },
           {
+            src: '/assets/crm/manifest/manifest-icon-512.maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
             src: '/assets/crm/manifest/manifest-icon-192.maskable.png',
             sizes: '192x192',
             type: 'image/png',
@@ -49,16 +60,17 @@ export default defineConfig({
             src: '/assets/crm/manifest/manifest-icon-512.maskable.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any',
-          },
-          {
-            src: '/assets/crm/manifest/manifest-icon-512.maskable.png',
-            sizes: '512x512',
-            type: 'image/png',
             purpose: 'maskable',
-          },
+          }
         ],
+        id: 'crm'
       },
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      manifestFilename: 'manifest.json'
     }),
   ],
   resolve: {

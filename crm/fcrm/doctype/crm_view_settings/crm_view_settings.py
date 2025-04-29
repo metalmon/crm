@@ -26,7 +26,7 @@ def create(view):
 	view.rows = remove_duplicates(view.rows)
 
 	if not view.kanban_columns and view.type == "kanban":
-		view.kanban_columns = sync_default_columns(view)
+		view.kanban_columns = sync_default_columns(view.doctype, view.column_field)
 	elif not view.columns:
 		view.columns = sync_default_columns(view)
 
@@ -135,7 +135,7 @@ def sync_default_columns(view):
 			columns = frappe.get_all(
 				field_meta.options,
 				fields=["name"],
-				order_by="modified asc",
+				order_by="position asc",
 			)
 		elif field_meta.fieldtype == "Select":
 			columns = [{"name": option} for option in field_meta.options.split("\n")]
@@ -244,3 +244,42 @@ def get_route_name(doctype):
 		doctype += "s"
 
 	return doctype
+
+
+@frappe.whitelist()
+def reset_kanban_columns(doctype, column_field):
+	"""Reset and sync default columns for kanban view"""
+	# Create mock view object for getting fresh columns
+	mock_view = frappe._dict({
+		"doctype": doctype,
+		"type": "kanban",
+		"column_field": column_field
+	})
+	
+	# Get fresh columns from the directory - using the appropriate function
+	field_meta = frappe.get_meta(doctype).get_field(column_field)
+	new_columns = []
+	
+	if field_meta.fieldtype == "Link":
+		new_columns = frappe.get_all(
+			field_meta.options,
+			fields=["name"],
+			order_by="position asc",
+		)
+	elif field_meta.fieldtype == "Select":
+		new_columns = [{"name": option} for option in field_meta.options.split("\n")]
+	
+	# Update the standard view with these fresh columns
+	filters = {
+		"dt": doctype, 
+		"type": "kanban", 
+		"is_standard": 1,
+		"user": frappe.session.user
+	}
+	
+	if frappe.db.exists("CRM View Settings", filters):
+		doc = frappe.get_doc("CRM View Settings", filters)
+		doc.kanban_columns = json.dumps(new_columns)
+		doc.save()
+		
+	return new_columns

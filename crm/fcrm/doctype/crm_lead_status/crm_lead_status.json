@@ -8,7 +8,9 @@
  "field_order": [
   "lead_status",
   "color",
-  "position"
+  "position",
+  "is_lost",
+  "is_postponed"
  ],
  "fields": [
   {
@@ -33,6 +35,20 @@
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Position"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_lost",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Lost/Junk"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_postponed",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Postponed"
   }
  ],
  "index_web_pages_for_search": 1,
