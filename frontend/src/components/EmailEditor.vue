@@ -5,6 +5,7 @@
       'prose-sm max-w-none',
       editable && 'min-h-[7rem]',
       '[&_p.reply-to-content]:hidden',
+      'dark-scrollbar'
     ]"
     :content="content"
     @change="editable ? (content = $event) : null"
@@ -91,7 +92,7 @@
       <EditorContent
         :class="[
           editable &&
-            'sm:mx-10 mx-4 max-h-[35vh] overflow-y-auto border-t py-3',
+            'sm:mx-10 mx-4 max-h-[35vh] overflow-y-auto dark-scrollbar border-t py-3',
         ]"
         :editor="editor"
       />
@@ -150,7 +151,7 @@
               @click="showEmailTemplateSelectorModal = true"
             >
               <template #icon>
-                <Email2Icon class="h-4" />
+                <CommentIcon class="h-4" />
               </template>
             </Button>
           </div>
@@ -176,7 +177,8 @@
 <script setup>
 import IconPicker from '@/components/IconPicker.vue'
 import SmileIcon from '@/components/Icons/SmileIcon.vue'
-import Email2Icon from '@/components/Icons/Email2Icon.vue'
+import CommentIcon from '@/components/Icons/CommentIcon.vue'
+import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import AttachmentItem from '@/components/AttachmentItem.vue'
 import MultiSelectEmailInput from '@/components/Controls/MultiSelectEmailInput.vue'
@@ -263,6 +265,15 @@ function removeAttachment(attachment) {
 
 const showEmailTemplateSelectorModal = ref(false)
 
+async function addSignature(editor) {
+  const signature = await call('crm.api.get_user_signature')
+  if (signature) {
+    let signatureHtml = signature.replace(/\n/g, '<br>')
+    let currentContent = editor.getHTML()
+    editor.commands.setContent(currentContent + signatureHtml)
+  }
+}
+
 async function applyEmailTemplate(template) {
   let data = await call(
     'frappe.email.doctype.email_template.email_template.get_email_template',
@@ -277,8 +288,9 @@ async function applyEmailTemplate(template) {
   }
 
   if (template.response) {
-    content.value = data.message
     editor.value.commands.setContent(data.message)
+    await addSignature(editor.value)
+    content.value = editor.value.getHTML()
   }
   showEmailTemplateSelectorModal.value = false
   capture('email_template_applied', { doctype: props.doctype })
@@ -309,6 +321,7 @@ defineExpose({
   toEmails,
   ccEmails,
   bccEmails,
+  addSignature,
 })
 
 const textEditorMenuButtons = [

@@ -13,51 +13,51 @@ class CRMCallLog(Document):
 	def default_list_data():
 		columns = [
 			{
-				"label": "Caller",
+				"label": frappe._("Caller"),
 				"type": "Link",
 				"key": "caller",
 				"options": "User",
 				"width": "9rem",
 			},
 			{
-				"label": "Receiver",
+				"label": frappe._("Receiver"),
 				"type": "Link",
 				"key": "receiver",
 				"options": "User",
 				"width": "9rem",
 			},
 			{
-				"label": "Type",
+				"label": frappe._("Type"),
 				"type": "Select",
 				"key": "type",
 				"width": "9rem",
 			},
 			{
-				"label": "Status",
+				"label": frappe._("Status"),
 				"type": "Select",
 				"key": "status",
 				"width": "9rem",
 			},
 			{
-				"label": "Duration",
+				"label": frappe._("Duration"),
 				"type": "Duration",
 				"key": "duration",
 				"width": "6rem",
 			},
 			{
-				"label": "From (number)",
+				"label": frappe._("From (number)"),
 				"type": "Data",
 				"key": "from",
 				"width": "9rem",
 			},
 			{
-				"label": "To (number)",
+				"label": frappe._("To (number)"),
 				"type": "Data",
 				"key": "to",
 				"width": "9rem",
 			},
 			{
-				"label": "Created On",
+				"label": frappe._("Created On"),
 				"type": "Datetime",
 				"key": "creation",
 				"width": "8rem",
@@ -192,7 +192,7 @@ def get_call_log(name):
 @frappe.whitelist()
 def create_lead_from_call_log(call_log):
 	lead = frappe.new_doc("CRM Lead")
-	lead.first_name = "Lead from call " + call_log.get("from")
+	lead.first_name = frappe._("Lead from call ") + call_log.get("from")
 	lead.mobile_no = call_log.get("from")
 	lead.lead_owner = frappe.session.user
 	lead.save(ignore_permissions=True)

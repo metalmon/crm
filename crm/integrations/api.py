@@ -7,12 +7,24 @@ from crm.utils import are_same_phone_number, parse_phone_number
 
 @frappe.whitelist()
 def is_call_integration_enabled():
-	twilio_enabled = frappe.db.get_single_value("CRM Twilio Settings", "enabled")
-	exotel_enabled = frappe.db.get_single_value("CRM Exotel Settings", "enabled")
+	twilio_enabled_val = frappe.db.get_single_value("CRM Twilio Settings", "enabled")
+	exotel_enabled_val = frappe.db.get_single_value("CRM Exotel Settings", "enabled")
+	beeline_enabled_val = 0 # Default to 0 (False)
 
+	# Check for Beeline only if the app is installed
+	if "beeline" in frappe.get_installed_apps():
+		# Use try-except in case the document or field doesn't exist
+		try:
+			# Checkbox field returns 1 (True) or 0 (False)
+			beeline_enabled_val = frappe.db.get_single_value("Beeline Settings", "enabled")
+		except Exception as e:
+			beeline_enabled_val = 0 # Ensure it's 0 on error
+
+	# Explicitly convert 1/0 or truthy/falsy values to True/False
 	return {
-		"twilio_enabled": twilio_enabled,
-		"exotel_enabled": exotel_enabled,
+		"twilio_enabled": bool(twilio_enabled_val),
+		"exotel_enabled": bool(exotel_enabled_val),
+		"beeline_enabled": bool(beeline_enabled_val),
 		"default_calling_medium": get_user_default_calling_medium(),
 	}
 

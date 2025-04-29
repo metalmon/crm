@@ -3,6 +3,24 @@ import { userResource } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { viewsStore } from '@/stores/views'
 
+// Define default view types for specific doctypes
+const defaultViewTypes = {
+  'CRM Lead': 'kanban',
+  'CRM Deal': 'kanban',
+  'CRM Task': 'kanban'
+}
+
+// Helper function to get default view type
+function getDefaultViewType(routeName) {
+  const doctypeMap = {
+    'Leads': 'CRM Lead',
+    'Deals': 'CRM Deal',
+    'Tasks': 'CRM Task'
+  }
+  const doctype = doctypeMap[routeName]
+  return defaultViewTypes[doctype] || 'list'
+}
+
 const routes = [
   {
     path: '/',
@@ -18,6 +36,7 @@ const routes = [
     path: '/leads/view/:viewType?',
     name: 'Leads',
     component: () => import('@/pages/Leads.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
     path: '/leads/:leadId',
@@ -30,6 +49,7 @@ const routes = [
     path: '/deals/view/:viewType?',
     name: 'Deals',
     component: () => import('@/pages/Deals.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
     path: '/deals/:dealId',
@@ -54,6 +74,7 @@ const routes = [
     path: '/contacts/view/:viewType?',
     name: 'Contacts',
     component: () => import('@/pages/Contacts.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
     path: '/contacts/:contactId',
@@ -66,6 +87,7 @@ const routes = [
     path: '/organizations/view/:viewType?',
     name: 'Organizations',
     component: () => import('@/pages/Organizations.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
     path: '/organizations/:organizationId',
@@ -78,12 +100,14 @@ const routes = [
     path: '/call-logs/view/:viewType?',
     name: 'Call Logs',
     component: () => import('@/pages/CallLogs.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
     alias: '/email-templates',
     path: '/email-templates/view/:viewType?',
     name: 'Email Templates',
     component: () => import('@/pages/EmailTemplates.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
     path: '/email-templates/:emailTemplateId',
@@ -107,9 +131,29 @@ const handleMobileView = (componentName) => {
   return window.innerWidth < 768 ? `Mobile${componentName}` : componentName
 }
 
+const scrollBehavior = (to, from, savedPosition) => {
+  if (to.name === from.name) {
+    to.meta?.scrollPos && (to.meta.scrollPos.top = 0)
+    return { left: 0, top: 0 }
+  }
+  const scrollpos = to.meta?.scrollPos || { left: 0, top: 0 }
+
+  if (scrollpos.top > 0) {
+    setTimeout(() => {
+      let el = document.querySelector('#list-rows')
+      el.scrollTo({
+        top: scrollpos.top,
+        left: scrollpos.left,
+        behavior: 'smooth',
+      })
+    }, 300)
+  }
+}
+
 let router = createRouter({
   history: createWebHistory('/crm'),
   routes,
+  scrollBehavior,
 })
 
 router.beforeEach(async (to, from, next) => {
@@ -117,13 +161,37 @@ router.beforeEach(async (to, from, next) => {
 
   isLoggedIn && (await userResource.promise)
 
+  if (from.meta?.scrollPos) {
+    from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop
+  }
+
+  // Helper function to check if we should apply default view type
+  const shouldApplyDefaultView = (to) => {
+    // Check if this is a route that should have default kanban
+    if (!['Leads', 'Deals', 'Tasks'].includes(to.name)) return false
+    
+    // Don't apply if there's an explicit view being loaded
+    if (to.query.view) return false
+
+    // Check if the URL ends with /view (empty viewType)
+    const isEmptyViewType = to.params.viewType === ''
+    
+    // Check if this is a direct navigation to the base route
+    const isBaseRoute = !to.params.viewType
+
+    // Apply default view type if:
+    // 1. URL ends with /view (empty viewType), or
+    // 2. No viewType in URL (base route)
+    return isEmptyViewType || isBaseRoute
+  }
+
   if (to.name === 'Home' && isLoggedIn) {
     const { views, getDefaultView } = viewsStore()
     await views.promise
 
     let defaultView = getDefaultView()
     if (!defaultView) {
-      next({ name: 'Leads' })
+      next({ name: 'Leads', params: { viewType: getDefaultViewType('Leads') } })
       return
     }
 
@@ -133,7 +201,8 @@ router.beforeEach(async (to, from, next) => {
     if (name && !is_standard) {
       next({ name: route_name, params: { viewType: type }, query: { view: name } })
     } else {
-      next({ name: route_name, params: { viewType: type } })
+      // For standard views without explicit type, use our default
+      next({ name: route_name, params: { viewType: type || getDefaultViewType(route_name) } })
     }
   } else if (!isLoggedIn) {
     window.location.href = '/login?redirect-to=/crm'
@@ -144,6 +213,16 @@ router.beforeEach(async (to, from, next) => {
     const activeTab = localStorage.getItem(storageKey) || 'activity'
     const hash = '#' + activeTab
     next({ ...to, hash })
+  } else if (shouldApplyDefaultView(to)) {
+    // Apply default view type
+    next({ 
+      ...to, 
+      params: { 
+        ...to.params, 
+        viewType: getDefaultViewType(to.name)
+      },
+      replace: true // Replace the current history entry instead of adding a new one
+    })
   } else {
     next()
   }

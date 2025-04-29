@@ -88,28 +88,57 @@
                   <ErrorMessage :message="__(error)" />
                 </div>
               </div>
-              <div class="flex gap-1.5">
-                <Button
-                  v-if="contact.data.actual_mobile_no"
-                  :label="__('Make Call')"
-                  size="sm"
-                  @click="
-                    callEnabled && makeCall(contact.data.actual_mobile_no)
-                  "
-                >
-                  <template #prefix>
-                    <PhoneIcon class="h-4 w-4" />
-                  </template>
-                </Button>
+              <div class="flex p-3">
+                <div class="flex gap-1.5">
+                  <Button
+                    v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
+                    size="sm"
+                    class="dark:text-white dark:hover:bg-gray-700"
+                    @click="makeCall(contact.data.actual_mobile_no)"
+                  >
+                    <template #prefix>
+                      <PhoneIcon class="h-4 w-4" />
+                    </template>
+                    {{ __('Make Call') }}
+                  </Button>
+
+                  <Button
+                    v-if="contact.data.actual_mobile_no && !ipTelephonyEnabled"
+                    size="sm"
+                    class="dark:text-white dark:hover:bg-gray-700"
+                    @click="trackPhoneActivities('phone')"
+                  >
+                    <template #prefix>
+                      <PhoneIcon class="h-4 w-4" />
+                    </template>
+                    {{ __('Make Call') }}
+                  </Button>
+
+                  <Button
+                    v-if="contact.data.actual_mobile_no"
+                    size="sm"
+                    class="dark:text-white dark:hover:bg-gray-700"
+                    @click="trackPhoneActivities('whatsapp')"
+                  >
+                    <template #prefix>
+                      <WhatsAppIcon class="h-4 w-4" />
+                    </template>
+                    {{ __('Chat') }}
+                  </Button>
+                </div>
+
                 <Button
                   :label="__('Delete')"
+                  variant="ghost"
                   theme="red"
                   size="sm"
+                  class="dark:text-red-400 dark:hover:bg-gray-700"
                   @click="deleteContact"
                 >
                   <template #prefix>
                     <FeatherIcon name="trash-2" class="h-4 w-4" />
                   </template>
+                  {{ __('Delete') }}  
                 </Button>
               </div>
             </div>
@@ -162,7 +191,7 @@
         >
           <div class="flex flex-col items-center justify-center space-y-3">
             <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
+            <div>{{ __('No Deals Found') }}</div>
           </div>
         </div>
       </template>
@@ -185,6 +214,7 @@ import LayoutHeader from '@/components/LayoutHeader.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
+import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
 import AddressModal from '@/components/Modals/AddressModal.vue'
 import { formatDate, timeAgo, createToast } from '@/utils'
@@ -195,7 +225,7 @@ import { globalStore } from '@/stores/global.js'
 import { usersStore } from '@/stores/users.js'
 import { organizationsStore } from '@/stores/organizations.js'
 import { statusesStore } from '@/stores/statuses'
-import { callEnabled } from '@/composables/settings'
+import { ipTelephonyEnabled } from '@/composables/settings'
 import {
   Breadcrumbs,
   Avatar,
@@ -208,6 +238,7 @@ import {
 } from 'frappe-ui'
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { normalizePhoneNumber } from '@/utils/communicationUtils'
 import { errorMessage as _errorMessage } from '../utils'
 
 const { brand } = getSettings()
@@ -324,12 +355,12 @@ async function deleteContact() {
         label: __('Delete'),
         theme: 'red',
         variant: 'solid',
-        async onClick(close) {
+        async onClick(context) {
           await call('frappe.client.delete', {
             doctype: 'Contact',
             name: props.contactId,
           })
-          close()
+          context.close()
           router.push({ name: 'Contacts' })
         },
       },
@@ -524,7 +555,7 @@ async function setAsPrimary(field, value) {
   if (d) {
     contact.reload()
     createToast({
-      title: 'Contact updated',
+      title: __('Contact updated'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
@@ -541,7 +572,7 @@ async function createNew(field, value) {
   if (d) {
     contact.reload()
     createToast({
-      title: 'Contact updated',
+      title: __('Contact updated'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
@@ -558,7 +589,7 @@ async function editOption(doctype, name, fieldname, value) {
   if (d) {
     contact.reload()
     createToast({
-      title: 'Contact updated',
+      title: __('Contact updated'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
@@ -572,7 +603,7 @@ async function deleteOption(doctype, name) {
   })
   await contact.reload()
   createToast({
-    title: 'Contact updated',
+    title: __('Contact updated'),
     icon: 'check',
     iconClasses: 'text-ink-green-3',
   })
@@ -586,7 +617,7 @@ async function updateField(fieldname, value) {
     value,
   })
   createToast({
-    title: 'Contact updated',
+    title: __('Contact updated'),
     icon: 'check',
     iconClasses: 'text-ink-green-3',
   })
@@ -661,4 +692,18 @@ const dealColumns = [
     width: '8rem',
   },
 ]
+
+function trackPhoneActivities(type = 'phone') {
+  if (!contact.data.actual_mobile_no) {
+    errorMessage(__('No phone number set'))
+    return
+  }
+
+  const formattedNumber = normalizePhoneNumber(contact.data.actual_mobile_no)
+  if (type === 'phone') {
+    window.location.href = `tel:${formattedNumber}`
+  } else {
+    window.open(`https://wa.me/${formattedNumber}`, '_blank')
+  }
+}
 </script>

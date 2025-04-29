@@ -1,20 +1,35 @@
 import frappe
+import hashlib
+import json
 from bs4 import BeautifulSoup
-from frappe.config import get_modules_from_all_apps_for_user
 from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_all_translations
 from frappe.utils import cstr, split_emails, validate_email_address
+from frappe.utils.modules import get_modules_from_all_apps_for_user
 from frappe.utils.telemetry import POSTHOG_HOST_FIELD, POSTHOG_PROJECT_FIELD
 
 
 @frappe.whitelist(allow_guest=True)
 def get_translations():
-	if frappe.session.user != "Guest":
-		language = frappe.db.get_value("User", frappe.session.user, "language")
-	else:
-		language = frappe.db.get_single_value("System Settings", "language")
+	try:
+		if frappe.session.user != "Guest":
+			language = frappe.db.get_value("User", frappe.session.user, "language")
+		else:
+			language = frappe.db.get_single_value("System Settings", "language")
 
-	return get_all_translations(language)
+		translations = get_all_translations(language)
+		
+		# Generate hash for translations to detect changes
+		translations_json = json.dumps(translations, sort_keys=True)
+		translations_hash = hashlib.md5(translations_json.encode()).hexdigest()
+		
+		return {
+			"translations": translations,
+			"hash": translations_hash
+		}
+	except Exception as e:
+		frappe.log_error("Translation Error", str(e))
+		return {"translations": {}, "hash": ""}
 
 
 @frappe.whitelist()
@@ -44,6 +59,12 @@ def get_user_signature():
 	_signature = None
 	if html_signature:
 		_signature = html_signature.renderContents()
+		if isinstance(_signature, bytes):
+			_signature = BeautifulSoup(_signature.decode('utf-8'), "html.parser")
+		# Replace paragraphs with plain text and newlines for better line spacing
+		for p in _signature.find_all('p'):
+			p.replace_with(p.get_text() + '\n')
+		signature = _signature.get_text()
 	content = ""
 	if cstr(_signature) or signature:
 		content = f'<br><p class="signature">{signature}</p>'
@@ -100,8 +121,13 @@ def accept_invitation(key: str | None = None):
 @frappe.whitelist()
 def invite_by_email(emails: str, role: str):
 	frappe.only_for("Sales Manager")
+
+	if role not in ["Sales Manager", "Sales User"]:
+		frappe.throw("Cannot invite for this role")
+
 	if not emails:
 		return
+
 	email_string = validate_email_address(emails, throw=False)
 	email_list = split_emails(email_string)
 	if not email_list:

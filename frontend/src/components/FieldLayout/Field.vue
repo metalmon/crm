@@ -29,7 +29,7 @@
       type="select"
       class="form-control"
       :class="field.prefix ? 'prefix' : ''"
-      :options="field.options"
+      :options="translatedOptions"
       v-model="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
     >
@@ -121,21 +121,19 @@
         </Tooltip>
       </template>
     </Link>
-    <DateTimePicker
+    <input
       v-else-if="field.fieldtype === 'Datetime'"
+      type="datetime-local"
       v-model="data[field.fieldname]"
-      icon-left=""
-      :formatter="(date) => getFormat(date, '', true, true)"
       :placeholder="getPlaceholder(field)"
-      input-class="border-none"
+      class="w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
     />
-    <DatePicker
+    <input
       v-else-if="field.fieldtype === 'Date'"
-      icon-left=""
+      type="date"
       v-model="data[field.fieldname]"
-      :formatter="(date) => getFormat(date, '', true)"
       :placeholder="getPlaceholder(field)"
-      input-class="border-none"
+      class="w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
     />
     <FormControl
       v-else-if="
@@ -175,6 +173,15 @@
       :disabled="Boolean(field.read_only)"
       @change="data[field.fieldname] = flt($event.target.value)"
     />
+    <div v-else-if="field.fieldtype === 'Attach Image'" class="w-full">
+        <SingleImageUploader 
+            :image-url="data[field.fieldname]"
+            :doctype="doctype"
+            :docname="data.name"  
+            @upload="(file_url) => { data[field.fieldname] = file_url }" 
+            @remove="() => { data[field.fieldname] = null }" 
+        />
+    </div>
     <FormControl
       v-else
       type="text"
@@ -191,12 +198,13 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import TableMultiselectInput from '@/components/Controls/TableMultiselectInput.vue'
 import Link from '@/components/Controls/Link.vue'
 import Grid from '@/components/Controls/Grid.vue'
-import { getFormat, evaluateDependsOnValue } from '@/utils'
+import { evaluateDependsOnValue } from '@/utils'
 import { flt } from '@/utils/numberFormat.js'
 import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
-import { Tooltip, DatePicker, DateTimePicker } from 'frappe-ui'
-import { computed, inject } from 'vue'
+import { Tooltip, FeatherIcon, FormControl, Button } from 'frappe-ui'
+import { computed, inject, ref } from 'vue'
+import SingleImageUploader from '@/components/Controls/SingleImageUploader.vue'
 
 const props = defineProps({
   field: Object,
@@ -209,6 +217,13 @@ const preview = inject('preview')
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(doctype)
 const { getUser } = usersStore()
+
+function validateFile(file) {
+  let extn = file.name.split('.').pop().toLowerCase()
+  if (!['png', 'jpg', 'jpeg', 'gif', 'svg', 'bmp', 'webp'].includes(extn)) {
+    return __('Only PNG, JPG, GIF, SVG, BMP and WebP images are allowed')
+  }
+}
 
 const field = computed(() => {
   let field = props.field
@@ -256,15 +271,65 @@ function isFieldVisible(field) {
 }
 
 const getPlaceholder = (field) => {
-  if (field.placeholder) {
-    return __(field.placeholder)
-  }
-  if (['Select', 'Link'].includes(field.fieldtype)) {
-    return __('Select {0}', [__(field.label)])
-  } else {
-    return __('Enter {0}', [__(field.label)])
-  }
+  return __(field.placeholder || field.label || field.fieldname)
 }
+
+const translatedOptions = computed(() => {
+  const options = props.field.options;
+  if (!options) {
+      return []; // Return empty if no options
+  }
+
+  let processedOptions = [];
+
+  if (typeof options === 'string') {
+      // Handle newline-separated string options (common in Frappe)
+      processedOptions = options.split('\n').filter(opt => opt.trim() !== '').map(opt => {
+          const trimmedOpt = opt.trim();
+          return { label: __(trimmedOpt), value: trimmedOpt }; // Add translation
+      });
+      // Attempt to parse if it's a string that looks like a JSON array (basic check)
+      if (options.trim().startsWith('[') && options.trim().endsWith(']')) {
+          try {
+              const parsedOptions = JSON.parse(options);
+              if (Array.isArray(parsedOptions)) {
+                  processedOptions = parsedOptions.map(option => {
+                      if (typeof option === 'string') {
+                          return { label: __(option), value: option }; // Add translation
+                      } else if (typeof option === 'object' && option !== null && 'label' in option && 'value' in option) {
+                          return { label: __(option.label), value: option.value }; // Add translation
+                      }
+                      return option; // return unchanged if not string or {label, value}
+                  });
+              }
+          } catch (e) {
+              // If JSON parsing fails, stick with newline-separated logic result (or empty if split didn't work)
+              console.warn(`Failed to parse options string as JSON for field ${props.field.fieldname}, treated as newline-separated string. Error:`, e);
+          }
+      }
+  } else if (Array.isArray(options)) {
+      // Process if it is already an array
+      processedOptions = options.map(option => {
+          if (typeof option === 'string') {
+              // Handle simple string array element
+              return { label: __(option), value: option }; // Add translation
+          } else if (typeof option === 'object' && option !== null && 'label' in option && 'value' in option) {
+              // Handle array of {label, value} objects
+              return { label: __(option.label), value: option.value }; // Add translation
+          }
+          // Return other types unchanged
+          return option;
+      });
+  } else {
+       console.warn(`Unsupported options type for field ${props.field.fieldname}:`, options);
+       return []; // Return empty for unsupported types
+  }
+
+   // Ensure the result is an array of {label, value} or similar structure expected by FormControl
+   // Filter out any items that didn't conform
+   return processedOptions.filter(opt => typeof opt === 'object' && opt !== null && 'label' in opt && 'value' in opt);
+});
+
 </script>
 <style scoped>
 :deep(.form-control.prefix select) {

@@ -1,12 +1,12 @@
 import { validateEmail } from '../../utils'
 
-const LogoGmail = '/images/gmail.png'
-const LogoOutlook = '/images/outlook.png'
-const LogoSendgrid = '/images/sendgrid.png'
-const LogoSparkpost = '/images/sparkpost.webp'
-const LogoYahoo = '/images/yahoo.png'
-const LogoYandex = '/images/yandex.png'
-const LogoFrappeMail = '/images/frappe-mail.svg'
+import LogoGmail from '@/images/gmail.png'
+import LogoOutlook from '@/images/outlook.png'
+import LogoSendgrid from '@/images/sendgrid.png'
+import LogoSparkpost from '@/images/sparkpost.webp'
+import LogoYahoo from '@/images/yahoo.png'
+import LogoYandex from '@/images/yandex.png'
+import LogoFrappeMail from '@/images/frappe-mail.svg'
 
 const fixedFields = [
   {
@@ -16,10 +16,10 @@ const fixedFields = [
     placeholder: __('Support / Sales'),
   },
   {
-    label: 'Email ID',
+    label: __('Email ID'),
     name: 'email_id',
     type: 'email',
-    placeholder: 'johndoe@example.com',
+    placeholder: __('johndoe@example.com'),
   },
 ]
 
@@ -71,19 +71,19 @@ export const popularProviderFields = [
 export const customProviderFields = [
   ...fixedFields,
   {
-    label: 'Frappe Mail Site',
+    label: __('Frappe Mail Site'),
     name: 'frappe_mail_site',
     type: 'text',
     placeholder: 'https://frappemail.com',
   },
   {
-    label: 'API Key',
+    label: __('API Key'),
     name: 'api_key',
     type: 'text',
     placeholder: '********',
   },
   {
-    label: 'API Secret',
+    label: __('API Secret'),
     name: 'api_secret',
     type: 'password',
     placeholder: '********',

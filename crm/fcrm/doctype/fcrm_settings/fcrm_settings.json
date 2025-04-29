@@ -6,13 +6,18 @@
  "engine": "InnoDB",
  "field_order": [
   "defaults_tab",
+  "default_converted_lead_status",
   "restore_defaults",
+  "realtime_settings_tab",
+  "disable_realtime_updates",
   "branding_tab",
   "brand_name",
   "brand_logo",
   "favicon",
   "dropdown_items_tab",
-  "dropdown_items"
+  "dropdown_items",
+  "kanban_settings_tab",
+  "stale_kanban_period"
  ],
  "fields": [
   {
@@ -29,6 +34,25 @@
    "fieldname": "defaults_tab",
    "fieldtype": "Tab Break",
    "label": "Defaults"
+  },
+  {
+   "description": "Status that will be set when lead is converted to deal. Leave empty to use first status by position.",
+   "fieldname": "default_converted_lead_status",
+   "fieldtype": "Link",
+   "label": "Default Status for Converted Lead",
+   "options": "CRM Deal Status"
+  },
+  {
+   "fieldname": "realtime_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Realtime Settings"
+  },
+  {
+   "default": "0",
+   "description": "When enabled, disables all realtime updates in the kanban board. This can improve performance on slow networks or with large datasets.",
+   "fieldname": "disable_realtime_updates",
+   "fieldtype": "Check",
+   "label": "Disable Realtime Updates"
   },
   {
    "fieldname": "branding_tab",
@@ -56,12 +80,24 @@
    "fieldname": "favicon",
    "fieldtype": "Attach",
    "label": "Favicon"
+  },
+  {
+   "default": "30",
+   "description": "Number of days after last modification to consider a Kanban card stale.",
+   "fieldname": "stale_kanban_period",
+   "fieldtype": "Int",
+   "label": "Stale Kanban Card Period (Days)"
+  },
+  {
+   "fieldname": "kanban_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Kanban View Settings"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-20 12:38:38.088477",
+ "modified": "2025-04-29 00:20:56.729611",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "FCRM Settings",
@@ -95,6 +131,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []

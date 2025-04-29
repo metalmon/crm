@@ -32,6 +32,7 @@
           class="!h-4"
           :class="isLikeFilterApplied ? 'fill-red-500' : 'fill-white'"
           @click="() => emit('applyLikeFilter')"
+          :aria-label="__('Toggle Like Filter')"
         >
           <HeartIcon class="h-4 w-4" />
         </Button>
@@ -82,7 +83,7 @@
                 })
             "
           >
-            <Tooltip :text="item.label">
+            <Tooltip :text="__(item.label)">
               <div>{{ item.timeAgo }}</div>
             </Tooltip>
           </div>
@@ -102,6 +103,7 @@
               @click.stop.prevent="
                 () => emit('likeDoc', { name: row.name, liked: isLiked(item) })
               "
+              :aria-label="__('Toggle Like')"
             >
               <HeartIcon class="h-4 w-4" />
             </Button>
@@ -159,20 +161,20 @@ import HeartIcon from '@/components/Icons/HeartIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
+import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
 import {
   Avatar,
   ListView,
   ListHeader,
   ListHeaderItem,
-  ListSelectBanner,
   ListRowItem,
-  ListFooter,
   Tooltip,
   Dropdown,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import ListFooter from '@/components/custom-ui/ListFooter.vue'
 
 const props = defineProps({
   rows: {

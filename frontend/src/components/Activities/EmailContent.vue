@@ -8,6 +8,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import indexCss from '/src/index.css?inline'
 
 const props = defineProps({
   content: {
@@ -15,9 +16,6 @@ const props = defineProps({
     required: true,
   },
 })
-
-const files = import.meta.globEager('/src/index.css', { query: '?inline' })
-const css = files['/src/index.css'].default
 
 const iframeRef = ref(null)
 const _content = ref(props.content)
@@ -110,14 +108,55 @@ const htmlContent = `
 <html>
 <head>
   <style>
-    ${css}
+    ${indexCss}
     :root {
       --bg-surface-gray-3: #ededed;
       --bg-surface-gray-4: #e2e2e2;
+      --text-color: #1f2937; /* text-ink-gray-8 */
+      --text-color-secondary: #6b7280; /* text-ink-gray-5 */
     }
     [data-theme='dark'] {
       --bg-surface-gray-3: #343434;
       --bg-surface-gray-4: #424242;
+      --text-color: #f3f4f6; /* text-gray-100 */
+      --text-color-secondary: #9ca3af; /* text-ink-gray-5 in dark mode */
+    }
+
+    /* Scrollbar styles */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(82, 82, 91, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(82, 82, 91, 0.5);
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background-color: rgba(64, 64, 77, 0.5);
+    }
+
+    [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(64, 64, 77, 0.7);
+    }
+
+    /* Firefox scrollbar styling */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(82, 82, 91, 0.3) transparent;
+    }
+
+    [data-theme="dark"] * {
+      scrollbar-color: rgba(64, 64, 77, 0.5) transparent;
     }
 
     .replied-content .collapse {
@@ -151,7 +190,29 @@ const htmlContent = `
 
     .email-content {
         word-break: break-word;
+        color: var(--text-color);
     }
+
+    /* Ensure all text elements inherit the color */
+    .email-content * {
+        color: var(--text-color);
+    }
+
+    /* Secondary text elements */
+    .email-content .text-secondary,
+    .email-content blockquote,
+    .email-content .text-muted {
+        color: var(--text-color-secondary);
+    }
+
+    /* Links should remain distinguishable */
+    .email-content a {
+        color: #3b82f6;
+    }
+    [data-theme='dark'] .email-content a {
+        color: #60a5fa;
+    }
+
     .email-content
         :is(:where(table):not(:where([class~='not-prose'], [class~='not-prose']
             *))) {

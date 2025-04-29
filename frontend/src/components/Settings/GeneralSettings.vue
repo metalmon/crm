@@ -90,6 +90,50 @@
         </div>
       </div>
 
+      <!-- Lead conversion status -->
+      <div class="flex flex-col justify-between gap-4">
+        <span class="text-base font-semibold text-ink-gray-9">
+          {{ __('Lead Conversion') }}
+        </span>
+        <div class="flex w-full">
+          <FormControl
+            type="select"
+            class="w-1/2"
+            v-model="settings.doc.default_converted_lead_status"
+            :label="__('Default Status for Converted Lead')"
+            :options="[{ label: '', value: '' }, ...statusOptions('deal')]"
+            :description="__('Status that will be set when lead is converted to deal. Leave empty to use first status by position.')"
+          />
+        </div>
+      </div>
+
+      <!-- Realtime Settings -->
+      <div class="flex flex-col justify-between gap-4">
+        <span class="text-base font-semibold text-ink-gray-9">
+          {{ __('Kanban View Settings') }}
+        </span>
+        <div class="flex w-full">
+          <FormControl
+            type="checkbox"
+            class="w-1/2"
+            v-model="settings.doc.disable_realtime_updates"
+            :label=" __('Disable Kanban Realtime Updates')"
+            :description="__('When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets. Changes apply immediately.')"
+          />
+        </div>
+        <!-- Stale Kanban Period -->
+        <div class="flex w-full mt-4">
+          <FormControl
+            type="Int"
+            class="w-1/2"
+            v-model="settings.doc.stale_kanban_period"
+            :label="__('Stale Kanban Card Period (Days)')"
+            :placeholder="30"
+            :description="__('Number of days after last modification to consider a Kanban card stale.')"
+          />
+        </div>
+      </div>
+
       <!-- Home actions -->
 
       <div class="flex flex-col justify-between gap-4">
@@ -123,8 +167,11 @@ import Grid from '@/components/Controls/Grid.vue'
 import { FormControl, Badge, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { showSettings } from '@/composables/settings'
+import { statusesStore } from '@/stores/statuses'
+import { ref } from 'vue'
 
 const { _settings: settings, setupBrand } = getSettings()
+const { statusOptions } = statusesStore()
 
 function updateSettings() {
   settings.save.submit(null, {

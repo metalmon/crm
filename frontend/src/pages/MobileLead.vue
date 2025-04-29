@@ -15,7 +15,7 @@
           "
         >
           <template #default="{ open }">
-            <Button :label="lead.data.status">
+            <Button :label="translateLeadStatus(lead.data.status)">
               <template #prefix>
                 <IndicatorIcon :class="getLeadStatus(lead.data.status).color" />
               </template>
@@ -53,7 +53,7 @@
     </div>
   </div>
   <div v-if="lead?.data" class="flex h-full overflow-hidden">
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto pb-20">
       <TabList class="!px-3" />
       <TabPanel v-slot="{ tab }">
         <div v-if="tab.name == 'Details'">
@@ -77,6 +77,7 @@
         </div>
         <Activities
           v-else
+          ref="activities"
           doctype="CRM Lead"
           :tabs="tabs"
           v-model:reload="reload"
@@ -85,6 +86,54 @@
         />
       </TabPanel>
     </Tabs>
+  </div>
+  <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <Button
+        v-if="lead.data?.mobile_no && ipTelephonyEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="triggerCall"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="lead.data?.mobile_no && !ipTelephonyEnabled"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('phone')"
+      >
+        <PhoneIcon class="h-5 w-5" />
+      </Button>
+      
+      <Button
+        v-if="lead.data?.mobile_no"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="trackPhoneActivities('whatsapp')"
+      >
+        <WhatsAppIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="lead.data?.mobile_no"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="showMessageTemplateModal = true"
+      >
+        <CommentIcon class="h-5 w-5" />
+      </Button>
+
+      <Button
+        v-if="lead.data?.website"
+        size="lg"
+        class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        @click="openWebsite(lead.data.website)"
+      >
+        <LinkIcon class="h-5 w-5" />
+      </Button>
+    </div>
   </div>
   <Dialog
     v-model="showConvertToDealModal"
@@ -150,8 +199,23 @@
           {{ __("New contact will be created based on the person's details") }}
         </div>
       </div>
+
+      <!-- Added divider and FieldLayout -->
+      <div v-if="dealTabs.data?.length" class="h-px w-full border-t my-6" />
+
+      <FieldLayout
+        v-if="dealTabs.data?.length"
+        :tabs="dealTabs.data"
+        :data="deal"
+        doctype="CRM Deal"
+      />
     </template>
   </Dialog>
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Lead"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
@@ -164,7 +228,9 @@ import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
+import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
@@ -183,8 +249,10 @@ import { getMeta } from '@/stores/meta'
 import {
   whatsappEnabled,
   callEnabled,
+  ipTelephonyEnabled,
   isMobileView,
 } from '@/composables/settings'
+import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import {
@@ -198,12 +266,18 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { trackCommunication } from '@/utils/communicationUtils'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
+import { findContactByEmail } from '@/utils/contactUtils'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 
 const { brand } = getSettings()
-const { $dialog, $socket } = globalStore()
-const { statusOptions, getLeadStatus } = statusesStore()
+const { $dialog, $socket, makeCall } = globalStore()
+const { statusOptions, getLeadStatus, getDealStatus } = statusesStore()
 const { doctypeMeta } = getMeta('CRM Lead')
 const route = useRoute()
 const router = useRouter()
@@ -215,10 +289,13 @@ const props = defineProps({
   },
 })
 
+const deal = reactive({})
+
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
+  auto: true,
   onSuccess: (data) => {
     setupAssignees(lead)
     setupCustomizations(lead, {
@@ -238,12 +315,13 @@ const lead = createResource({
   },
 })
 
+const reload = ref(false)
+const activities = ref(null)
+
 onMounted(() => {
   if (lead.data) return
   lead.fetch()
 })
-
-const reload = ref(false)
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -386,6 +464,12 @@ const tabs = computed(() => {
       icon: WhatsAppIcon,
       condition: () => whatsappEnabled.value,
     },
+    {
+      name: 'Avito',
+      label: __('Avito'),
+      icon: AvitoIcon,
+      condition: () => avitoEnabled.value,
+    },
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
@@ -432,6 +516,70 @@ const existingOrganizationChecked = ref(false)
 const existingContact = ref('')
 const existingOrganization = ref('')
 
+// Added dealStatuses computed property
+const dealStatuses = computed(() => {
+  let statuses = statusOptions('deal')
+  if (!deal.status) {
+    deal.status = statuses[0].value
+  }
+  return statuses
+})
+
+// Added dealTabs resource
+const dealTabs = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
+  cache: ['RequiredFields', 'CRM Deal'],
+  params: { doctype: 'CRM Deal', type: 'Required Fields' },
+  auto: true,
+  transform: (_tabs) => {
+    let hasFields = false;
+    
+    const parsedTabs = _tabs.map((tab) => {
+      tab.sections.forEach((section) => {
+        section.columns.forEach((column) => {
+          column.fields.forEach((field) => {
+            hasFields = true;
+            if (field.fieldname == 'status') {
+              field.fieldtype = 'Select';
+              field.options = dealStatuses.value.map(status => ({
+                ...status,
+                label: translateDealStatus(status.label)
+              }));
+              field.prefix = getDealStatus(deal.status).color;
+            }
+
+            if (field.fieldtype === 'Table') {
+              deal[field.fieldname] = [];
+            }
+          });
+        });
+      });
+      return tab;
+    });
+    
+    return hasFields ? parsedTabs : [];
+  },
+})
+
+// Watch for the modal opening
+watch(showConvertToDealModal, async (newValue) => {
+  if (newValue && lead.data?.email) { // Check when modal opens & email exists
+    const contactName = await findContactByEmail(lead.data.email);
+    if (contactName) {
+      existingContact.value = contactName;
+      existingContactChecked.value = true;
+    } else {
+      // Reset if no contact is found this time
+      existingContact.value = '';
+      existingContactChecked.value = false;
+    }
+  } else if (!newValue) {
+    // Optional: Reset when modal closes, if desired
+    // existingContact.value = '';
+    // existingContactChecked.value = false;
+  }
+});
+
 async function convertToDeal() {
   if (existingContactChecked.value && !existingContact.value) {
     createToast({
@@ -461,20 +609,78 @@ async function convertToDeal() {
     existingOrganization.value = ''
   }
 
-  let deal = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
+  let _deal = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
     lead: lead.data.name,
-    deal: {},
+    deal,
     existing_contact: existingContact.value,
     existing_organization: existingOrganization.value,
   })
-  if (deal) {
+  .catch((err) => {
+    createToast({
+      title: __('Error converting to deal'),
+      text: __(err.messages?.[0]),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
+  })
+
+  if (_deal) {
     showConvertToDealModal.value = false
     existingContactChecked.value = false
     existingOrganizationChecked.value = false
     existingContact.value = ''
     existingOrganization.value = ''
     capture('convert_lead_to_deal')
-    router.push({ name: 'Deal', params: { dealId: deal } })
+    router.push({ name: 'Deal', params: { dealId: _deal } })
   }
 }
+
+function trackPhoneActivities(type = 'phone') {
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
+}
+
+function errorMessage(message) {
+  createToast({
+    title: message,
+    icon: 'x',
+    iconClasses: 'text-ink-red-4',
+  })
+}
+
+function openWebsite(url) {
+  if (!url.startsWith('http')) {
+    url = 'https://' + url
+  }
+  window.open(url, '_blank')
+}
+
+const showMessageTemplateModal = ref(false)
+
+function applyMessageTemplate(template) {
+  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+    message: template,
+    modelValue: lead.data
+  })
+  showMessageTemplateModal.value = false
+}
+
+function triggerCall() {
+  makeCall(lead.data.mobile_no)
+}
+
 </script>

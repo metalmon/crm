@@ -7,7 +7,7 @@
       <Badge
         v-if="data.isDirty"
         class="ml-3"
-        :label="'Not Saved'"
+        :label="__('Not Saved')"
         theme="orange"
       />
     </div>
@@ -19,7 +19,7 @@
         <EditIcon class="h-4 w-4" />
       </Button>
       <Button
-        label="Save"
+        :label="__('Save')"
         :disabled="!data.isDirty"
         variant="solid"
         :loading="data.save.loading"
@@ -88,14 +88,14 @@ const data = createDocumentResource({
     onSuccess: () => {
       data.reload()
       createToast({
-        title: 'Data Updated',
+        title: __('Data Updated'),
         icon: 'check',
         iconClasses: 'text-ink-green-3',
       })
     },
     onError: (err) => {
       createToast({
-        title: 'Error',
+        title: __('Error'),
         text: err.messages[0],
         icon: 'x',
         iconClasses: 'text-red-600',
@@ -103,6 +103,15 @@ const data = createDocumentResource({
     },
   },
 })
+
+
+// Watch for changes in the document
+watch(() => data.doc, (newDoc) => {
+  if (newDoc) {
+    // Force isDirty check by comparing with originalDoc
+    data.isDirty = JSON.stringify(data.doc) !== JSON.stringify(data.originalDoc)
+  }
+}, { deep: true })
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',

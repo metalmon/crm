@@ -65,28 +65,55 @@
                 <span>{{ contact.data.full_name }}</span>
               </div>
               <div class="flex items-center gap-1.5">
-                <Button
-                  v-if="contact.data.actual_mobile_no"
-                  :label="__('Make Call')"
-                  size="sm"
-                  @click="
-                    callEnabled && makeCall(contact.data.actual_mobile_no)
-                  "
-                >
-                  <template #prefix>
-                    <PhoneIcon class="h-4 w-4" />
-                  </template>
-                </Button>
+                <div class="flex gap-1.5">
+                  <Button
+                    v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
+                    size="sm"
+                    class="dark:text-white dark:hover:bg-gray-700"
+                    @click="makeCall(contact.data.actual_mobile_no)"
+                  >
+                    <template #prefix>
+                      <PhoneIcon class="h-4 w-4" />
+                    </template>
+                    {{ __('Make Call') }}
+                  </Button>
+
+                  <Button
+                    v-if="contact.data.actual_mobile_no && !ipTelephonyEnabled"
+                    size="sm"
+                    class="dark:text-white dark:hover:bg-gray-700"
+                    @click="trackPhoneActivities('phone')"
+                  >
+                    <template #prefix>
+                      <PhoneIcon class="h-4 w-4" />
+                    </template>
+                    {{ __('Make Call') }}
+                  </Button>
+
+                  <Button
+                    v-if="contact.data.actual_mobile_no"
+                    size="sm"
+                    class="dark:text-white dark:hover:bg-gray-700"
+                    @click="trackPhoneActivities('whatsapp')"
+                  >
+                    <template #prefix>
+                      <WhatsAppIcon class="h-4 w-4" />
+                    </template>
+                    {{ __('Chat') }}
+                  </Button>
+                </div>
+
                 <Button
                   :label="__('Delete')"
+                  variant="ghost"
                   theme="red"
                   size="sm"
+                  class="dark:text-red-400 dark:hover:bg-gray-700"
                   @click="deleteContact"
                 >
-                  <template #prefix>
                     <FeatherIcon name="trash-2" class="h-4 w-4" />
-                  </template>
                 </Button>
+
                 <Avatar
                   v-if="contact.data.company_name"
                   size="md"
@@ -106,13 +133,13 @@
     <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
       <TabList class="!px-4" v-slot="{ tab, selected }">
         <button
-          v-if="tab.name == 'Deals'"
           class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
           :class="{ 'text-ink-gray-9': selected }"
         >
           <component v-if="tab.icon" :is="tab.icon" class="h-5" />
           {{ __(tab.label) }}
           <Badge
+            v-if="tab.count"
             class="group-hover:bg-surface-gray-7"
             :class="[selected ? 'bg-surface-gray-7' : 'bg-gray-600']"
             variant="solid"
@@ -124,7 +151,7 @@
         </button>
       </TabList>
       <TabPanel v-slot="{ tab }">
-        <div v-if="tab.name == 'Details'">
+        <div v-if="tab.name === 'Details'">
           <div
             v-if="sections.data"
             class="flex flex-1 flex-col justify-between overflow-hidden"
@@ -138,22 +165,24 @@
             />
           </div>
         </div>
-        <DealsListView
-          v-else-if="tab.label === 'Deals' && rows.length"
-          class="mt-4"
-          :rows="rows"
-          :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
-        />
-        <div
-          v-if="tab.label === 'Deals' && !rows.length"
-          class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
-        >
-          <div class="flex flex-col items-center justify-center space-y-3">
-            <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
+        <template v-else-if="tab.name === 'Deals'">
+          <DealsListView
+            v-if="rows.length"
+            class="mt-4"
+            :rows="rows"
+            :columns="columns"
+            :options="{ selectable: false, showTooltip: false }"
+          />
+          <div
+            v-else
+            class="grid flex-1 place-items-center text-xl font-medium text-ink-gray-4"
+          >
+            <div class="flex flex-col items-center justify-center space-y-3">
+              <component :is="tab.icon" class="!h-10 !w-10" />
+              <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
+            </div>
           </div>
-        </div>
+        </template>
       </TabPanel>
     </Tabs>
   </div>
@@ -166,6 +195,7 @@ import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
+import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
@@ -178,7 +208,10 @@ import { globalStore } from '@/stores/global.js'
 import { usersStore } from '@/stores/users.js'
 import { organizationsStore } from '@/stores/organizations.js'
 import { statusesStore } from '@/stores/statuses'
-import { callEnabled } from '@/composables/settings'
+import {
+  ipTelephonyEnabled
+} from '@/composables/settings'
+import { trackCommunication } from '@/utils/communicationUtils'
 import {
   Breadcrumbs,
   Avatar,
@@ -295,12 +328,12 @@ async function deleteContact() {
         label: __('Delete'),
         theme: 'red',
         variant: 'solid',
-        async onClick(close) {
+        async onClick(context) {
           await call('frappe.client.delete', {
             doctype: 'Contact',
             name: props.contactId,
           })
-          close()
+          context.close()
           router.push({ name: 'Contacts' })
         },
       },
@@ -404,17 +437,18 @@ function getParsedSections(_sections) {
               })
             },
           }
-        } else if (field.name === 'mobile_no') {
+        } else if (field.fieldname === 'mobile_no') {
           return {
             ...field,
             read_only: false,
-            fieldtype: 'dropdown',
+            fieldtype: 'Dropdown',
             options:
               contact.data?.phone_nos?.map((phone) => {
                 return {
                   name: phone.name,
                   value: phone.phone,
                   selected: phone.phone === contact.data.actual_mobile_no,
+                  placeholder: '+1234567890',
                   onClick: () => {
                     _contact.value.actual_mobile_no = phone.phone
                     _contact.value.mobile_no = phone.phone
@@ -498,7 +532,7 @@ async function setAsPrimary(field, value) {
   if (d) {
     contact.reload()
     createToast({
-      title: 'Contact updated',
+      title: __('Contact Updated'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
@@ -515,7 +549,7 @@ async function createNew(field, value) {
   if (d) {
     contact.reload()
     createToast({
-      title: 'Contact updated',
+      title: __('Contact updated'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
@@ -532,7 +566,7 @@ async function editOption(doctype, name, fieldname, value) {
   if (d) {
     contact.reload()
     createToast({
-      title: 'Contact updated',
+      title: __('Contact updated'),
       icon: 'check',
       iconClasses: 'text-ink-green-3',
     })
@@ -546,7 +580,7 @@ async function deleteOption(doctype, name) {
   })
   await contact.reload()
   createToast({
-    title: 'Contact updated',
+    title: __('Contact Updated'),
     icon: 'check',
     iconClasses: 'text-ink-green-3',
   })
@@ -560,7 +594,7 @@ async function updateField(fieldname, value) {
     value,
   })
   createToast({
-    title: 'Contact updated',
+    title: __('Contact updated'),
     icon: 'check',
     iconClasses: 'text-ink-green-3',
   })
@@ -635,4 +669,26 @@ const dealColumns = [
     width: '8rem',
   },
 ]
+
+const activities = ref([])
+
+function trackPhoneActivities(type = 'phone') {
+  if (!contact.data?.actual_mobile_no) {
+    createToast({
+      title: __('No phone number set'),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
+    return
+  }
+  
+  trackCommunication({
+    type,
+    doctype: 'Contact',
+    docname: contact.data.name,
+    phoneNumber: contact.data.actual_mobile_no,
+    activities: activities.value,
+    contactName: contact.data.full_name,
+  })
+}
 </script>

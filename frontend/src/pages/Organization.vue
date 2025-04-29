@@ -331,12 +331,12 @@ async function deleteOrganization() {
         label: __('Delete'),
         theme: 'red',
         variant: 'solid',
-        async onClick(close) {
+        async onClick(context) {
           await call('frappe.client.delete', {
             doctype: 'CRM Organization',
             name: props.organizationId,
           })
-          close()
+          context.close()
           router.push({ name: 'Organizations' })
         },
       },

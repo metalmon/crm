@@ -6,7 +6,7 @@
     <div>
       <UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
     </div>
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto dark-scrollbar">
       <div class="mb-3 flex flex-col">
         <SidebarLink
           id="notifications-btn"
@@ -173,17 +173,17 @@ import { FeatherIcon, call } from 'frappe-ui'
 import {
   SignupBanner,
   TrialBanner,
-  HelpModal,
-  GettingStartedBanner,
-  useOnboarding,
-  showHelpModal,
-  minimize,
-  IntermediateStepModal,
 } from 'frappe-ui/frappe'
+import GettingStartedBanner from '../custom-ui/onboarding/GettingStartedBanner.vue'
+import HelpModal from '../custom-ui/onboarding/HelpModal.vue'
+import { useOnboarding } from '../custom-ui/onboarding/onboarding'
+import { showHelpModal, minimize } from '../custom-ui/onboarding/help'
+import IntermediateStepModal from '../custom-ui/onboarding/IntermediateStepModal.vue'
 import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'
-import { ref, reactive, computed, h, markRaw, onMounted } from 'vue'
+import { ref, reactive, computed, h, markRaw, onMounted, watch } from 'vue'
+import { callEnabled } from '@/composables/settings'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
@@ -193,61 +193,78 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
-const links = [
-  {
-    label: 'Leads',
-    icon: LeadsIcon,
-    to: 'Leads',
-  },
-  {
-    label: 'Deals',
-    icon: DealsIcon,
-    to: 'Deals',
-  },
-  {
-    label: 'Contacts',
-    icon: ContactsIcon,
-    to: 'Contacts',
-  },
-  {
-    label: 'Organizations',
-    icon: OrganizationsIcon,
-    to: 'Organizations',
-  },
-  {
-    label: 'Notes',
-    icon: NoteIcon,
-    to: 'Notes',
-  },
-  {
-    label: 'Tasks',
-    icon: TaskIcon,
-    to: 'Tasks',
-  },
-  {
-    label: 'Call Logs',
-    icon: PhoneIcon,
-    to: 'Call Logs',
-  },
-  {
-    label: 'Email Templates',
-    icon: Email2Icon,
-    to: 'Email Templates',
-  },
-]
+// Log the value when the composable updates
+watch(callEnabled, (newValue) => {
+  console.log('[AppSidebar] callEnabled value changed to:', newValue)
+})
+
+console.log('[AppSidebar] Initial callEnabled value during setup:', callEnabled.value)
+
+const links = computed(() => {
+  console.log('[AppSidebar] Computing links, callEnabled is:', callEnabled.value)
+  const baseLinks = [
+    {
+      label: __('Leads'),
+      icon: LeadsIcon,
+      to: 'Leads',
+    },
+    {
+      label: __('Deals'),
+      icon: DealsIcon,
+      to: 'Deals',
+    },
+    {
+      label: __('Notes'),
+      icon: NoteIcon,
+      to: 'Notes',
+    },
+    {
+      label: __('Tasks'),
+      icon: TaskIcon,
+      to: 'Tasks',
+    },
+    {
+      label: __('Contacts'),
+      icon: ContactsIcon,
+      to: 'Contacts',
+    },
+    {
+      label: __('Organizations'),
+      icon: OrganizationsIcon,
+      to: 'Organizations',
+    },
+    {
+      label: __('Message Templates'),
+      icon: Email2Icon,
+      to: 'Email Templates',
+    },
+  ]
+
+  if (callEnabled.value) {
+    console.log('[AppSidebar] Adding Call Logs link.')
+    baseLinks.push({
+      label: __('Call Logs'),
+      icon: PhoneIcon,
+      to: 'Call Logs',
+    })
+  }
+
+  return baseLinks
+})
 
 const allViews = computed(() => {
+  console.log('[AppSidebar] Computing allViews...')
   let _views = [
     {
-      name: 'All Views',
+      name: __('All Views'),
       hideLabel: true,
       opened: true,
-      views: links,
+      views: links.value,
     },
   ]
   if (getPublicViews().length) {
     _views.push({
-      name: 'Public views',
+      name: __('Public views'),
       opened: true,
       views: parseView(getPublicViews()),
     })
@@ -255,7 +272,7 @@ const allViews = computed(() => {
 
   if (getPinnedViews().length) {
     _views.push({
-      name: 'Pinned views',
+      name: __('Pinned views'),
       opened: true,
       views: parseView(getPinnedViews()),
     })
@@ -427,7 +444,7 @@ const steps = reactive([
   },
   {
     name: 'send_first_email',
-    title: __('Send email'),
+    title: __('Send email', null, 'onboarding_step'),
     icon: markRaw(EmailIcon),
     completed: false,
     onClick: async () => {

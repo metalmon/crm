@@ -21,7 +21,7 @@
         :options="statusOptions('lead', updateField, lead.data._customStatuses)"
       >
         <template #default="{ open }">
-          <Button :label="lead.data.status">
+          <Button :label="translateLeadStatus(lead.data.status)">
             <template #prefix>
               <IndicatorIcon :class="getLeadStatus(lead.data.status).color" />
             </template>
@@ -116,7 +116,7 @@
                 </div>
               </Tooltip>
               <div class="flex gap-1.5">
-                <Tooltip v-if="callEnabled" :text="__('Make a call')">
+                <Tooltip v-if="ipTelephonyEnabled" :text="__('Make a call')">
                   <div>
                     <Button
                       class="h-7 w-7"
@@ -130,6 +130,33 @@
                       <PhoneIcon class="h-4 w-4" />
                     </Button>
                   </div>
+                </Tooltip>
+                <Tooltip :text="__('Call via phone app')">
+                  <Button
+                    v-if="lead.data.mobile_no && !ipTelephonyEnabled"
+                    size="sm"
+                    @click="trackPhoneActivities('phone')"
+                  >
+                    <PhoneIcon class="h-4 w-4" />
+                  </Button>
+                </Tooltip>
+                <Tooltip :text="__('Open WhatsApp')">
+                  <Button
+                    v-if="lead.data.mobile_no"
+                    size="sm"
+                    @click="trackPhoneActivities('whatsapp')"
+                  >
+                    <WhatsAppIcon class="h-4 w-4" />
+                  </Button>
+                </Tooltip>
+                <Tooltip :text="__('Send WhatsApp Template')">
+                  <Button
+                    v-if="lead.data.mobile_no"
+                    size="sm"
+                    @click="showMessageTemplateModal = true"
+                  >
+                    <CommentIcon class="h-4 w-4" />
+                  </Button>
                 </Tooltip>
                 <Tooltip :text="__('Send an email')">
                   <div>
@@ -218,7 +245,7 @@
         </div>
         <div class="flex items-center gap-1">
           <Button
-            v-if="isManager() && !isMobileView"
+            v-if="isManager && !isMobileView"
             variant="ghost"
             class="w-7"
             @click="openQuickEntryModal"
@@ -312,6 +339,11 @@
       }
     "
   />
+  <MessageTemplateSelectorModal
+    v-model="showMessageTemplateModal"
+    doctype="CRM Lead"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import ErrorPage from '@/components/ErrorPage.vue'
@@ -326,21 +358,19 @@ import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
-import EditIcon from '@/components/Icons/EditIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import Link from '@/components/Controls/Link.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
-import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
-import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import {
@@ -353,7 +383,6 @@ import {
 } from '@/utils'
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
-import { usersStore } from '@/stores/users'
 import { globalStore } from '@/stores/global'
 import { statusesStore } from '@/stores/statuses'
 import { getMeta } from '@/stores/meta'
@@ -361,7 +390,9 @@ import {
   whatsappEnabled,
   callEnabled,
   isMobileView,
+  ipTelephonyEnabled,
 } from '@/composables/settings'
+import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
 import {
   createResource,
@@ -375,13 +406,20 @@ import {
   call,
   usePageMeta,
 } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
+import { trackCommunication } from '@/utils/communicationUtils'
+import { findContactByEmail } from '@/utils/contactUtils'
+import { translateLeadStatus } from '@/utils/leadStatusTranslations'
+import { translateDealStatus } from '@/utils/dealStatusTranslations'
+import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
+import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
+import EditIcon from '@/components/Icons/EditIcon.vue'
 
 const { brand } = getSettings()
-const { isManager } = usersStore()
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getLeadStatus, getDealStatus } = statusesStore()
 const { doctypeMeta } = getMeta('CRM Lead')
@@ -405,6 +443,7 @@ const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
+  auto: true,
   onSuccess: (data) => {
     errorTitle.value = ''
     errorMessage.value = ''
@@ -431,13 +470,9 @@ const lead = createResource({
   },
 })
 
-onMounted(() => {
-  if (lead.data) return
-  lead.fetch()
-})
-
 const reload = ref(false)
 const showFilesUploader = ref(false)
+const showMessageTemplateModal = ref(false)
 
 function updateLead(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
@@ -573,6 +608,12 @@ const tabs = computed(() => {
       icon: WhatsAppIcon,
       condition: () => whatsappEnabled.value,
     },
+    {
+      name: 'Avito',
+      label: __('Avito'),
+      icon: AvitoIcon,
+      condition: () => avitoEnabled.value,
+    },
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
@@ -626,6 +667,58 @@ const existingOrganizationChecked = ref(false)
 
 const existingContact = ref('')
 const existingOrganization = ref('')
+
+const deal = reactive({})
+
+const dealStatuses = computed(() => {
+  let statuses = statusOptions('deal')
+  if (!deal.status) {
+    deal.status = statuses[0].value
+  }
+  return statuses
+})
+
+const dealTabs = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
+  cache: ['RequiredFields', 'CRM Deal'],
+  params: { doctype: 'CRM Deal', type: 'Required Fields' },
+  auto: true,
+  transform: (_tabs) => {
+    let hasFields = false;
+    
+    const parsedTabs = _tabs.map((tab) => {
+      tab.sections.forEach((section) => {
+        section.columns.forEach((column) => {
+          column.fields.forEach((field) => {
+            hasFields = true;
+            if (field.fieldname == 'status') {
+              field.fieldtype = 'Select';
+              field.options = dealStatuses.value.map(status => ({
+                ...status,
+                label: translateDealStatus(status.label)
+              }));
+              field.prefix = getDealStatus(deal.status).color;
+            }
+
+            if (field.fieldtype === 'Table') {
+              deal[field.fieldname] = [];
+            }
+          });
+        });
+      });
+      return tab;
+    });
+    
+    return hasFields ? parsedTabs : [];
+  },
+})
+
+const showQuickEntryModal = ref(false)
+
+function openQuickEntryModal() {
+  showQuickEntryModal.value = true
+  showConvertToDealModal.value = false
+}
 
 async function convertToDeal() {
   if (existingContactChecked.value && !existingContact.value) {
@@ -689,49 +782,49 @@ function openEmailBox() {
   activities.value.emailBox.show = true
 }
 
-const deal = reactive({})
-
-const dealStatuses = computed(() => {
-  let statuses = statusOptions('deal')
-  if (!deal.status) {
-    deal.status = statuses[0].value
-  }
-  return statuses
-})
-
-const dealTabs = createResource({
-  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
-  cache: ['RequiredFields', 'CRM Deal'],
-  params: { doctype: 'CRM Deal', type: 'Required Fields' },
-  auto: true,
-  transform: (_tabs) => {
-    let hasFields = false
-    let parsedTabs = _tabs.forEach((tab) => {
-      tab.sections.forEach((section) => {
-        section.columns.forEach((column) => {
-          column.fields.forEach((field) => {
-            hasFields = true
-            if (field.fieldname == 'status') {
-              field.fieldtype = 'Select'
-              field.options = dealStatuses.value
-              field.prefix = getDealStatus(deal.status).color
-            }
-
-            if (field.fieldtype === 'Table') {
-              deal[field.fieldname] = []
-            }
-          })
-        })
-      })
-    })
-    return hasFields ? parsedTabs : []
-  },
-})
-
-const showQuickEntryModal = ref(false)
-
-function openQuickEntryModal() {
-  showQuickEntryModal.value = true
-  showConvertToDealModal.value = false
+function trackPhoneActivities(type = 'phone') {
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
 }
+
+function applyMessageTemplate(template) {
+  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+    message: template,
+    modelValue: lead.data
+  })
+  showMessageTemplateModal.value = false
+}
+
+// Watch for the modal opening
+watch(showConvertToDealModal, async (newValue) => {
+  if (newValue && lead.data?.email) { // Check when modal opens & email exists
+    const contactName = await findContactByEmail(lead.data.email);
+    if (contactName) {
+      existingContact.value = contactName;
+      existingContactChecked.value = true;
+    } else {
+      // Reset if no contact is found this time
+      existingContact.value = '';
+      existingContactChecked.value = false;
+    }
+  } else if (!newValue) {
+    // Optional: Reset when modal closes, if desired
+    // existingContact.value = '';
+    // existingContactChecked.value = false;
+  }
+});
 </script>
