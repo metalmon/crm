@@ -148,11 +148,11 @@ const links = [
     icon: Email2Icon,
     to: 'Email Templates',
   },
-  ...(callEnabled.value ? [{
+  {
     label: __('Call Logs'),
     icon: PhoneIcon,
     to: 'Call Logs',
-  }] : []),
+  },
 ]
 
 const allViews = computed(() => {

@@ -238,17 +238,12 @@ const links = computed(() => {
       icon: Email2Icon,
       to: 'Email Templates',
     },
-  ]
-
-  if (callEnabled.value) {
-    console.log('[AppSidebar] Adding Call Logs link.')
-    baseLinks.push({
+    {
       label: __('Call Logs'),
       icon: PhoneIcon,
       to: 'Call Logs',
-    })
-  }
-
+    }
+  ]
   return baseLinks
 })
 
