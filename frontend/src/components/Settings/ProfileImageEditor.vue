@@ -21,10 +21,10 @@
             >
               {{
                 uploading
-                  ? `Uploading ${progress}%`
+                  ? __('Uploading') + ' ' + progress + '%'
                   : profile.user_image
-                  ? 'Change Image'
-                  : 'Upload Image'
+                  ? __('Change Image')
+                  : __('Upload Image')
               }}
             </span>
           </div>
@@ -32,14 +32,14 @@
             v-if="profile.user_image"
             class="h-64 w-64 rounded-full object-cover"
             :src="profile.user_image"
-            alt="Profile Photo"
+            :alt="__('Profile Photo')"
           />
           <div v-else class="h-64 w-64 rounded-full bg-surface-gray-2"></div>
         </button>
         <ErrorMessage class="mt-4" :message="error" />
         <div class="mt-4 flex items-center gap-4">
           <Button v-if="profile.user_image" @click="setUserImage(null)">
-            Remove
+            {{ __('Remove') }}
           </Button>
         </div>
       </div>
@@ -58,7 +58,7 @@ function setUserImage(url) {
 function validateFile(file) {
   let extn = file.name.split('.').pop().toLowerCase()
   if (!['png', 'jpg'].includes(extn)) {
-    return 'Only PNG and JPG images are allowed'
+    return __('Only PNG and JPG images are allowed')
   }
 }
 </script>

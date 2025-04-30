@@ -30,14 +30,14 @@
                     :image="organization.doc.organization_logo"
                   />
                   <component
-                    :is="organization.doc.image ? Dropdown : 'div'"
+                    :is="organization.doc.organization_logo ? Dropdown : 'div'"
                     v-bind="
-                      organization.doc.image
+                      organization.doc.organization_logo
                         ? {
                             options: [
                               {
                                 icon: 'upload',
-                                label: organization.doc.image
+                                label: organization.doc.organization_logo
                                   ? __('Change image')
                                   : __('Upload image'),
                                 onClick: openFileSelector,

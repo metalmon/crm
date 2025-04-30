@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-04-29 22:26+0000\n"
-"PO-Revision-Date: 2025-04-29 22:26+0000\n"
+"POT-Creation-Date: 2025-04-30 00:21+0000\n"
+"PO-Revision-Date: 2025-04-30 00:21+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -911,7 +911,8 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:19
+#: frontend/src/components/Controls/SingleImageUploader.vue:28
+#: frontend/src/components/Settings/ProfileImageEditor.vue:26
 msgid "Change Image"
 msgstr ""
 
@@ -992,7 +993,7 @@ msgstr ""
 msgid "Clear all Filter"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:53
+#: frontend/src/components/Controls/SingleImageUploader.vue:55
 msgid "Click or drag to upload image"
 msgstr ""
 
@@ -1741,7 +1742,7 @@ msgstr ""
 msgid "Drop files here"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:49
+#: frontend/src/components/Controls/SingleImageUploader.vue:51
 msgid "Drop image here"
 msgstr ""
 
@@ -2622,7 +2623,7 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:219
+#: frontend/src/components/Controls/SingleImageUploader.vue:221
 msgid "Image uploaded successfully"
 msgstr ""
 
@@ -3736,6 +3737,7 @@ msgstr ""
 msgid "Old Parent"
 msgstr ""
 
+#: frontend/src/components/Settings/ProfileImageEditor.vue:61
 #: frontend/src/pages/Contact.vue:335 frontend/src/pages/Lead.vue:637
 #: frontend/src/pages/MobileContact.vue:308
 #: frontend/src/pages/MobileOrganization.vue:278
@@ -3743,7 +3745,7 @@ msgstr ""
 msgid "Only PNG and JPG images are allowed"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:112
+#: frontend/src/components/Controls/SingleImageUploader.vue:114
 #: frontend/src/components/FieldLayout/Field.vue:224
 msgid "Only PNG, JPG, GIF, SVG, BMP and WebP images are allowed"
 msgstr ""
@@ -4088,6 +4090,10 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
+#: frontend/src/components/Settings/ProfileImageEditor.vue:35
+msgid "Profile Photo"
+msgstr ""
+
 #: frontend/src/components/Settings/ProfileSettings.vue:119
 msgid "Profile updated successfully"
 msgstr ""
@@ -4238,7 +4244,8 @@ msgid "Reject"
 msgstr ""
 
 #: frontend/src/components/Controls/ImageUploader.vue:23
-#: frontend/src/components/Controls/SingleImageUploader.vue:29
+#: frontend/src/components/Controls/SingleImageUploader.vue:38
+#: frontend/src/components/Settings/ProfileImageEditor.vue:42
 #: frontend/src/pages/Deal.vue:696
 msgid "Remove"
 msgstr ""
@@ -4988,7 +4995,7 @@ msgstr ""
 msgid "Support / Sales"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:56
+#: frontend/src/components/Controls/SingleImageUploader.vue:58
 msgid "Supported formats: PNG, JPG, GIF, SVG, BMP, WebP"
 msgstr ""
 
@@ -5389,6 +5396,7 @@ msgstr ""
 
 #: frontend/src/components/Activities/AvitoBox.vue:140
 #: frontend/src/components/Activities/WhatsAppBox.vue:140
+#: frontend/src/components/Settings/ProfileImageEditor.vue:27
 msgid "Upload Image"
 msgstr ""
 
@@ -5397,7 +5405,7 @@ msgstr ""
 msgid "Upload Video"
 msgstr ""
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:222
+#: frontend/src/components/Controls/SingleImageUploader.vue:224
 msgid "Upload finished but failed to get file URL."
 msgstr ""
 
@@ -5406,6 +5414,10 @@ msgstr ""
 #: frontend/src/pages/MobileOrganization.vue:38
 #: frontend/src/pages/Organization.vue:42
 msgid "Upload image"
+msgstr ""
+
+#: frontend/src/components/Settings/ProfileImageEditor.vue:24
+msgid "Uploading"
 msgstr ""
 
 #. Label of the user (Link) field in DocType 'CRM Telephony Agent'
