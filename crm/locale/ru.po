@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-04-29 22:26+0000\n"
-"PO-Revision-Date: 2025-04-30 02:28+0400\n"
+"POT-Creation-Date: 2025-04-30 00:21+0000\n"
+"PO-Revision-Date: 2025-04-30 04:21+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -914,7 +914,8 @@ msgstr "Карточка не обновлялась в последнее вр�
 msgid "Change"
 msgstr "Изменить"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:19
+#: frontend/src/components/Controls/SingleImageUploader.vue:28
+#: frontend/src/components/Settings/ProfileImageEditor.vue:26
 msgid "Change Image"
 msgstr "Заменить изображение"
 
@@ -995,7 +996,7 @@ msgstr "Очистить таблицу"
 msgid "Clear all Filter"
 msgstr "Очистить весь фильтр"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:53
+#: frontend/src/components/Controls/SingleImageUploader.vue:55
 msgid "Click or drag to upload image"
 msgstr "Нажмите или перетащите, чтобы загрузить изображение"
 
@@ -1744,7 +1745,7 @@ msgstr "Перетащите файлы сюда или загрузите из"
 msgid "Drop files here"
 msgstr "Перетащите файлы сюда"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:49
+#: frontend/src/components/Controls/SingleImageUploader.vue:51
 msgid "Drop image here"
 msgstr "Перетащите изображение сюда"
 
@@ -2625,7 +2626,7 @@ msgstr "Если эта опция включена, тикеты могут б�
 msgid "Image"
 msgstr "Изображение"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:219
+#: frontend/src/components/Controls/SingleImageUploader.vue:221
 msgid "Image uploaded successfully"
 msgstr "Изображение успешно загружено"
 
@@ -3739,6 +3740,7 @@ msgstr "Взращивание"
 msgid "Old Parent"
 msgstr "Старый родитель"
 
+#: frontend/src/components/Settings/ProfileImageEditor.vue:61
 #: frontend/src/pages/Contact.vue:335 frontend/src/pages/Lead.vue:637
 #: frontend/src/pages/MobileContact.vue:308
 #: frontend/src/pages/MobileOrganization.vue:278
@@ -3746,7 +3748,7 @@ msgstr "Старый родитель"
 msgid "Only PNG and JPG images are allowed"
 msgstr "Разрешены только изображения в формате PNG и JPG"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:112
+#: frontend/src/components/Controls/SingleImageUploader.vue:114
 #: frontend/src/components/FieldLayout/Field.vue:224
 msgid "Only PNG, JPG, GIF, SVG, BMP and WebP images are allowed"
 msgstr "Разрешены только изображения PNG, JPG, GIF, SVG, BMP и WebP"
@@ -4091,6 +4093,10 @@ msgstr "Шансы в %"
 msgid "Profile"
 msgstr "Профиль"
 
+#: frontend/src/components/Settings/ProfileImageEditor.vue:35
+msgid "Profile Photo"
+msgstr "Фото профиля"
+
 #: frontend/src/components/Settings/ProfileSettings.vue:119
 msgid "Profile updated successfully"
 msgstr "Профиль успешно обновлен"
@@ -4241,7 +4247,8 @@ msgid "Reject"
 msgstr "Отклонить"
 
 #: frontend/src/components/Controls/ImageUploader.vue:23
-#: frontend/src/components/Controls/SingleImageUploader.vue:29
+#: frontend/src/components/Controls/SingleImageUploader.vue:38
+#: frontend/src/components/Settings/ProfileImageEditor.vue:42
 #: frontend/src/pages/Deal.vue:696
 msgid "Remove"
 msgstr "Удалить"
@@ -5002,7 +5009,7 @@ msgstr "Воскресенье"
 msgid "Support / Sales"
 msgstr "Поддержка / Продажи"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:56
+#: frontend/src/components/Controls/SingleImageUploader.vue:58
 msgid "Supported formats: PNG, JPG, GIF, SVG, BMP, WebP"
 msgstr "Поддерживаемые форматы: PNG, JPG, GIF, SVG, BMP, WebP"
 
@@ -5403,6 +5410,7 @@ msgstr "Загрузить документ"
 
 #: frontend/src/components/Activities/AvitoBox.vue:140
 #: frontend/src/components/Activities/WhatsAppBox.vue:140
+#: frontend/src/components/Settings/ProfileImageEditor.vue:27
 msgid "Upload Image"
 msgstr "Загрузить изображение"
 
@@ -5411,7 +5419,7 @@ msgstr "Загрузить изображение"
 msgid "Upload Video"
 msgstr "Загрузить видео"
 
-#: frontend/src/components/Controls/SingleImageUploader.vue:222
+#: frontend/src/components/Controls/SingleImageUploader.vue:224
 msgid "Upload finished but failed to get file URL."
 msgstr "Загрузка завершена, но не удалось получить URL-адрес файла."
 
@@ -5421,6 +5429,10 @@ msgstr "Загрузка завершена, но не удалось получ
 #: frontend/src/pages/Organization.vue:42
 msgid "Upload image"
 msgstr "Загрузить изображение"
+
+#: frontend/src/components/Settings/ProfileImageEditor.vue:24
+msgid "Uploading"
+msgstr "Загрузка"
 
 #. Label of the user (Link) field in DocType 'CRM Telephony Agent'
 #. Label of the user (Link) field in DocType 'CRM View Settings'
