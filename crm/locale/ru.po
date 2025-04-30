@@ -10,14 +10,13 @@ msgstr ""
 "POT-Creation-Date: 2025-04-30 00:21+0000\n"
 "PO-Revision-Date: 2025-04-30 04:21+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
-"Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
+"Language-Team: shariq@frappe.io\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "Generated-By: Babel 2.13.1\n"
-"X-Generator: Poedit 3.5\n"
 
 #: frontend/src/components/ViewControls.vue:1421
 msgid " (New)"
@@ -5945,3 +5944,4 @@ msgstr "{0} из {1} шагов"
 #: frontend/src/components/custom-ui/onboarding/OnboardingSteps.vue:12
 msgid "{0}/{1} steps completed"
 msgstr "{0} из {1} выполнено"
+
