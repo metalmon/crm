@@ -1,11 +1,12 @@
+from frappe import _
 app_name = "crm"
-app_title = "Frappe CRM"
-app_publisher = "Frappe Technologies Pvt. Ltd."
-app_description = "Kick-ass Open Source CRM"
+app_title = _("Frappe CRM")
+app_publisher = _("Frappe Technologies Pvt. Ltd.")
+app_description = _("Kick-ass Open Source CRM")
 app_email = "shariq@frappe.io"
 app_license = "AGPLv3"
 app_icon_url = "/assets/crm/images/logo.svg"
-app_icon_title = "CRM"
+app_icon_title = _("CRM")
 app_icon_route = "/crm"
 
 # Apps
@@ -16,7 +17,7 @@ add_to_apps_screen = [
 	{
 		"name": "crm",
 		"logo": "/assets/crm/images/logo.svg",
-		"title": "CRM",
+		"title": _("CRM"),
 		"route": "/crm",
 		"has_permission": "crm.api.check_app_permission",
 	}
