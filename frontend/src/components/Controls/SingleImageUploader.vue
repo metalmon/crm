@@ -14,7 +14,7 @@
       <img
         :src="currentImageUrl"
         class="w-full h-auto rounded-lg object-contain max-h-[300px]"
-        alt="Uploaded image"
+        :alt="__('Uploaded image')"
       />
       <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col items-center justify-center gap-2">
         <Button
@@ -74,12 +74,11 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { Button, FeatherIcon, CircularProgressBar } from 'frappe-ui'
+import { ref, watch } from 'vue'
+import { Button, FeatherIcon, CircularProgressBar, toast } from 'frappe-ui'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 // Используем обработчик из общего FilesUploader
 import FilesUploadHandler from '../FilesUploader/filesUploaderHandler'
-import { createToast } from '@/utils'
 
 const props = defineProps({
   imageUrl: String, // Existing image URL
@@ -200,7 +199,7 @@ function handleFile(fileObj) {
     uploading.value = false
     uploadProgress.value = 0
     errorMessage.value = error || 'Error Uploading File'
-     createToast({ title: errorMessage.value, icon: 'x', iconClasses: 'text-red-500' })
+     toast.error(errorMessage.value)
   })
   uploader.value.on('finish', (uploadedFile) => {
      // This is the event handler for FilesUploadHandler
@@ -218,11 +217,11 @@ function handleFile(fileObj) {
       if (uploadedFile && uploadedFile.file_url) {
         currentImageUrl.value = uploadedFile.file_url
         emit('upload', uploadedFile.file_url)
-        createToast({ title: __("Image uploaded successfully"), icon: 'check', iconClasses: 'text-green-500' })
+        toast.success(__("Image uploaded successfully"))
       } else {
          // Handle case where upload technically succeeded but no URL returned
          errorMessage.value = __("Upload finished but failed to get file URL.");
-         createToast({ title: errorMessage.value, icon: 'x', iconClasses: 'text-red-500' })
+         toast.error(errorMessage.value)
       }
     })
     .catch((error) => {

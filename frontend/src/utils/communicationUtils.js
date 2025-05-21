@@ -1,5 +1,4 @@
 import { createResource, call } from 'frappe-ui'
-import { errorMessage } from '@/utils'
 import { capture } from '@/telemetry'
 import { usersStore } from '@/stores/users'
 import { normalizePhoneNumber } from './phoneUtils'
@@ -18,7 +17,7 @@ function debounce(func, wait) {
 }
 
 function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activities, contactName, message, modelValue }) {
-  if (!phoneNumber) return errorMessage(__('No phone number set'))
+  if (!phoneNumber) return toast.error(__('No phone number set'))
 
   const formattedNumber = normalizePhoneNumber(phoneNumber)
   const user = getUser()
@@ -90,7 +89,7 @@ function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activitie
         capture(type === 'phone' ? 'phone_call_initiated' : 'whatsapp_chat_initiated')
       },
       onError: (error) => {
-        errorMessage(error.message)
+        toast.error(error.message)
       }
     })
 
