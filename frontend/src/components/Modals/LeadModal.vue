@@ -55,6 +55,7 @@ import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
+import { sessionStore } from '@/stores/session'
 import { isMobileView } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import { createResource } from 'frappe-ui'
@@ -66,6 +67,7 @@ const props = defineProps({
   defaults: Object,
 })
 
+const { user } = sessionStore()
 const { getUser, isManager } = usersStore()
 const { getLeadStatus, statusOptions } = statusesStore()
 const { updateOnboardingStep } = useOnboarding('frappecrm')
@@ -182,7 +184,7 @@ function createNewLead() {
       show.value = false
       router.push({ name: 'Lead', params: { leadId: data.name } })
       updateOnboardingStep('create_first_lead', true, false, () => {
-        localStorage.setItem('firstLead', data.name)
+        localStorage.setItem('firstLead' + user, data.name)
       })
     },
     onError(err) {

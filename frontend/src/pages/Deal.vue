@@ -117,7 +117,7 @@
                     @click="
                       deal.data.email
                         ? openEmailBox()
-                        : _errorMessage(__('No email set'))
+                        : toast.error(__('No email set'))
                     "
                   />
                 </Button>
@@ -131,7 +131,7 @@
                     @click="
                       deal.data.website
                         ? openWebsite(deal.data.website)
-                        : _errorMessage(__('No website set'))
+                        : toast.error(__('No website set'))
                     "
                   />
                 </Button>
@@ -157,11 +157,10 @@
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
         <SidePanelLayout
-          v-model="deal.data"
           :sections="sections.data"
           :addContact="addContact"
           doctype="CRM Deal"
-          @update="updateField"
+          :docname="deal.data.name"
           @reload="sections.reload"
         >
           <template #actions="{ section }">
@@ -375,10 +374,8 @@ import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import {
   openWebsite,
-  createToast,
   setupAssignees,
   setupCustomizations,
-  errorMessage as _errorMessage,
   copyToClipboard,
 } from '@/utils'
 import { getView } from '@/utils/view'
@@ -396,6 +393,7 @@ import {
   Breadcrumbs,
   call,
   usePageMeta,
+  toast,
 } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
@@ -448,8 +446,9 @@ const deal = createResource({
       $dialog,
       $socket,
       router,
+      toast,
       updateField,
-      createToast,
+      createToast: toast.create,
       deleteDoc: deleteDeal,
       resource: {
         deal,
@@ -476,11 +475,7 @@ const organization = createResource({
 
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
-    createToast({
-      title: __('Customer created successfully'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Customer created successfully'))
   })
 
   if (deal.data) {
@@ -517,20 +512,11 @@ function updateDeal(fieldname, value, callback) {
     onSuccess: () => {
       deal.reload()
       reload.value = true
-      createToast({
-        title: __('Deal updated'),
-        icon: 'check',
-        iconClasses: 'text-ink-green-3',
-      })
+      toast.success(__('Deal updated'))
       callback?.()
     },
     onError: (err) => {
-      createToast({
-        title: __('Error updating deal'),
-        text: __(err.messages?.[0]),
-        icon: 'x',
-        iconClasses: 'text-ink-red-4',
-      })
+      toast.error(__('Error updating deal: {0}', [err.messages?.[0]]))
     },
   })
 }
@@ -538,12 +524,7 @@ function updateDeal(fieldname, value, callback) {
 function validateRequired(fieldname, value) {
   let meta = deal.data.fields_meta || {}
   if (meta[fieldname]?.reqd && !value) {
-    createToast({
-      title: __('Error Updating Deal'),
-      text: __('{0} is a required field', [meta[fieldname].label]),
-      icon: 'x',
-      iconClasses: 'text-ink-red-4',
-    })
+    toast.error(__('{0} is a required field', [meta[fieldname].label]))
     return true
   }
   return false
@@ -712,11 +693,7 @@ function contactOptions(contact) {
 
 async function addContact(contact) {
   if (dealContacts.data?.find((c) => c.name === contact)) {
-    createToast({
-      title: __('Contact already added'),
-      icon: 'x',
-      iconClasses: 'text-ink-red-3',
-    })
+    toast.error(__('Contact already added'))
     return
   }
 
@@ -726,11 +703,7 @@ async function addContact(contact) {
   })
   if (d) {
     dealContacts.reload()
-    createToast({
-      title: __('Contact added'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Contact added'))
   }
 }
 
@@ -741,11 +714,7 @@ async function removeContact(contact) {
   })
   if (d) {
     dealContacts.reload()
-    createToast({
-      title: __('Contact removed'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Contact removed'))
   }
 }
 
@@ -756,11 +725,7 @@ async function setPrimaryContact(contact) {
   })
   if (d) {
     dealContacts.reload()
-    createToast({
-      title: __('Primary contact set'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Primary contact set'))
   }
 }
 
@@ -798,12 +763,12 @@ function triggerCall() {
   let mobile_no = primaryContact.mobile_no || null
 
   if (!primaryContact) {
-    _errorMessage(__('No primary contact set'))
+    toast.error(__('No primary contact set'))
     return
   }
 
   if (!mobile_no) {
-    _errorMessage(__('No mobile number set'))
+    toast.error(__('No mobile number set'))
     return
   }
 

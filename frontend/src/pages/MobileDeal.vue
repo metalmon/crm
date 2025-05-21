@@ -62,10 +62,9 @@
             class="flex flex-1 flex-col justify-between overflow-hidden"
           >
             <SidePanelLayout
-              v-model="deal.data"
               :sections="sections.data"
               doctype="CRM Deal"
-              @update="updateField"
+              :docname="deal.data.name"
               @reload="sections.reload"
             >
               <template #actions="{ section }">
@@ -311,7 +310,7 @@ import Link from '@/components/Controls/Link.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
-import { createToast, setupAssignees, setupCustomizations } from '@/utils'
+import { setupAssignees, setupCustomizations } from '@/utils'
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
@@ -334,6 +333,7 @@ import {
   Breadcrumbs,
   call,
   usePageMeta,
+  toast,
 } from 'frappe-ui'
 import { ref, computed, h, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -374,8 +374,9 @@ const deal = createResource({
       $dialog,
       $socket,
       router,
+      toast,
       updateField,
-      createToast,
+      createToast: toast.create,
       deleteDoc: deleteDeal,
       resource: {
         deal,
@@ -418,20 +419,11 @@ function updateDeal(fieldname, value, callback) {
     onSuccess: () => {
       deal.reload()
       reload.value = true
-      createToast({
-        title: __('Deal updated'),
-        icon: 'check',
-        iconClasses: 'text-ink-green-3',
-      })
+      toast.success(__('Deal updated'))
       callback?.()
     },
     onError: (err) => {
-      createToast({
-        title: __('Error updating deal'),
-        text: __(err.messages?.[0]),
-        icon: 'x',
-        iconClasses: 'text-ink-red-4',
-      })
+      toast.error(err.messages?.[0] || __('Error updating deal'))
     },
   })
 }
@@ -439,12 +431,7 @@ function updateDeal(fieldname, value, callback) {
 function validateRequired(fieldname, value) {
   let meta = deal.data.fields_meta || {}
   if (meta[fieldname]?.reqd && !value) {
-    createToast({
-      title: __('Error Updating Deal'),
-      text: __('{0} is a required field', [meta[fieldname].label]),
-      icon: 'x',
-      iconClasses: 'text-ink-red-4',
-    })
+    toast.error(__('{0} is a required field', [meta[fieldname].label]))
     return true
   }
   return false
@@ -624,11 +611,7 @@ function contactOptions(contact) {
 
 async function addContact(contact) {
   if (dealContacts.data?.find((c) => c.name === contact)) {
-    createToast({
-      title: __('Contact already added'),
-      icon: 'x',
-      iconClasses: 'text-ink-red-3',
-    })
+    toast.error(__('Contact already added'))
     return
   }
 
@@ -638,11 +621,7 @@ async function addContact(contact) {
   })
   if (d) {
     dealContacts.reload()
-    createToast({
-      title: __('Contact added'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Contact added'))
   }
 }
 
@@ -653,11 +632,7 @@ async function removeContact(contact) {
   })
   if (d) {
     dealContacts.reload()
-    createToast({
-      title: __('Contact removed'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Contact removed'))
   }
 }
 
@@ -668,11 +643,7 @@ async function setPrimaryContact(contact) {
   })
   if (d) {
     dealContacts.reload()
-    createToast({
-      title: __('Primary contact set'),
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+    toast.success(__('Primary contact set'))
   }
 }
 

@@ -13,13 +13,6 @@ import dayjs, {
   toUserTimezone 
 } from './dayjs'
 
-export function createToast(options) {
-  toast({
-    position: 'bottom-right',
-    ...options,
-  })
-}
-
 export function formatTime(seconds) {
   const days = Math.floor(seconds / (3600 * 24))
   const hours = Math.floor((seconds % (3600 * 24)) / 3600)
@@ -194,6 +187,7 @@ export function setupAssignees(doc) {
 }
 
 async function getFormScript(script, obj) {
+  if (!script.includes('setupForm(')) return {}
   let scriptFn = new Function(script + '\nreturn setupForm')()
   let formScript = await scriptFn(obj)
   return formScript || {}
@@ -250,34 +244,20 @@ export async function setupListCustomizations(data, obj = {}) {
   return { actions, bulkActions }
 }
 
-export function errorMessage(title, message) {
-  createToast({
-    title: title || 'Error',
-    text: message,
-    icon: 'x',
-    iconClasses: 'text-ink-red-4',
-  })
-}
-
 export function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(show_success_alert)
+    navigator.clipboard.writeText(text).then(showSuccessAlert)
   } else {
     let input = document.createElement('textarea')
     document.body.appendChild(input)
     input.value = text
     input.select()
     document.execCommand('copy')
-    show_success_alert()
+    showSuccessAlert()
     document.body.removeChild(input)
   }
-  function show_success_alert() {
-    createToast({
-      title: 'Copied to clipboard',
-      text: text,
-      icon: 'check',
-      iconClasses: 'text-ink-green-3',
-    })
+  function showSuccessAlert() {
+    toast.success(__('Copied to clipboard'))
   }
 }
 
@@ -389,4 +369,10 @@ export function getRandom(len = 4) {
   })
 
   return text
+}
+
+export function runSequentially(functions) {
+  return functions.reduce((promise, fn) => {
+    return promise.then(() => fn())
+  }, Promise.resolve())
 }

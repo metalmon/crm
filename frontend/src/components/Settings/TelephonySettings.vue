@@ -96,7 +96,8 @@ import {
 } from 'frappe-ui'
 import { defaultCallingMedium } from '@/composables/settings'
 import { usersStore } from '@/stores/users'
-import { createToast, getRandom } from '@/utils'
+import { toast } from 'frappe-ui'
+import { getRandom } from '@/utils'
 import { ref, computed, watch } from 'vue'
 
 const { isManager, isAgent } = usersStore()
@@ -160,29 +161,11 @@ const twilio = createDocumentResource({
   fields: ['*'],
   auto: true,
   setValue: {
-    onSuccess: (response) => {
-      try {
-        createToast({
-          title: __('Success'),
-          text: __('Twilio settings updated successfully'),
-          icon: 'check',
-          iconClasses: 'text-ink-green-3',
-        })
-      } catch (e) {
-        console.error('Error in twilio onSuccess:', e)
-      }
+    onSuccess: () => {
+      toast.success(__('Twilio settings updated successfully'))
     },
     onError: (err) => {
-      try {
-        createToast({
-          title: __('Error'),
-          text: err?.message ? `${err.message}: ${err.messages?.[0] || ''}` : __('Unknown error occurred'),
-          icon: 'x',
-          iconClasses: 'text-ink-red-4',
-        })
-      } catch (e) {
-        console.error('Error in twilio onError:', e)
-      }
+      toast.error(err.message + ': ' + err.messages[0])
     },
   },
 })
@@ -193,29 +176,11 @@ const exotel = createDocumentResource({
   fields: ['*'],
   auto: true,
   setValue: {
-    onSuccess: (response) => {
-      try {
-        createToast({
-          title: __('Success'),
-          text: __('Exotel settings updated successfully'),
-          icon: 'check',
-          iconClasses: 'text-ink-green-3',
-        })
-      } catch (e) {
-        console.error('Error in exotel onSuccess:', e)
-      }
+    onSuccess: () => {
+      toast.success(__('Exotel settings updated successfully'))
     },
     onError: (err) => {
-      try {
-        createToast({
-          title: __('Error'),
-          text: err?.message ? `${err.message}: ${err.messages?.[0] || ''}` : __('Unknown error occurred'),
-          icon: 'x',
-          iconClasses: 'text-ink-red-4',
-        })
-      } catch (e) {
-        console.error('Error in exotel onError:', e)
-      }
+      toast.error(err.message + ': ' + err.messages[0])
     },
   },
 })
@@ -234,18 +199,11 @@ const beeline = createDocumentResource({
     }
   },
   setValue: {
-    onSuccess: async (response) => {
-      try {
-        createToast({
-          title: __('Success'),
-          text: __('Beeline settings updated successfully'),
-          icon: 'check',
-          iconClasses: 'text-ink-green-3',
-        })
-
+    onSuccess: () => {
+      toast.success(__('Beeline settings updated successfully'))
         // Try to update scheduler frequency but don't show error to user
         try {
-          const result = await call({
+          const result = call({
             method: "beeline.beeline.doctype.beeline_settings.beeline_settings.update_scheduler_frequency",
             args: {}
           });
@@ -257,23 +215,11 @@ const beeline = createDocumentResource({
           // Just log the error to console without showing toast to user
           console.warn("Non-critical error updating scheduler frequency:", err);
         }
-      } catch (e) {
-        console.error('Error in beeline onSuccess:', e)
-      }
     },
     onError: (err) => {
-      try {
-        createToast({
-          title: __('Error'),
-          text: err?.message ? `${err.message}: ${err.messages?.[0] || ''}` : __('Unknown error occurred'),
-          icon: 'x',
-          iconClasses: 'text-ink-red-4',
-        })
-      } catch (e) {
-        console.error('Error in beeline onError:', e)
-      }
+      toast.error(err.message + ': ' + err.messages[0])    
     },
-  },
+  }
 })
 
 const twilioTabs = computed(() => {
@@ -515,12 +461,7 @@ async function updateMedium() {
   })
   mediumChanged.value = false
   error.value = ''
-  createToast({
-    title: __('Success'),
-    text: __('Default calling medium updated successfully'),
-    icon: 'check',
-    iconClasses: 'text-ink-green-3',
-  })
+  toast.success(__('Default calling medium updated successfully'))
 }
 
 const error = ref('')

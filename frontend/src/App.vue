@@ -19,7 +19,6 @@
         <router-view :key="translationKey" />
       </Layout>
       <Dialogs />
-      <Toasts />
     </div>
   </div>
 </template>
@@ -28,8 +27,8 @@
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
 import { setTheme } from '@/stores/theme'
-import { Toasts, setConfig, createResource } from 'frappe-ui'
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue'
+import { setConfig, createResource } from 'frappe-ui'
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import LoadingView from './components/common/LoadingView.vue'
 import { lastTranslationUpdate, translationsLoading } from './translation'
 

@@ -7,22 +7,30 @@
           field.reqd ||
           (field.mandatory_depends_on && field.mandatory_via_depends_on)
         "
-        class="text-ink-red-3"
+        class="text-ink-red-2"
         >*</span
       >
     </div>
     <FormControl
-      v-if="field.read_only && field.fieldtype !== 'Check'"
+      v-if="
+        field.read_only &&
+        !['Int', 'Float', 'Currency', 'Percent', 'Check'].includes(
+          field.fieldtype,
+        )
+      "
       type="text"
       :placeholder="getPlaceholder(field)"
       v-model="data[field.fieldname]"
       :disabled="true"
+      :description="field.description"
     />
     <Grid
       v-else-if="field.fieldtype === 'Table'"
       v-model="data[field.fieldname]"
+      v-model:parent="data"
       :doctype="field.options"
       :parentDoctype="doctype"
+      :parentFieldname="field.fieldname"
     />
     <FormControl
       v-else-if="field.fieldtype === 'Select'"
@@ -31,7 +39,9 @@
       :class="field.prefix ? 'prefix' : ''"
       :options="translatedOptions"
       v-model="data[field.fieldname]"
+      @change="(e) => fieldChange(e.target.value, field)"
       :placeholder="getPlaceholder(field)"
+      :description="field.description"
     >
       <template v-if="field.prefix" #prefix>
         <IndicatorIcon :class="field.prefix" />
@@ -42,8 +52,9 @@
         class="form-control"
         type="checkbox"
         v-model="data[field.fieldname]"
-        @change="(e) => (data[field.fieldname] = e.target.checked)"
+        @change="(e) => fieldChange(e.target.checked, field)"
         :disabled="Boolean(field.read_only)"
+        :description="field.description"
       />
       <label
         class="text-sm text-ink-gray-5"
@@ -70,7 +81,7 @@
           field.fieldtype == 'Link' ? field.options : data[field.options]
         "
         :filters="field.filters"
-        @change="(v) => (data[field.fieldname] = v)"
+        @change="(v) => fieldChange(v, field)"
         :placeholder="getPlaceholder(field)"
         :onCreate="field.create"
       />
@@ -90,6 +101,7 @@
       v-else-if="field.fieldtype === 'Table MultiSelect'"
       v-model="data[field.fieldname]"
       :doctype="field.options"
+      @change="(v) => fieldChange(v, field)"
     />
 
     <Link
@@ -98,7 +110,7 @@
       :value="data[field.fieldname] && getUser(data[field.fieldname]).full_name"
       :doctype="field.options"
       :filters="field.filters"
-      @change="(v) => (data[field.fieldname] = v)"
+      @change="(v) => fieldChange(v, field)"
       :placeholder="getPlaceholder(field)"
       :hideMe="true"
     >
@@ -124,54 +136,71 @@
     <input
       v-else-if="field.fieldtype === 'Datetime'"
       type="datetime-local"
-      v-model="data[field.fieldname]"
+      :value="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
       class="w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+      @change="(e) => fieldChange(e.target.value, field)"
     />
     <input
       v-else-if="field.fieldtype === 'Date'"
       type="date"
-      v-model="data[field.fieldname]"
+      :value="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
       class="w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+      @change="(e) => fieldChange(e.target.value, field)"
     />
     <FormControl
       v-else-if="
         ['Small Text', 'Text', 'Long Text', 'Code'].includes(field.fieldtype)
       "
       type="textarea"
+      :value="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
-      v-model="data[field.fieldname]"
+      :description="field.description"
+      @change="fieldChange($event.target.value, field)"
     />
-    <FormControl
-      v-else-if="['Int'].includes(field.fieldtype)"
-      type="number"
+    <Password
+      v-else-if="field.fieldtype === 'Password'"
+      :value="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
-      v-model="data[field.fieldname]"
+      :description="field.description"
+      @change="fieldChange($event.target.value, field)"
     />
-    <FormControl
+    <FormattedInput
+      v-else-if="field.fieldtype === 'Int'"
+      type="text"
+      :placeholder="getPlaceholder(field)"
+      :value="data[field.fieldname] || '0'"
+      :disabled="Boolean(field.read_only)"
+      :description="field.description"
+      @change="fieldChange($event.target.value, field)"
+    />
+    <FormattedInput
       v-else-if="field.fieldtype === 'Percent'"
       type="text"
       :value="getFormattedPercent(field.fieldname, data)"
       :placeholder="getPlaceholder(field)"
       :disabled="Boolean(field.read_only)"
-      @change="data[field.fieldname] = flt($event.target.value)"
+      :description="field.description"
+      @change="fieldChange(flt($event.target.value), field)"
     />
-    <FormControl
+    <FormattedInput
       v-else-if="field.fieldtype === 'Float'"
       type="text"
       :value="getFormattedFloat(field.fieldname, data)"
       :placeholder="getPlaceholder(field)"
       :disabled="Boolean(field.read_only)"
-      @change="data[field.fieldname] = flt($event.target.value)"
+      :description="field.description"
+      @change="fieldChange(flt($event.target.value), field)"
     />
-    <FormControl
+    <FormattedInput
       v-else-if="field.fieldtype === 'Currency'"
       type="text"
-      :value="getFormattedCurrency(field.fieldname, data)"
+      :value="getFormattedCurrency(field.fieldname, data, parentDoc)"
       :placeholder="getPlaceholder(field)"
       :disabled="Boolean(field.read_only)"
-      @change="data[field.fieldname] = flt($event.target.value)"
+      :description="field.description"
+      @change="fieldChange(flt($event.target.value), field)"
     />
     <div v-else-if="field.fieldtype === 'Attach Image'" class="w-full">
         <SingleImageUploader 
@@ -186,25 +215,32 @@
       v-else
       type="text"
       :placeholder="getPlaceholder(field)"
-      v-model="data[field.fieldname]"
+      :value="data[field.fieldname]"
       :disabled="Boolean(field.read_only)"
+      :description="field.description"
+      @change="fieldChange($event.target.value, field)"
     />
   </div>
 </template>
 <script setup>
+import Password from '@/components/Controls/Password.vue'
+import FormattedInput from '@/components/Controls/FormattedInput.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import TableMultiselectInput from '@/components/Controls/TableMultiselectInput.vue'
 import Link from '@/components/Controls/Link.vue'
 import Grid from '@/components/Controls/Grid.vue'
-import { evaluateDependsOnValue } from '@/utils'
+import { createDocument } from '@/composables/document'
+import { getFormat, evaluateDependsOnValue } from '@/utils'
 import { flt } from '@/utils/numberFormat.js'
 import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
-import { Tooltip, FeatherIcon, FormControl, Button } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { useDocument } from '@/data/document'
+import { Tooltip, DatePicker, DateTimePicker } from 'frappe-ui'
+import { computed, provide, inject } from 'vue'
 import SingleImageUploader from '@/components/Controls/SingleImageUploader.vue'
+
 
 const props = defineProps({
   field: Object,
@@ -213,16 +249,30 @@ const props = defineProps({
 const data = inject('data')
 const doctype = inject('doctype')
 const preview = inject('preview')
+const isGridRow = inject('isGridRow')
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(doctype)
+
 const { getUser } = usersStore()
 
-function validateFile(file) {
-  let extn = file.name.split('.').pop().toLowerCase()
-  if (!['png', 'jpg', 'jpeg', 'gif', 'svg', 'bmp', 'webp'].includes(extn)) {
-    return __('Only PNG, JPG, GIF, SVG, BMP and WebP images are allowed')
-  }
+let triggerOnChange
+let parentDoc
+
+if (!isGridRow) {
+  const {
+    triggerOnChange: trigger,
+    triggerOnRowAdd,
+    triggerOnRowRemove,
+  } = useDocument(doctype, data.value.name)
+  triggerOnChange = trigger
+
+  provide('triggerOnChange', triggerOnChange)
+  provide('triggerOnRowAdd', triggerOnRowAdd)
+  provide('triggerOnRowRemove', triggerOnRowRemove)
+} else {
+  triggerOnChange = inject('triggerOnChange')
+  parentDoc = inject('parentDoc')
 }
 
 const field = computed(() => {
@@ -239,6 +289,17 @@ const field = computed(() => {
 
   if (field.fieldtype === 'Link' && field.options === 'User') {
     field.fieldtype = 'User'
+  }
+
+  if (field.fieldtype === 'Link' && field.options !== 'User') {
+    if (!field.create) {
+      field.create = (value, close) => {
+        const callback = (d) => {
+          if (d) fieldChange(d.name, field)
+        }
+        createDocument(field.options, value, close, callback)
+      }
+    }
   }
 
   let _field = {
@@ -330,6 +391,15 @@ const translatedOptions = computed(() => {
    return processedOptions.filter(opt => typeof opt === 'object' && opt !== null && 'label' in opt && 'value' in opt);
 });
 
+function fieldChange(value, df) {
+  data.value[df.fieldname] = value
+
+  if (isGridRow) {
+    triggerOnChange(df.fieldname, data.value)
+  } else {
+    triggerOnChange(df.fieldname)
+  }
+}
 </script>
 <style scoped>
 :deep(.form-control.prefix select) {
