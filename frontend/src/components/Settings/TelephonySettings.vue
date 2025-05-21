@@ -185,6 +185,43 @@ const exotel = createDocumentResource({
   },
 })
 
+const beeline = createDocumentResource({
+  doctype: 'Beeline Settings',
+  name: 'Beeline Settings',
+  fields: ['*'],
+  auto: true,
+  onLoad: (doc) => {
+    try {
+      console.log('Beeline Settings loaded:', doc);
+      console.log('beeline.doc.enabled after load:', doc?.enabled);
+    } catch (e) {
+      console.error('Error in beeline onLoad:', e)
+    }
+  },
+  setValue: {
+    onSuccess: () => {
+      toast.success(__('Beeline settings updated successfully'))
+        // Try to update scheduler frequency but don't show error to user
+        try {
+          const result = call({
+            method: "beeline.beeline.doctype.beeline_settings.beeline_settings.update_scheduler_frequency",
+            args: {}
+          });
+          
+          if (result?.message) {
+            console.log("Scheduler frequency update successful:", result.message);
+          }
+        } catch (err) {
+          // Just log the error to console without showing toast to user
+          console.warn("Non-critical error updating scheduler frequency:", err);
+        }
+    },
+    onError: (err) => {
+      toast.error(err.message + ': ' + err.messages[0])    
+    },
+  }
+})
+
 const twilioTabs = computed(() => {
   if (!twilioFields.data) return []
   let _tabs = []

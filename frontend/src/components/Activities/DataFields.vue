@@ -19,7 +19,7 @@
         <EditIcon class="h-4 w-4" />
       </Button>
       <Button
-        label="Save"
+        :label="__('Save')"
         :disabled="!document.isDirty"
         variant="solid"
         :loading="document.save.loading"
@@ -82,14 +82,6 @@ const showDataFieldsModal = ref(false)
 
 const { document } = useDocument(props.doctype, props.docname)
 
-
-// Watch for changes in the document
-watch(() => data.doc, (newDoc) => {
-  if (newDoc) {
-    // Force isDirty check by comparing with originalDoc
-    data.isDirty = JSON.stringify(data.doc) !== JSON.stringify(data.originalDoc)
-  }
-}, { deep: true })
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',

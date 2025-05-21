@@ -98,31 +98,6 @@ const fields = computed(() => {
   return popularProviderFields;
 });
 
-function validateInputs(state, isCustom) {
-  if (!state.email_account_name) {
-    return __('Please enter account name')
-  }
-  if (!state.email_id) {
-    return __('Please enter email address')
-  }
-  const validEmail = validateEmail(state.email_id)
-  if (!validEmail) {
-    return __('Please enter valid email address')
-  }
-  if (!isCustom && !state.password) {
-    return __('Please enter password')
-  }
-  if (isCustom) {
-    if (!state.api_key) {
-      return __('Please enter API key')
-    }
-    if (!state.api_secret) {
-      return __('Please enter API secret')
-    }
-  }
-  return null
-}
-
 const error = ref();
 const loading = ref(false);
 async function updateAccount() {

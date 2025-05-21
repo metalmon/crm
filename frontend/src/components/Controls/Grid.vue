@@ -179,21 +179,17 @@
                   </div>
                   <input
                     v-else-if="field.fieldtype === 'Date'"
+                    type="date"
                     :value="row[field.fieldname]"
-                    icon-left=""
-                    variant="outline"
-                    :formatter="(date) => getFormat(date, '', true)"
-                    input-class="border-none text-sm text-ink-gray-8"
-                    @change="(v) => fieldChange(v, field, row)"
+                    class="w-full border-none text-sm text-ink-gray-8 bg-surface-white px-2 py-1.5"
+                    @change="(e) => fieldChange(e.target.value, field, row)"
                   />
                   <input
                     v-else-if="field.fieldtype === 'Datetime'"
+                    type="datetime-local"
                     :value="row[field.fieldname]"
-                    icon-left=""
-                    variant="outline"
-                    :formatter="(date) => getFormat(date, '', true, true)"
-                    input-class="border-none text-sm text-ink-gray-8"
-                    @change="(v) => fieldChange(v, field, row)"
+                    class="w-full border-none text-sm text-ink-gray-8 bg-surface-white px-2 py-1.5"
+                    @change="(e) => fieldChange(e.target.value, field, row)"
                   />
                   <FormControl
                     v-else-if="

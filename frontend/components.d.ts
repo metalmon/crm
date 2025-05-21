@@ -162,8 +162,6 @@ declare module 'vue' {
     ListRows: typeof import('./src/components/ListViews/ListRows.vue')['default']
     ListSelectBanner: typeof import('./src/components/custom-ui/ListSelectBanner.vue')['default']
     LoadingIndicator: typeof import('./src/components/Icons/LoadingIndicator.vue')['default']
-    LucideCalendar: typeof import('~icons/lucide/calendar')['default']
-    LucidePlus: typeof import('~icons/lucide/plus')['default']
     LoadingView: typeof import('./src/components/common/LoadingView.vue')['default']
     MarkAsDoneIcon: typeof import('./src/components/Icons/MarkAsDoneIcon.vue')['default']
     MaximizeIcon: typeof import('./src/components/Icons/MaximizeIcon.vue')['default']
