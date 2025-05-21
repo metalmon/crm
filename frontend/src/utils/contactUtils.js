@@ -1,5 +1,4 @@
 import { call } from 'frappe-ui';
-import { errorMessage } from '@/utils'; // Optional: for error reporting if needed
 
 /**
  * Finds the first contact matching the given email address.

@@ -239,7 +239,6 @@ import {
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { normalizePhoneNumber } from '@/utils/communicationUtils'
-import { errorMessage as _errorMessage } from '../utils'
 
 const { brand } = getSettings()
 const { $dialog, makeCall } = globalStore()
@@ -675,7 +674,7 @@ const dealColumns = [
 
 function trackPhoneActivities(type = 'phone') {
   if (!contact.data.actual_mobile_no) {
-    errorMessage(__('No phone number set'))
+    toast.error(__('No phone number set'))
     return
   }
 
