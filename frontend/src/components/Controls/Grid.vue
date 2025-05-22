@@ -24,7 +24,7 @@
         <div
           class="inline-flex items-center justify-center border-r border-outline-gray-2 py-2 px-1 w-12"
         >
-          {{ __('No') }}
+          {{ __('№') }}
         </div>
         <div
           class="grid w-full truncate"
@@ -39,7 +39,7 @@
                 : ''
             "
             :key="field.fieldname"
-            :title="field.label"
+            :title="__(field.label)"
           >
             {{ __(field.label) }}
             <span

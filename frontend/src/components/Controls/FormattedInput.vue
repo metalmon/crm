@@ -8,7 +8,7 @@
   />
   <slot name="description">
     <p v-if="attrs.description" class="mt-1.5" :class="descriptionClasses">
-      {{ attrs.description }}
+      {{ __(attrs.description) }}
     </p>
   </slot>
 </template>
