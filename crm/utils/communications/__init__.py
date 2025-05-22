@@ -25,6 +25,7 @@ def prepare_communication_activity(communication, is_lead=True):
     return {
         "activity_type": "communication",
         "communication_type": communication.communication_type,
+        "communication_date": communication.communication_date or communication.creation,
         "communication_medium": get_communication_medium(communication),
         "creation": communication.creation,
         "data": {
