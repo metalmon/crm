@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { Button, FeatherIcon, CircularProgressBar, toast } from 'frappe-ui'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 // Используем обработчик из общего FilesUploader
@@ -90,7 +90,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['upload', 'remove'])
+const emit = defineEmits(['upload', 'remove', 'select'])
 
 const currentImageUrl = ref(props.imageUrl)
 const fileInput = ref(null)
@@ -99,11 +99,19 @@ const uploading = ref(false)
 const uploadProgress = ref(0)
 const errorMessage = ref(null)
 const uploader = ref(null)
+let tempObjectUrl = null
 
 const imageMimeTypes = 'image/png, image/jpeg, image/gif, image/svg+xml, image/bmp, image/webp'
 
 watch(() => props.imageUrl, (newVal) => {
   currentImageUrl.value = newVal
+})
+
+onUnmounted(() => {
+  if (tempObjectUrl) {
+    URL.revokeObjectURL(tempObjectUrl)
+    tempObjectUrl = null
+  }
 })
 
 function validateFile(file) {
@@ -129,7 +137,7 @@ function dragleave() {
 function dropfiles(e) {
   isDragging.value = false
   if (e.dataTransfer.files.length > 0) {
-    handleFile(e.dataTransfer.files[0]) // Handle only the first file
+    handleFileInput(e.dataTransfer.files[0]) // Handle only the first file
   }
 }
 
@@ -139,21 +147,38 @@ function browseFiles() {
 
 function onFileInput(event) {
   if (fileInput.value.files.length > 0) {
-    handleFile(fileInput.value.files[0]) // Handle only the first file
+    handleFileInput(fileInput.value.files[0]) // Handle only the first file
     fileInput.value.value = '' // Reset input to allow uploading the same file again
   }
 }
 
 function removeImage() {
+    if (tempObjectUrl) {
+      URL.revokeObjectURL(tempObjectUrl)
+      tempObjectUrl = null
+    }
     currentImageUrl.value = null
     emit('remove')
 }
 
-function handleFile(fileObj) {
-  if (!validateFile(fileObj)) {
+function handleFileInput(file) {
+  if (!validateFile(file)) {
     return
   }
+  if (!props.docname) {
+    // Use a temporary object URL for preview
+    if (tempObjectUrl) {
+      URL.revokeObjectURL(tempObjectUrl)
+    }
+    tempObjectUrl = URL.createObjectURL(file)
+    currentImageUrl.value = tempObjectUrl
+    emit('select', file, tempObjectUrl)
+    return
+  }
+  handleFile(file)
+}
 
+function handleFile(fileObj) {
   errorMessage.value = null
   uploading.value = true
   uploadProgress.value = 0
@@ -186,12 +211,9 @@ function handleFile(fileObj) {
     // Already set uploading = true
   })
   uploader.value.on('progress', (data) => {
-     // FilesUploadHandler calculates based on total file size,
-     // but for a single file, let's map it to percentage.
      if (data.total > 0) {
          uploadProgress.value = Math.round((data.uploaded / data.total) * 100)
      } else {
-         // Handle cases where total might be 0 initially
          uploadProgress.value = data.progress || 0;
      }
   })
@@ -203,36 +225,33 @@ function handleFile(fileObj) {
   })
   uploader.value.on('finish', (uploadedFile) => {
      // This is the event handler for FilesUploadHandler
-     // It seems the handler itself doesn't directly return the final file object
-     // We need to wait for the 'then' block below
   })
 
-  // Call the upload method from the handler
   uploader.value
     .upload(fileData, args) // Pass fileData and args
     .then((uploadedFile) => {
-      // THIS is where we should get the final file info
       uploading.value = false
       uploadProgress.value = 100
       if (uploadedFile && uploadedFile.file_url) {
+        if (tempObjectUrl) {
+          URL.revokeObjectURL(tempObjectUrl)
+          tempObjectUrl = null
+        }
         currentImageUrl.value = uploadedFile.file_url
         emit('upload', uploadedFile.file_url)
         toast.success(__("Image uploaded successfully"))
       } else {
-         // Handle case where upload technically succeeded but no URL returned
          errorMessage.value = __("Upload finished but failed to get file URL.");
          toast.error(errorMessage.value)
       }
     })
     .catch((error) => {
-      // Error handling is mostly done via the 'error' event, but catch ensures promise rejection is handled
       uploading.value = false
       uploadProgress.value = 0
-      if (!errorMessage.value) { // Set error message if not already set by the event
+      if (!errorMessage.value) {
           errorMessage.value = 'Error Uploading File';
       }
       console.error("Upload failed:", error)
-       // Toast might already be shown by the 'error' event handler
     })
 }
 

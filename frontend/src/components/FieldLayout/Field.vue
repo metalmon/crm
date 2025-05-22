@@ -204,11 +204,12 @@
     />
     <div v-else-if="field.fieldtype === 'Attach Image'" class="w-full">
         <SingleImageUploader 
-            :image-url="data[field.fieldname]"
+            :image-url="tempImages[field.fieldname] || data[field.fieldname]"
             :doctype="doctype"
             :docname="data.name"  
-            @upload="(file_url) => { data[field.fieldname] = file_url }" 
-            @remove="() => { data[field.fieldname] = null }" 
+            @upload="(file_url) => { data[field.fieldname] = file_url; tempImages[field.fieldname] = null }" 
+            @remove="() => { data[field.fieldname] = null; tempImages[field.fieldname] = null }" 
+            @select="(file, tempUrl) => { tempImages[field.fieldname] = tempUrl }"
         />
     </div>
     <FormControl
@@ -238,7 +239,7 @@ import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { useDocument } from '@/data/document'
 import { Tooltip, DatePicker, DateTimePicker } from 'frappe-ui'
-import { computed, provide, inject } from 'vue'
+import { computed, provide, inject, ref } from 'vue'
 import SingleImageUploader from '@/components/Controls/SingleImageUploader.vue'
 
 
@@ -400,6 +401,8 @@ function fieldChange(value, df) {
     triggerOnChange(df.fieldname)
   }
 }
+
+const tempImages = ref({}) // { [fieldname]: tempUrl }
 </script>
 <style scoped>
 :deep(.form-control.prefix select) {
