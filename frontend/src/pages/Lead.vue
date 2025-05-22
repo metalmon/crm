@@ -244,7 +244,7 @@
         </div>
         <div class="flex items-center gap-1">
           <Button
-            v-if="isManager && !isMobileView"
+            v-if="!isMobileView"
             variant="ghost"
             class="w-7"
             @click="openQuickEntryModal"
@@ -387,7 +387,6 @@ import { statusesStore } from '@/stores/statuses'
 import { getMeta } from '@/stores/meta'
 import {
   whatsappEnabled,
-  callEnabled,
   isMobileView,
   ipTelephonyEnabled,
 } from '@/composables/settings'
@@ -421,7 +420,9 @@ import EditIcon from '@/components/Icons/EditIcon.vue'
 
 const { brand } = getSettings()
 const { user } = sessionStore()
-const { isManager } = usersStore()
+//Import for strict conversion to deal
+//TODO: Uncomment this after implementing option in settings
+//const { isManager } = usersStore()
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getLeadStatus, getDealStatus } = statusesStore()
 const { doctypeMeta } = getMeta('CRM Lead')
@@ -657,6 +658,58 @@ const existingOrganizationChecked = ref(false)
 const existingContact = ref('')
 const existingOrganization = ref('')
 
+const deal = reactive({})
+
+const dealStatuses = computed(() => {
+  let statuses = statusOptions('deal')
+  if (!deal.status) {
+    deal.status = statuses[0].value
+  }
+  return statuses
+})
+
+const dealTabs = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
+  cache: ['RequiredFields', 'CRM Deal'],
+  params: { doctype: 'CRM Deal', type: 'Required Fields' },
+  auto: true,
+  transform: (_tabs) => {
+    let hasFields = false;
+    
+    const parsedTabs = _tabs.map((tab) => {
+      tab.sections.forEach((section) => {
+        section.columns.forEach((column) => {
+          column.fields.forEach((field) => {
+            hasFields = true;
+            if (field.fieldname == 'status') {
+              field.fieldtype = 'Select';
+              field.options = dealStatuses.value.map(status => ({
+                ...status,
+                label: translateDealStatus(status.label)
+              }));
+              field.prefix = getDealStatus(deal.status).color;
+            }
+
+            if (field.fieldtype === 'Table') {
+              deal[field.fieldname] = [];
+            }
+          });
+        });
+      });
+      return tab;
+    });
+    
+    return hasFields ? parsedTabs : [];
+  },
+})
+
+const showQuickEntryModal = ref(false)
+
+function openQuickEntryModal() {
+  showQuickEntryModal.value = true
+  showConvertToDealModal.value = false
+}
+
 async function convertToDeal() {
   if (existingContactChecked.value && !existingContact.value) {
     toast.error(__('Please select an existing contact'))
@@ -704,50 +757,15 @@ function openEmailBox() {
   activities.value.emailBox.show = true
 }
 
-const deal = reactive({})
-
-const dealStatuses = computed(() => {
-  let statuses = statusOptions('deal')
-  if (!deal.status) {
-    deal.status = statuses[0].value
-  }
-  return statuses
-})
-
-const dealTabs = createResource({
-  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
-  cache: ['RequiredFields', 'CRM Deal'],
-  params: { doctype: 'CRM Deal', type: 'Required Fields' },
-  auto: true,
-  transform: (_tabs) => {
-    let hasFields = false
-    let parsedTabs = _tabs?.forEach((tab) => {
-      tab.sections?.forEach((section) => {
-        section.columns?.forEach((column) => {
-          column.fields?.forEach((field) => {
-            hasFields = true
-            if (field.fieldname == 'status') {
-              field.fieldtype = 'Select'
-              field.options = dealStatuses.value
-              field.prefix = getDealStatus(deal.status).color
-            }
-
-            if (field.fieldtype === 'Table') {
-              deal[field.fieldname] = []
-            }
-          })
-        })
-      })
-    })
-    return hasFields ? parsedTabs : []
-  },
-})
-
-const showQuickEntryModal = ref(false)
-
-function openQuickEntryModal() {
-  showQuickEntryModal.value = true
-  showConvertToDealModal.value = false
+function trackPhoneActivities(type = 'phone') {
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
 }
 
 function applyMessageTemplate(template) {

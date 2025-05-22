@@ -297,6 +297,13 @@
    "options": "CRM Status Change Log"
   },
   {
+   "fieldname": "sales_funnel",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Sales Funnel",
+   "options": "CRM Funnel"
+  },
+  {
    "fieldname": "products_tab",
    "fieldtype": "Tab Break",
    "label": "Products"

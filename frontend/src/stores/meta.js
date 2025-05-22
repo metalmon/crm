@@ -62,7 +62,16 @@ export function getMeta(doctype) {
         currency = currency
         // TODO: Handle this case
       } else if (doc && doc[df.options]) {
-        currency = doc[df.options]
+        // Check if document's currency field has an explicitly set value
+        // and it's different from the system default
+        const docCurrency = doc[df.options];
+        
+        // Only use document's currency if it's explicitly set (not empty)
+        // This ensures system default is used when the field isn't set
+        if (docCurrency && docCurrency.trim() !== '') {
+          currency = docCurrency;
+        }
+        //currency = doc[df.options]
       } else if (parentDoc && parentDoc[df.options]) {
         currency = parentDoc[df.options]
       }
