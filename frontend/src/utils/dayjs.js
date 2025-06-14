@@ -47,13 +47,30 @@ export async function setDayjsLocale(locale = null) {
 // Format date with current locale
 export function formatDate(date, format = 'L LTS') {
   if (!date) return ''
-  return dayjs(date).format(format)
+  return toUserTimezone(date).format(format)
 }
 
 // Get relative time in current locale
 export function timeAgo(date) {
-  if (!date) return ''
-  return dayjs(date).fromNow()
+  if (!date) {
+    return ''
+  }
+  const dateInUserTimezone = toUserTimezone(date);
+  
+  // Check if the date is valid before proceeding
+  if (!dateInUserTimezone.isValid()) {
+    return ''
+  }
+
+  const nowInUserTimezone = toUserTimezone(dayjs());
+  let fromNowResult = dateInUserTimezone.from(nowInUserTimezone);
+  
+  // Safeguard: Ensure fromNowResult is never undefined
+  if (typeof fromNowResult === 'undefined') {
+    return '';
+  }
+
+  return fromNowResult;
 }
 
 // Initialize with default locale
@@ -63,14 +80,19 @@ setDayjsLocale()
 export function toUserTimezone(date) {
   if (!date) return dayjs()
   const userTz = window.timezone?.user || dayjs.tz.guess()
-  return dayjs(date).tz(userTz)
+  const systemTz = window.timezone?.system || 'UTC';
+  // Parse the date string assuming it's in the system timezone (server timezone)
+  const parsedDate = dayjs.tz(date, systemTz);
+  return parsedDate.tz(userTz)
 }
 
 // Convert date to system timezone
 export function toSystemTimezone(date) {
   if (!date) return dayjs()
   const systemTz = window.timezone?.system || 'UTC'
-  return dayjs(date).tz(systemTz)
+  // Parse the date string assuming it's in the system timezone (server timezone)
+  const parsedDate = dayjs.tz(date, systemTz);
+  return parsedDate.tz(systemTz)
 }
 
 // Format date in user's timezone

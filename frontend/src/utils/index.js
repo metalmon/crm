@@ -10,7 +10,8 @@ import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import localDayjs, { 
   formatDateInUserTimezone, 
   formatDateInSystemTimezone,
-  toUserTimezone 
+  toUserTimezone,
+  timeAgo as dayjsTimeAgo,
 } from './dayjs'
 
 export function formatTime(seconds) {
@@ -87,10 +88,7 @@ export function getFormat(
   }
 }
 
-export function timeAgo(date) {
-  if (!date) return ''
-  return localDayjs(date).fromNow()
-}
+export const timeAgo = dayjsTimeAgo
 
 function getBrowserTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone
