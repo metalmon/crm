@@ -675,21 +675,37 @@ def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False, only_re
 
 
 @frappe.whitelist()
-def remove_assignments(doctype, name, assignees, ignore_permissions=False):
+def remove_assignments(doctype, name, assignees, ignore_permissions=False, retry_count=3):
 	assignees = json.loads(assignees)
 
 	if not assignees:
 		return
 
 	for assign_to in assignees:
-		set_status(
-			doctype,
-			name,
-			todo=None,
-			assign_to=assign_to,
-			status="Cancelled",
-			ignore_permissions=ignore_permissions,
-		)
+		for attempt in range(retry_count):
+			try:
+				set_status(
+					doctype,
+					name,
+					todo=None,
+					assign_to=assign_to,
+					status="Cancelled",
+					ignore_permissions=ignore_permissions,
+				)
+				break  # Break inner loop if successful
+			except Exception as e:
+				error_message = str(e)
+				is_deadlock = "Deadlock found when trying to get lock" in error_message
+
+				if is_deadlock and attempt < retry_count - 1:
+					frappe.log_error(_("Deadlock detected in unassignment, retrying... (Attempt {0}/{1})").format(attempt + 1, retry_count))
+					continue
+				else:
+					frappe.log_error(_("Error in unassignment: {0}").format(error_message))
+					frappe.throw(_("Error while unassigning: {0}").format(error_message))
+		else:
+			frappe.throw(_("Failed to unassign after multiple attempts"))
+
 
 @frappe.whitelist()
 def get_assigned_users(doctype, name, default_assigned_to=None):

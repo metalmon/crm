@@ -2,8 +2,10 @@
   <div
     class="my-3 flex items-center justify-between text-lg font-medium sm:mb-4 sm:mt-8"
   >
-    <div class="flex h-8 items-center text-xl font-semibold text-ink-gray-8">
-      {{ __('Data') }}
+    <div class="flex h-8 items-baseline text-xl font-semibold text-ink-gray-8">
+      <div class="mr-2">
+        {{ __('Data') }}
+      </div>
       <Badge
         v-if="document.isDirty"
         class="ml-3"

@@ -14,7 +14,7 @@
           :options="statusOptions('deal', document, deal.data._customStatuses)"
         >
           <template #default="{ open }">
-            <Button :label="translateDealStatus(document.doc.status)">
+            <Button :label="getDealStatus(document.doc.status).label">
               <template #prefix>
                 <IndicatorIcon
                   :class="getDealStatus(document.doc.status).color"
@@ -347,7 +347,6 @@ import {
 import { ref, computed, h, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
-import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 
 const { brand } = getSettings()

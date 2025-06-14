@@ -3,8 +3,8 @@
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+          <div class="flex items-baseline">
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
               {{ __('Create Lead') }}
             </h3>
             <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
@@ -61,7 +61,7 @@ import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { capture } from '@/telemetry'
 import { createResource, Badge } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { useDocument } from '@/data/document'
 import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'

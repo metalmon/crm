@@ -309,7 +309,6 @@ import { formatDate, timeAgo, website, formatTime } from '@/utils'
 import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import { ref, reactive, computed, h, watch } from 'vue'
-import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import SmartFilterField from '@/components/SmartFilterField.vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
@@ -463,7 +462,7 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(deal.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: translateDealStatus(deal.status),
+          label: getDealStatus(deal.status).label,
           value: deal.status,
           color: getDealStatus(deal.status)?.color,
         }

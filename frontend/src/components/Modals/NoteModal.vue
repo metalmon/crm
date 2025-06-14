@@ -13,8 +13,8 @@
     }"
   >
     <template #body-title>
-      <div class="flex items-center gap-3">
-        <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+      <div class="flex items-baseline gap-3">
+        <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
           {{ editMode ? __('Edit Note') : __('Create Note') }}
         </h3>
         <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />

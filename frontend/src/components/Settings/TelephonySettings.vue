@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-full flex-col gap-8 p-8">
     <h2
-      class="flex gap-2 text-xl font-semibold leading-none h-5 text-ink-gray-9"
+      class="flex items-baseline gap-2 text-xl font-semibold leading-none h-5 text-ink-gray-9"
     >
-      <div>{{ __('Telephony Settings') }}</div>
+      <div class="mr-2">{{ __('Telephony Settings') }}</div>
       <Badge
         v-if="twilio.isDirty || exotel.isDirty || beeline.isDirty || mediumChanged"
         :label="__('Not Saved')"

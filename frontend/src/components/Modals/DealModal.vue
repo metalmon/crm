@@ -3,8 +3,8 @@
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+          <div class="flex items-baseline">
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
               {{ __('Create Deal') }}
             </h3>
             <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />

@@ -23,6 +23,8 @@ export const statusesStore = defineStore('crm-statuses', () => {
       for (let status of statuses) {
         status.kanbanColor = status.color
         status.color = parseColor(status.color)
+        status.value = status.name
+        status.label = translateLeadStatus(status.name)
         leadStatusesByName[status.name] = status
       }
       return statuses
@@ -40,6 +42,8 @@ export const statusesStore = defineStore('crm-statuses', () => {
       for (let status of statuses) {
         status.kanbanColor = status.color
         status.color = parseColor(status.color)
+        status.value = status.name
+        status.label = translateDealStatus(status.name)
         dealStatusesByName[status.name] = status
       }
       return statuses
@@ -97,15 +101,16 @@ export const statusesStore = defineStore('crm-statuses', () => {
     }
 
     let options = []
-    for (const status in statusesByName) {
+    for (const statusName in statusesByName) {
+      const statusObject = statusesByName[statusName]
       options.push({
-        label: doctype === 'deal' ? translateDealStatus(statusesByName[status]?.name || status) : translateLeadStatus(statusesByName[status]?.name || status),
-        value: statusesByName[status]?.name,
-        icon: () => h(IndicatorIcon, { class: statusesByName[status]?.color }),
+        label: statusObject.label,
+        value: statusObject.value,
+        icon: () => h(IndicatorIcon, { class: statusObject.color }),
         onClick: () => {
-          capture('status_changed', { doctype, status })
+          capture('status_changed', { doctype, status: statusObject.value })
           if (document) {
-            document.doc.status = statusesByName[status]?.name
+            document.doc.status = statusObject.value
             document.save.submit()
           }
         },

@@ -26,7 +26,7 @@
         :options="statusOptions('lead', document, lead.data._customStatuses)"
       >
         <template #default="{ open }">
-          <Button :label="translateLeadStatus(document.doc.status)">
+          <Button :label="getLeadStatus(document.doc.status).label">
             <template #prefix>
               <IndicatorIcon
                 :class="getLeadStatus(document.doc.status).color"
@@ -416,8 +416,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { findContactByEmail } from '@/utils/contactUtils'
-import { translateLeadStatus } from '@/utils/leadStatusTranslations'
-import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 
@@ -685,7 +683,7 @@ const dealTabs = createResource({
               field.fieldtype = 'Select';
               field.options = dealStatuses.value.map(status => ({
                 ...status,
-                label: translateDealStatus(status.label)
+                label: status.label
               }));
               field.prefix = getDealStatus(deal.status).color;
             }
@@ -702,8 +700,6 @@ const dealTabs = createResource({
     return hasFields ? parsedTabs : [];
   },
 })
-
-const showQuickEntryModal = ref(false)
 
 function openQuickEntryModal() {
   showQuickEntryModal.value = true
@@ -736,24 +732,30 @@ async function convertToDeal() {
   const _deal = await triggerConvertToDeal?.(
     lead.data,
     deal,
-    () => (showConvertToDealModal.value = false),
     existingContact.value,
     existingOrganization.value
-  ).catch((err) => {
-    toast.error(__('Error converting to deal: {0}', [err.messages?.[0]]))
+  )
+  .then((dealName) => {
+    showConvertToDealModal.value = false;
+    existingContactChecked.value = false;
+    existingOrganizationChecked.value = false;
+    existingContact.value = '';
+    existingOrganization.value = '';
+    
+    try {
+      updateOnboardingStep('convert_lead_to_deal', true, false, () => {
+        localStorage.setItem('firstDeal' + user, dealName);
+      });
+    } catch (e) {
+      console.error("Error updating onboarding step for deal conversion:", e);
+    }
+
+    capture('convert_lead_to_deal');
   })
-  if (_deal) {
-    showConvertToDealModal.value = false
-    existingContactChecked.value = false
-    existingOrganizationChecked.value = false
-    existingContact.value = ''
-    existingOrganization.value = ''
-    updateOnboardingStep('convert_lead_to_deal', true, false, () => {
-      localStorage.setItem('firstDeal' + user, _deal)
-    })
-    capture('convert_lead_to_deal')
-    router.push({ name: 'Deal', params: { dealId: _deal } })
-  }
+  .catch((err) => {
+    toast.error(__('Error converting to deal: {0}', [err.message]));
+    showConvertToDealModal.value = false;
+  });
 }
 
 const activities = ref(null)

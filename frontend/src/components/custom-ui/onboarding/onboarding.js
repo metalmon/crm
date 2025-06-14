@@ -18,6 +18,10 @@ export function useOnboarding(appName) {
     false,
   )
 
+  if (!Array.isArray(onboardings[appName])) {
+    onboardings[appName] = []
+  }
+
   const onboardingSteps = computed(
     () => onboardingStatus.value?.[appName + '_onboarding_status'] || [],
   )
@@ -40,7 +44,7 @@ export function useOnboarding(appName) {
   const totalSteps = computed(() => onboardings[appName]?.length || 0)
 
   const completedPercentage = computed(() =>
-    Math.floor((stepsCompleted.value / totalSteps.value) * 100),
+    totalSteps.value > 0 ? Math.floor((stepsCompleted.value / totalSteps.value) * 100) : 0,
   )
 
   function skip(step, callback = null) {
@@ -60,30 +64,34 @@ export function useOnboarding(appName) {
   }
 
   function updateOnboardingStep(
-    step,
+    stepName,
     value = true,
     skipped = false,
     callback = null,
   ) {
     if (isOnboardingStepsCompleted.value) return
 
-    if (!onboardingSteps.value.length) {
-      onboardingStatus.value[appName + '_onboarding_status'] = onboardings[
-        appName
-      ].map((s) => {
-        return { name: s.name, completed: false }
-      })
+    if (!onboardingStatus.value[appName + '_onboarding_status']) {
+      onboardingStatus.value[appName + '_onboarding_status'] = [];
     }
 
-    let index = onboardingSteps.value.findIndex((s) => s.name === step)
-    if (index !== -1) {
-      onboardingSteps.value[index].completed = value
-      onboardings[appName][index].completed = value
+    let statusIndex = onboardingStatus.value[appName + '_onboarding_status'].findIndex((s) => s.name === stepName)
+    if (statusIndex !== -1) {
+      onboardingStatus.value[appName + '_onboarding_status'][statusIndex].completed = value
+    } else {
+      onboardingStatus.value[appName + '_onboarding_status'].push({ name: stepName, completed: value })
     }
 
-    updateUserOnboardingStatus(onboardingSteps.value)
+    let definitionIndex = onboardings[appName].findIndex((s) => s.name === stepName);
+    if (definitionIndex !== -1) {
+        onboardings[appName][definitionIndex].completed = value;
+    } else {
+        onboardings[appName].push({ name: stepName, completed: value });
+    }
 
-    callback?.(step, skipped)
+    updateUserOnboardingStatus(onboardingStatus.value[appName + '_onboarding_status'])
+
+    callback?.(stepName, skipped)
 
     minimize.value = false
   }
@@ -91,23 +99,27 @@ export function useOnboarding(appName) {
   function updateAll(value, callback = null) {
     if (isOnboardingStepsCompleted.value && value) return
 
-    if (!onboardingSteps.value.length) {
-      onboardingStatus.value[appName + '_onboarding_status'] = onboardings[
-        appName
-      ].map((s) => {
+    if (!onboardingStatus.value[appName + '_onboarding_status']) {
+      onboardingStatus.value[appName + '_onboarding_status'] = [];
+    }
+
+    if (onboardingStatus.value[appName + '_onboarding_status'].length === 0 && Array.isArray(onboardings[appName])) {
+      onboardingStatus.value[appName + '_onboarding_status'] = onboardings[appName].map((s) => {
         return { name: s.name, completed: value }
       })
     } else {
-      onboardingSteps.value.forEach((step) => {
-        step.completed = value
+      onboardingStatus.value[appName + '_onboarding_status'].forEach((s) => {
+        s.completed = value
       })
     }
 
-    onboardings[appName].forEach((step) => {
-      step.completed = value
-    })
+    if (Array.isArray(onboardings[appName])) {
+      onboardings[appName].forEach((s) => {
+        s.completed = value
+      })
+    }
 
-    updateUserOnboardingStatus(onboardingSteps.value)
+    updateUserOnboardingStatus(onboardingStatus.value[appName + '_onboarding_status'])
 
     callback?.(value)
   }
@@ -124,9 +136,19 @@ export function useOnboarding(appName) {
 
     if (onboardingSteps.value.length) {
       let _steps = onboardingSteps.value
-      _steps.forEach((step, index) => {
-        onboardings[appName][index].completed = step.completed
-      })
+      if (Array.isArray(onboardings[appName])) {
+          _steps.forEach((s) => {
+            const existingStep = onboardings[appName].find(oStep => oStep.name === s.name);
+            if (existingStep) {
+                existingStep.completed = s.completed;
+            } else {
+                onboardings[appName].push({ name: s.name, completed: s.completed });
+            }
+          });
+      } else {
+          onboardings[appName] = _steps.map(s => ({ name: s.name, completed: s.completed }));
+      }
+
       isOnboardingStepsCompleted.value = _steps.every((step) => step.completed)
     } else {
       isOnboardingStepsCompleted.value = false
@@ -134,10 +156,10 @@ export function useOnboarding(appName) {
   }
 
   function setUp(steps) {
-    if (onboardings[appName]) return
-
-    onboardings[appName] = steps
-    syncStatus()
+    if (Array.isArray(steps)) {
+        onboardings[appName] = steps;
+        syncStatus();
+    }
   }
 
   return {

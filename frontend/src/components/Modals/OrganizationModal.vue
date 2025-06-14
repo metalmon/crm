@@ -2,9 +2,9 @@
   <Dialog v-model="dialogShow" :options="{ size: 'xl' }">
     <template #body>
       <div class="px-4 pt-5 pb-6 bg-surface-modal sm:px-6">
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+        <div class="mb-5 flex items-center justify-between">
+          <div class="flex items-baseline">
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
               {{ __('New Organization') }}
             </h3>
             <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />

@@ -673,7 +673,6 @@ function getParsedSections(_sections) {
 
 const showContactModal = ref(false)
 const _contact = ref({})
-const showQuickEntryModal = ref(false)
 
 function contactOptions(contact) {
   let options = [

@@ -341,7 +341,6 @@ import { formatDate, timeAgo, website, formatTime } from '@/utils'
 import { Avatar, Tooltip, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import { ref, computed, reactive, h, watch } from 'vue'
-import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Lead')
@@ -496,9 +495,8 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(lead.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: translateLeadStatus(lead.status),
-          value: lead.status,
-          color: getLeadStatus(lead.status)?.color,
+          label: getLeadStatus(lead.status).label,
+          indicatorClass: getLeadStatus(lead.status).color,
         }
       } else if (row == 'sla_status') {
         let value = lead.sla_status

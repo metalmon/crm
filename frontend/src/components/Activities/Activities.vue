@@ -538,7 +538,6 @@ import {
   onBeforeUnmount,
 } from 'vue'
 import { useRoute } from 'vue-router'
-import { filterEmailActivities } from '@/utils/activity_filters'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 import dayjs from '@/utils/dayjs'

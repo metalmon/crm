@@ -1,7 +1,9 @@
 <template>
   <div class="flex h-full flex-col gap-8 p-8 text-ink-gray-9">
-    <h2 class="flex gap-2 text-xl font-semibold leading-none h-5">
-      {{ __('General') }}
+    <h2 class="flex items-baseline gap-2 text-xl font-semibold leading-none h-5">
+      <div class="mr-2">
+        {{ __('General') }}
+      </div>
       <Badge
         v-if="settings.isDirty"
         :label="__('Not Saved')"
