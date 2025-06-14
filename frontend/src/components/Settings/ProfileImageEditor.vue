@@ -1,7 +1,7 @@
 <template>
   <FileUploader
     @success="(file) => setUserImage(file.file_url)"
-    :validateFile="validateFile"
+    :validateFile="validateIsImageFile"
   >
     <template v-slot="{ file, progress, error, uploading, openFileSelector }">
       <div class="flex flex-col items-center">
@@ -48,6 +48,7 @@
 </template>
 <script setup>
 import { FileUploader } from 'frappe-ui'
+import { validateIsImageFile } from '@/utils';
 
 const profile = defineModel()
 

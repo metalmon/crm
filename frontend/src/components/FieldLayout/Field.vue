@@ -216,7 +216,7 @@
       v-else
       type="text"
       :placeholder="getPlaceholder(field)"
-      :value="data[field.fieldname]"
+      :value="getDataValue(data[field.fieldname], field)"
       :disabled="Boolean(field.read_only)"
       :description="field.description"
       @change="fieldChange($event.target.value, field)"
@@ -403,6 +403,13 @@ function fieldChange(value, df) {
 }
 
 const tempImages = ref({}) // { [fieldname]: tempUrl }
+
+function getDataValue(value, field) {
+  if (field.fieldtype === 'Duration') {
+    return value || 0
+  }
+  return value
+}
 </script>
 <style scoped>
 :deep(.form-control.prefix select) {

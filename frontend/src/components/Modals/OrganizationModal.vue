@@ -1,12 +1,13 @@
 <template>
   <Dialog v-model="dialogShow" :options="{ size: 'xl' }">
     <template #body>
-      <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
-        <div class="mb-5 flex items-center justify-between">
+      <div class="px-4 pt-5 pb-6 bg-surface-modal sm:px-6">
+        <div class="flex items-center justify-between mb-5">
           <div>
             <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('New Organization') }}
             </h3>
+            <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
           </div>
           <div class="flex items-center gap-1">
             <Button
@@ -15,7 +16,7 @@
               class="w-7"
               @click="openQuickEntryModal"
             >
-              <EditIcon class="h-4 w-4" />
+              <EditIcon class="w-4 h-4" />
             </Button>
             <Button variant="ghost" class="w-7" @click="handleClose">
               <FeatherIcon name="x" class="h-4 w-4" />
@@ -25,12 +26,13 @@
         <FieldLayout
           v-if="tabs.data?.length"
           :tabs="tabs.data"
-          :data="_organization"
+          :data="organization.doc"
           doctype="CRM Organization"
           @change="handleFieldChange"
         />
+        <ErrorMessage class="mt-8" v-if="error" :message="__(error)" />
       </div>
-      <div class="px-4 pb-7 pt-4 sm:px-6">
+      <div class="px-4 pt-4 pb-7 sm:px-6">
         <div class="space-y-2">
           <Button
             class="w-full"
@@ -56,12 +58,24 @@ import EditIcon from '@/components/Icons/EditIcon.vue'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { usersStore } from '@/stores/users'
 import { isMobileView } from '@/composables/settings'
+import {
+  showQuickEntryModal,
+  quickEntryProps,
+  showAddressModal,
+  addressProps,
+} from '@/composables/modals'
+import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
-import { call, FeatherIcon, createResource } from 'frappe-ui'
-import { ref, nextTick, watch } from 'vue'
+import { call, FeatherIcon, createResource, Badge } from 'frappe-ui'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({}),
+  },
   options: {
     type: Object,
     default: {
@@ -71,41 +85,48 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['openAddressModal'])
-
 const { isManager } = usersStore()
 
 const router = useRouter()
 const show = defineModel()
 const dialogShow = ref(false)
 const showConfirmClose = ref(false)
-const organization = defineModel('organization')
 
 const loading = ref(false)
-const isDirty = ref(false)
+const error = ref(null)
 const tempFormData = ref(null)
+const shouldOpenLayoutSettings = ref(false)
 
-let _organization = ref({
-  organization_name: '',
-  website: '',
-  annual_revenue: '',
-  no_of_employees: '1-10',
-  industry: '',
-})
+const { isDirty, markAsDirty, resetDirty } = useDirtyState()
 
-let doc = ref({})
+const { document: organization } = useDocument('CRM Organization', props.data?.name || '')
 
 async function createOrganization() {
-  const doc = await call('frappe.client.insert', {
-    doc: {
-      doctype: 'CRM Organization',
-      ..._organization.value,
-    },
-  })
-  loading.value = false
-  if (doc.name) {
-    capture('organization_created')
-    handleOrganizationUpdate(doc)
+  loading.value = true
+  try {
+    const doc = await call(
+      'frappe.client.insert',
+      {
+        doc: {
+          doctype: 'CRM Organization',
+          ...organization.doc,
+        },
+      },
+      {
+        onError: (err) => {
+          if (err.error.exc_type == 'ValidationError') {
+            error.value = err.error?.messages?.[0]
+          }
+        },
+      },
+    )
+    if (doc.name) {
+      capture('organization_created')
+      handleOrganizationUpdate(doc)
+      resetDirty()
+    }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -115,9 +136,9 @@ function handleOrganizationUpdate(doc) {
       name: 'Organization',
       params: { organizationId: doc.name },
     })
-  } else {
-    organization.value?.reload?.()
   }
+  resetDirty()
+  dialogShow.value = false
   show.value = false
   props.options.afterInsert && props.options.afterInsert(doc)
 }
@@ -134,17 +155,17 @@ const tabs = createResource({
           column.fields.forEach((field) => {
             if (field.fieldname == 'address') {
               field.create = (value, close) => {
-                _organization.value.address = value
-                emit('openAddressModal')
-                show.value = false
+                organization.doc.address = value
+                openAddressModal()
+                dialogShow.value = false
                 close()
               }
               field.edit = (address) => {
-                emit('openAddressModal', address)
-                show.value = false
+                openAddressModal(address)
+                dialogShow.value = false
               }
             } else if (field.fieldtype === 'Table') {
-              _organization.value[field.fieldname] = []
+              organization.doc[field.fieldname] = []
             }
           })
         })
@@ -153,30 +174,28 @@ const tabs = createResource({
   },
 })
 
-const showQuickEntryModal = defineModel('showQuickEntryModal')
-const shouldOpenLayoutSettings = ref(false)
-
 function openQuickEntryModal() {
   if (isDirty.value) {
-    tempFormData.value = { ...      _organization.value }
+    tempFormData.value = { ...organization.doc }
     shouldOpenLayoutSettings.value = true
     showConfirmClose.value = true
   } else {
     dialogShow.value = false
     nextTick(() => {
       showQuickEntryModal.value = true
+      quickEntryProps.value = { doctype: 'CRM Organization' }
       show.value = false
     })
   }
 }
 
 function handleFieldChange() {
-  isDirty.value = true
+  markAsDirty()
 }
 
 function handleClose() {
   if (isDirty.value) {
-    tempFormData.value = { ...      _organization.value }
+    tempFormData.value = { ...organization.doc }
     showConfirmClose.value = true
   } else {
     dialogShow.value = false
@@ -185,15 +204,16 @@ function handleClose() {
 }
 
 function confirmClose() {
-  isDirty.value = false
+  resetDirty()
   tempFormData.value = null
-  _organization.value = {}
+  organization.doc = {}
   dialogShow.value = false
   show.value = false
   
   if (shouldOpenLayoutSettings.value) {
     nextTick(() => {
       showQuickEntryModal.value = true
+      quickEntryProps.value = { doctype: 'CRM Organization' }
       shouldOpenLayoutSettings.value = false
     })
   }
@@ -203,7 +223,7 @@ function cancelClose() {
   showConfirmClose.value = false
   shouldOpenLayoutSettings.value = false
   if (tempFormData.value) {
-    _organization.value = tempFormData.value
+    Object.assign(organization.doc, tempFormData.value)
     tempFormData.value = null
   }
 }
@@ -216,12 +236,12 @@ watch(
       showConfirmClose.value = true
       nextTick(() => {
         if (tempFormData.value) {
-          _organization.value = tempFormData.value
+          Object.assign(organization.doc, tempFormData.value)
         }
         dialogShow.value = true
       })
     } else {
-      _organization.value = {}
+      organization.doc = {}
       tempFormData.value = null
       show.value = false
     }
@@ -233,11 +253,13 @@ watch(
   (value) => {
     if (value === dialogShow.value) return
     if (value) {
-      isDirty.value = false
+      resetDirty()
+      // Initialize organization.doc when the main modal opens
+      organization.doc = { no_of_employees: '1-10', ...props.data }
       dialogShow.value = true
     } else {
       tempFormData.value = null
-      dialogShow.value = true
+      dialogShow.value = false
     }
   },
   { immediate: true }
@@ -251,17 +273,18 @@ watch(
     }
   }
 )
-</script>
 
-watch(
-  () => show.value,
-  (value) => {
-    if (value === dialogShow.value) return
-    if (value) {
-      _organization.value = {}
-      isDirty.value = false
-      dialogShow.value = true
-    }
-  },
-  { immediate: true }
-)
+function openAddressModal(_address) {
+  showAddressModal.value = true
+  addressProps.value = {
+    doctype: 'Address',
+    address: _address,
+  }
+  nextTick(() => (show.value = false))
+}
+
+onMounted(() => {
+  // Initial assignment is now handled in the `show` watch when the modal opens
+  // This ensures `resetDirty` is called and data is correctly initialized
+})
+</script>

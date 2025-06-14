@@ -17,18 +17,13 @@
         <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
           {{ editMode ? __('Edit Note') : __('Create Note') }}
         </h3>
-        <Button
-          v-if="_note?.reference_docname"
-          size="sm"
-          :label="
-            _note.reference_doctype == 'CRM Deal'
-              ? __('Open Deal')
-              : __('Open Lead')
-          "
-          @click="redirect()"
-        >
+        <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
+        <Button v-if="_note?.reference_docname" size="sm" :label="_note.reference_doctype == 'CRM Deal'
+          ? __('Open Deal')
+          : __('Open Lead')
+          " @click="redirect()">
           <template #suffix>
-            <ArrowUpRightIcon class="h-4 w-4" />
+            <ArrowUpRightIcon class="w-4 h-4" />
           </template>
         </Button>
       </div>
@@ -41,14 +36,13 @@
             :label="__('Title')"
             v-model="_note.title"
             :placeholder="__('Call with John Doe')"
+            required
             @update:modelValue="handleFieldChange"
           />
         </div>
         <div>
           <div class="mb-1.5 text-xs text-ink-gray-5">{{ __('Content') }}</div>
-          <TextEditor
-            variant="outline"
-            ref="content"
+          <TextEditor variant="outline" ref="content"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
             :content="_note.content"
@@ -58,6 +52,7 @@
             "
           />
         </div>
+        <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
       </div>
     </template>
   </Dialog>
@@ -72,10 +67,12 @@
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { capture } from '@/telemetry'
-import { TextEditor, call } from 'frappe-ui'
-import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
-import { ref, nextTick, watch } from 'vue'
+import { TextEditor, call, createResource, Badge } from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { useDocument } from '@/data/document'
+import { ref, nextTick, watch, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
   note: {
@@ -95,6 +92,7 @@ const props = defineProps({
 const show = defineModel()
 const dialogShow = ref(false)
 const showConfirmClose = ref(false)
+const shouldOpenLayoutSettings = ref(false)
 
 const notes = defineModel('reloadNotes')
 
@@ -104,21 +102,22 @@ const router = useRouter()
 
 const { updateOnboardingStep } = useOnboarding('frappecrm')
 
+const error = ref(null)
 const title = ref(null)
 const editMode = ref(false)
-const isDirty = ref(false)
-let _note = ref({})
+
+const { isDirty, markAsDirty, resetDirty } = useDirtyState()
+
+const { document: _note } = useDocument('FCRM Note', props.note?.name || '')
 
 watch(
   () => show.value,
   (value) => {
-    if (value === dialogShow.value) return
-    if (value) {
-      _note.value = { ...props.note }
-      editMode.value = !!props.note.name
-      isDirty.value = false
-      dialogShow.value = true
-    }
+    if (!value) return
+    editMode.value = !!props.note.name
+    resetDirty()
+    dialogShow.value = true
+    _note.doc = { ...props.note }
   },
   { immediate: true }
 )
@@ -139,11 +138,12 @@ watch(
 )
 
 function handleFieldChange() {
-  isDirty.value = true
+  markAsDirty()
 }
 
 function handleClose() {
   if (isDirty.value) {
+    shouldOpenLayoutSettings.value = false
     showConfirmClose.value = true
   } else {
     dialogShow.value = false
@@ -152,32 +152,35 @@ function handleClose() {
 }
 
 function confirmClose() {
-  isDirty.value = false
+  resetDirty()
   dialogShow.value = false
   show.value = false
+  
+  if (shouldOpenLayoutSettings.value) {
+    showQuickEntryModal.value = true
+    quickEntryProps.value = { doctype: 'FCRM Note' }
+    nextTick(() => {
+      shouldOpenLayoutSettings.value = false
+    })
+  }
 }
 
 function cancelClose() {
   showConfirmClose.value = false
+  shouldOpenLayoutSettings.value = false
 }
 
 async function updateNote() {
-  if (
-    props.note.title === _note.value.title &&
-    props.note.content === _note.value.content
-  )
-    return
-
-  if (_note.value.name) {
+  if (_note.doc.name) {
     let d = await call('frappe.client.set_value', {
       doctype: 'FCRM Note',
-      name: _note.value.name,
-      fieldname: _note.value,
+      name: _note.doc.name,
+      fieldname: _note.doc,
     })
     if (d.name) {
       notes.value?.reload()
       emit('after', d)
-      isDirty.value = false
+      resetDirty()
       dialogShow.value = false
       show.value = false
     }
@@ -185,18 +188,24 @@ async function updateNote() {
     let d = await call('frappe.client.insert', {
       doc: {
         doctype: 'FCRM Note',
-        title: _note.value.title,
-        content: _note.value.content,
+        title: _note.doc.title,
+        content: _note.doc.content,
         reference_doctype: props.doctype,
         reference_docname: props.doc || '',
       },
+    }, {
+      onError: (err) => {
+        if (err.error.exc_type == 'MandatoryError') {
+          error.value = __("Title is mandatory")
+        }
+      }
     })
     if (d.name) {
       updateOnboardingStep('create_first_note')
       capture('note_created')
       notes.value?.reload()
       emit('after', d, true)
-      isDirty.value = false
+      resetDirty()
       dialogShow.value = false
       show.value = false
     }

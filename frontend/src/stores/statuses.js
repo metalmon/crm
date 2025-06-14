@@ -81,9 +81,13 @@ export const statusesStore = defineStore('crm-statuses', () => {
     return communicationStatuses[name]
   }
 
-  function statusOptions(doctype, action, statuses = []) {
+  function statusOptions(doctype, document, statuses = []) {
     let statusesByName =
       doctype == 'deal' ? dealStatusesByName : leadStatusesByName
+
+    if (document?.statuses?.length) {
+      statuses = document.statuses
+    }
 
     if (statuses.length) {
       statusesByName = statuses.reduce((acc, status) => {
@@ -100,7 +104,10 @@ export const statusesStore = defineStore('crm-statuses', () => {
         icon: () => h(IndicatorIcon, { class: statusesByName[status]?.color }),
         onClick: () => {
           capture('status_changed', { doctype, status })
-          action && action('status', statusesByName[status]?.name)
+          if (document) {
+            document.doc.status = statusesByName[status]?.name
+            document.save.submit()
+          }
         },
       })
     }

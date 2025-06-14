@@ -422,12 +422,12 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['afterFieldChange', 'reload'])
+
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(props.doctype)
 
 const { isManager, getUser } = usersStore()
-
-const emit = defineEmits(['reload'])
 
 const showSidePanelModal = ref(false)
 
@@ -500,7 +500,13 @@ async function fieldChange(value, df) {
 
   await triggerOnChange(df.fieldname)
 
-  document.save.submit()
+  document.save.submit(null, {
+    onSuccess: () => {
+      emit('afterFieldChange', {
+        [df.fieldname]: value,
+      })
+    },
+  })
 }
 
 function parsedSection(section, editButtonAdded) {

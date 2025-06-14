@@ -12,18 +12,25 @@
         v-if="lead.data._customActions?.length"
         :actions="lead.data._customActions"
       />
+      <CustomActions
+        v-if="document.actions?.length"
+        :actions="document.actions"
+      />
       <AssignTo
-        v-model="lead.data._assignedTo"
-        :data="lead.data"
+        v-model="assignees.data"
+        :data="document.doc"
         doctype="CRM Lead"
       />
       <Dropdown
-        :options="statusOptions('lead', updateField, lead.data._customStatuses)"
+        v-if="document.doc"
+        :options="statusOptions('lead', document, lead.data._customStatuses)"
       >
         <template #default="{ open }">
-          <Button :label="translateLeadStatus(lead.data.status)">
+          <Button :label="translateLeadStatus(document.doc.status)">
             <template #prefix>
-              <IndicatorIcon :class="getLeadStatus(lead.data.status).color" />
+              <IndicatorIcon
+                :class="getLeadStatus(document.doc.status).color"
+              />
             </template>
             <template #suffix>
               <FeatherIcon
@@ -51,6 +58,7 @@
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
           v-model="lead"
+          @afterSave="reloadAssignees"
         />
       </template>
     </Tabs>
@@ -63,7 +71,7 @@
       </div>
       <FileUploader
         @success="(file) => updateField('image', file.file_url)"
-        :validateFile="validateFile"
+        :validateFile="validateIsImageFile"
       >
         <template #default="{ openFileSelector, error }">
           <div class="flex items-center justify-start gap-5 border-b p-5">
@@ -213,6 +221,7 @@
           doctype="CRM Lead"
           :docname="lead.data.name"
           @reload="sections.reload"
+          @afterFieldChange="reloadAssignees"
         />
       </div>
     </Resizer>
@@ -320,12 +329,6 @@
       />
     </template>
   </Dialog>
-  <QuickEntryModal
-    v-if="showQuickEntryModal"
-    v-model="showQuickEntryModal"
-    doctype="CRM Deal"
-    :onlyRequired="true"
-  />
   <FilesUploader
     v-if="lead.data?.name"
     v-model="showFilesUploader"
@@ -370,21 +373,23 @@ import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import Link from '@/components/Controls/Link.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
+import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import {
   openWebsite,
-  setupAssignees,
   setupCustomizations,
   copyToClipboard,
+  validateIsImageFile,
 } from '@/utils'
+import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
 import { sessionStore } from '@/stores/session'
-import { usersStore } from '@/stores/users'
 import { globalStore } from '@/stores/global'
 import { statusesStore } from '@/stores/statuses'
 import { getMeta } from '@/stores/meta'
+import { useDocument } from '@/data/document'
 import {
   whatsappEnabled,
   isMobileView,
@@ -414,8 +419,6 @@ import { findContactByEmail } from '@/utils/contactUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
-import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
-import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 
 const { brand } = getSettings()
@@ -450,7 +453,6 @@ const lead = createResource({
   onSuccess: (data) => {
     errorTitle.value = ''
     errorMessage.value = ''
-    setupAssignees(lead)
     setupCustomizations(lead, {
       doc: data,
       $dialog,
@@ -621,13 +623,6 @@ watch(tabs, (value) => {
   }
 })
 
-function validateFile(file) {
-  let extn = file.name.split('.').pop().toLowerCase()
-  if (!['png', 'jpg', 'jpeg'].includes(extn)) {
-    return __('Only PNG and JPG images are allowed')
-  }
-}
-
 const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
   cache: ['sidePanelSections', 'CRM Lead'],
@@ -658,6 +653,11 @@ const existingOrganizationChecked = ref(false)
 const existingContact = ref('')
 const existingOrganization = ref('')
 
+const { triggerConvertToDeal, assignees, document } = useDocument(
+  'CRM Lead',
+  props.leadId,
+)
+
 const deal = reactive({})
 
 const dealStatuses = computed(() => {
@@ -675,11 +675,11 @@ const dealTabs = createResource({
   auto: true,
   transform: (_tabs) => {
     let hasFields = false;
-    
-    const parsedTabs = _tabs.map((tab) => {
-      tab.sections.forEach((section) => {
-        section.columns.forEach((column) => {
-          column.fields.forEach((field) => {
+
+    const parsedTabs = _tabs?.map((tab) => {
+      tab.sections?.forEach((section) => {
+        section.columns?.forEach((column) => {
+          column.fields?.forEach((field) => {
             hasFields = true;
             if (field.fieldname == 'status') {
               field.fieldtype = 'Select';
@@ -698,7 +698,7 @@ const dealTabs = createResource({
       });
       return tab;
     });
-    
+
     return hasFields ? parsedTabs : [];
   },
 })
@@ -707,6 +707,10 @@ const showQuickEntryModal = ref(false)
 
 function openQuickEntryModal() {
   showQuickEntryModal.value = true
+  quickEntryProps.value = {
+    doctype: 'CRM Deal',
+    onlyRequired: true,
+  }
   showConvertToDealModal.value = false
 }
 
@@ -729,12 +733,13 @@ async function convertToDeal() {
     existingOrganization.value = ''
   }
 
-  let _deal = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
-    lead: lead.data.name,
+  const _deal = await triggerConvertToDeal?.(
+    lead.data,
     deal,
-    existing_contact: existingContact.value,
-    existing_organization: existingOrganization.value,
-  }).catch((err) => {
+    () => (showConvertToDealModal.value = false),
+    existingContact.value,
+    existingOrganization.value
+  ).catch((err) => {
     toast.error(__('Error converting to deal: {0}', [err.messages?.[0]]))
   })
   if (_deal) {
@@ -770,7 +775,7 @@ function trackPhoneActivities(type = 'phone') {
 
 function applyMessageTemplate(template) {
   if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
-  
+
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Lead',
@@ -802,4 +807,10 @@ watch(showConvertToDealModal, async (newValue) => {
     // existingContactChecked.value = false;
   }
 });
+
+function reloadAssignees(data) {
+  if (data?.hasOwnProperty('lead_owner')) {
+    assignees.reload()
+  }
+}
 </script>

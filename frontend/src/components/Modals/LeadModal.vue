@@ -7,6 +7,7 @@
             <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('Create Lead') }}
             </h3>
+            <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
           </div>
           <div class="flex items-center gap-1">
             <Button
@@ -25,7 +26,7 @@
         <div>
           <FieldLayout v-if="tabs.data"
           :tabs="tabs.data"
-          :data="lead"
+          :data="lead.doc"
           @change="handleFieldChange" />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
         </div>
@@ -57,11 +58,14 @@ import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { sessionStore } from '@/stores/session'
 import { isMobileView } from '@/composables/settings'
+import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { capture } from '@/telemetry'
-import { createResource } from 'frappe-ui'
-import { computed, onMounted, ref, reactive, nextTick, watch } from 'vue'
-import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
+import { createResource, Badge } from 'frappe-ui'
+import { useOnboarding } from 'frappe-ui/frappe'
+import { useDocument } from '@/data/document'
+import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
   defaults: Object,
@@ -75,11 +79,24 @@ const { updateOnboardingStep } = useOnboarding('frappecrm')
 const show = defineModel()
 const dialogShow = ref(false)
 const showConfirmClose = ref(false)
+const tempFormData = ref(null)
+const shouldOpenLayoutSettings = ref(false)
 
 const router = useRouter()
 const error = ref(null)
 const isLeadCreating = ref(false)
-const isDirty = ref(false)
+
+const { isDirty, markAsDirty, resetDirty } = useDirtyState()
+
+const { document: lead } = useDocument('CRM Lead')
+
+const leadStatuses = computed(() => {
+  let statuses = statusOptions('lead')
+  if (!lead.doc.status) {
+    lead.doc.status = statuses?.[0]?.value
+  }
+  return statuses
+})
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
@@ -94,34 +111,17 @@ const tabs = createResource({
             if (field.fieldname == 'status') {
               field.fieldtype = 'Select'
               field.options = leadStatuses.value
-              field.prefix = getLeadStatus(lead.status).color
+              field.prefix = getLeadStatus(lead.doc.status).color
             }
 
             if (field.fieldtype === 'Table') {
-              lead[field.fieldname] = []
+              lead.doc[field.fieldname] = []
             }
           })
         })
       })
     })
   },
-})
-
-const lead = reactive({
-  salutation: '',
-  first_name: '',
-  last_name: '',
-  email: '',
-  mobile_no: '',
-  gender: '',
-  organization: '',
-  website: '',
-  no_of_employees: '',
-  territory: '',
-  annual_revenue: '',
-  industry: '',
-  status: '',
-  lead_owner: '',
 })
 
 const createLead = createResource({
@@ -136,43 +136,38 @@ const createLead = createResource({
   },
 })
 
-const leadStatuses = computed(() => {
-  let statuses = statusOptions('lead')
-  if (!lead.status) {
-    lead.status = statuses?.[0]?.value
-  }
-  return statuses
-})
-
 function createNewLead() {
-  if (lead.website && !lead.website.startsWith('http')) {
-    lead.website = 'https://' + lead.website
+  if (lead.doc.website && !lead.doc.website.startsWith('http')) {
+    lead.doc.website = 'https://' + lead.doc.website
   }
 
-  createLead.submit(lead, {
+  createLead.submit(lead.doc, {
     validate() {
       error.value = null
-      if (!lead.first_name) {
+      if (!lead.doc.first_name) {
         error.value = __('First Name is mandatory')
         return error.value
       }
-      if (lead.annual_revenue) {
-        if (typeof lead.annual_revenue === 'string') {
-          lead.annual_revenue = lead.annual_revenue.replace(/,/g, '')
-        } else if (isNaN(lead.annual_revenue)) {
+      if (lead.doc.annual_revenue) {
+        if (typeof lead.doc.annual_revenue === 'string') {
+          lead.doc.annual_revenue = lead.doc.annual_revenue.replace(/,/g, '')
+        } else if (isNaN(lead.doc.annual_revenue)) {
           error.value = __('Annual Revenue should be a number')
           return error.value
         }
       }
-      if (lead.mobile_no && isNaN(lead.mobile_no.replace(/[-+() ]/g, ''))) {
+      if (
+        lead.doc.mobile_no &&
+        isNaN(lead.doc.mobile_no.replace(/[-+() ]/g, ''))
+      ) {
         error.value = __('Mobile No should be a number')
         return error.value
       }
-      if (lead.email && !lead.email.includes('@')) {
+      if (lead.doc.email && !lead.doc.email.includes('@')) {
         error.value = __('Invalid Email')
         return error.value
       }
-      if (!lead.status) {
+      if (!lead.doc.status) {
         error.value = __('Status is required')
         return error.value
       }
@@ -182,6 +177,7 @@ function createNewLead() {
       capture('lead_created')
       isLeadCreating.value = false
       show.value = false
+      resetDirty() // Reset dirty state on success
       router.push({ name: 'Lead', params: { leadId: data.name } })
       updateOnboardingStep('create_first_lead', true, false, () => {
         localStorage.setItem('firstLead' + user, data.name)
@@ -198,15 +194,13 @@ function createNewLead() {
   })
 }
 
-const showQuickEntryModal = defineModel('quickEntry')
-const shouldOpenLayoutSettings = ref(false)
-
 function openQuickEntryModal() {
   if (isDirty.value) {
     shouldOpenLayoutSettings.value = true
     showConfirmClose.value = true
   } else {
     showQuickEntryModal.value = true
+    quickEntryProps.value = { doctype: 'CRM Lead' }
     nextTick(() => {
       dialogShow.value = false
       show.value = false
@@ -215,11 +209,12 @@ function openQuickEntryModal() {
 }
 
 function handleFieldChange() {
-  isDirty.value = true
+  markAsDirty()
 }
 
 function handleClose() {
   if (isDirty.value) {
+    shouldOpenLayoutSettings.value = false // Reset this if user closes via X button without opening quick entry
     showConfirmClose.value = true
   } else {
     dialogShow.value = false
@@ -228,12 +223,13 @@ function handleClose() {
 }
 
 function confirmClose() {
-  isDirty.value = false
+  resetDirty()
   dialogShow.value = false
   show.value = false
   
   if (shouldOpenLayoutSettings.value) {
     showQuickEntryModal.value = true
+    quickEntryProps.value = { doctype: 'CRM Lead' } // Ensure doctype is passed
     nextTick(() => {
       shouldOpenLayoutSettings.value = false
     })
@@ -265,22 +261,38 @@ watch(
   (value) => {
     if (value === dialogShow.value) return
     if (value) {
-      isDirty.value = false
+      resetDirty()
+      // Initialize lead.doc when the main modal opens
+      lead.doc = { no_of_employees: '1-10', ...props.defaults }
+
+      if (!lead.doc?.lead_owner) {
+        lead.doc.lead_owner = getUser().name
+      }
+      if (!lead.doc?.status && leadStatuses.value[0]?.value) {
+        lead.doc.status = leadStatuses.value[0].value
+      }
       dialogShow.value = true
     } else {
-      dialogShow.value = true
+      // Reset lead.doc and tempFormData when the main modal closes clean
+      lead.doc = {}
+      tempFormData = null
+      dialogShow.value = false
     }
   },
   { immediate: true }
 )
 
+watch(
+  () => showQuickEntryModal.value,
+  (value) => {
+    if (!value) {
+      tabs.reload()
+    }
+  }
+)
+
 onMounted(() => {
-  Object.assign(lead, props.defaults)
-  if (!lead.lead_owner) {
-    lead.lead_owner = getUser().name
-  }
-  if (!lead.status && leadStatuses.value[0]?.value) {
-    lead.status = leadStatuses.value[0].value
-  }
+  // Initial assignment is now handled in the `show` watch when the modal opens
+  // This ensures `resetDirty` is called and data is correctly initialized
 })
 </script>

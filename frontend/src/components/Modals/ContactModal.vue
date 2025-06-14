@@ -7,6 +7,7 @@
             <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('New Contact') }}
             </h3>
+            <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
           </div>
           <div class="flex items-center gap-1">
             <Button
@@ -25,7 +26,8 @@
         <FieldLayout
           v-if="tabs.data"
           :tabs="tabs.data"
-          :data="_contact"
+          :data="_contact.doc"
+          doctype="Contact"
           @change="handleFieldChange"
         />
       </div>
@@ -55,10 +57,18 @@ import EditIcon from '@/components/Icons/EditIcon.vue'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { usersStore } from '@/stores/users'
 import { isMobileView } from '@/composables/settings'
+import {
+  showQuickEntryModal,
+  quickEntryProps,
+  showAddressModal,
+  addressProps,
+} from '@/composables/modals'
+import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
-import { call, createResource } from 'frappe-ui'
-import { ref, nextTick, watch } from 'vue'
+import { call, createResource, Badge } from 'frappe-ui'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
   contact: {
@@ -78,8 +88,6 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['openAddressModal'])
-
 const { isManager } = usersStore()
 
 const router = useRouter()
@@ -88,20 +96,22 @@ const dialogShow = ref(false)
 const showConfirmClose = ref(false)
 
 const loading = ref(false)
-const isDirty = ref(false)
 const tempFormData = ref(null)
+const shouldOpenLayoutSettings = ref(false)
 
-let _contact = ref({})
+const { isDirty, markAsDirty, resetDirty } = useDirtyState()
+
+const { document: _contact } = useDocument('Contact')
 
 async function createContact() {
-  if (_contact.value.email_id) {
-    _contact.value.email_ids = [{ email_id: _contact.value.email_id }]
-    delete _contact.value.email_id
+  if (_contact.doc.email_id) {
+    _contact.doc.email_ids = [{ email_id: _contact.doc.email_id }]
+    delete _contact.doc.email_id
   }
 
-  if (_contact.value.mobile_no) {
-    _contact.value.phone_nos = [{ phone: _contact.value.mobile_no }]
-    delete _contact.value.mobile_no
+  if (_contact.doc.mobile_no) {
+    _contact.doc.phone_nos = [{ phone: _contact.doc.mobile_no }]
+    delete _contact.doc.mobile_no
   }
 
   loading.value = true
@@ -109,14 +119,14 @@ async function createContact() {
     const doc = await call('frappe.client.insert', {
       doc: {
         doctype: 'Contact',
-        ..._contact.value,
+        ..._contact.doc,
       },
     })
     
     if (doc.name) {
       capture('contact_created')
-      isDirty.value = false
       handleContactUpdate(doc)
+      resetDirty()
     }
   } finally {
     loading.value = false
@@ -131,7 +141,7 @@ function handleContactUpdate(doc) {
       params: { contactId: doc.name },
     })
   }
-  isDirty.value = false
+  resetDirty()
   dialogShow.value = false
   show.value = false
   props.options.afterInsert && props.options.afterInsert(doc)
@@ -155,17 +165,17 @@ const tabs = createResource({
               field.read_only = false
             } else if (field.fieldname == 'address') {
               field.create = (value, close) => {
-                _contact.value.address = value
-                emit('openAddressModal')
+                _contact.doc.address = value
+                openAddressModal()
                 dialogShow.value = false
                 close()
               }
               field.edit = (address) => {
-                emit('openAddressModal', address)
+                openAddressModal(address)
                 dialogShow.value = false
               }
             } else if (field.fieldtype === 'Table') {
-              _contact.value[field.fieldname] = []
+              _contact.doc[field.fieldname] = []
             }
           })
         })
@@ -174,30 +184,28 @@ const tabs = createResource({
   },
 })
 
-const showQuickEntryModal = defineModel('showQuickEntryModal')
-const shouldOpenLayoutSettings = ref(false)
-
 function openQuickEntryModal() {
   if (isDirty.value) {
-    tempFormData.value = { ..._contact.value }
+    tempFormData.value = { ..._contact.doc }
     shouldOpenLayoutSettings.value = true
     showConfirmClose.value = true
   } else {
     dialogShow.value = false
     nextTick(() => {
       showQuickEntryModal.value = true
+      quickEntryProps.value = { doctype: 'Contact' }
       show.value = false
     })
   }
 }
 
 function handleFieldChange() {
-  isDirty.value = true
+  markAsDirty()
 }
 
 function handleClose() {
   if (isDirty.value) {
-    tempFormData.value = { ..._contact.value }
+    tempFormData.value = { ..._contact.doc }
     showConfirmClose.value = true
   } else {
     dialogShow.value = false
@@ -206,15 +214,16 @@ function handleClose() {
 }
 
 function confirmClose() {
-  isDirty.value = false
+  resetDirty()
   tempFormData.value = null
-  _contact.value = {}
+  _contact.doc = {}
   dialogShow.value = false
   show.value = false
   
   if (shouldOpenLayoutSettings.value) {
     nextTick(() => {
       showQuickEntryModal.value = true
+      quickEntryProps.value = { doctype: 'Contact' }
       shouldOpenLayoutSettings.value = false
     })
   }
@@ -224,7 +233,7 @@ function cancelClose() {
   showConfirmClose.value = false
   shouldOpenLayoutSettings.value = false
   if (tempFormData.value) {
-    _contact.value = tempFormData.value
+    _contact.doc = tempFormData.value
     tempFormData.value = null
   }
 }
@@ -237,12 +246,12 @@ watch(
       showConfirmClose.value = true
       nextTick(() => {
         if (tempFormData.value) {
-          _contact.value = tempFormData.value
+          _contact.doc = tempFormData.value
         }
         dialogShow.value = true
       })
     } else {
-      _contact.value = {}
+      _contact.doc = {}
       tempFormData.value = null
       show.value = false
     }
@@ -254,15 +263,15 @@ watch(
   (value) => {
     if (value === dialogShow.value) return
     if (value) {
-      isDirty.value = false
-      _contact.value = {
+      resetDirty()
+      _contact.doc = {
         ...props.contact,
         ...props.initialValues,
       }
       dialogShow.value = true
     } else {
       tempFormData.value = null
-      dialogShow.value = true
+      dialogShow.value = false
     }
   },
   { immediate: true }
@@ -276,6 +285,15 @@ watch(
     }
   }
 )
+
+function openAddressModal(_address) {
+  showAddressModal.value = true
+  addressProps.value = {
+    doctype: 'Address',
+    address: _address,
+  }
+  nextTick(() => (show.value = false))
+}
 </script>
 
 <style scoped>

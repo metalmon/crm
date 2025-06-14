@@ -3,11 +3,11 @@ import TaskStatusIcon from '@/components/Icons/TaskStatusIcon.vue'
 import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import { usersStore } from '@/stores/users'
 import { gemoji } from 'gemoji'
-import { toast } from 'frappe-ui'
+import { toast, getConfig } from 'frappe-ui'
 import { h } from 'vue'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
-import dayjs, { 
+import localDayjs, { 
   formatDateInUserTimezone, 
   formatDateInSystemTimezone,
   toUserTimezone 
@@ -88,12 +88,132 @@ export function getFormat(
 }
 
 export function timeAgo(date) {
+  return prettyDate(date)
+}
+
+function getBrowserTimezone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone
+}
+
+export function prettyDate(date, mini = false) {
   if (!date) return ''
-  try {
-    return toUserTimezone(date).fromNow()
-  } catch (e) {
-    console.warn('Error calculating time ago:', e)
-    return ''
+
+  let systemTimezone = getConfig('systemTimezone')
+  let localTimezone = getConfig('localTimezone') || getBrowserTimezone()
+
+  if (typeof date == 'string') {
+    date = localDayjs(date)
+  }
+
+  let nowDatetime = localDayjs().tz(localTimezone || systemTimezone)
+  let diff = nowDatetime.diff(date, 'seconds')
+
+  let dayDiff = Math.floor(diff / 86400)
+
+  if (isNaN(dayDiff)) return ''
+
+  if (mini) {
+    // Return short format of time difference
+    if (dayDiff < 0) {
+      if (Math.abs(dayDiff) < 1) {
+        if (diff < 60) {
+          return __('now')
+        } else if (diff < 3600) {
+          return __('in {0} m', [Math.floor(diff / 60)])
+        } else if (diff < 86400) {
+          return __('in {0} h', [Math.floor(diff / 3600)])
+        }
+      }
+      if (Math.abs(dayDiff) == 1) {
+        return __('tomorrow')
+      } else if (Math.abs(dayDiff) < 7) {
+        return __('in {0} d', [Math.abs(dayDiff)])
+      } else if (Math.abs(dayDiff) < 31) {
+        return __('in {0} w', [Math.floor(Math.abs(dayDiff) / 7)])
+      } else if (Math.abs(dayDiff) < 365) {
+        return __('in {0} M', [Math.floor(Math.abs(dayDiff) / 30)])
+      } else {
+        return __('in {0} y', [Math.floor(Math.abs(dayDiff) / 365)])
+      }
+    } else if (dayDiff == 0) {
+      if (diff < 60) {
+        return __('now')
+      } else if (diff < 3600) {
+        return __('{0} m', [Math.floor(diff / 60)])
+      } else if (diff < 86400) {
+        return __('{0} h', [Math.floor(diff / 3600)])
+      }
+    } else {
+      if (dayDiff < 7) {
+        return __('{0} d', [dayDiff])
+      } else if (dayDiff < 31) {
+        return __('{0} w', [Math.floor(dayDiff / 7)])
+      } else if (dayDiff < 365) {
+        return __('{0} M', [Math.floor(dayDiff / 30)])
+      } else {
+        return __('{0} y', [Math.floor(dayDiff / 365)])
+      }
+    }
+  } else {
+    // Return long format of time difference
+    if (dayDiff < 0) {
+      if (Math.abs(dayDiff) < 1) {
+        if (diff < 60) {
+          return __('just now')
+        } else if (diff < 120) {
+          return __('in 1 minute')
+        } else if (diff < 3600) {
+          return __('in {0} minutes', [Math.floor(diff / 60)])
+        } else if (diff < 7200) {
+          return __('in 1 hour')
+        } else if (diff < 86400) {
+          return __('in {0} hours', [Math.floor(diff / 3600)])
+        }
+      }
+      if (Math.abs(dayDiff) == 1) {
+        return __('tomorrow')
+      } else if (Math.abs(dayDiff) < 7) {
+        return __('in {0} days', [Math.abs(dayDiff)])
+      } else if (Math.abs(dayDiff) < 31) {
+        return __('in {0} weeks', [Math.floor(Math.abs(dayDiff) / 7)])
+      } else if (Math.abs(dayDiff) < 365) {
+        return __('in {0} months', [Math.floor(Math.abs(dayDiff) / 30)])
+      } else if (Math.abs(dayDiff) < 730) {
+        return __('in 1 year')
+      } else {
+        return __('in {0} years', [Math.floor(Math.abs(dayDiff) / 365)])
+      }
+    } else if (dayDiff == 0) {
+      if (diff < 60) {
+        return __('just now')
+      } else if (diff < 120) {
+        return __('1 minute ago')
+      } else if (diff < 3600) {
+        return __('{0} minutes ago', [Math.floor(diff / 60)])
+      } else if (diff < 7200) {
+        return __('1 hour ago')
+      } else if (diff < 86400) {
+        return __('{0} hours ago', [Math.floor(diff / 3600)])
+      }
+    } else {
+      if (dayDiff == 1) {
+        return __('yesterday')
+      } else if (dayDiff < 7) {
+        return __('{0} days ago', [dayDiff])
+      } else if (dayDiff < 14) {
+        return __('1 week ago')
+      } else if (dayDiff < 31) {
+        return __('{0} weeks ago', [Math.floor(dayDiff / 7)])
+      } else if (dayDiff < 62) {
+        return __('1 month ago')
+      } else if (dayDiff < 365) {
+        return __('{0} months ago', [Math.floor(dayDiff / 30)])
+      } else if (dayDiff < 730) {
+        return __('1 year ago')
+      } else {
+        return __('{0} years ago', [Math.floor(dayDiff / 365)])
+      }
+    }
   }
 }
 
@@ -172,14 +292,13 @@ export function startCase(str) {
 
 export function validateEmail(email) {
   let regExp =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   return regExp.test(email)
 }
 
-export function setupAssignees(doc) {
+export function parseAssignees(assignees) {
   let { getUser } = usersStore()
-  let assignees = doc.data?._assign || []
-  doc.data._assignedTo = assignees.map((user) => ({
+  return assignees.map((user) => ({
     name: user,
     image: getUser(user).user_image,
     label: getUser(user).full_name,
@@ -358,6 +477,13 @@ export function isImage(extention) {
   return ['png', 'jpg', 'jpeg', 'gif', 'svg', 'bmp', 'webp'].includes(
     extention.toLowerCase(),
   )
+}
+
+export function validateIsImageFile(file) {
+  const extn = file.name.split('.').pop().toLowerCase()
+  if (!isImage(extn)) {
+    return __('Only image files are allowed')
+  }
 }
 
 export function getRandom(len = 4) {

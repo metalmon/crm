@@ -17,18 +17,13 @@
         <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
           {{ editMode ? __('Edit Task') : __('Create Task') }}
         </h3>
-        <Button
-          v-if="task?.reference_docname"
-          size="sm"
-          :label="
-            task.reference_doctype == 'CRM Deal'
-              ? __('Open Deal')
-              : __('Open Lead')
-          "
-          @click="redirect()"
-        >
+        <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
+        <Button v-if="task?.reference_docname" size="sm" :label="task.reference_doctype == 'CRM Deal'
+          ? __('Open Deal')
+          : __('Open Lead')
+          " @click="redirect()">
           <template #suffix>
-            <ArrowUpRightIcon class="h-4 w-4" />
+            <ArrowUpRightIcon class="w-4 h-4" />
           </template>
         </Button>
       </div>
@@ -44,6 +39,7 @@
             :label="__('Title')"
             v-model="_task.title"
             :placeholder="__('Call with John Doe')"
+            required
             @update:modelValue="handleFieldChange"
           />
         </div>
@@ -51,9 +47,7 @@
           <div class="mb-1.5 text-xs text-ink-gray-5">
             {{ __('Description') }}
           </div>
-          <TextEditor
-            variant="outline"
-            ref="description"
+          <TextEditor variant="outline" ref="description"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
             :content="_task.description"
@@ -94,7 +88,7 @@
             ]"
             :value="getUser(_task.assigned_to).full_name"
             doctype="User"
-            @change="(option) => (_task.assigned_to = option)"
+            @change="(option) => { _task.assigned_to = option; handleFieldChange(); }"
             :placeholder="__('John Doe')"
             :hideMe="true"
           >
@@ -138,9 +132,10 @@
                 : 'min-w-0 flex-1'
             ]"
             @click.stop
-            @update:modelValue="handleFieldChange"
+            @change="handleFieldChange"
           />
         </div>
+        <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
       </div>
     </template>
   </Dialog>
@@ -160,7 +155,7 @@ import Link from '@/components/Controls/Link.vue'
 import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
-import { TextEditor, Dropdown, Tooltip, call, DateTimePicker } from 'frappe-ui'
+import { TextEditor, Dropdown, Tooltip, call, Badge } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -168,6 +163,7 @@ import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { isMobileView } from '@/composables/settings'
+import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
   task: {
@@ -195,9 +191,12 @@ const router = useRouter()
 const { getUser } = usersStore()
 const { updateOnboardingStep } = useOnboarding('frappecrm')
 
+const error = ref(null)
 const title = ref(null)
 const editMode = ref(false)
-const isDirty = ref(false)
+
+const { isDirty, markAsDirty, resetDirty } = useDirtyState()
+
 const _task = ref({
   title: '',
   description: '',
@@ -211,10 +210,12 @@ const _task = ref({
 
 function updateTaskStatus(status) {
   _task.value.status = extractValue(status)
+  markAsDirty()
 }
 
 function updateTaskPriority(priority) {
   _task.value.priority = extractValue(priority)
+  markAsDirty()
 }
 
 function redirect() {
@@ -245,8 +246,9 @@ async function updateTask() {
     if (d.name) {
       tasks.value?.reload()
       emit('after', d)
-      isDirty.value = false
+      resetDirty()
       dialogShow.value = false
+      show.value = false
     }
   } else {
     let d = await call('frappe.client.insert', {
@@ -256,17 +258,23 @@ async function updateTask() {
         reference_docname: props.doc || null,
         ...taskData,
       },
+    }, {
+      onError: (err) => {
+        if (err.error.exc_type == 'MandatoryError') {
+          error.value = __("Title is mandatory")
+        }
+      }
     })
     if (d.name) {
       updateOnboardingStep('create_first_task')
       capture('task_created')
       tasks.value?.reload()
       emit('after', d, true)
-      isDirty.value = false
+      resetDirty()
       dialogShow.value = false
+      show.value = false
     }
   }
-  show.value = false
 }
 
 function render() {
@@ -277,19 +285,24 @@ function render() {
     if (_task.value.title) {
       editMode.value = true
     }
+    resetDirty()
   })
 }
 
-onMounted(() => show.value && render())
+onMounted(() => {
+  // onMounted should only run once. The watch for 'show' will handle initial render and subsequent openings.
+})
 
 watch(
   () => show.value,
   (value) => {
-    if (value === dialogShow.value) return
     if (value) {
       render()
-      isDirty.value = false
       dialogShow.value = true
+    } else {
+      if (!isDirty.value) {
+        dialogShow.value = false
+      }
     }
   },
   { immediate: true }
@@ -311,7 +324,7 @@ watch(
 )
 
 function handleFieldChange() {
-  isDirty.value = true
+  markAsDirty()
 }
 
 function handleClose() {
@@ -324,7 +337,7 @@ function handleClose() {
 }
 
 function confirmClose() {
-  isDirty.value = false
+  resetDirty()
   dialogShow.value = false
   show.value = false
 }

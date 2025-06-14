@@ -159,17 +159,11 @@ function updateAssignees() {
     .map((assignee) => assignee.name)
 
   if (removedAssignees.length) {
-    for (let a of removedAssignees) {
-      call('crm.api.assignment.remove_with_retry', {
-        doctype: props.doctype,
-        name: props.doc.name,
-        assign_to: a,
-      })
-        .catch(error => {
-          console.error(__('Failed to unassign:'), error)
-          showErrorAlert(__('Failed to unassign: {0}', [(error.message || __('Unknown error'))]))
-        })
-    }
+    call('crm.api.doc.remove_assignments', {
+      doctype: props.doctype,
+      name: props.doc.name,
+      assignees: JSON.stringify(removedAssignees),
+    })
   }
 
   if (addedAssignees.length) {
