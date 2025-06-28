@@ -71,8 +71,12 @@ export function useOnboarding(appName) {
   ) {
     if (isOnboardingStepsCompleted.value) return
 
-    if (!onboardingStatus.value[appName + '_onboarding_status']) {
+    if (!Array.isArray(onboardingStatus.value[appName + '_onboarding_status'])) {
       onboardingStatus.value[appName + '_onboarding_status'] = [];
+    }
+
+    if (!Array.isArray(onboardings[appName])) {
+        onboardings[appName] = [];
     }
 
     let statusIndex = onboardingStatus.value[appName + '_onboarding_status'].findIndex((s) => s.name === stepName)
@@ -83,8 +87,14 @@ export function useOnboarding(appName) {
     }
 
     let definitionIndex = onboardings[appName].findIndex((s) => s.name === stepName);
+    let stepToUpdate = onboardings[appName][definitionIndex];
+
     if (definitionIndex !== -1) {
-        onboardings[appName][definitionIndex].completed = value;
+        if (stepToUpdate === undefined) {
+            onboardings[appName].push({ name: stepName, completed: value });
+        } else {
+            stepToUpdate.completed = value;
+        }
     } else {
         onboardings[appName].push({ name: stepName, completed: value });
     }

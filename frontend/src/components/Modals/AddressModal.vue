@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="show" :options="dialogOptions">
+  <Dialog v-model="dialogShow" :options="dialogOptions">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
@@ -56,7 +56,7 @@ import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
 import { FeatherIcon, createResource, ErrorMessage } from 'frappe-ui'
-import { ref, nextTick, computed, onMounted } from 'vue'
+import { ref, nextTick, computed, onMounted, watch } from 'vue'
 
 const props = defineProps({
   address: {
@@ -74,12 +74,12 @@ const props = defineProps({
 const { isManager } = usersStore()
 
 const show = defineModel()
-
+const dialogShow = ref(false)
 const loading = ref(false)
 const error = ref(null)
 const editMode = ref(false)
 
-const { document: _address } = useDocument('Address', props.address || '')
+const { document: _address } = useDocument('Address')
 
 const countryCodeMap = {
   'RU': 'Russian Federation',
@@ -204,7 +204,26 @@ const callBacks = {
 
 async function updateAddress() {
   loading.value = true
-  await _address.save.submit(null, callBacks)
+  try {
+    const doc = await _address.save()
+    if (doc.name) {
+      // Call afterInsert callback before closing modal
+      if (props.options?.afterInsert) {
+        props.options.afterInsert(doc)
+      }
+      show.value = false
+    }
+  } catch (err) {
+    loading.value = false
+    if (err.exc_type == 'MandatoryError') {
+      const errorMessage = err.messages
+        .map((msg) => msg.split(': ')[2].trim())
+        .join(', ')
+      error.value = __('These fields are required: {0}', [errorMessage])
+      return
+    }
+    error.value = err
+  }
 }
 
 const createAddress = createResource({
@@ -236,7 +255,11 @@ const createAddress = createResource({
     loading.value = false
     if (doc.name) {
       capture('address_created')
-      handleAddressUpdate(doc)
+      // Call afterInsert callback before closing modal
+      if (props.options?.afterInsert) {
+        props.options.afterInsert(doc)
+      }
+      show.value = false
     }
   },
   async onError(err) {
@@ -257,43 +280,36 @@ function handleAddressUpdate(doc) {
 watch(
   () => show.value,
   async (value) => {
-    if (!value) return
-    
-    editMode.value = props.address ? true : false
-    if (!props.address) {
-      _address.doc = { address_type: 'Billing' }
-    }
-
-    // Wait for both resources to load if needed
-    if (!defaultCountry.data) {
-      await defaultCountry.reload()
-    }
-    if (!countryMap.data) {
-      await countryMap.reload()
-    }
-    
-    nextTick(() => {
-      const isNewAddress = !_address.doc?.name
-      let countryValue = _address.doc?.country
+    if (value === dialogShow.value) return
+    if (value) {
+      editMode.value = !!props.address
       
-      // For new address, convert country code to full name and translate
-      if (isNewAddress && defaultCountry.data) {
-        const originalValue = countryMap.data?.[defaultCountry.data] || 
-                            countryCodeMap[defaultCountry.data] || 
-                            'Russian Federation'
-        countryValue = __(originalValue)
-      } else if (_address.doc?.country) {
-        // For existing address, translate the stored value
-        countryValue = __(_address.doc.country)
+      // Wait for both resources to load
+      if (!defaultCountry.data) {
+        await defaultCountry.reload()
       }
-      
-      _address.doc.country = countryValue || ''
+      if (!countryMap.data) {
+        await countryMap.reload()
+      }
 
-      if (_address.doc?.name) {
-        editMode.value = true
+      // Initialize address document
+      _address.doc = {
+        address_type: 'Billing',
+        ...(props.address ? {} : {
+          // For new address, set default country
+          country: __(countryMap.data?.[defaultCountry.data] || defaultCountry.data || 'Russian Federation')
+        }),
+        ...props.address
       }
-    })
+
+      dialogShow.value = true
+    } else {
+      // Reset address document when the modal closes
+      _address.doc = {}
+      dialogShow.value = false
+    }
   },
+  { immediate: true }
 )
 
 function openQuickEntryModal() {

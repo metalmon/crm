@@ -96,11 +96,16 @@
       v-model="showCallLogDetailModal"
       v-model:callLogModal="showCallLogModal"
       v-model:callLog="callLog"
+      v-model:showTaskModal="showTaskModal"
+      v-model:showNoteModal="showNoteModal"
+      :reload="() => props.activities?.reload()"
     />
     <CallLogModal
       v-if="showCallLogModal"
       v-model="showCallLogModal"
       :data="callLog.data"
+      :showTaskModal="showTaskModal"
+      :showNoteModal="showNoteModal"
     />
   </div>
 </template>
@@ -119,6 +124,7 @@ import { ref } from 'vue'
 
 const props = defineProps({
   activity: Object,
+  activities: Object,
 })
 
 const callLog = createResource({
@@ -129,4 +135,6 @@ const callLog = createResource({
 })
 const showCallLogDetailModal = ref(false)
 const showCallLogModal = ref(false)
+const showTaskModal = ref(false)
+const showNoteModal = ref(false)
 </script>

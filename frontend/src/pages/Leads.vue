@@ -496,7 +496,8 @@ function parseRows(rows, columns = []) {
       } else if (row == 'status') {
         _rows[row] = {
           label: getLeadStatus(lead.status).label,
-          indicatorClass: getLeadStatus(lead.status).color,
+          value: lead.status,
+          color: getLeadStatus(lead.status)?.color,
         }
       } else if (row == 'sla_status') {
         let value = lead.sla_status

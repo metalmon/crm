@@ -34,7 +34,7 @@
           <FormControl
             ref="title"
             :label="__('Title')"
-            v-model="_note.title"
+            v-model="_note.doc.title"
             :placeholder="__('Call with John Doe')"
             required
             @update:modelValue="handleFieldChange"
@@ -45,8 +45,8 @@
           <TextEditor variant="outline" ref="content"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
-            :content="_note.content"
-            @change="(val) => { _note.content = val; handleFieldChange(); }"
+            :content="_note.doc.content"
+            @change="(val) => { _note.doc.content = val; handleFieldChange(); }"
             :placeholder="
               __('Took a call with John Doe and discussed the new project.')
             "
@@ -68,7 +68,7 @@ import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { capture } from '@/telemetry'
 import { TextEditor, call, createResource, Badge } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { useDocument } from '@/data/document'
 import { ref, nextTick, watch, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -86,6 +86,10 @@ const props = defineProps({
   doc: {
     type: String,
     default: '',
+  },
+  autoClose: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -108,16 +112,29 @@ const editMode = ref(false)
 
 const { isDirty, markAsDirty, resetDirty } = useDirtyState()
 
-const { document: _note } = useDocument('FCRM Note', props.note?.name || '')
+const { document: _note } = useDocument('FCRM Note')
 
 watch(
   () => show.value,
   (value) => {
-    if (!value) return
-    editMode.value = !!props.note.name
-    resetDirty()
-    dialogShow.value = true
-    _note.doc = { ...props.note }
+    if (value === dialogShow.value) return
+    if (value) {
+      resetDirty()
+      // Initialize note document when the modal opens
+      _note.doc = {
+        title: '',
+        content: '',
+        reference_doctype: props.doctype,
+        reference_docname: props.doc || null,
+        ...props.note
+      }
+      editMode.value = !!props.note?.name
+      dialogShow.value = true
+    } else {
+      // Reset note document when the modal closes
+      _note.doc = {}
+      dialogShow.value = false
+    }
   },
   { immediate: true }
 )
@@ -181,8 +198,9 @@ async function updateNote() {
       notes.value?.reload()
       emit('after', d)
       resetDirty()
-      dialogShow.value = false
-      show.value = false
+      if (props.autoClose) {
+        dialogShow.value = false
+      }
     }
   } else {
     let d = await call('frappe.client.insert', {
@@ -206,8 +224,9 @@ async function updateNote() {
       notes.value?.reload()
       emit('after', d, true)
       resetDirty()
-      dialogShow.value = false
-      show.value = false
+      if (props.autoClose) {
+        dialogShow.value = false
+      }
     }
   }
 }

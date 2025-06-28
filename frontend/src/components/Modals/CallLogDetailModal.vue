@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="show">
+  <Dialog v-model="dialogShow">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
@@ -41,7 +41,7 @@
             >
               <EditIcon class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" class="w-7" @click="show = false">
+            <Button variant="ghost" class="w-7" @click="handleClose">
               <FeatherIcon name="x" class="h-4 w-4" />
             </Button>
           </div>
@@ -151,8 +151,26 @@
       </div>
     </template>
   </Dialog>
-  <NoteModal v-model="showNoteModal" :note="note" @after="addNoteToCallLog" />
-  <TaskModal v-model="showTaskModal" :task="task" @after="addTaskToCallLog" />
+  <Teleport to="body">
+    <NoteModal 
+      v-if="showNoteModal"
+      v-model="showNoteModal" 
+      :note="note" 
+      doctype="CRM Call Log"
+      :doc="callLog?.data?.name"
+      :autoClose="true"
+      @after="(note, insert_mode) => addNoteToCallLog(note, insert_mode)"
+    />
+    <TaskModal 
+      v-if="showTaskModal"
+      v-model="showTaskModal" 
+      :task="task" 
+      doctype="CRM Call Log"
+      :doc="callLog?.data?.name"
+      :autoClose="true"
+      @after="(task, insert_mode) => addTaskToCallLog(task, insert_mode)"
+    />
+  </Teleport>
 </template>
 
 <script setup>
@@ -176,11 +194,13 @@ import { useDocument } from '@/data/document'
 import { FeatherIcon, Dropdown, Avatar, Tooltip, call } from 'frappe-ui'
 import { ref, computed, h, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { Teleport } from 'vue'
 
 const { isManager } = usersStore()
 const router = useRouter()
 
 const show = defineModel()
+const dialogShow = ref(false)
 const showNoteModal = ref(false)
 const showTaskModal = ref(false)
 
@@ -198,6 +218,13 @@ const task = ref({
   due_date: '',
   status: 'Backlog',
   priority: 'Low',
+})
+
+const props = defineProps({
+  reload: {
+    type: Function,
+    default: () => {},
+  },
 })
 
 const detailFields = computed(() => {
@@ -350,6 +377,8 @@ async function addNoteToCallLog(_note, insert_mode = false) {
       call_sid: callLog.value?.data?.id,
       note: _note,
     })
+    await props.reload()
+    showNoteModal.value = false
   }
 }
 
@@ -360,6 +389,8 @@ async function addTaskToCallLog(_task, insert_mode = false) {
       call_sid: callLog.value?.data?.id,
       task: _task,
     })
+    await props.reload()
+    showTaskModal.value = false
   }
 }
 
@@ -370,6 +401,58 @@ watch(
     d.value = useDocument('CRM Call Log', value)
   },
 )
+
+// Add emits for child modal states
+const emit = defineEmits(['update:showTaskModal', 'update:showNoteModal'])
+
+// Watch and emit child modal states
+watch(showTaskModal, (value) => {
+  emit('update:showTaskModal', value)
+})
+
+watch(showNoteModal, (value) => {
+  emit('update:showNoteModal', value)
+})
+
+watch(
+  () => show.value,
+  (value) => {
+    if (value === dialogShow.value) return
+    if (value) {
+      dialogShow.value = true
+    } else {
+      if (showTaskModal.value || showNoteModal.value) {
+        return
+      }
+      dialogShow.value = false
+    }
+  }
+)
+
+watch(
+  () => dialogShow.value,
+  (value) => {
+    if (value === show.value) return
+    if (value) {
+      show.value = true
+    } else {
+      if (showTaskModal.value || showNoteModal.value) {
+        nextTick(() => {
+          dialogShow.value = true
+        })
+        return
+      }
+      show.value = false
+    }
+  }
+)
+
+function handleClose() {
+  if (showTaskModal.value || showNoteModal.value) {
+    return
+  }
+  dialogShow.value = false
+}
 </script>
 
 <style scoped>

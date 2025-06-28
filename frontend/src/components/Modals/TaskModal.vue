@@ -37,7 +37,7 @@
           <FormControl
             ref="title"
             :label="__('Title')"
-            v-model="_task.title"
+            v-model="_task.doc.title"
             :placeholder="__('Call with John Doe')"
             required
             @update:modelValue="handleFieldChange"
@@ -50,8 +50,8 @@
           <TextEditor variant="outline" ref="description"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
-            :content="_task.description"
-            @change="(val) => { _task.description = val; handleFieldChange(); }"
+            :content="_task.doc.description"
+            @change="(val) => { _task.doc.description = val; handleFieldChange(); }"
             :placeholder="
               __('Took a call with John Doe and discussed the new project.')
             "
@@ -72,11 +72,11 @@
                 : 'flex'
             ]"
           >
-            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="w-full justify-between">
+            <Button :label="extractLabel(_task.doc.status, translateTaskStatus)" class="w-full justify-between">
               <template #prefix>
-                <TaskStatusIcon :status="extractValue(_task.status)" class="flex-shrink-0" />
+                <TaskStatusIcon :status="extractValue(_task.doc.status)" class="flex-shrink-0" />
               </template>
-              <span class="truncate">{{ extractLabel(_task.status, translateTaskStatus) }}</span>
+              <span class="truncate">{{ extractLabel(_task.doc.status, translateTaskStatus) }}</span>
             </Button>
           </Dropdown>
           <Link
@@ -86,14 +86,14 @@
                 ? 'col-span-7 row-start-1 w-full' 
                 : 'flex max-w-[200px] min-w-0'
             ]"
-            :value="getUser(_task.assigned_to).full_name"
+            :value="getUser(_task.doc.assigned_to).full_name"
             doctype="User"
-            @change="(option) => { _task.assigned_to = option; handleFieldChange(); }"
+            @change="(option) => { _task.doc.assigned_to = option; handleFieldChange(); }"
             :placeholder="__('John Doe')"
             :hideMe="true"
           >
             <template #prefix>
-              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.assigned_to" />
+              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.doc.assigned_to" />
             </template>
             <template #item-prefix="{ option }">
               <UserAvatar class="mr-2" :user="option.value" size="sm" />
@@ -115,16 +115,16 @@
                 : 'flex'
             ]"
           >
-            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
+            <Button :label="extractLabel(_task.doc.priority, translateTaskPriority)" class="w-full justify-between">
               <template #prefix>
-                <TaskPriorityIcon :priority="extractValue(_task.priority)" class="flex-shrink-0" />
+                <TaskPriorityIcon :priority="extractValue(_task.doc.priority)" class="flex-shrink-0" />
               </template>
-              <span class="truncate">{{ extractLabel(_task.priority, translateTaskPriority) }}</span>
+              <span class="truncate">{{ extractLabel(_task.doc.priority, translateTaskPriority) }}</span>
             </Button>
           </Dropdown>
           <input
             type="datetime-local"
-            v-model="_task.due_date"
+            v-model="_task.doc.due_date"
             :class="[
               'min-w-0',
               isMobileView 
@@ -164,6 +164,7 @@ import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { isMobileView } from '@/composables/settings'
 import { useDirtyState } from '@/composables/useDirtyState'
+import { useDocument } from '@/data/document'
 
 const props = defineProps({
   task: {
@@ -177,6 +178,10 @@ const props = defineProps({
   doc: {
     type: String,
     default: '',
+  },
+  autoClose: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -197,24 +202,15 @@ const editMode = ref(false)
 
 const { isDirty, markAsDirty, resetDirty } = useDirtyState()
 
-const _task = ref({
-  title: '',
-  description: '',
-  assigned_to: '',
-  due_date: '',
-  status: 'Backlog',
-  priority: 'Low',
-  reference_doctype: props.doctype,
-  reference_docname: null,
-})
+const { document: _task } = useDocument('CRM Task')
 
 function updateTaskStatus(status) {
-  _task.value.status = extractValue(status)
+  _task.doc.status = extractValue(status)
   markAsDirty()
 }
 
 function updateTaskPriority(priority) {
-  _task.value.priority = extractValue(priority)
+  _task.doc.priority = extractValue(priority)
   markAsDirty()
 }
 
@@ -229,26 +225,27 @@ function redirect() {
 }
 
 async function updateTask() {
-  if (!_task.value.assigned_to) {
-    _task.value.assigned_to = getUser().name
+  if (!_task.doc.assigned_to) {
+    _task.doc.assigned_to = getUser().name
   }
   const taskData = {
-    ..._task.value,
-    status: extractValue(_task.value.status),
-    priority: extractValue(_task.value.priority)
+    ..._task.doc,
+    status: extractValue(_task.doc.status),
+    priority: extractValue(_task.doc.priority)
   }
-  if (_task.value.name) {
+  if (_task.doc.name) {
     let d = await call('frappe.client.set_value', {
       doctype: 'CRM Task',
-      name: _task.value.name,
+      name: _task.doc.name,
       fieldname: taskData,
     })
     if (d.name) {
       tasks.value?.reload()
       emit('after', d)
       resetDirty()
-      dialogShow.value = false
-      show.value = false
+      if (props.autoClose) {
+        dialogShow.value = false
+      }
     }
   } else {
     let d = await call('frappe.client.insert', {
@@ -271,8 +268,9 @@ async function updateTask() {
       tasks.value?.reload()
       emit('after', d, true)
       resetDirty()
-      dialogShow.value = false
-      show.value = false
+      if (props.autoClose) {
+        dialogShow.value = false
+      }
     }
   }
 }
@@ -281,9 +279,20 @@ function render() {
   editMode.value = false
   nextTick(() => {
     title.value?.el?.focus?.()
-    _task.value = { ...props.task }
-    if (_task.value.title) {
+    if (props.task?.name) {
+      _task.doc = { ...props.task }
       editMode.value = true
+    } else {
+      _task.doc = {
+        title: '',
+        description: '',
+        assigned_to: '',
+        due_date: '',
+        status: 'Backlog',
+        priority: 'Low',
+        reference_doctype: props.doctype,
+        reference_docname: props.doc || null,
+      }
     }
     resetDirty()
   })
@@ -296,13 +305,27 @@ onMounted(() => {
 watch(
   () => show.value,
   (value) => {
+    if (value === dialogShow.value) return
     if (value) {
-      render()
+      resetDirty()
+      // Initialize task document when the modal opens
+      _task.doc = {
+        title: '',
+        description: '',
+        assigned_to: '',
+        due_date: '',
+        status: 'Backlog',
+        priority: 'Low',
+        reference_doctype: props.doctype,
+        reference_docname: props.doc || null,
+        ...props.task
+      }
+      editMode.value = !!props.task?.name
       dialogShow.value = true
     } else {
-      if (!isDirty.value) {
-        dialogShow.value = false
-      }
+      // Reset task document when the modal closes
+      _task.doc = {}
+      dialogShow.value = false
     }
   },
   { immediate: true }

@@ -60,12 +60,17 @@
     v-model="showCallLogDetailModal"
     v-model:callLogModal="showCallLogModal"
     v-model:callLog="callLog"
+    v-model:showTaskModal="showTaskModal"
+    v-model:showNoteModal="showNoteModal"
+    :reload="() => callLogs.reload()"
   />
   <CallLogModal
     v-if="showCallLogModal"
     v-model="showCallLogModal"
     :data="callLog.data"
     :options="{ afterInsert: () => callLogs.reload() }"
+    :showTaskModal="showTaskModal"
+    :showNoteModal="showNoteModal"
   />
 </template>
 
@@ -109,6 +114,10 @@ const rows = computed(() => {
 
 const showCallLogDetailModal = ref(false)
 const callLog = ref({})
+
+// Add refs for child modals
+const showTaskModal = ref(false)
+const showNoteModal = ref(false)
 
 function showCallLog(name) {
   showCallLogDetailModal.value = true

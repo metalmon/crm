@@ -81,7 +81,7 @@ import Password from '@/components/Controls/Password.vue'
 import ProfileImageEditor from '@/components/Settings/ProfileImageEditor.vue'
 import { usersStore } from '@/stores/users'
 import { Dialog, Avatar, createResource, ErrorMessage, toast } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, computed, onMounted } from 'vue'
 
 const { getUser, users } = usersStore()

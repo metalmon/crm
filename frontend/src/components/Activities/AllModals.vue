@@ -20,6 +20,8 @@
     v-model="showCallLogModal"
     :data="callLog"
     :options="{ afterInsert: () => activities.reload() }"
+    :showTaskModal="showTaskModal"
+    :showNoteModal="showNoteModal"
   />
 </template>
 <script setup>

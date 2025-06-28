@@ -84,6 +84,14 @@ const props = defineProps({
       afterInsert: () => {},
     },
   },
+  showTaskModal: {
+    type: Boolean,
+    default: false
+  },
+  showNoteModal: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const { isManager } = usersStore()
@@ -144,6 +152,12 @@ watch(
   () => dialogShow.value,
   (value) => {
     if (value) return
+    if (props.showTaskModal || props.showNoteModal) {
+      nextTick(() => {
+        dialogShow.value = true
+      })
+      return
+    }
     if (isDirty.value) {
       showConfirmClose.value = true
       nextTick(() => {
@@ -160,6 +174,10 @@ function handleFieldChange() {
 }
 
 function handleClose() {
+  if (props.showTaskModal || props.showNoteModal) {
+    return
+  }
+  
   if (isDirty.value) {
     showConfirmClose.value = true
   } else {
@@ -229,7 +247,12 @@ const createCallLog = createResource({
 })
 
 function handleCallLogUpdate(doc) {
-  dialogShow.value = false
+  if (!props.options.afterInsert || typeof props.options.afterInsert !== 'function') {
+    if (!props.showTaskModal && !props.showNoteModal) {
+      dialogShow.value = false
+      show.value = false
+    }
+  }
   props.options.afterInsert && props.options.afterInsert(doc)
 }
 
@@ -246,10 +269,6 @@ function openQuickEntryModal() {
   quickEntryProps.value = { doctype: 'CRM Call Log' }
   nextTick(() => {
     dialogShow.value = false
-    // The outer modal is controlled by `show`, which will be set to false by `confirmClose` or `handleClose`
-    // when ConfirmCloseDialog is not needed. If it is needed, `dialogShow` is true.
-    // Here, we want to close the CallLogModal (controlled by dialogShow) before opening QuickEntryModal
-    // And then the main `show` model will be set to false when quickEntryModal closes, as per original logic.
   })
 }
 </script>

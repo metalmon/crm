@@ -99,7 +99,7 @@ const shouldOpenLayoutSettings = ref(false)
 
 const { isDirty, markAsDirty, resetDirty } = useDirtyState()
 
-const { document: organization } = useDocument('CRM Organization', props.data?.name || '')
+const { document: organization } = useDocument('CRM Organization')
 
 async function createOrganization() {
   loading.value = true
@@ -254,11 +254,16 @@ watch(
     if (value === dialogShow.value) return
     if (value) {
       resetDirty()
-      // Initialize organization.doc when the main modal opens
-      organization.doc = { no_of_employees: '1-10', ...props.data }
+      // Initialize organization document when the modal opens
+      organization.doc = {
+        organization_name: '',
+        website: '',
+        ...props.data
+      }
       dialogShow.value = true
     } else {
-      tempFormData.value = null
+      // Reset organization document when the modal closes
+      organization.doc = {}
       dialogShow.value = false
     }
   },
