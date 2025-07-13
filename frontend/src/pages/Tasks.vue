@@ -300,7 +300,7 @@ function parseRows(rows, columns = []) {
       if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(task[row]),
-          timeAgo: __(timeAgo(task[row])),
+          timeAgo: timeAgo(task[row]),
         }
       } else if (row == 'assigned_to') {
         _rows[row] = {

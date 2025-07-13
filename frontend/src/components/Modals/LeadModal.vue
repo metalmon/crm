@@ -1,13 +1,12 @@
 <template>
-  <Dialog v-model="dialogShow" :options="{ size: '3xl' }">
+  <Dialog v-model="show" :options="{ size: '3xl' }">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <div class="flex items-baseline">
-            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
+          <div>
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('Create Lead') }}
             </h3>
-            <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
           </div>
           <div class="flex items-center gap-1">
             <Button
@@ -16,18 +15,19 @@
               class="w-7"
               @click="openQuickEntryModal"
             >
-              <EditIcon class="h-4 w-4" />
+              <template #icon>
+                <EditIcon />
+              </template>
             </Button>
-            <Button variant="ghost" class="w-7" @click="handleClose">
-              <FeatherIcon name="x" class="h-4 w-4" />
+            <Button variant="ghost" class="w-7" @click="show = false">
+              <template #icon>
+                <FeatherIcon name="x" class="size-4" />
+              </template>
             </Button>
           </div>
         </div>
         <div>
-          <FieldLayout v-if="tabs.data"
-          :tabs="tabs.data"
-          :data="lead.doc"
-          @change="handleFieldChange" />
+          <FieldLayout v-if="tabs.data" :tabs="tabs.data" :data="lead.doc" />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
         </div>
       </div>
@@ -43,29 +43,22 @@
       </div>
     </template>
   </Dialog>
-  <ConfirmCloseDialog 
-    v-model="showConfirmClose"
-    @confirm="confirmClose"
-    @cancel="cancelClose"
-  />
 </template>
 
 <script setup>
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
-import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { sessionStore } from '@/stores/session'
 import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { capture } from '@/telemetry'
-import { createResource, Badge } from 'frappe-ui'
+import { createResource } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { useDocument } from '@/data/document'
-import { computed, onMounted, ref, nextTick, watch } from 'vue'
+import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
   defaults: Object,
@@ -77,11 +70,6 @@ const { getLeadStatus, statusOptions } = statusesStore()
 const { updateOnboardingStep } = useOnboarding('frappecrm')
 
 const show = defineModel()
-const dialogShow = ref(false)
-const showConfirmClose = ref(false)
-const tempFormData = ref(null)
-const shouldOpenLayoutSettings = ref(false)
-
 const router = useRouter()
 const error = ref(null)
 const isLeadCreating = ref(false)
@@ -194,104 +182,20 @@ async function createNewLead() {
 }
 
 function openQuickEntryModal() {
-  if (isDirty.value) {
-    shouldOpenLayoutSettings.value = true
-    showConfirmClose.value = true
-  } else {
-    showQuickEntryModal.value = true
-    quickEntryProps.value = { doctype: 'CRM Lead' }
-    nextTick(() => {
-      dialogShow.value = false
-      show.value = false
-    })
-  }
+  showQuickEntryModal.value = true
+  quickEntryProps.value = { doctype: 'CRM Lead' }
+  nextTick(() => (show.value = false))
 }
-
-function handleFieldChange() {
-  markAsDirty()
-}
-
-function handleClose() {
-  if (isDirty.value) {
-    shouldOpenLayoutSettings.value = false // Reset this if user closes via X button without opening quick entry
-    showConfirmClose.value = true
-  } else {
-    dialogShow.value = false
-    show.value = false
-  }
-}
-
-function confirmClose() {
-  resetDirty()
-  dialogShow.value = false
-  show.value = false
-  
-  if (shouldOpenLayoutSettings.value) {
-    showQuickEntryModal.value = true
-    quickEntryProps.value = { doctype: 'CRM Lead' } // Ensure doctype is passed
-    nextTick(() => {
-      shouldOpenLayoutSettings.value = false
-    })
-  }
-}
-
-function cancelClose() {
-  showConfirmClose.value = false
-  shouldOpenLayoutSettings.value = false
-}
-
-watch(
-  () => dialogShow.value,
-  (value) => {
-    if (value) return
-    if (isDirty.value) {
-      showConfirmClose.value = true
-      nextTick(() => {
-        dialogShow.value = true
-      })
-    } else {
-      show.value = false
-    }
-  }
-)
-
-watch(
-  () => show.value,
-  (value) => {
-    if (value === dialogShow.value) return
-    if (value) {
-      resetDirty()
-      // Initialize lead.doc when the main modal opens
-      lead.doc = { no_of_employees: '1-10', ...props.defaults }
-
-      if (!lead.doc?.lead_owner) {
-        lead.doc.lead_owner = getUser().name
-      }
-      if (!lead.doc?.status && leadStatuses.value[0]?.value) {
-        lead.doc.status = leadStatuses.value[0].value
-      }
-      dialogShow.value = true
-    } else {
-      // Reset lead.doc and tempFormData when the main modal closes clean
-      lead.doc = {}
-      tempFormData = null
-      dialogShow.value = false
-    }
-  },
-  { immediate: true }
-)
-
-watch(
-  () => showQuickEntryModal.value,
-  (value) => {
-    if (!value) {
-      tabs.reload()
-    }
-  }
-)
 
 onMounted(() => {
-  // Initial assignment is now handled in the `show` watch when the modal opens
-  // This ensures `resetDirty` is called and data is correctly initialized
+  lead.doc = { no_of_employees: '1-10' }
+  Object.assign(lead.doc, props.defaults)
+
+  if (!lead.doc?.lead_owner) {
+    lead.doc.lead_owner = getUser().name
+  }
+  if (!lead.doc?.status && leadStatuses.value[0]?.value) {
+    lead.doc.status = leadStatuses.value[0].value
+  }
 })
 </script>

@@ -66,6 +66,7 @@
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
           v-model="lead"
+          @beforeSave="saveChanges"
           @afterSave="reloadAssignees"
         />
       </template>
@@ -168,7 +169,7 @@
                   <Button
                     v-if="lead.data.mobile_no"
                     size="sm"
-                    @click="showMessageTemplateModal = true"
+                    @click="showEmailTemplateSelectorModal = true"
                   >
                     <CommentIcon class="h-4 w-4" />
                   </Button>
@@ -266,6 +267,11 @@
     :docname="props.leadId"
     name="Leads"
   />
+  <EmailTemplateSelectorModal
+    v-model="showEmailTemplateSelectorModal"
+    :doctype="'CRM Lead'"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import ErrorPage from '@/components/ErrorPage.vue'
@@ -311,7 +317,6 @@ import {
 } from '@/composables/settings'
 import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
-import { whatsappEnabled } from '@/composables/settings'
 import {
   createResource,
   FileUploader,
@@ -324,13 +329,14 @@ import {
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, nextTick, getCurrentInstance } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { findContactByEmail } from '@/utils/contactUtils'
-import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
+import { normalizePhoneNumber } from '@/utils/phoneUtils'
 import EditIcon from '@/components/Icons/EditIcon.vue'
+import EmailTemplateSelectorModal from '@/components/Modals/EmailTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
@@ -347,10 +353,16 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['beforeSave', 'afterSave'])
+
+const instance = getCurrentInstance()
+const attrs = instance?.vnode?.props ?? {}
+
 const errorTitle = ref('')
 const errorMessage = ref('')
 const showDeleteLinkedDocModal = ref(false)
 const showConvertToDealModal = ref(false)
+const showEmailTemplateSelectorModal = ref(false)
 
 const { triggerOnChange, assignees, document } = useDocument(
   'CRM Lead',
@@ -568,8 +580,28 @@ async function deleteLeadWithModal(name) {
 
 const activities = ref(null)
 
+function trackPhoneActivities(type = 'phone') {
+  if (!lead.data?.mobile_no) {
+    toast.error(__('No phone number set'))
+    return
+  }
+  
+  trackCommunication({
+    type,
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+  })
+}
+
 function openEmailBox() {
-  activities.value.emailBox.show = true
+  let currentTab = tabs.value[tabIndex.value]
+  if (!['Emails', 'Comments', 'Activity'].includes(currentTab.name)) {
+    activities.value.changeTabTo('emails')
+  }
+  nextTick(() => (activities.value.emailBox.show = true))
 }
 
 function reloadAssignees(data) {
@@ -577,4 +609,60 @@ function reloadAssignees(data) {
     assignees.reload()
   }
 }
+
+function applyMessageTemplate(template) {
+  if (!lead.data.lead_name) return toast.error(__('Contact name not set'))
+  
+  trackCommunication({
+    type: 'whatsapp',
+    doctype: 'CRM Lead',
+    docname: lead.data.name,
+    phoneNumber: lead.data.mobile_no,
+    activities: activities.value,
+    contactName: lead.data.lead_name,
+    message: template,
+    modelValue: lead.data
+  })
+  showEmailTemplateSelectorModal.value = false
+}
+
+function saveChanges() {
+  if (!document.isDirty) return
+
+  const updatedDoc = { ...document.doc }
+  const oldDoc = { ...document.originalDoc }
+
+  const changes = Object.keys(updatedDoc).reduce((acc, key) => {
+    if (JSON.stringify(updatedDoc[key]) !== JSON.stringify(oldDoc[key])) {
+      acc[key] = updatedDoc[key]
+    }
+    return acc
+  }, {})
+
+  const hasListener = attrs['onBeforeSave'] !== undefined
+
+  if (hasListener) {
+    emit('beforeSave', changes)
+  } else {
+    document.save.submit(null, {
+      onSuccess: () => emit('afterSave', changes),
+    })
+  }
+}
+
+watch(
+  () => document.doc,
+  (newValue, oldValue) => {
+    if (!oldValue) return
+    if (newValue && oldValue) {
+      const isDirty =
+        JSON.stringify(newValue) !== JSON.stringify(document.originalDoc)
+      document.isDirty = isDirty
+      if (isDirty) {
+        document.save.loading = false
+      }
+    }
+  },
+  { deep: true },
+)
 </script>

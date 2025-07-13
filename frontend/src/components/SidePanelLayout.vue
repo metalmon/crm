@@ -427,11 +427,11 @@ const emit = defineEmits(['beforeFieldChange', 'afterFieldChange', 'reload'])
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(props.doctype)
 
-const { isManager, getUser } = usersStore()
+const { users, isManager, getUser } = usersStore()
 
 const showSidePanelModal = ref(false)
 
-let document = { doc: {} }
+let document = { doc: {}, save: { submit: () => {} } }
 let triggerOnChange
 
 if (props.docname) {
@@ -469,8 +469,11 @@ function parsedField(field) {
   }
 
   if (field.fieldtype === 'Link' && field.options === 'User') {
-    field.options = field.options
     field.fieldtype = 'User'
+    field.link_filters = JSON.stringify({
+      ...(field.link_filters ? JSON.parse(field.link_filters) : {}),
+      name: ['in', users.data?.crmUsers?.map((user) => user.name)],
+    })
   }
 
   let _field = {
@@ -501,16 +504,24 @@ async function fieldChange(value, df) {
 
   document.doc[df.fieldname] = value
 
-  await triggerOnChange(df.fieldname)
+  // Вызываем triggerOnChange с передачей значения (согласно оригиналу)
+  if (typeof triggerOnChange === 'function') {
+    await triggerOnChange(df.fieldname, value)
+  }
 
   const hasListener = attrs['onBeforeFieldChange'] !== undefined
 
   if (hasListener) {
     emit('beforeFieldChange', { [df.fieldname]: value })
   } else {
-    document.save.submit(null, {
-      onSuccess: () => emit('afterFieldChange', { [df.fieldname]: value }),
-    })
+    if (document.save && typeof document.save.submit === 'function') {
+      document.save.submit(null, {
+        onSuccess: () => emit('afterFieldChange', { [df.fieldname]: value }),
+      })
+    } else {
+      // Если document.save.submit недоступен, эмитируем событие напрямую
+      emit('afterFieldChange', { [df.fieldname]: value })
+    }
   }
 }
 
@@ -534,7 +545,7 @@ function isFieldVisible(field) {
   if (props.preview) return true
   return (
     (field.fieldtype == 'Check' ||
-      (field.read_only && document.doc?.[field.fieldname]) ||
+      (field.read_only && (document.doc?.[field.fieldname] !== undefined || ['Currency', 'Float', 'Int', 'Percent'].includes(field.fieldtype))) ||
       !field.read_only) &&
     (!field.depends_on || field.display_via_depends_on) &&
     !field.hidden

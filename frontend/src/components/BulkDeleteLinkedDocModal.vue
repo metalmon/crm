@@ -15,9 +15,7 @@
         <div>
           <div class="text-ink-gray-5">
             {{
-              __('Are you sure you want to delete {0} items?', [
-                props.items?.length,
-              ])
+              __('Are you sure you want to delete selected items?')
             }}
           </div>
         </div>
@@ -25,14 +23,14 @@
       <div class="px-4 pb-7 pt-0 sm:px-6">
         <div class="flex flex-row-reverse gap-2">
           <Button
-            :label="__('Delete {0} items', [props.items.length])"
+            :label="__('Delete')"
             icon-left="trash-2"
             variant="solid"
             theme="red"
             @click="confirmDelete()"
           />
           <Button
-            :label="__('Unlink and delete {0} items', [props.items.length])"
+            :label="__('Unlink and delete')"
             icon-left="unlock"
             variant="solid"
             @click="confirmUnlink()"
@@ -142,13 +140,25 @@ const deleteDocs = () => {
     items: props.items,
     doctype: props.doctype,
     delete_linked: confirmDeleteInfo.value.delete,
-  }).then(() => {
-    confirmDeleteInfo.value = {
-      show: false,
-      title: '',
-    }
-    show.value = false
-    props.reload()
   })
+    .then(() => {
+      confirmDeleteInfo.value = {
+        show: false,
+        title: '',
+      }
+      show.value = false
+      props.reload()
+    })
+    .catch((error) => {
+      console.error('Error in bulk delete operation:', error)
+      // Still close the modal even if there was an error
+      confirmDeleteInfo.value = {
+        show: false,
+        title: '',
+      }
+      show.value = false
+      // Call reload to refresh the list view
+      props.reload()
+    })
 }
 </script>

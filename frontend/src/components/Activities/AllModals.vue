@@ -93,6 +93,7 @@ const callLog = ref({})
 const referenceDoc = ref({})
 
 function createCallLog() {
+  console.log('createCallLog called in AllModals.vue')
   let doctype = props.doctype
   let docname = props.doc.data?.name
   referenceDoc.value = { ...props.doc.data }
@@ -101,6 +102,7 @@ function createCallLog() {
     reference_docname: docname,
   }
   showCallLogModal.value = true
+  console.log('showCallLogModal set to:', showCallLogModal.value)
 }
 
 // common

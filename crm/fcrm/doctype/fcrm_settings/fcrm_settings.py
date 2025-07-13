@@ -4,6 +4,8 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.custom.doctype.property_setter.property_setter import delete_property_setter, make_property_setter
+
 
 from crm.install import after_install
 
@@ -15,6 +17,7 @@ class FCRMSettings(Document):
 
 	def validate(self):
 		self.do_not_allow_to_delete_if_standard()
+		self.setup_forecasting()
 
 	def do_not_allow_to_delete_if_standard(self):
 		if not self.has_value_changed("dropdown_items"):

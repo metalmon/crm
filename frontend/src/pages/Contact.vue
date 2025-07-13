@@ -91,10 +91,10 @@
               <div class="flex p-3">
                 <div class="flex gap-1.5">
                   <Button
-                    v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
+                    v-if="contact.doc.mobile_no && ipTelephonyEnabled"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
-                    @click="makeCall(contact.data.actual_mobile_no)"
+                    @click="makeCall(contact.doc.mobile_no)"
                   >
                     <template #prefix>
                       <PhoneIcon class="h-4 w-4" />
@@ -103,7 +103,7 @@
                   </Button>
 
                   <Button
-                    v-if="contact.data.actual_mobile_no && !ipTelephonyEnabled"
+                    v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="trackPhoneActivities('phone')"
@@ -115,7 +115,7 @@
                   </Button>
 
                   <Button
-                    v-if="contact.data.actual_mobile_no"
+                    v-if="contact.doc.mobile_no"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="trackPhoneActivities('whatsapp')"
@@ -233,6 +233,8 @@ import { statusesStore } from '@/stores/statuses'
 import { ipTelephonyEnabled } from '@/composables/settings'
 import { showAddressModal, addressProps } from '@/composables/modals'
 import { callEnabled } from '@/composables/settings'
+import { trackCommunication } from '@/utils/communicationUtils'
+import Activities from '@/components/Activities/Activities.vue'
 import {
   Breadcrumbs,
   Avatar,
@@ -246,7 +248,6 @@ import {
 } from 'frappe-ui'
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { normalizePhoneNumber } from '@/utils/communicationUtils'
 
 const { brand } = getSettings()
 const { makeCall } = globalStore()
@@ -264,6 +265,7 @@ const props = defineProps({
 })
 
 const route = useRoute()
+const activities = ref(null)
 
 const errorTitle = ref('')
 const errorMessage = ref('')
@@ -579,17 +581,18 @@ const dealColumns = [
 ]
 
 function trackPhoneActivities(type = 'phone') {
-  if (!contact.data.actual_mobile_no) {
+  if (!contact.doc || !contact.doc.mobile_no) {
     toast.error(__('No phone number set'))
     return
   }
 
-  const formattedNumber = normalizePhoneNumber(contact.data.actual_mobile_no)
-  if (type === 'phone') {
-    window.location.href = `tel:${formattedNumber}`
-  } else {
-    window.open(`https://wa.me/${formattedNumber}`, '_blank')
-  }
+  trackCommunication({
+    type,
+    doctype: 'Contact',
+    docname: contact.doc.name,
+    phoneNumber: contact.doc.mobile_no,
+    contactName: contact.doc.full_name,
+  })
 }
 
 function openAddressModal(_address) {

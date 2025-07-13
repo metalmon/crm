@@ -209,6 +209,7 @@ import {
   ipTelephonyEnabled
 } from '@/composables/settings'
 import { trackCommunication } from '@/utils/communicationUtils'
+import { normalizePhoneNumber } from '@/utils/phoneUtils'
 import { showAddressModal, addressProps } from '@/composables/modals'
 import { callEnabled } from '@/composables/settings'
 import {
@@ -579,14 +580,10 @@ const activities = ref([])
 
 function trackPhoneActivities(type = 'phone') {
   if (!contact.data?.actual_mobile_no) {
-    createToast({
-      title: __('No phone number set'),
-      icon: 'x',
-      iconClasses: 'text-ink-red-4',
-    })
+    toast.error(__('No phone number set'))
     return
   }
-  
+
   trackCommunication({
     type,
     doctype: 'Contact',

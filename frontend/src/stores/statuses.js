@@ -100,12 +100,12 @@ export const statusesStore = defineStore('crm-statuses', () => {
     for (const statusName in statusesByName) {
       const statusObject = statusesByName[statusName]
       options.push({
-        label: statusesByName[status]?.name,
-        value: statusesByName[status]?.name,
-        icon: () => h(IndicatorIcon, { class: statusesByName[status]?.color }),
+        label: statusObject?.label || statusObject?.name,
+        value: statusObject?.name,
+        icon: () => h(IndicatorIcon, { class: statusObject?.color }),
         onClick: async () => {
-          await triggerStatusChange?.(statusesByName[status]?.name)
-          capture('status_changed', { doctype, status })
+          await triggerStatusChange?.(statusObject?.name)
+          capture('status_changed', { doctype, status: statusObject?.name })
         },
       })
     }

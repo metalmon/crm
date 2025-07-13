@@ -476,7 +476,7 @@ function parseRows(rows, columns = []) {
               ? 'green'
               : 'orange'
         if (value == 'First Response Due') {
-          value = __(timeAgo(deal.response_by))
+          value = timeAgo(deal.response_by)
           tooltipText = formatDate(deal.response_by)
           if (new Date(deal.response_by) < new Date()) {
             color = 'red'
@@ -502,7 +502,7 @@ function parseRows(rows, columns = []) {
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(deal[row]),
-          timeAgo: __(timeAgo(deal[row])),
+          timeAgo: timeAgo(deal[row]),
         }
       } else if (
         ['first_response_time', 'first_responded_on', 'response_by'].includes(
@@ -515,7 +515,7 @@ function parseRows(rows, columns = []) {
           timeAgo: deal[row]
             ? row == 'first_response_time'
               ? formatTime(deal[row])
-              : __(timeAgo(deal[row]))
+              : timeAgo(deal[row])
             : '',
         }
       }

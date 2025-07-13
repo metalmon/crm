@@ -34,7 +34,7 @@
         <div class="flex flex-col items-end gap-2 flex-shrink-0">
           <Tooltip :text="formatDate(attachment.creation)">
             <div class="text-sm text-ink-gray-5">
-              {{ __(timeAgo(attachment.creation)) }}
+              {{ timeAgo(attachment.creation) }}
             </div>
           </Tooltip>
           <div class="flex gap-1">

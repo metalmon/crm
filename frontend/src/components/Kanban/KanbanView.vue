@@ -86,7 +86,6 @@
                 <component
                   :is="options.getRoute ? 'router-link' : 'div'"
                   class="relative pt-3 px-3.5 pb-2.5 rounded-lg border bg-surface-white text-base flex flex-col text-ink-gray-9 shadow-sm hover:shadow-md transition-all duration-200 dark:bg-surface-gray-1 dark:border-surface-gray-3 hover:border-gray-300 dark:hover:border-surface-gray-4 dark:hover:bg-surface-gray-2 dark:hover:shadow-lg dark:hover:shadow-gray-900/30"
-                  :class="{'stale-card': isStale(fields)}" 
                   :data-name="fields.name"
                   v-bind="{
                     to: options.getRoute ? options.getRoute(fields) : undefined,
@@ -95,14 +94,6 @@
                       : undefined,
                   }"
                 >
-                  <div 
-                    v-if="isStale(fields)" 
-                    class="absolute top-2 right-3 z-10 text-gray-500 dark:text-gray-400"
-                    :title="__('Card has not been updated recently')"
-                  >
-                    <FeatherIcon name="clock" class="h-6 w-6" />
-                  </div>
-
                   <div 
                     v-if="updatingCards.has(fields.name)"
                     class="absolute right-2 top-2 z-10"
@@ -229,8 +220,7 @@ import { useStorage } from '@vueuse/core'
 import { useRoute } from 'vue-router'
 import { statusesStore } from '@/stores/statuses'
 import { taskStatusColors } from '@/utils/taskStatus'
-import dayjs from '@/utils/dayjs' // Ensure dayjs is imported
-import { getSettings } from '@/stores/settings' // Import settings store
+
 
 // Initialize route
 const route = useRoute()
@@ -606,7 +596,7 @@ function getCardCurrentState(cardName) {
 // Modified processCardUpdate function
 async function processCardUpdate(doctype, card, data) {
   const updateKey = `${card.name}-${Date.now()}`
-  
+    
   if (pendingUpdates.has(card.name)) {
     logger.log(`[KanbanView] Update already pending for card ${card.name}, skipping`)
     return
@@ -983,30 +973,6 @@ function addColumn(e) {
   let column = columns.value.find((col) => col.column.name == e.value)
   column.column['delete'] = false
   updateColumn()
-}
-
-// Get settings from the store
-const { settings } = getSettings();
-
-// Computed property for stale period
-const stalePeriod = computed(() => {
-  return settings.value?.stale_kanban_period || 30;
-});
-
-// Function to check if the card is stale (older than configured period)
-function isStale(fields) {
-  if (!fields?.modified) {
-    return false;
-  }
-  try {
-    const modifiedDate = dayjs(fields.modified);
-    const daysToSubtract = stalePeriod.value;
-    const staleDate = dayjs().subtract(daysToSubtract, 'days');
-    return modifiedDate.isBefore(staleDate);
-  } catch (e) {
-    console.error("Error parsing modified date:", fields.modified, e);
-    return false;
-  }
 }
 
 </script>

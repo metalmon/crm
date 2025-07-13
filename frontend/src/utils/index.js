@@ -6,14 +6,9 @@ import { gemoji } from 'gemoji'
 import { getMeta } from '@/stores/meta'
 import { toast, dayjsLocal, dayjs, getConfig, FeatherIcon } from 'frappe-ui'
 import { h } from 'vue'
-import { translateTaskStatus } from '@/utils/taskStatusTranslations'
-import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
-import localDayjs, { 
-  formatDateInUserTimezone, 
-  formatDateInSystemTimezone,
-  toUserTimezone,
-  timeAgo as dayjsTimeAgo,
-} from './dayjs'
+import { timeAgo as dayjsTimeAgo } from './dayjs'
+import { translateTaskStatus } from './taskStatusTranslations'
+import { translateTaskPriority } from './taskPriorityTranslations'
 
 export function formatTime(seconds) {
   const days = Math.floor(seconds / (3600 * 24))
@@ -40,22 +35,10 @@ export function formatTime(seconds) {
   return formattedTime.trim()
 }
 
-export function formatDate(date, format, onlyDate = false, onlyTime = false, useSystemTimezone = false) {
+export function formatDate(date, format, onlyDate = false, onlyTime = false) {
   if (!date) return ''
-  try {
-    format = getFormat(date, format, onlyDate, onlyTime, false)
-    
-    // Use system timezone when explicitly requested or for system-level operations
-    if (useSystemTimezone) {
-      return formatDateInSystemTimezone(date, format)
-    }
-    
-    // Default to user's timezone
-    return formatDateInUserTimezone(date, format)
-  } catch (e) {
-    console.warn('Error formatting date:', e)
-    return ''
-  }
+  format = getFormat(date, format, onlyDate, onlyTime, false)
+  return dayjsLocal(date).format(format)
 }
 
 export function getFormat(
@@ -65,40 +48,35 @@ export function getFormat(
   onlyTime = false,
   withDate = true,
 ) {
-  try {
-    if (!date) return ''
-    let dateFormat =
-      window.sysdefaults?.date_format
-        ?.replace('mm', 'MM')
-        ?.replace('yyyy', 'YYYY')
-        ?.replace('dd', 'DD') || 'YYYY-MM-DD'
-    let timeFormat = window.sysdefaults?.time_format || 'HH:mm:ss'
-    format = format || 'ddd, MMM D, YYYY h:mm a'
+  if (!date) return ''
+  let dateFormat =
+    window.sysdefaults.date_format
+      .replace('mm', 'MM')
+      .replace('yyyy', 'YYYY')
+      .replace('dd', 'DD') || 'YYYY-MM-DD'
+  let timeFormat = window.sysdefaults.time_format || 'HH:mm:ss'
+  format = format || 'ddd, MMM D, YYYY h:mm a'
 
-    if (onlyDate) format = dateFormat
-    if (onlyTime) format = timeFormat
-    if (onlyTime && onlyDate) format = `${dateFormat} ${timeFormat}`
+  if (onlyDate) format = dateFormat
+  if (onlyTime) format = timeFormat
+  if (onlyTime && onlyDate) format = `${dateFormat} ${timeFormat}`
 
-    if (withDate) {
-      return formatDateInUserTimezone(date, format)
-    }
-    return format
-  } catch (e) {
-    console.warn('Error getting format:', e)
-    return 'YYYY-MM-DD HH:mm:ss'
+  if (withDate) {
+    return dayjs(date).format(format)
   }
+  return format
 }
 
-export const timeAgo = dayjsTimeAgo
+export function timeAgo(date) {
+  return dayjsTimeAgo(date)
+}
 
 function getBrowserTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
-export function extractValue(field) {
-  if (!field) return ''
-  return typeof field === 'object' ? field.value : field
-}
+export function prettyDate(date, mini = false) {
+  if (!date) return ''
 
   let systemTimezone = getConfig('systemTimezone')
   let localTimezone = getConfig('localTimezone') || getBrowserTimezone()
@@ -220,7 +198,16 @@ export function extractValue(field) {
     }
   }
 }
+export function extractValue(field) {
+  if (!field) return ''
+  return typeof field === 'object' ? field.value : field
+}
 
+export function extractLabel(field, translator) {
+  if (!field) return ''
+  if (typeof field === 'object') return field.label
+  return translator ? translator(field) : field
+}
 export function taskStatusOptions(action, data) {
   let options = ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled']
   let statusMeta = getMeta('CRM Task')
@@ -285,7 +272,7 @@ export function startCase(str) {
 
 export function validateEmail(email) {
   let regExp =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   return regExp.test(email)
 }
 

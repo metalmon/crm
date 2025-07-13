@@ -325,7 +325,7 @@ function isFieldVisible(field) {
   if (preview.value) return true
   return (
     (field.fieldtype == 'Check' ||
-      (field.read_only && data.value[field.fieldname]) ||
+      (field.read_only && (data.value[field.fieldname] !== undefined || ['Currency', 'Float', 'Int', 'Percent'].includes(field.fieldtype))) ||
       !field.read_only) &&
     (!field.depends_on || field.display_via_depends_on) &&
     !field.hidden
@@ -392,13 +392,14 @@ const translatedOptions = computed(() => {
    return processedOptions.filter(opt => typeof opt === 'object' && opt !== null && 'label' in opt && 'value' in opt);
 });
 
-function fieldChange(value, df) {
+async function fieldChange(value, df) {
   data.value[df.fieldname] = value
 
   if (isGridRow) {
     triggerOnChange(df.fieldname, data.value)
   } else {
-    triggerOnChange(df.fieldname)
+    // Pass both fieldname and value to ensure proper change tracking
+    await triggerOnChange(df.fieldname, value)
   }
 }
 

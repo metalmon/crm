@@ -119,7 +119,7 @@
               <Button
                 v-if="primaryContactMobileNo"
                 size="sm"
-                @click="showMessageTemplateModal = true"
+                @click="showEmailTemplateSelectorModal = true"
               >
                 <CommentIcon class="h-4 w-4" />
               </Button>
@@ -364,6 +364,11 @@
     v-model="showLostReasonModal"
     :deal="document"
   />
+  <EmailTemplateSelectorModal
+    v-model="showEmailTemplateSelectorModal"
+    :doctype="'CRM Deal'"
+    @apply="applyMessageTemplate"
+  />
 </template>
 <script setup>
 import ErrorPage from '@/components/ErrorPage.vue'
@@ -417,12 +422,13 @@ import {
   toast,
 } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
-import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, h, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
-import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
+import { normalizePhoneNumber } from '@/utils/phoneUtils'
+import EmailTemplateSelectorModal from '@/components/Modals/EmailTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
@@ -658,7 +664,7 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
-const { tabIndex } = useActiveTabManager(tabs, 'lastDealTab')
+const { tabIndex, changeTabTo } = useActiveTabManager(tabs, 'lastDealTab')
 
 const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
@@ -691,6 +697,7 @@ function getParsedSections(_sections) {
 }
 
 const showContactModal = ref(false)
+const showQuickEntryModal = ref(false)
 const _contact = ref({})
 
 function contactOptions(contact) {
@@ -752,18 +759,18 @@ async function setPrimaryContact(contact) {
 }
 
 function trackPhoneActivities(type = 'phone') {
-  const primaryContact = dealContacts.data?.find(c => c.is_primary)
-  if (!primaryContact?.mobile_no) {
-    errorMessage(__('No phone number set'))
+  if (!primaryContact.value?.mobile_no) {
+    toast.error(__('No phone number set'))
     return
   }
+  
   trackCommunication({
     type,
     doctype: 'CRM Deal',
     docname: deal.data.name,
-    phoneNumber: primaryContact.mobile_no,
+    phoneNumber: primaryContact.value.mobile_no,
     activities: activities.value,
-    contactName: primaryContact.name
+    contactName: primaryContact.value.name
   })
 }
 const dealContacts = createResource({
@@ -781,13 +788,12 @@ const dealContacts = createResource({
 if (!dealContacts.data) dealContacts.fetch()
 
 function triggerCall() {
-  let primaryContact = dealContacts.data?.find((c) => c.is_primary)
-  let mobile_no = primaryContact.mobile_no || null
-
-  if (!primaryContact) {
+  if (!primaryContact.value) {
     toast.error(__('No primary contact set'))
     return
   }
+
+  const mobile_no = primaryContact.value.mobile_no
 
   if (!mobile_no) {
     toast.error(__('No mobile number set'))
@@ -817,18 +823,26 @@ async function deleteDeal(name) {
 }
 
 const activities = ref(null)
+const showEmailTemplateSelectorModal = ref(false)
 
 function openEmailBox() {
-  activities.value.emailBox.show = true
+  let currentTab = tabs.value[tabIndex.value]
+  if (!['Emails', 'Comments', 'Activity'].includes(currentTab.name)) {
+    activities.value.changeTabTo('emails')
+  }
+  nextTick(() => (activities.value.emailBox.show = true))
 }
 
 const primaryContactMobileNo = computed(() => {
   return dealContacts.data?.find(c => c.is_primary)?.mobile_no
 })
 
+const primaryContact = computed(() => {
+  return dealContacts.data?.find(c => c.is_primary)
+})
+
 function applyMessageTemplate(template) {
-  const primaryContact = dealContacts.data?.find(c => c.is_primary)
-  if (!primaryContact) return errorMessage(__('No primary contact set'))
+  if (!primaryContact.value) return toast.error(__('No primary contact set'))
   
   trackCommunication({
     type: 'whatsapp',
@@ -836,14 +850,14 @@ function applyMessageTemplate(template) {
     docname: deal.data.name,
     phoneNumber: primaryContactMobileNo.value,
     activities: activities.value,
-    contactName: primaryContact.full_name,
+    contactName: primaryContact.value.full_name,
     message: template,
     modelValue: deal.data
   })
-  showMessageTemplateModal.value = false
+  showEmailTemplateSelectorModal.value = false
 }
 
-const { assignees, document } = useDocument('CRM Deal', props.dealId)
+const { assignees, document, triggerOnChange } = useDocument('CRM Deal', props.dealId)
 
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)

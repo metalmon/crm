@@ -123,17 +123,6 @@
             :description="__('When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets. Changes apply immediately.')"
           />
         </div>
-        <!-- Stale Kanban Period -->
-        <div class="flex w-full mt-4">
-          <FormControl
-            type="Int"
-            class="w-1/2"
-            v-model="settings.doc.stale_kanban_period"
-            :label="__('Stale Kanban Card Period (Days)')"
-            :placeholder="30"
-            :description="__('Number of days after last modification to consider a Kanban card stale.')"
-          />
-        </div>
       </div>
 
       <!-- Home actions -->

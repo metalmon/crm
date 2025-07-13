@@ -261,10 +261,10 @@
       </Button>
 
       <Button
-        v-if="primaryContactMobileNo"
+        v-if="dealContacts.data?.find(c => c.is_primary)?.mobile_no"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        @click="showMessageTemplateModal = true"
+        @click="showEmailTemplateSelectorModal = true"
       >
         <CommentIcon class="h-5 w-5" />
       </Button>
@@ -300,6 +300,11 @@
     v-if="showLostReasonModal"
     v-model="showLostReasonModal"
     :deal="document"
+  />
+  <EmailTemplateSelectorModal
+    v-model="showEmailTemplateSelectorModal"
+    :doctype="doctype"
+    @apply="applyMessageTemplate"
   />
 </template>
 <script setup>
@@ -359,7 +364,8 @@ import {
 import { ref, computed, h, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
-import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
+import { normalizePhoneNumber } from '@/utils/phoneUtils'
+import EmailTemplateSelectorModal from '@/components/Modals/EmailTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket } = globalStore()
@@ -711,6 +717,7 @@ function trackPhoneActivities(type) {
     errorMessage(__('No phone number set'))
     return
   }
+  
   trackCommunication({
     type,
     doctype: 'CRM Deal',
@@ -755,11 +762,11 @@ function applyMessageTemplate(template) {
     message: template,
     modelValue: deal.data
   })
-  showMessageTemplateModal.value = false
+  showEmailTemplateSelectorModal.value = false
 }
 
 
-const { assignees, document } = useDocument('CRM Deal', props.dealId)
+const { assignees, document, triggerOnChange } = useDocument('CRM Deal', props.dealId)
 
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)

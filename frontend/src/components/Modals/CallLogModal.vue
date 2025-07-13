@@ -108,6 +108,8 @@ const loading = ref(false)
 const error = ref(null)
 const editMode = ref(false)
 
+const { isDirty, markAsDirty, resetDirty } = useDirtyState()
+
 const { document: callLog, triggerOnBeforeCreate } = useDocument(
   'CRM Call Log',
   props.data?.name || '',
@@ -137,9 +139,11 @@ const tabs = createResource({
 watch(
   () => show.value,
   (value) => {
+    console.log('CallLogModal - show value changed:', value)
     if (!value) return
     editMode.value = false
     nextTick(() => {
+      console.log('CallLogModal - setting up modal with data:', props.data)
       callLog.doc = props.data || {}
       if (callLog.doc.name) {
         editMode.value = true
@@ -147,7 +151,8 @@ watch(
       resetDirty()
       dialogShow.value = true
     })
-  }
+  },
+  { immediate: true }
 )
 
 watch(
@@ -280,3 +285,4 @@ function openQuickEntryModal() {
   })
 }
 </script>
+

@@ -24,7 +24,8 @@ function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activitie
 
   if (type === 'phone') {
     window.location.href = `tel:${formattedNumber}`
-    logCommunication()
+    // Комментирование вызова функции логирования
+    // logCommunication()
   } else {
     let messageText = ''
 
@@ -45,15 +46,16 @@ function trackCommunicationImpl({ type, doctype, docname, phoneNumber, activitie
         
         window.location.href = url;
 
-        // Log communication with processed message
-        logCommunication(messageText)
+        // Комментирование вызова функции логирования
+        // logCommunication(messageText)
       })
     } else {
       const url = `whatsapp://send?phone=${formattedNumber}`;
 
       window.location.href = url;
 
-      logCommunication()
+      // Комментирование вызова функции логирования
+      // logCommunication()
     }
   }
 

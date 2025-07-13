@@ -19,7 +19,7 @@ const fixedFields = [
     label: __('Email ID'),
     name: 'email_id',
     type: 'email',
-    placeholder: __('johndoe@example.com'),
+    placeholder: 'johndoe@example.com',
   },
 ]
 
@@ -71,19 +71,19 @@ export const popularProviderFields = [
 export const customProviderFields = [
   ...fixedFields,
   {
-    label: __('Frappe Mail Site'),
+    label: 'Frappe Mail Site',
     name: 'frappe_mail_site',
     type: 'text',
     placeholder: 'https://frappemail.com',
   },
   {
-    label: __('API Key'),
+    label: 'API Key',
     name: 'api_key',
     type: 'text',
     placeholder: '********',
   },
   {
-    label: __('API Secret'),
+    label: 'API Secret',
     name: 'api_secret',
     type: 'password',
     placeholder: '********',

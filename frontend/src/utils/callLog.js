@@ -38,7 +38,7 @@ export function getCallLogDetail(row, log, columns = []) {
     try {
       return {
         label: formatDate(log[row], undefined, false, false, true),
-        timeAgo: log[row] ? __(timeAgo(log[row])) : '',
+        timeAgo: log[row] ? timeAgo(log[row]) : '',
       }
     } catch (e) {
       console.warn('Error formatting system date:', e)

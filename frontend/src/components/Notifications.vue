@@ -70,7 +70,7 @@
                 </span>
               </div>
               <div class="text-sm text-ink-gray-5">
-                {{ __(timeAgo(n.creation)) }}
+                {{ timeAgo(n.creation) }}
               </div>
             </div>
           </div>
@@ -100,7 +100,7 @@
                 </span>
               </div>
               <div class="text-sm text-ink-gray-5">
-                {{ __(timeAgo(n.creation)) }}
+                {{ timeAgo(n.creation) }}
               </div>
             </div>
           </div>
@@ -130,7 +130,7 @@
                 </span>
               </div>
               <div class="text-sm text-ink-gray-5">
-                {{ __(timeAgo(n.creation)) }}
+                {{ timeAgo(n.creation) }}
               </div>
             </div>
           </div>

@@ -7,6 +7,7 @@
  "field_order": [
   "defaults_tab",
   "default_converted_lead_status",
+  "enable_forecasting",
   "restore_defaults",
   "realtime_settings_tab",
   "disable_realtime_updates",
@@ -15,9 +16,7 @@
   "brand_logo",
   "favicon",
   "dropdown_items_tab",
-  "dropdown_items",
-  "kanban_settings_tab",
-  "stale_kanban_period"
+  "dropdown_items"
  ],
  "fields": [
   {
@@ -80,18 +79,6 @@
    "fieldname": "favicon",
    "fieldtype": "Attach",
    "label": "Favicon"
-  },
-  {
-   "default": "30",
-   "description": "Number of days after last modification to consider a Kanban card stale.",
-   "fieldname": "stale_kanban_period",
-   "fieldtype": "Int",
-   "label": "Stale Kanban Card Period (Days)"
-  },
-  {
-   "fieldname": "kanban_settings_tab",
-   "fieldtype": "Tab Break",
-   "label": "Kanban View Settings"
   },
   {
    "default": "0",

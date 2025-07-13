@@ -1,6 +1,5 @@
 import frappe
 from frappe import _
-from crm.utils import parse_phone_number
 
 
 def validate(doc, method):
@@ -8,122 +7,23 @@ def validate(doc, method):
 
 
 def update_deals_email_mobile_no(doc):
-	"""
-	Update contact information in linked deals where this contact is primary.
-	This includes email, mobile number, name and salutation.
-	"""
 	linked_deals = frappe.get_all(
 		"CRM Contacts",
 		filters={"contact": doc.name, "is_primary": 1},
 		fields=["parent"],
 	)
 
-	if not linked_deals:
-		return
-	
-	# Extract primary email
-	primary_email = doc.email_id
-	
-	# Extract primary mobile number
-	primary_mobile = None
-	
-	if doc.phone_nos:
-		for phone_entry in doc.phone_nos:
-			# Find primary mobile number
-			if phone_entry.get("is_primary_mobile_no"):
-				primary_mobile = phone_entry.get("phone")
-				break
-				
-		# If no primary mobile number found, use first phone as fallback
-		if not primary_mobile and doc.phone_nos:
-			primary_mobile = doc.phone_nos[0].get("phone")
-	
-	# Process each linked deal
 	for linked_deal in linked_deals:
-		deal = frappe.get_cached_doc("CRM Deal", linked_deal.parent)
-		
-		# Flag to track if any changes were made
-		needs_update = False
-		
-		# Update contact personal info fields
-		
-		# Update email
-		if primary_email and deal.email != primary_email:
-			deal.email = primary_email
-			needs_update = True
-		
-		# Update mobile number - contact's primary mobile to deal's mobile_no
-		if primary_mobile and deal.mobile_no != primary_mobile:
-			deal.mobile_no = primary_mobile
-			needs_update = True
-		
-		# Update first name
-		if doc.first_name and deal.first_name != doc.first_name:
-			deal.first_name = doc.first_name
-			needs_update = True
-			
-		# Update last name
-		if doc.last_name and deal.last_name != doc.last_name:
-			deal.last_name = doc.last_name
-			needs_update = True
-		
-		# Update salutation
-		if doc.salutation and deal.salutation != doc.salutation:
-			deal.salutation = doc.salutation
-			needs_update = True
-		
-		# Save only if something changed
-		if needs_update:
-			deal.save(ignore_permissions=True)
-
-
-def get_contact_personal_data(contact_name):
-	"""
-	Get personal data from a contact for updating related documents.
-	Returns a dict with personal fields like first_name, last_name, etc.
-	"""
-	if not contact_name:
-		return {}
-		
-	contact = frappe.get_doc("Contact", contact_name)
-	
-	# Extract primary email
-	primary_email = contact.email_id
-	
-	# Extract primary mobile number
-	primary_mobile = None
-	
-	if contact.phone_nos:
-		for phone_entry in contact.phone_nos:
-			# Find primary mobile number
-			if phone_entry.get("is_primary_mobile_no"):
-				primary_mobile = phone_entry.get("phone")
-				break
-				
-		# If no primary mobile number found, use first phone as fallback
-		if not primary_mobile and contact.phone_nos:
-			primary_mobile = contact.phone_nos[0].get("phone")
-	
-	return {
-		"first_name": contact.first_name,
-		"last_name": contact.last_name,
-		"salutation": contact.salutation,
-		"email": primary_email,
-		"mobile_no": primary_mobile
-	}
-
-
-@frappe.whitelist()
-def get_contact(name):
-	contact = frappe.get_doc("Contact", name)
-	contact.check_permission("read")
-
-	contact = contact.as_dict()
-
-	if not len(contact):
-		frappe.throw(_("Contact not found"), frappe.DoesNotExistError)
-
-	return contact
+		deal = frappe.db.get_values("CRM Deal", linked_deal.parent, ["email", "mobile_no"], as_dict=True)[0]
+		if deal.email != doc.email_id or deal.mobile_no != doc.mobile_no:
+			frappe.db.set_value(
+				"CRM Deal",
+				linked_deal.parent,
+				{
+					"email": doc.email_id,
+					"mobile_no": doc.mobile_no,
+				},
+			)
 
 
 @frappe.whitelist()

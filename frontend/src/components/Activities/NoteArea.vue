@@ -43,7 +43,7 @@
       </div>
       <Tooltip :text="formatDate(note.modified)">
         <div class="truncate text-sm text-ink-gray-7">
-          {{ __(timeAgo(note.modified)) }}
+          {{ timeAgo(note.modified) }}
         </div>
       </Tooltip>
     </div>

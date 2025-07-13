@@ -1,33 +1,35 @@
 <template>
-  <div class="app-container">
-    <!-- Loading overlay for Redis warmup, network errors, or translations loading -->
-    <LoadingView 
-      v-if="redisWarmup.isWarmingUp || hasNetworkErrors || translationsLoading"
-      :redis-warmup="redisWarmup.isWarmingUp" 
-      :redis-warmup-progress="redisWarmup.progress"
-      :redis-warmup-details="redisWarmup.details"
-      :network-errors="hasNetworkErrors"
-      :error-details="networkErrorDetails"
-      :translations-loading="translationsLoading"
-      @retry="handleRetry"
-      class="app-overlay"
-    />
-    
-    <!-- Main app content - only shown when everything is loaded -->
-    <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
-      <Layout v-if="session().isLoggedIn">
-        <router-view :key="translationKey" />
-      </Layout>
-      <Dialogs />
+  <FrappeUIProvider>
+    <div class="app-container">
+      <!-- Loading overlay for Redis warmup, network errors, or translations loading -->
+      <LoadingView 
+        v-if="redisWarmup.isWarmingUp || hasNetworkErrors || translationsLoading"
+        :redis-warmup="redisWarmup.isWarmingUp" 
+        :redis-warmup-progress="redisWarmup.progress"
+        :redis-warmup-details="redisWarmup.details"
+        :network-errors="hasNetworkErrors"
+        :error-details="networkErrorDetails"
+        :translations-loading="translationsLoading"
+        @retry="handleRetry"
+        class="app-overlay"
+      />
+      
+      <!-- Main app content - only shown when everything is loaded -->
+      <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
+        <Layout v-if="session().isLoggedIn">
+          <router-view :key="translationKey" />
+        </Layout>
+        <Dialogs />
+      </div>
     </div>
-  </div>
+  </FrappeUIProvider>
 </template>
 
 <script setup>
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
 import { setTheme } from '@/stores/theme'
-import { setConfig, createResource } from 'frappe-ui'
+import { setConfig, createResource, FrappeUIProvider } from 'frappe-ui'
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import LoadingView from './components/common/LoadingView.vue'
 import { lastTranslationUpdate, translationsLoading } from './translation'

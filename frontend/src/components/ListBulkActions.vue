@@ -213,8 +213,16 @@ function bulkActions(selections, unselectAll) {
 }
 
 function reload(unselectAll) {
+  // Use the right method to clear selections
+  if (list.value && list.value.selections) {
+    list.value.selections.clear()
+  }
+  
+  // Then handle any additional unselection logic if provided
   unselectAllAction.value?.()
   unselectAll?.()
+  
+  // Finally, reload the data
   list.value?.reload()
 }
 

@@ -133,7 +133,7 @@
         v-if="lead.data?.mobile_no"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        @click="showMessageTemplateModal = true"
+        @click="showEmailTemplateSelectorModal = true"
       >
         <CommentIcon class="h-5 w-5" />
       </Button>
@@ -224,9 +224,9 @@
       />
     </template>
   </Dialog>
-  <MessageTemplateSelectorModal
-    v-model="showMessageTemplateModal"
-    doctype="CRM Lead"
+  <EmailTemplateSelectorModal
+    v-model="showEmailTemplateSelectorModal"
+    :doctype="doctype"
     @apply="applyMessageTemplate"
   />
 </template>
@@ -286,9 +286,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
-import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSelectorModal.vue'
 import { findContactByEmail } from '@/utils/contactUtils'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
+import EmailTemplateSelectorModal from '@/components/Modals/EmailTemplateSelectorModal.vue'
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
@@ -626,7 +626,12 @@ async function convertToDeal() {
   }
 }
 
-function trackPhoneActivities(type = 'phone') {
+function trackPhoneActivities(type) {
+  if (!lead.data?.mobile_no) {
+    toast.error(__('No phone number set'))
+    return
+  }
+  
   trackCommunication({
     type,
     doctype: 'CRM Lead',
@@ -667,14 +672,14 @@ function applyMessageTemplate(template) {
     message: template,
     modelValue: lead.data
   })
-  showMessageTemplateModal.value = false
+  showEmailTemplateSelectorModal.value = false
 }
 
 function triggerCall() {
   makeCall(lead.data.mobile_no)
 }
 
-const { assignees, document } = useDocument('CRM Lead', props.leadId)
+const { assignees, document, triggerOnChange } = useDocument('CRM Lead', props.leadId)
 
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)

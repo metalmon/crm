@@ -90,7 +90,6 @@ export function useDocument(doctype, docname) {
     triggerOnLoad()
   }
 
-
   function getControllers(row = null) {
     const _doctype = row?.doctype || doctype
     const controllerKey = _doctype.replace(/\s+/g, '')
@@ -147,13 +146,10 @@ export function useDocument(doctype, docname) {
     }
 
     const handler = async function () {
+      this.value = value
+      this.oldValue = oldValue
       if (row) {
         this.currentRowIdx = row.idx
-        this.value = row[fieldname]
-        this.oldValue = getOldValue(fieldname, row)
-      } else {
-        this.value = documentsCache[doctype][docname || ''].doc[fieldname]
-        this.oldValue = getOldValue(fieldname)
       }
       await this[fieldname]?.()
     }

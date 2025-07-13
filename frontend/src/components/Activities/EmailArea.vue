@@ -24,7 +24,7 @@
         />
         <Tooltip :text="formatDate(activity.communication_date)">
           <div class="text-sm text-ink-gray-5">
-            {{ __(timeAgo(activity.communication_date)) }}
+            {{ timeAgo(activity.communication_date) }}
           </div>
         </Tooltip>
         <div class="flex gap-0.5">

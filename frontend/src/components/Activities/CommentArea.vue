@@ -14,7 +14,7 @@
       <div class="ml-auto whitespace-nowrap">
         <Tooltip :text="formatDate(activity.creation)">
           <div class="text-sm text-ink-gray-5">
-            {{ __(timeAgo(activity.creation)) }}
+            {{ timeAgo(activity.creation) }}
           </div>
         </Tooltip>
       </div>

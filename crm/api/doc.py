@@ -915,23 +915,47 @@ def remove_linked_doc_reference(items, remove_contact=None, delete=False):
 def delete_bulk_docs(doctype, items, delete_linked=False):
 	from frappe.desk.reportview import delete_bulk
 
-	items = frappe.parse_json(items)
-	for doc in items:
-		linked_docs = get_linked_docs_of_document(doctype, doc)
-		for linked_doc in linked_docs:
-			remove_linked_doc_reference(
-				[
-					{
-						"doctype": linked_doc["reference_doctype"],
-						"docname": linked_doc["reference_docname"],
-					}
-				],
-				remove_contact=doctype == "Contact",
-				delete=delete_linked,
-			)
+	try:
+		items = frappe.parse_json(items)
+		
+		# Process linked documents for each item
+		for doc in items:
+			try:
+				linked_docs = get_linked_docs_of_document(doctype, doc)
+				
+				# If there are linked documents, handle them according to delete_linked flag
+				for linked_doc in linked_docs:
+					try:
+						remove_linked_doc_reference(
+							[
+								{
+									"doctype": linked_doc["reference_doctype"],
+									"docname": linked_doc["reference_docname"],
+								}
+							],
+							remove_contact=doctype == "Contact",
+							delete=delete_linked,
+						)
+					except Exception as e:
+						frappe.log_error(f"Error handling linked doc {linked_doc['reference_docname']}: {str(e)}")
+						# Continue with other linked documents
+						continue
+			except Exception as e:
+				frappe.log_error(f"Error processing linked documents for {doc}: {str(e)}")
+				# Continue with other documents
+				continue
 
-	if len(items) > 10:
-		frappe.enqueue("frappe.desk.reportview.delete_bulk", doctype=doctype, items=items)
-	else:
-		delete_bulk(doctype, items)
-	return "success"
+		# Delete the main documents
+		try:
+			if len(items) > 10:
+				frappe.enqueue("frappe.desk.reportview.delete_bulk", doctype=doctype, items=items)
+			else:
+				delete_bulk(doctype, items)
+		except Exception as e:
+			frappe.log_error(f"Error in bulk delete: {str(e)}")
+			raise
+			
+		return "success"
+	except Exception as e:
+		frappe.log_error(f"Error in delete_bulk_docs: {str(e)}")
+		frappe.throw(f"Error in bulk delete operation: {str(e)}")

@@ -136,7 +136,7 @@ setTimeout(cleanupInactiveSubscriptions, 10 * 60 * 1000) // First run after 10 m
  */
 export function markDocumentAccessed(doctype, name) {
   // Check if this is a kanban doctype and if realtime updates are disabled
-  const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'Task']; // Doctypes that use kanban view
+  const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'CRM Task']; // Doctypes that use kanban view
   const isKanbanDoctype = kanbanDoctypes.includes(doctype);
   
   if (isKanbanDoctype && isRealtimeDisabled()) {
@@ -708,7 +708,7 @@ export function subscribeToDoc(doctype, name, callback, priority = PRIORITY.BACK
   logger.log(`[Socket] Attempting to subscribe to ${key} with priority ${priority}`)
   
   // Check if this doctype is used in kanban and if we should disable updates
-  const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'Task']; // Doctypes that use kanban view
+  const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'CRM Task']; // Doctypes that use kanban view
   const isKanbanDoctype = kanbanDoctypes.includes(doctype);
   
   // If this is a kanban doctype and realtime updates are disabled, return a no-op function
@@ -884,7 +884,7 @@ export function updateSubscriptionPriorities(visibleDocs, adjacentDocs) {
     // Check if this is a kanban update by examining the first document type
     if (visibleDocs?.length > 0) {
       const firstDocType = visibleDocs[0].doctype;
-      const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'Task']; // Doctypes that use kanban view
+      const kanbanDoctypes = ['CRM Lead', 'CRM Deal', 'CRM Task']; // Doctypes that use kanban view
       if (kanbanDoctypes.includes(firstDocType)) {
         logger.log('[Socket] Skipping kanban priority update - realtime updates disabled')
         return;

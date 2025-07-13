@@ -194,6 +194,7 @@ import { FeatherIcon, Dropdown, Avatar, Tooltip, call } from 'frappe-ui'
 import { ref, computed, h, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Teleport } from 'vue'
+import dayjs from '@/utils/dayjs'
 
 const router = useRouter()
 
@@ -276,8 +277,8 @@ const detailFields = computed(() => {
     {
       icon: CalendarIcon,
       name: 'creation',
-      value: data.creation.label,
-      tooltip: data.creation.label,
+      value: dayjs(callLog.value?.data.creation).format('LL LT'),
+      tooltip: dayjs(callLog.value?.data.creation).format('LLLL'),
     },
     {
       icon: DurationIcon,

@@ -19,7 +19,7 @@
       <div class="ml-auto whitespace-nowrap">
         <Tooltip :text="formatDate(activity.creation)">
           <div class="text-sm text-ink-gray-5">
-            {{ __(timeAgo(activity.creation)) }}
+            {{ timeAgo(activity.creation) }}
           </div>
         </Tooltip>
       </div>
@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="flex items-center flex-wrap gap-2">
-        <Badge :label="formatDate(activity.creation, 'MMM D, dddd')">
+        <Badge :label="formatDateInUserTimezone(activity.creation, 'D MMM, dddd')">
           <template #prefix>
             <CalendarIcon class="size-3" />
           </template>
@@ -121,6 +121,8 @@ import { statusLabelMap, statusColorMap } from '@/utils/callLog.js'
 import { formatDate, timeAgo } from '@/utils'
 import { Avatar, Badge, Tooltip, createResource } from 'frappe-ui'
 import { ref } from 'vue'
+import { formatDateInUserTimezone } from '@/utils/dayjs'
+
 
 const props = defineProps({
   activity: Object,
