@@ -632,30 +632,6 @@ function applyMessageTemplate(template) {
   showEmailTemplateSelectorModal.value = false
 }
 
-function saveChanges() {
-  if (!document.isDirty) return
-
-  const updatedDoc = { ...document.doc }
-  const oldDoc = { ...document.originalDoc }
-
-  const changes = Object.keys(updatedDoc).reduce((acc, key) => {
-    if (JSON.stringify(updatedDoc[key]) !== JSON.stringify(oldDoc[key])) {
-      acc[key] = updatedDoc[key]
-    }
-    return acc
-  }, {})
-
-  const hasListener = attrs['onBeforeSave'] !== undefined
-
-  if (hasListener) {
-    emit('beforeSave', changes)
-  } else {
-    document.save.submit(null, {
-      onSuccess: () => emit('afterSave', changes),
-    })
-  }
-}
-
 watch(
   () => document.doc,
   (newValue, oldValue) => {
