@@ -604,6 +604,12 @@ function openEmailBox() {
   nextTick(() => (activities.value.emailBox.show = true))
 }
 
+function saveChanges(data) {
+  document.save.submit(null, {
+    onSuccess: () => reloadAssignees(data),
+  })
+}
+
 function reloadAssignees(data) {
   if (data?.hasOwnProperty('lead_owner')) {
     assignees.reload()

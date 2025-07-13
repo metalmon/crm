@@ -96,6 +96,8 @@
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
           v-model="lead"
+          @beforeSave="saveChanges"
+          @afterSave="reloadAssignees"
         />
       </TabPanel>
     </Tabs>
@@ -684,6 +686,12 @@ const { assignees, document, triggerOnChange } = useDocument('CRM Lead', props.l
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)
   document.save.submit()
+}
+
+function saveChanges(data) {
+  document.save.submit(null, {
+    onSuccess: () => reloadAssignees(data),
+  })
 }
 
 function reloadAssignees(data) {
