@@ -48,11 +48,17 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Is Postponed"
+  },
+  {
+   "fieldname": "probability",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Probability"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-19 21:56:44.552134",
+ "modified": "2025-07-01 12:06:42.937440",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal Status",

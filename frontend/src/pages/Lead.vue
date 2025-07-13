@@ -23,7 +23,15 @@
       />
       <Dropdown
         v-if="document.doc"
-        :options="statusOptions('lead', document, lead.data._customStatuses)"
+        :options="
+          statusOptions(
+            'lead',
+            document.statuses?.length
+              ? document.statuses
+              : lead.data._customStatuses,
+            triggerStatusChange,
+          )
+        "
       >
         <template #default="{ open }">
           <Button :label="getLeadStatus(document.doc.status).label">
@@ -127,7 +135,6 @@
                 <Tooltip v-if="ipTelephonyEnabled" :text="__('Make a call')">
                   <div>
                     <Button
-                      class="h-7 w-7"
                       @click="
                         () =>
                           lead.data.mobile_no
@@ -168,36 +175,40 @@
                 </Tooltip>
                 <Tooltip :text="__('Send an email')">
                   <div>
-                    <Button class="h-7 w-7">
-                      <Email2Icon
-                        class="h-4 w-4"
-                        @click="
-                          lead.data.email
-                            ? openEmailBox()
-                            : toast.error(__('No email set'))
-                        "
-                      />
+                    <Button
+                      @click="
+                        lead.data.email
+                          ? openEmailBox()
+                          : toast.error(__('No email set'))
+                      "
+                    >
+                      <template #icon>
+                        <Email2Icon />
+                      </template>
                     </Button>
                   </div>
                 </Tooltip>
                 <Tooltip :text="__('Go to website')">
                   <div>
-                    <Button class="h-7 w-7">
-                      <LinkIcon
-                        class="h-4 w-4"
-                        @click="
-                          lead.data.website
-                            ? openWebsite(lead.data.website)
-                            : toast.error(__('No website set'))
-                        "
-                      />
+                    <Button
+                      @click="
+                        lead.data.website
+                          ? openWebsite(lead.data.website)
+                          : toast.error(__('No website set'))
+                      "
+                    >
+                      <template #icon>
+                        <LinkIcon />
+                      </template>
                     </Button>
                   </div>
                 </Tooltip>
                 <Tooltip :text="__('Attach a file')">
                   <div>
-                    <Button class="h-7 w-7" @click="showFilesUploader = true">
-                      <AttachmentIcon class="h-4 w-4" />
+                    <Button @click="showFilesUploader = true">
+                      <template #icon>
+                        <AttachmentIcon />
+                      </template>
                     </Button>
                   </div>
                 </Tooltip>
@@ -231,104 +242,11 @@
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
-  <Dialog
+  <ConvertToDealModal
+    v-if="showConvertToDealModal"
     v-model="showConvertToDealModal"
-    :options="{
-      size: 'xl',
-      actions: [
-        {
-          label: __('Convert'),
-          variant: 'solid',
-          onClick: convertToDeal,
-        },
-      ],
-    }"
-  >
-    <template #body-header>
-      <div class="mb-6 flex items-center justify-between">
-        <div>
-          <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
-            {{ __('Convert to Deal') }}
-          </h3>
-        </div>
-        <div class="flex items-center gap-1">
-          <Button
-            v-if="!isMobileView"
-            variant="ghost"
-            class="w-7"
-            @click="openQuickEntryModal"
-          >
-            <EditIcon class="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            class="w-7"
-            @click="showConvertToDealModal = false"
-          >
-            <FeatherIcon name="x" class="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </template>
-    <template #body-content>
-      <div class="mb-4 flex items-center gap-2 text-ink-gray-5">
-        <OrganizationsIcon class="h-4 w-4" />
-        <label class="block text-base">{{ __('Organization') }}</label>
-      </div>
-      <div class="ml-6 text-ink-gray-9">
-        <div class="flex items-center justify-between text-base">
-          <div>{{ __('Choose Existing') }}</div>
-          <Switch v-model="existingOrganizationChecked" />
-        </div>
-        <Link
-          v-if="existingOrganizationChecked"
-          class="form-control mt-2.5"
-          size="md"
-          :value="existingOrganization"
-          doctype="CRM Organization"
-          @change="(data) => (existingOrganization = data)"
-        />
-        <div v-else class="mt-2.5 text-base">
-          {{
-            __(
-              'New organization will be created based on the data in details section',
-            )
-          }}
-        </div>
-      </div>
-
-      <div class="mb-4 mt-6 flex items-center gap-2 text-ink-gray-5">
-        <ContactsIcon class="h-4 w-4" />
-        <label class="block text-base">{{ __('Contact') }}</label>
-      </div>
-      <div class="ml-6 text-ink-gray-9">
-        <div class="flex items-center justify-between text-base">
-          <div>{{ __('Choose Existing') }}</div>
-          <Switch v-model="existingContactChecked" />
-        </div>
-        <Link
-          v-if="existingContactChecked"
-          class="form-control mt-2.5"
-          size="md"
-          :value="existingContact"
-          doctype="Contact"
-          @change="(data) => (existingContact = data)"
-        />
-        <div v-else class="mt-2.5 text-base">
-          {{ __("New contact will be created based on the person's details") }}
-        </div>
-      </div>
-
-      <div v-if="dealTabs.data?.length" class="h-px w-full border-t my-6" />
-
-      <FieldLayout
-        v-if="dealTabs.data?.length"
-        :tabs="dealTabs.data"
-        :data="deal"
-        doctype="CRM Deal"
-      />
-    </template>
-  </Dialog>
+    :lead="lead.data"
+  />
   <FilesUploader
     v-if="lead.data?.name"
     v-model="showFilesUploader"
@@ -341,10 +259,12 @@
       }
     "
   />
-  <MessageTemplateSelectorModal
-    v-model="showMessageTemplateModal"
-    doctype="CRM Lead"
-    @apply="applyMessageTemplate"
+  <DeleteLinkedDocModal
+    v-if="showDeleteLinkedDocModal"
+    v-model="showDeleteLinkedDocModal"
+    :doctype="'CRM Lead'"
+    :docname="props.leadId"
+    name="Leads"
   />
 </template>
 <script setup>
@@ -364,39 +284,34 @@ import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
-import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
-import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
-import Link from '@/components/Controls/Link.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
-import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
+import ConvertToDealModal from '@/components/Modals/ConvertToDealModal.vue'
 import {
   openWebsite,
   setupCustomizations,
   copyToClipboard,
   validateIsImageFile,
 } from '@/utils'
-import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
-import { sessionStore } from '@/stores/session'
 import { globalStore } from '@/stores/global'
 import { statusesStore } from '@/stores/statuses'
 import { getMeta } from '@/stores/meta'
 import { useDocument } from '@/data/document'
 import {
   whatsappEnabled,
-  isMobileView,
   ipTelephonyEnabled,
 } from '@/composables/settings'
 import { avitoEnabled } from '@/composables/avito'
 import { capture } from '@/telemetry'
+import { whatsappEnabled } from '@/composables/settings'
 import {
   createResource,
   FileUploader,
@@ -404,14 +319,12 @@ import {
   Tooltip,
   Avatar,
   Tabs,
-  Switch,
   Breadcrumbs,
   call,
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
@@ -420,15 +333,9 @@ import MessageTemplateSelectorModal from '@/components/Modals/MessageTemplateSel
 import EditIcon from '@/components/Icons/EditIcon.vue'
 
 const { brand } = getSettings()
-const { user } = sessionStore()
-//Import for strict conversion to deal
-//TODO: Uncomment this after implementing option in settings
-//const { isManager } = usersStore()
 const { $dialog, $socket, makeCall } = globalStore()
-const { statusOptions, getLeadStatus, getDealStatus } = statusesStore()
+const { statusOptions, getLeadStatus } = statusesStore()
 const { doctypeMeta } = getMeta('CRM Lead')
-
-const { updateOnboardingStep } = useOnboarding('frappecrm')
 
 const route = useRoute()
 const router = useRouter()
@@ -442,6 +349,18 @@ const props = defineProps({
 
 const errorTitle = ref('')
 const errorMessage = ref('')
+const showDeleteLinkedDocModal = ref(false)
+const showConvertToDealModal = ref(false)
+
+const { triggerOnChange, assignees, document } = useDocument(
+  'CRM Lead',
+  props.leadId,
+)
+
+async function triggerStatusChange(value) {
+  await triggerOnChange('status', value)
+  document.save.submit()
+}
 
 const lead = createResource({
   url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
@@ -643,119 +562,8 @@ async function deleteLead(name) {
   router.push({ name: 'Leads' })
 }
 
-// Convert to Deal
-const showConvertToDealModal = ref(false)
-const existingContactChecked = ref(false)
-const existingOrganizationChecked = ref(false)
-
-const existingContact = ref('')
-const existingOrganization = ref('')
-
-const { triggerConvertToDeal, assignees, document } = useDocument(
-  'CRM Lead',
-  props.leadId,
-)
-
-const deal = reactive({})
-
-const dealStatuses = computed(() => {
-  let statuses = statusOptions('deal')
-  if (!deal.status) {
-    deal.status = statuses[0].value
-  }
-  return statuses
-})
-
-const dealTabs = createResource({
-  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
-  cache: ['RequiredFields', 'CRM Deal'],
-  params: { doctype: 'CRM Deal', type: 'Required Fields' },
-  auto: true,
-  transform: (_tabs) => {
-    let hasFields = false;
-
-    const parsedTabs = _tabs?.map((tab) => {
-      tab.sections?.forEach((section) => {
-        section.columns?.forEach((column) => {
-          column.fields?.forEach((field) => {
-            hasFields = true;
-            if (field.fieldname == 'status') {
-              field.fieldtype = 'Select';
-              field.options = dealStatuses.value.map(status => ({
-                ...status,
-                label: status.label
-              }));
-              field.prefix = getDealStatus(deal.status).color;
-            }
-
-            if (field.fieldtype === 'Table') {
-              deal[field.fieldname] = [];
-            }
-          });
-        });
-      });
-      return tab;
-    });
-
-    return hasFields ? parsedTabs : [];
-  },
-})
-
-function openQuickEntryModal() {
-  showQuickEntryModal.value = true
-  quickEntryProps.value = {
-    doctype: 'CRM Deal',
-    onlyRequired: true,
-  }
-  showConvertToDealModal.value = false
-}
-
-async function convertToDeal() {
-  if (existingContactChecked.value && !existingContact.value) {
-    toast.error(__('Please select an existing contact'))
-    return
-  }
-
-  if (existingOrganizationChecked.value && !existingOrganization.value) {
-    toast.error(__('Please select an existing organization'))
-    return
-  }
-
-  if (!existingContactChecked.value && existingContact.value) {
-    existingContact.value = ''
-  }
-
-  if (!existingOrganizationChecked.value && existingOrganization.value) {
-    existingOrganization.value = ''
-  }
-
-  const _deal = await triggerConvertToDeal?.(
-    lead.data,
-    deal,
-    existingContact.value,
-    existingOrganization.value
-  )
-  .then((dealName) => {
-    showConvertToDealModal.value = false;
-    existingContactChecked.value = false;
-    existingOrganizationChecked.value = false;
-    existingContact.value = '';
-    existingOrganization.value = '';
-    
-    try {
-      updateOnboardingStep('convert_lead_to_deal', true, false, () => {
-        localStorage.setItem('firstDeal' + user, dealName);
-      });
-    } catch (e) {
-      console.error("Error updating onboarding step for deal conversion:", e);
-    }
-
-    capture('convert_lead_to_deal');
-  })
-  .catch((err) => {
-    toast.error(__('Error converting to deal: {0}', [err.message]));
-    showConvertToDealModal.value = false;
-  });
+async function deleteLeadWithModal(name) {
+  showDeleteLinkedDocModal.value = true
 }
 
 const activities = ref(null)
@@ -763,52 +571,6 @@ const activities = ref(null)
 function openEmailBox() {
   activities.value.emailBox.show = true
 }
-
-function trackPhoneActivities(type = 'phone') {
-  trackCommunication({
-    type,
-    doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
-    activities: activities.value,
-    contactName: lead.data.lead_name,
-  })
-}
-
-function applyMessageTemplate(template) {
-  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
-
-  trackCommunication({
-    type: 'whatsapp',
-    doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
-    activities: activities.value,
-    contactName: lead.data.lead_name,
-    message: template,
-    modelValue: lead.data
-  })
-  showMessageTemplateModal.value = false
-}
-
-// Watch for the modal opening
-watch(showConvertToDealModal, async (newValue) => {
-  if (newValue && lead.data?.email) { // Check when modal opens & email exists
-    const contactName = await findContactByEmail(lead.data.email);
-    if (contactName) {
-      existingContact.value = contactName;
-      existingContactChecked.value = true;
-    } else {
-      // Reset if no contact is found this time
-      existingContact.value = '';
-      existingContactChecked.value = false;
-    }
-  } else if (!newValue) {
-    // Optional: Reset when modal closes, if desired
-    // existingContact.value = '';
-    // existingContactChecked.value = false;
-  }
-});
 
 function reloadAssignees(data) {
   if (data?.hasOwnProperty('lead_owner')) {

@@ -103,19 +103,6 @@ const routes = [
     meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
-    alias: '/email-templates',
-    path: '/email-templates/view/:viewType?',
-    name: 'Email Templates',
-    component: () => import('@/pages/EmailTemplates.vue'),
-    meta: { scrollPos: { top: 0, left: 0 } },
-  },
-  {
-    path: '/email-templates/:emailTemplateId',
-    name: 'Email Template',
-    component: () => import('@/pages/EmailTemplate.vue'),
-    props: true,
-  },
-  {
     path: '/welcome',
     name: 'Welcome',
     component: () => import('@/pages/Welcome.vue'),

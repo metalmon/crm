@@ -120,7 +120,7 @@
                                   />
                                   <div v-else>
                                     <div
-                                      class="p-1.5 px-7 text-base text-ink-gray-4"
+                                      class="p-1.5 pl-3 pr-4 text-base text-ink-gray-4"
                                     >
                                       {{
                                         __('No {0} Available', [field.label])
@@ -397,8 +397,8 @@ import { evaluateDependsOnValue } from '@/utils'
 import { flt } from '@/utils/numberFormat.js'
 import { Tooltip } from 'frappe-ui'
 import { useDocument } from '@/data/document'
-import { ref, computed } from 'vue'
 import dayjs, { toUserTimezone, toSystemTimezone } from '@/utils/dayjs'
+import { ref, computed, getCurrentInstance } from 'vue'
 
 const props = defineProps({
   sections: {
@@ -422,7 +422,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['afterFieldChange', 'reload'])
+const emit = defineEmits(['beforeFieldChange', 'afterFieldChange', 'reload'])
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta(props.doctype)
@@ -493,6 +493,9 @@ function parsedField(field) {
   return _field
 }
 
+const instance = getCurrentInstance()
+const attrs = instance?.vnode?.props ?? {}
+
 async function fieldChange(value, df) {
   if (props.preview) return
 
@@ -500,13 +503,15 @@ async function fieldChange(value, df) {
 
   await triggerOnChange(df.fieldname)
 
-  document.save.submit(null, {
-    onSuccess: () => {
-      emit('afterFieldChange', {
-        [df.fieldname]: value,
-      })
-    },
-  })
+  const hasListener = attrs['onBeforeFieldChange'] !== undefined
+
+  if (hasListener) {
+    emit('beforeFieldChange', { [df.fieldname]: value })
+  } else {
+    document.save.submit(null, {
+      onSuccess: () => emit('afterFieldChange', { [df.fieldname]: value }),
+    })
+  }
 }
 
 function parsedSection(section, editButtonAdded) {

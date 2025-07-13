@@ -101,7 +101,7 @@ const shouldOpenLayoutSettings = ref(false)
 
 const { isDirty, markAsDirty, resetDirty } = useDirtyState()
 
-const { document: _contact } = useDocument('Contact')
+const { document: _contact, triggerOnBeforeCreate } = useDocument('Contact')
 
 async function createContact() {
   if (_contact.doc.email_id) {
@@ -114,22 +114,17 @@ async function createContact() {
     delete _contact.doc.mobile_no
   }
 
-  loading.value = true
-  try {
-    const doc = await call('frappe.client.insert', {
-      doc: {
-        doctype: 'Contact',
-        ..._contact.doc,
-      },
-    })
-    
-    if (doc.name) {
-      capture('contact_created')
-      handleContactUpdate(doc)
-      resetDirty()
-    }
-  } finally {
-    loading.value = false
+  await triggerOnBeforeCreate?.()
+
+  const doc = await call('frappe.client.insert', {
+    doc: {
+      doctype: 'Contact',
+      ..._contact.doc,
+    },
+  })
+  if (doc.name) {
+    capture('contact_created')
+    handleContactUpdate(doc)
   }
 }
 

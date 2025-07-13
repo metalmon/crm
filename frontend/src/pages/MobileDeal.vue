@@ -11,7 +11,15 @@
       <div class="absolute right-0">
         <Dropdown
           v-if="document.doc"
-          :options="statusOptions('deal', document, deal.data._customStatuses)"
+          :options="
+            statusOptions(
+              'deal',
+              document.statuses?.length
+                ? document.statuses
+                : deal.data._customStatuses,
+              triggerStatusChange,
+            )
+          "
         >
           <template #default="{ open }">
             <Button :label="getDealStatus(document.doc.status).label">
@@ -71,6 +79,7 @@
               doctype="CRM Deal"
               :docname="deal.data.name"
               @reload="sections.reload"
+              @beforeFieldChange="beforeStatusChange"
               @afterFieldChange="reloadAssignees"
             >
               <template #actions="{ section }">
@@ -216,6 +225,8 @@
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
           v-model="deal"
+          @beforeSave="beforeStatusChange"
+          @afterSave="reloadAssignees"
         />
       </TabPanel>
     </Tabs>
@@ -285,10 +296,10 @@
       afterInsert: (doc) => addContact(doc.name),
     }"
   />
-  <MessageTemplateSelectorModal
-    v-model="showMessageTemplateModal"
-    doctype="CRM Deal"
-    @apply="applyMessageTemplate"
+  <LostReasonModal
+    v-if="showLostReasonModal"
+    v-model="showLostReasonModal"
+    :deal="document"
   />
 </template>
 <script setup>
@@ -311,6 +322,7 @@ import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
+import LostReasonModal from '@/components/Modals/LostReasonModal.vue'
 import AssignTo from '@/components/AssignTo.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
 import Section from '@/components/Section.vue'
@@ -748,6 +760,36 @@ function applyMessageTemplate(template) {
 
 
 const { assignees, document } = useDocument('CRM Deal', props.dealId)
+
+async function triggerStatusChange(value) {
+  await triggerOnChange('status', value)
+  setLostReason()
+}
+
+const showLostReasonModal = ref(false)
+
+function setLostReason() {
+  if (
+    document.doc.status !== 'Lost' ||
+    (document.doc.lost_reason && document.doc.lost_reason !== 'Other') ||
+    (document.doc.lost_reason === 'Other' && document.doc.lost_notes)
+  ) {
+    document.save.submit()
+    return
+  }
+
+  showLostReasonModal.value = true
+}
+
+function beforeStatusChange(data) {
+  if (data?.hasOwnProperty('status') && data.status == 'Lost') {
+    setLostReason()
+  } else {
+    document.save.submit(null, {
+      onSuccess: () => reloadAssignees(data),
+    })
+  }
+}
 
 function reloadAssignees(data) {
   if (data?.hasOwnProperty('deal_owner')) {

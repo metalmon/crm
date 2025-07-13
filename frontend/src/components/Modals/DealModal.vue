@@ -107,9 +107,7 @@ const error = ref(null)
 const tempFormData = ref(null)
 const shouldOpenLayoutSettings = ref(false)
 
-const { isDirty, markAsDirty, resetDirty } = useDirtyState()
-
-const { document: deal } = useDocument('CRM Deal')
+const { document: deal, triggerOnBeforeCreate } = useDocument('CRM Deal')
 
 const hasOrganizationSections = ref(true)
 const hasContactSections = ref(true)
@@ -166,7 +164,7 @@ const dealStatuses = computed(() => {
   return statuses
 })
 
-function createDeal() {
+async function createDeal() {
   if (deal.doc.website && !deal.doc.website.startsWith('http')) {
     deal.doc.website = 'https://' + deal.doc.website
   }
@@ -176,6 +174,8 @@ function createDeal() {
     deal.doc['email'] = null
     deal.doc['mobile_no'] = null
   } else deal.doc['contact'] = null
+
+  await triggerOnBeforeCreate?.()
 
   createResource({
     url: 'crm.fcrm.doctype.crm_deal.crm_deal.create_deal',

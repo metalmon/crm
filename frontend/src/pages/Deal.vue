@@ -23,7 +23,15 @@
       />
       <Dropdown
         v-if="document.doc"
-        :options="statusOptions('deal', document, deal.data._customStatuses)"
+        :options="
+          statusOptions(
+            'deal',
+            document.statuses?.length
+              ? document.statuses
+              : deal.data._customStatuses,
+            triggerStatusChange,
+          )
+        "
       >
         <template #default="{ open }">
           <Button :label="translateDealStatus(document.doc.status)">
@@ -51,6 +59,7 @@
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
           v-model="deal"
+          @beforeSave="beforeStatusChange"
           @afterSave="reloadAssignees"
         />
       </template>
@@ -82,8 +91,8 @@
           <div class="flex gap-1.5">
             <Tooltip v-if="ipTelephonyEnabled" :text="__('Make a call')">
               <div>
-                <Button class="h-7 w-7" @click="triggerCall">
-                  <PhoneIcon class="h-4 w-4" />
+                <Button @click="triggerCall">
+                  <template #icon><PhoneIcon /></template>
                 </Button>
               </div>
             </Tooltip>
@@ -117,36 +126,34 @@
             </Tooltip>
             <Tooltip :text="__('Send an email')">
               <div>
-                <Button class="h-7 w-7">
-                  <Email2Icon
-                    class="h-4 w-4"
-                    @click="
-                      deal.data.email
-                        ? openEmailBox()
-                        : toast.error(__('No email set'))
-                    "
-                  />
+                <Button
+                  @click="
+                    deal.data.email
+                      ? openEmailBox()
+                      : toast.error(__('No email set'))
+                  "
+                >
+                  <template #icon><Email2Icon /></template>
                 </Button>
               </div>
             </Tooltip>
             <Tooltip :text="__('Go to website')">
               <div>
-                <Button class="h-7 w-7">
-                  <LinkIcon
-                    class="h-4 w-4"
-                    @click="
-                      deal.data.website
-                        ? openWebsite(deal.data.website)
-                        : toast.error(__('No website set'))
-                    "
-                  />
+                <Button
+                  @click="
+                    deal.data.website
+                      ? openWebsite(deal.data.website)
+                      : toast.error(__('No website set'))
+                  "
+                >
+                  <template #icon><LinkIcon /></template>
                 </Button>
               </div>
             </Tooltip>
             <Tooltip :text="__('Attach a file')">
               <div>
-                <Button class="size-7" @click="showFilesUploader = true">
-                  <AttachmentIcon class="size-4" />
+                <Button @click="showFilesUploader = true">
+                  <template #icon><AttachmentIcon /></template>
                 </Button>
               </div>
             </Tooltip>
@@ -168,6 +175,7 @@
           doctype="CRM Deal"
           :docname="deal.data.name"
           @reload="sections.reload"
+          @beforeFieldChange="beforeStatusChange"
           @afterFieldChange="reloadAssignees"
         >
           <template #actions="{ section }">
@@ -344,10 +352,17 @@
       }
     "
   />
-  <MessageTemplateSelectorModal
-    v-model="showMessageTemplateModal"
-    doctype="CRM Deal"
-    @apply="applyMessageTemplate"
+  <DeleteLinkedDocModal
+    v-if="showDeleteLinkedDocModal"
+    v-model="showDeleteLinkedDocModal"
+    :doctype="'CRM Deal'"
+    :docname="props.dealId"
+    name="Deals"
+  />
+  <LostReasonModal
+    v-if="showLostReasonModal"
+    v-model="showLostReasonModal"
+    :deal="document"
   />
 </template>
 <script setup>
@@ -372,6 +387,7 @@ import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
+import LostReasonModal from '@/components/Modals/LostReasonModal.vue'
 import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
@@ -497,8 +513,11 @@ const reload = ref(false)
 const showOrganizationModal = ref(false)
 const showFilesUploader = ref(false)
 const _organization = ref({})
-const showMessageTemplateModal = ref(false)
+const showDeleteLinkedDocModal = ref(false)
 
+async function deleteDealWithModal() {
+  showDeleteLinkedDocModal.value = true
+}
 function updateDeal(fieldname, value, callback) {
   value = Array.isArray(fieldname) ? '' : value
 
@@ -825,6 +844,36 @@ function applyMessageTemplate(template) {
 }
 
 const { assignees, document } = useDocument('CRM Deal', props.dealId)
+
+async function triggerStatusChange(value) {
+  await triggerOnChange('status', value)
+  setLostReason()
+}
+
+const showLostReasonModal = ref(false)
+
+function setLostReason() {
+  if (
+    document.doc.status !== 'Lost' ||
+    (document.doc.lost_reason && document.doc.lost_reason !== 'Other') ||
+    (document.doc.lost_reason === 'Other' && document.doc.lost_notes)
+  ) {
+    document.save.submit()
+    return
+  }
+
+  showLostReasonModal.value = true
+}
+
+function beforeStatusChange(data) {
+  if (data?.hasOwnProperty('status') && data.status == 'Lost') {
+    setLostReason()
+  } else {
+    document.save.submit(null, {
+      onSuccess: () => reloadAssignees(data),
+    })
+  }
+}
 
 function reloadAssignees(data) {
   if (data?.hasOwnProperty('deal_owner')) {

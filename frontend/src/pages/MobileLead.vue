@@ -11,7 +11,15 @@
       <div class="absolute right-0">
         <Dropdown
           v-if="document.doc"
-          :options="statusOptions('lead', document, lead.data._customStatuses)"
+          :options="
+            statusOptions(
+              'lead',
+              document.statuses?.length
+                ? document.statuses
+                : lead.data._customStatuses,
+              triggerStatusChange,
+            )
+          "
         >
           <template #default="{ open }">
             <Button :label="getLeadStatus(document.doc.status).label">
@@ -667,6 +675,11 @@ function triggerCall() {
 }
 
 const { assignees, document } = useDocument('CRM Lead', props.leadId)
+
+async function triggerStatusChange(value) {
+  await triggerOnChange('status', value)
+  document.save.submit()
+}
 
 function reloadAssignees(data) {
   if (data?.hasOwnProperty('lead_owner')) {

@@ -99,18 +99,21 @@ const shouldOpenLayoutSettings = ref(false)
 
 const { isDirty, markAsDirty, resetDirty } = useDirtyState()
 
-const { document: organization } = useDocument('CRM Organization')
+const { document: organization, triggerOnBeforeCreate } =
+  useDocument('CRM Organization')
 
 async function createOrganization() {
   loading.value = true
-  try {
-    const doc = await call(
-      'frappe.client.insert',
-      {
-        doc: {
-          doctype: 'CRM Organization',
-          ...organization.doc,
-        },
+  error.value = null
+
+  await triggerOnBeforeCreate?.()
+
+  const doc = await call(
+    'frappe.client.insert',
+    {
+      doc: {
+        doctype: 'CRM Organization',
+        ...organization.doc,
       },
       {
         onError: (err) => {

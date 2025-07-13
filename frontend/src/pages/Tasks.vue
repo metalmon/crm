@@ -211,7 +211,7 @@ import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { formatDate, timeAgo } from '@/utils'
 import { Tooltip, Avatar, TextEditor, Dropdown, call } from 'frappe-ui'
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
@@ -249,6 +249,7 @@ const rows = computed(() => {
     return getKanbanRows(tasks.value.data.data, tasks.value.data.fields)
   }
 
+  openTaskFromURL()
   return parseRows(tasks.value?.data.data, tasks.value?.data.columns)
 })
 
@@ -424,17 +425,14 @@ function redirect(doctype, docname) {
   router.push({ name: name, params: params })
 }
 
-async function updateTaskStatus(name, status) {
-  try {
-    await call('frappe.client.set_value', {
-      doctype: 'CRM Task',
-      name: name,
-      fieldname: 'status',
-      value: status
-    })
-    tasks.value.reload()
-  } catch (error) {
-    console.error('Error updating task status:', error)
+const openTaskFromURL = () => {
+  const searchParams = new URLSearchParams(window.location.search)
+  const taskName = searchParams.get('open')
+
+  if (taskName && rows.value?.length) {
+    showTask(parseInt(taskName))
+    searchParams.delete('open')
+    window.history.replaceState(null, '', window.location.pathname)
   }
 }
 </script>

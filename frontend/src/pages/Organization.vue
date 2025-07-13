@@ -83,7 +83,7 @@
                   :label="__('Delete')"
                   theme="red"
                   size="sm"
-                  @click="deleteOrganization"
+                  @click="deleteOrganization()"
                 >
                   <template #prefix>
                     <FeatherIcon name="trash-2" class="h-4 w-4" />
@@ -164,6 +164,13 @@
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
+  <DeleteLinkedDocModal
+    v-if="showDeleteLinkedDocModal"
+    v-model="showDeleteLinkedDocModal"
+    :doctype="'CRM Organization'"
+    :docname="props.organizationId"
+    name="Organizations"
+  />
 </template>
 
 <script setup>
@@ -179,9 +186,9 @@ import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import { showAddressModal, addressProps } from '@/composables/modals'
+import { useDocument } from '@/data/document'
 import { getSettings } from '@/stores/settings'
 import { getMeta } from '@/stores/meta'
-import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { getView } from '@/utils/view'
@@ -195,13 +202,13 @@ import {
   Tabs,
   call,
   createListResource,
-  createDocumentResource,
   usePageMeta,
   createResource,
   toast,
 } from 'frappe-ui'
 import { h, computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
+import DeleteLinkedDocModal from '@/components/DeleteLinkedDocModal.vue'
 
 const props = defineProps({
   organizationId: {
@@ -212,35 +219,20 @@ const props = defineProps({
 
 const { brand } = getSettings()
 const { getUser } = usersStore()
-const { $dialog } = globalStore()
 const { getDealStatus } = statusesStore()
 const { doctypeMeta } = getMeta('CRM Organization')
 
 const route = useRoute()
-const router = useRouter()
 
 const errorTitle = ref('')
 const errorMessage = ref('')
 
-const organization = createDocumentResource({
-  doctype: 'CRM Organization',
-  name: props.organizationId,
-  cache: ['organization', props.organizationId],
-  fields: ['*'],
-  auto: true,
-  onSuccess: () => {
-    errorTitle.value = ''
-    errorMessage.value = ''
-  },
-  onError: (err) => {
-    if (err.messages?.[0]) {
-      errorTitle.value = __('Not permitted')
-      errorMessage.value = __(err.messages?.[0])
-    } else {
-      router.push({ name: 'Organizations' })
-    }
-  },
-})
+const showDeleteLinkedDocModal = ref(false)
+
+const { document: organization } = useDocument(
+  'CRM Organization',
+  props.organizationId,
+)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Organizations'), route: { name: 'Organizations' } }]
@@ -249,7 +241,7 @@ const breadcrumbs = computed(() => {
     let view = getView(
       route.query.view,
       route.query.viewType,
-      'CRM Organization',
+      'CRM Organization'
     )
     if (view) {
       items.push({
@@ -286,6 +278,10 @@ usePageMeta(() => {
   }
 })
 
+async function deleteOrganization() {
+  showDeleteLinkedDocModal.value = true
+}
+
 async function changeOrganizationImage(file) {
   await call('frappe.client.set_value', {
     doctype: 'CRM Organization',
@@ -296,28 +292,6 @@ async function changeOrganizationImage(file) {
   organization.reload()
 }
 
-async function deleteOrganization() {
-  $dialog({
-    title: __('Delete organization'),
-    message: __('Are you sure you want to delete this organization?'),
-    actions: [
-      {
-        label: __('Delete'),
-        theme: 'red',
-        variant: 'solid',
-        async onClick(context) {
-          await call('frappe.client.delete', {
-            doctype: 'CRM Organization',
-            name: props.organizationId,
-          })
-          context.close()
-          router.push({ name: 'Organizations' })
-        },
-      },
-    ],
-  })
-}
-
 function website(url) {
   return url && url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')
 }
@@ -326,8 +300,6 @@ function openWebsite() {
   if (!organization.doc.website) toast.error(__('No website found'))
   else window.open(organization.doc.website, '_blank')
 }
-
-const _organization = ref({})
 
 const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
@@ -345,7 +317,6 @@ function getParsedSections(_sections) {
           return {
             ...field,
             create: (value, close) => {
-              _organization.value.address = value
               openAddressModal()
               close()
             },

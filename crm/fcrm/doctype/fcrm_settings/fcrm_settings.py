@@ -29,6 +29,35 @@ class FCRMSettings(Document):
 				return
 			frappe.throw(_("Cannot delete standard items {0}").format(", ".join(deleted_standard_items)))
 
+	def setup_forecasting(self):
+		if self.has_value_changed("enable_forecasting"):
+			if not self.enable_forecasting:
+				delete_property_setter(
+					"CRM Deal",
+					"reqd",
+					"close_date",
+				)
+				delete_property_setter(
+					"CRM Deal",
+					"reqd",
+					"deal_value",
+				)
+			else:
+				make_property_setter(
+					"CRM Deal",
+					"close_date",
+					"reqd",
+					1 if self.enable_forecasting else 0,
+					"Check",
+				)
+				make_property_setter(
+					"CRM Deal",
+					"deal_value",
+					"reqd",
+					1 if self.enable_forecasting else 0,
+					"Check",
+				)
+
 
 def get_standard_dropdown_items():
 	return [item.get("name1") for item in frappe.get_hooks("standard_dropdown_items")]

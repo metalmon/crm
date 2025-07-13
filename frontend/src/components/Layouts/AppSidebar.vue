@@ -147,7 +147,6 @@ import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import StepsIcon from '@/components/Icons/StepsIcon.vue'
 import Section from '@/components/Section.vue'
-import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import PinIcon from '@/components/Icons/PinIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import SquareAsterisk from '@/components/Icons/SquareAsterisk.vue'
@@ -196,59 +195,43 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
-// Log the value when the composable updates
-watch(callEnabled, (newValue) => {
-  console.log('[AppSidebar] callEnabled value changed to:', newValue)
-})
-
-console.log('[AppSidebar] Initial callEnabled value during setup:', callEnabled.value)
-
-const links = computed(() => {
-  console.log('[AppSidebar] Computing links, callEnabled is:', callEnabled.value)
-  const baseLinks = [
-    {
-      label: __('Leads'),
-      icon: LeadsIcon,
-      to: 'Leads',
-    },
-    {
-      label: __('Deals'),
-      icon: DealsIcon,
-      to: 'Deals',
-    },
-    {
-      label: __('Notes'),
-      icon: NoteIcon,
-      to: 'Notes',
-    },
-    {
-      label: __('Tasks'),
-      icon: TaskIcon,
-      to: 'Tasks',
-    },
-    {
-      label: __('Contacts'),
-      icon: ContactsIcon,
-      to: 'Contacts',
-    },
-    {
-      label: __('Organizations'),
-      icon: OrganizationsIcon,
-      to: 'Organizations',
-    },
-    {
-      label: __('Message Templates'),
-      icon: Email2Icon,
-      to: 'Email Templates',
-    },
-    {
-      label: __('Call Logs'),
-      icon: PhoneIcon,
-      to: 'Call Logs',
-    }
-  ]
-  return baseLinks
-})
+const links = [
+  {
+    label: __('Leads'),
+    icon: LeadsIcon,
+    to: 'Leads',
+  },
+  {
+    label: __('Deals'),
+    icon: DealsIcon,
+    to: 'Deals',
+  },
+  {
+    label: __('Contacts'),
+    icon: ContactsIcon,
+    to: 'Contacts',
+  },
+  {
+    label: __('Organizations'),
+    icon: OrganizationsIcon,
+    to: 'Organizations',
+  },
+  {
+    label: __('Notes'),
+    icon: NoteIcon,
+    to: 'Notes',
+  },
+  {
+    label: __('Tasks'),
+    icon: TaskIcon,
+    to: 'Tasks',
+  },
+  {
+    label: __('Call Logs'),
+    icon: PhoneIcon,
+    to: 'Call Logs',
+  },
+]
 
 const allViews = computed(() => {
   console.log('[AppSidebar] Computing allViews...')

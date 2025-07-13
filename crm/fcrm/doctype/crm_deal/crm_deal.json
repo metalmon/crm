@@ -15,6 +15,12 @@
   "column_break_ijan",
   "status",
   "sales_funnel",
+  "lost_reason",
+  "lost_notes",
+  "section_break_jgpm",
+  "probability",
+  "deal_value",
+  "column_break_kpxa",
   "close_date",
   "deal_owner",
   "contacts_tab",
@@ -126,14 +132,16 @@
   {
    "fieldname": "email",
    "fieldtype": "Data",
-   "label": "Email",
-   "options": "Email"
+   "label": "Primary Email",
+   "options": "Email",
+   "read_only": 1
   },
   {
    "fieldname": "mobile_no",
    "fieldtype": "Data",
-   "label": "Mobile No",
-   "options": "Phone"
+   "label": "Primary Mobile No",
+   "options": "Phone",
+   "read_only": 1
   },
   {
    "default": "Qualification",
@@ -248,8 +256,9 @@
   {
    "fieldname": "phone",
    "fieldtype": "Data",
-   "label": "Phone",
-   "options": "Phone"
+   "label": "Primary Phone",
+   "options": "Phone",
+   "read_only": 1
   },
   {
    "fieldname": "log_tab",
@@ -387,12 +396,39 @@
    "label": "Net Total",
    "options": "currency",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_jgpm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "deal_value",
+   "fieldtype": "Currency",
+   "label": "Deal Value",
+   "options": "currency"
+  },
+  {
+   "fieldname": "column_break_kpxa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lost_reason",
+   "fieldtype": "Link",
+   "label": "Lost Reason",
+   "mandatory_depends_on": "eval: doc.status == \"Lost\"",
+   "options": "CRM Lost Reason"
+  },
+  {
+   "fieldname": "lost_notes",
+   "fieldtype": "Text",
+   "label": "Lost Notes",
+   "mandatory_depends_on": "eval: doc.lost_reason == \"Other\""
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-12 12:30:55.415282",
+ "modified": "2025-07-05 12:25:05.927806",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal",

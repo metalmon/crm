@@ -34,7 +34,7 @@
               </template>
             </Dropdown>
             <Button
-              v-if="isManager() && !isMobileView"
+              v-if="!isMobileView"
               variant="ghost"
               class="w-7"
               @click="openCallLogModal"
@@ -188,7 +188,6 @@ import NoteModal from '@/components/Modals/NoteModal.vue'
 import TaskModal from '@/components/Modals/TaskModal.vue'
 import FadedScrollableDiv from '@/components/FadedScrollableDiv.vue'
 import { getCallLogDetail } from '@/utils/callLog'
-import { usersStore } from '@/stores/users'
 import { isMobileView } from '@/composables/settings'
 import { useDocument } from '@/data/document'
 import { FeatherIcon, Dropdown, Avatar, Tooltip, call } from 'frappe-ui'
@@ -196,7 +195,6 @@ import { ref, computed, h, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Teleport } from 'vue'
 
-const { isManager } = usersStore()
 const router = useRouter()
 
 const show = defineModel()

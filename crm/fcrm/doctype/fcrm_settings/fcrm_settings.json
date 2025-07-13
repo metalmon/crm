@@ -92,12 +92,19 @@
    "fieldname": "kanban_settings_tab",
    "fieldtype": "Tab Break",
    "label": "Kanban View Settings"
+  },
+  {
+   "default": "0",
+   "description": "It will make deal's \"Close Date\" & \"Deal Value\" mandatory to get accurate forecasting insights",
+   "fieldname": "enable_forecasting",
+   "fieldtype": "Check",
+   "label": "Enable Forecasting"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-29 00:20:56.729611",
+ "modified": "2025-07-01 13:20:48.757603",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "FCRM Settings",
