@@ -462,49 +462,6 @@ def add_standard_dropdown_items():
 
 	crm_settings.save()
 
-
-def add_convert_to_deal_script():
-	script_name = "Convert Lead to Deal Script"
-	script_content = """class CRMLead {
-			async convertToDeal(leadDataFromFrontend, dealDataFromFrontend, existingContact, existingOrganization) {
-				return new Promise((resolve, reject) => {
-					call(
-						"crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal",
-						{
-							lead: leadDataFromFrontend.name,
-							deal: dealDataFromFrontend,
-							existing_contact: existingContact,
-							existing_organization: existingOrganization
-						}
-					).then(r => {
-						if (r) {
-							router.push({ name: 'Deal', params: { dealId: r } });
-							resolve(r);
-						} else {
-							console.error("Deal conversion failed: No deal name returned from server. Response:", r);
-							reject(new Error(r.exc?.messages?.[0] || "Failed to convert lead to deal: No deal name received."));
-						}
-					}).catch(err => {
-						console.error("Error during lead conversion:", err);
-						reject(new Error(err.messages || err.exc?.messages?.[0] || "Error during lead conversion."));
-					});
-				});
-			}
-		}"""
-
-	if not frappe.db.exists("CRM Form Script", script_name):
-		frappe.get_doc({
-			"doctype": "CRM Form Script",
-			"name": script_name,
-			"dt": "CRM Lead",
-			"view": "Form",
-			"script": script_content,
-			"enabled": 1,
-			"is_standard": 1,
-		}).insert(ignore_permissions=True)
-
-
 def add_default_scripts():
 	for doctype in ["CRM Lead", "CRM Deal"]:
 		create_product_details_script(doctype)
-	add_convert_to_deal_script()
