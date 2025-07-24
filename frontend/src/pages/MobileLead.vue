@@ -609,12 +609,7 @@ async function convertToDeal() {
     existing_organization: existingOrganization.value,
   })
   .catch((err) => {
-    createToast({
-      title: __('Error converting to deal'),
-      text: __(err.messages?.[0]),
-      icon: 'x',
-      iconClasses: 'text-ink-red-4',
-    })
+    toast.error(__('Error converting to deal') + ': ' + __(err.messages?.[0]))
   })
 
   if (_deal) {
@@ -645,11 +640,7 @@ function trackPhoneActivities(type) {
 }
 
 function errorMessage(message) {
-  createToast({
-    title: message,
-    icon: 'x',
-    iconClasses: 'text-ink-red-4',
-  })
+  toast.error(message)
 }
 
 function openWebsite(url) {

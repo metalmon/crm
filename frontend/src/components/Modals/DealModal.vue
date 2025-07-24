@@ -1,13 +1,12 @@
 <template>
-  <Dialog v-model="dialogShow" :options="{ size: '3xl' }">
+  <Dialog v-model="show" :options="{ size: '3xl' }">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
-          <div class="flex items-baseline">
-            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
+          <div>
+            <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
               {{ __('Create Deal') }}
             </h3>
-            <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
           </div>
           <div class="flex items-center gap-1">
             <Button
@@ -16,10 +15,14 @@
               class="w-7"
               @click="openQuickEntryModal"
             >
-              <EditIcon class="h-4 w-4" />
+              <template #icon>
+                <EditIcon />
+              </template>
             </Button>
-            <Button variant="ghost" class="w-7" @click="handleClose">
-              <FeatherIcon name="x" class="h-4 w-4" />
+            <Button variant="ghost" class="w-7" @click="show = false">
+              <template #icon>
+                <FeatherIcon name="x" class="size-4" />
+              </template>
             </Button>
           </div>
         </div>
@@ -48,11 +51,11 @@
             class="h-px w-full border-t my-5"
           />
           <FieldLayout
-            v-if="tabs.data"
+            ref="fieldLayoutRef"
+            v-if="tabs.data?.length"
             :tabs="tabs.data"
             :data="deal.doc"
             doctype="CRM Deal"
-            @change="handleFieldChange"
           />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
         </div>
@@ -69,27 +72,20 @@
       </div>
     </template>
   </Dialog>
-  <ConfirmCloseDialog 
-    v-model="showConfirmClose"
-    @confirm="confirmClose"
-    @cancel="cancelClose"
-  />
 </template>
 
 <script setup>
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import FieldLayout from '@/components/FieldLayout/FieldLayout.vue'
-import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
 import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
-import { Switch, createResource, Badge } from 'frappe-ui'
+import { Switch, createResource } from 'frappe-ui'
 import { computed, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDirtyState } from '@/composables/useDirtyState'
 
 const props = defineProps({
   defaults: Object,
@@ -99,13 +95,8 @@ const { getUser, isManager } = usersStore()
 const { getDealStatus, statusOptions } = statusesStore()
 
 const show = defineModel()
-const dialogShow = ref(false)
-const showConfirmClose = ref(false)
-
 const router = useRouter()
 const error = ref(null)
-const tempFormData = ref(null)
-const shouldOpenLayoutSettings = ref(false)
 
 const { document: deal, triggerOnBeforeCreate } = useDocument('CRM Deal')
 
@@ -115,6 +106,26 @@ const hasContactSections = ref(true)
 const isDealCreating = ref(false)
 const chooseExistingContact = ref(false)
 const chooseExistingOrganization = ref(false)
+const fieldLayoutRef = ref(null)
+
+watch(
+  [chooseExistingOrganization, chooseExistingContact],
+  ([organization, contact]) => {
+    tabs.data.forEach((tab) => {
+      tab.sections.forEach((section) => {
+        if (section.name === 'organization_section') {
+          section.hidden = !organization
+        } else if (section.name === 'organization_details_section') {
+          section.hidden = organization
+        } else if (section.name === 'contact_section') {
+          section.hidden = !contact
+        } else if (section.name === 'contact_details_section') {
+          section.hidden = contact
+        }
+      })
+    })
+  },
+)
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
@@ -212,7 +223,6 @@ async function createDeal() {
       capture('deal_created')
       isDealCreating.value = false
       show.value = false
-      resetDirty()
       router.push({ name: 'Deal', params: { dealId: name } })
     },
     onError(err) {
@@ -226,135 +236,21 @@ async function createDeal() {
   })
 }
 
-watch(
-  [chooseExistingOrganization, chooseExistingContact],
-  ([organization, contact]) => {
-    tabs.data.forEach((tab) => {
-      tab.sections.forEach((section) => {
-        if (section.name === 'organization_section') {
-          section.hidden = !organization
-        } else if (section.name === 'organization_details_section') {
-          section.hidden = organization
-        } else if (section.name === 'contact_section') {
-          section.hidden = !contact
-        } else if (section.name === 'contact_details_section') {
-          section.hidden = contact
-        }
-      })
-    })
-  },
-)
-
 function openQuickEntryModal() {
-  if (isDirty.value) {
-    tempFormData.value = { ...deal.doc }
-    shouldOpenLayoutSettings.value = true
-    showConfirmClose.value = true
-  } else {
-    showQuickEntryModal.value = true
-    quickEntryProps.value = { doctype: 'CRM Deal' }
-    nextTick(() => {
-      dialogShow.value = false
-      show.value = false
-    })
-  }
+  showQuickEntryModal.value = true
+  quickEntryProps.value = { doctype: 'CRM Deal' }
+  nextTick(() => (show.value = false))
 }
-
-function handleFieldChange() {
-  markAsDirty()
-}
-
-function handleClose() {
-  if (isDirty.value) {
-    showConfirmClose.value = true
-  } else {
-    dialogShow.value = false
-    show.value = false
-  }
-}
-
-function confirmClose() {
-  resetDirty()
-  tempFormData.value = null
-  deal.doc = {}
-  dialogShow.value = false
-  show.value = false
-  
-  if (shouldOpenLayoutSettings.value) {
-    showQuickEntryModal.value = true
-    nextTick(() => {
-      shouldOpenLayoutSettings.value = false
-    })
-  }
-}
-
-function cancelClose() {
-  showConfirmClose.value = false
-  shouldOpenLayoutSettings.value = false
-  if (tempFormData.value) {
-    Object.assign(deal.doc, tempFormData.value)
-    tempFormData.value = null
-  }
-}
-
-watch(
-  () => dialogShow.value,
-  (value) => {
-    if (value) return
-    if (isDirty.value) {
-      showConfirmClose.value = true
-      nextTick(() => {
-        if (tempFormData.value) {
-          Object.assign(deal.doc, tempFormData.value)
-        }
-        dialogShow.value = true
-      })
-    } else {
-      deal.doc = {}
-      tempFormData.value = null
-      show.value = false
-    }
-  }
-)
-
-watch(
-  () => show.value,
-  (value) => {
-    if (value === dialogShow.value) return
-    if (value) {
-      resetDirty()
-      deal.doc = {
-        ...props.defaults,
-      }
-      if (!deal.doc.deal_owner) {
-        deal.doc.deal_owner = getUser().name
-      }
-      if (!deal.doc.currency) {
-        deal.doc.currency = window.sysdefaults?.currency || ''
-      }
-      if (!deal.doc.status && dealStatuses.value[0].value) {
-        deal.doc.status = dealStatuses.value[0].value
-      }
-      dialogShow.value = true
-    } else {
-      tempFormData.value = null
-      dialogShow.value = false
-    }
-  },
-  { immediate: true }
-)
-
-watch(
-  () => showQuickEntryModal.value,
-  (value) => {
-    if (!value) {
-      tabs.reload()
-    }
-  }
-)
 
 onMounted(() => {
-  // Initial assignment is now handled in the `show` watch when the modal opens
-  // This ensures `resetDirty` is called and data is correctly initialized
+  deal.doc = { no_of_employees: '1-10' }
+  Object.assign(deal.doc, props.defaults)
+
+  if (!deal.doc.deal_owner) {
+    deal.doc.deal_owner = getUser().name
+  }
+  if (!deal.doc.status && dealStatuses.value[0].value) {
+    deal.doc.status = dealStatuses.value[0].value
+  }
 })
 </script>
