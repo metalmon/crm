@@ -82,7 +82,7 @@ const dialogOptions = computed(() => {
     doctype = doctype.replace(/^(CRM |FCRM )/, '')
   }
 
-  let title = __('New {0}', [doctype])
+  let title = __('New {0}', [__(doctype)])
   let size = 'xl'
   let actions = [
     {
