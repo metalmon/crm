@@ -1,7 +1,7 @@
 {
-  "commit": "a7f8430c",
+  "commit": "bfa3fbc4",
   "branch": "develop",
-  "commit_message": "refactor: remove convert to deal script and update default scripts\n\n- Deleted the `add_convert_to_deal_script` function from `install.py` to clean up unused code.\n- Updated `add_default_scripts` to remove the call to the deleted function.\n- Removed the corresponding patch file `add_convert_to_deal_form_script.py` from the patches directory.",
-  "commit_date": "2025-07-20",
+  "commit_message": "refactor: enhance document unlinking and improve UI consistency\n\n- Replaced `remove_doc_link` with `universal_remove_doc_link` in `doc.py` to provide a more comprehensive unlinking mechanism for documents.\n- Updated `sync_default_columns` call in `crm_view_settings.py` to pass the entire view object for better clarity.\n- Changed static labels to localized labels in `DeleteLinkedDocModal.vue` and `LinkedDocsListView.vue` for improved internationalization support.\n- Simplified toast notifications in `ViewControls.vue` by replacing `createToast` with `toast` methods for consistency across the application.",
+  "commit_date": "2025-07-24",
   "tag": "v1.50.2"
 }
