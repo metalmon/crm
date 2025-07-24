@@ -1,0 +1,7 @@
+{
+  "commit": "a7f8430c",
+  "branch": "develop",
+  "commit_message": "refactor: remove convert to deal script and update default scripts\n\n- Deleted the `add_convert_to_deal_script` function from `install.py` to clean up unused code.\n- Updated `add_default_scripts` to remove the call to the deleted function.\n- Removed the corresponding patch file `add_convert_to_deal_form_script.py` from the patches directory.",
+  "commit_date": "2025-07-20",
+  "tag": "v1.50.2"
+}

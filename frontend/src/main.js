@@ -68,15 +68,25 @@ if (import.meta.env.DEV) {
       for (let key in values) {
         window[key] = values[key]
       }
-      socket = initSocket()
-      app.config.globalProperties.$socket = socket
-      app.mount('#app')
+      fetch(import.meta.env.BASE_URL + 'version.json')
+        .then(r => r.json())
+        .then(data => { window.app_version = data })
+        .finally(() => {
+          socket = initSocket()
+          app.config.globalProperties.$socket = socket
+          app.mount('#app')
+        })
     },
   )
 } else {
-  socket = initSocket()
-  app.config.globalProperties.$socket = socket
-  app.mount('#app')
+  fetch(import.meta.env.BASE_URL + 'version.json')
+    .then(r => r.json())
+    .then(data => { window.app_version = data })
+    .finally(() => {
+      socket = initSocket()
+      app.config.globalProperties.$socket = socket
+      app.mount('#app')
+    })
 }
 
 if (import.meta.env.DEV) {

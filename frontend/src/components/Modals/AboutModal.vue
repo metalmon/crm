@@ -71,7 +71,7 @@ let links = [
   },
   {
     label: __('GitHub Repository'),
-    url: 'https://github.com/frappe/crm',
+    url: 'https://github.com/metalmon/crm',
     icon: LucideGitHub,
   },
   {
@@ -86,12 +86,12 @@ let links = [
   },
   {
     label: __('Report an Issue'),
-    url: 'https://github.com/frappe/crm/issues',
+    url: 'https://github.com/metalmon/crm/issues',
     icon: LucideBug,
   },
   {
     label: __('Contact Support'),
-    url: 'https://support.frappe.io',
+    url: 'https://t.me/metalmonkey',
     icon: LucideHeadset,
   },
 ]
