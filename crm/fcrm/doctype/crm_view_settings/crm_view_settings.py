@@ -26,7 +26,7 @@ def create(view):
 	view.rows = remove_duplicates(view.rows)
 
 	if not view.kanban_columns and view.type == "kanban":
-		view.kanban_columns = sync_default_columns(view.doctype, view.column_field)
+		view.kanban_columns = sync_default_columns(view)
 	elif not view.columns:
 		view.columns = sync_default_columns(view)
 

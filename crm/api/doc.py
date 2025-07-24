@@ -903,7 +903,7 @@ def remove_linked_doc_reference(items, remove_contact=None, delete=False):
 		if remove_contact:
 			remove_contact_link(item["doctype"], item["docname"])
 		else:
-			remove_doc_link(item["doctype"], item["docname"])
+			universal_remove_doc_link(item["doctype"], item["docname"])
 
 		if delete:
 			frappe.delete_doc(item["doctype"], item["docname"])
@@ -959,3 +959,29 @@ def delete_bulk_docs(doctype, items, delete_linked=False):
 	except Exception as e:
 		frappe.log_error(f"Error in delete_bulk_docs: {str(e)}")
 		frappe.throw(f"Error in bulk delete operation: {str(e)}")
+
+
+# --- UNIVERSAL UNLINK FUNCTION FOR FORK SUPPORT ---
+def universal_remove_doc_link(doctype, docname):
+    """
+    Universally unlinks a document from its parent for any DocType
+    that uses reference_doctype/reference_name or reference_docname fields.
+    Clears all Link fields to DocType and all Dynamic Link fields that use them as options.
+    """
+    doc = frappe.get_doc(doctype, docname)
+    meta = frappe.get_meta(doctype)
+    # Find all Link fields to DocType
+    link_fields = [f.fieldname for f in meta.fields if f.fieldtype == "Link" and f.options == "DocType"]
+    # Find all Dynamic Link fields that use these Link fields as options
+    dynlink_fields = [
+        f.fieldname
+        for f in meta.fields
+        if f.fieldtype == "Dynamic Link" and f.options in link_fields
+    ]
+    # Clear all found fields
+    for lf in link_fields:
+        doc.set(lf, None)
+    for dlf in dynlink_fields:
+        doc.set(dlf, None)
+    doc.save(ignore_permissions=True)
+# --- END UNIVERSAL UNLINK FUNCTION ---

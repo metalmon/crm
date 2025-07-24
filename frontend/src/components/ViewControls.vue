@@ -1011,14 +1011,7 @@ async function resetColumnSettings() {
   const columnField = list.value.params.column_field || defaultParams.value.column_field
   
   // Show a loading indicator
-  createToast({
-    title: __('Resetting columns...'),
-    text: __('Fetching latest status values'),
-    icon: 'refresh-cw',
-    position: 'bottom-right',
-    iconClasses: 'animate-spin',
-    duration: 3000
-  })
+  toast.success(__('Resetting columns...'))
   
   try {
     // Reset the columns via API call
@@ -1043,20 +1036,10 @@ async function resetColumnSettings() {
     }
     
     // Show success message
-    createToast({
-      title: __('Success'),
-      text: __('Column settings have been reset'),
-      icon: 'check',
-      position: 'bottom-right',
-    })
+    toast.success(__('Column settings have been reset'))
   } catch (error) {
     // Show error message
-    createToast({
-      title: __('Error'),
-      text: __('Failed to reset column settings: ') + (error.message || __('Unknown error')),
-      icon: 'alert-triangle',
-      position: 'bottom-right',
-    })
+    toast.error(__('Failed to reset column settings: ') + (error.message || __('Unknown error')))
   }
 }
 

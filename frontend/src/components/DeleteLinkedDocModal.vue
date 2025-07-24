@@ -30,11 +30,11 @@
               :rows="linkedDocs"
               :columns="[
                 {
-                  label: 'Document',
+                  label: __('Document'),
                   key: 'title',
                 },
                 {
-                  label: 'Master',
+                  label: __('Master'),
                   key: 'reference_doctype',
                   width: '30%',
                 },
