@@ -168,9 +168,10 @@ class CRMDeal(Document):
 
 	def validate_lost_reason(self):
 		"""
-		Validate the lost reason if the status is set to "Lost".
+		Validate the lost reason if the status is marked as lost in CRM Deal Status.
 		"""
-		if self.status == "Lost":
+		is_lost = frappe.db.get_value("CRM Deal Status", self.status, "is_lost")
+		if is_lost:
 			if not self.lost_reason:
 				frappe.throw(_("Please specify a reason for losing the deal."), frappe.ValidationError)
 			elif self.lost_reason == "Other" and not self.lost_notes:

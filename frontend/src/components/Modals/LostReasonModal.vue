@@ -89,7 +89,11 @@ function save() {
 
   props.deal.doc.lost_reason = lostReason.value
   props.deal.doc.lost_notes = lostNotes.value
-  props.deal.save.submit()
+  if (props.deal.save && typeof props.deal.save.submit === 'function') {
+    props.deal.save.submit()
+  } else {
+    console.error('props.deal.save.submit is not a function')
+  }
 }
 
 function onCreate(value, close) {
