@@ -8,14 +8,20 @@
             <h3 class="font-semibold text-xl text-ink-gray-9">Frappe CRM</h3>
             <div class="flex items-center mt-1">
               <div class="text-base text-ink-gray-6">
-                {{ appVersion.branch != 'main' ? appVersion.branch : '' }}
-                <template v-if="appVersion.branch != 'main'">
-                  ({{ appVersion.commit }})
+                <template v-if="appVersion && typeof appVersion === 'object'">
+                  {{ appVersion.branch != 'main' ? appVersion.branch : '' }}
+                  <template v-if="appVersion.branch != 'main'">
+                    ({{ appVersion.commit }})
+                  </template>
+                  <template v-else>{{ appVersion.tag }}</template>
                 </template>
-                <template v-else>{{ appVersion.tag }}</template>
+                <template v-else>
+                  {{ __('Version info unavailable') }}
+                </template>
               </div>
 
               <Tooltip
+                v-if="appVersion && typeof appVersion === 'object'"
                 :text="`${appVersion.commit_message} - ${appVersion.commit_date}`"
                 placement="top"
               >
