@@ -1274,6 +1274,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-heading/-/extension-heading-2.11.7.tgz#0e29db2a5dcd3456c7ab1a40817b56b926a073ec"
   integrity sha512-8kWh7y4Rd2fwxfWOhFFWncHdkDkMC1Z60yzIZWjIu72+6yQxvo8w3yeb7LI7jER4kffbMmadgcfhCHC/fkObBA==
 
+"@tiptap/extension-heading@^2.12.0":
+  version "2.26.1"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-heading/-/extension-heading-2.26.1.tgz#49d1e8f2d10eb1c06bf348d7cb9d131097d65f78"
+  integrity sha512-KSzL8WZV3pjJG9ke4RaU70+B5UlYR2S6olNt5UCAawM+fi11mobVztiBoC19xtpSVqIXC1AmXOqUgnuSvmE4ZA==
+
 "@tiptap/extension-highlight@^2.0.3":
   version "2.11.7"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-highlight/-/extension-highlight-2.11.7.tgz#2c92a6b8de96edfbdb2d3cdbd9eb8cf9c8011da8"
@@ -2777,7 +2782,7 @@ hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
-highlight.js@~11.11.0:
+highlight.js@^11.11.1, highlight.js@~11.11.0:
   version "11.11.1"
   resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-11.11.1.tgz#fca06fa0e5aeecf6c4d437239135fabc15213585"
   integrity sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==
