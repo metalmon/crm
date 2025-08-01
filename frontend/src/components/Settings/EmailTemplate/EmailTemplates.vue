@@ -100,7 +100,7 @@
               </div>
             </div>
             <div class="text-base text-ink-gray-6 w-1/6">
-              {{ template.reference_doctype.replace('CRM ', '') }}
+              {{ getTranslatedDoctype(template.reference_doctype) }}
             </div>
             <div class="flex items-center justify-between w-1/6">
               <Switch
@@ -217,6 +217,14 @@ function deleteTemplate(template) {
       toast.error(error.messages[0] || __('Failed to delete template'))
     },
   })
+}
+
+function getTranslatedDoctype(doctype) {
+  const doctypeMap = {
+    'CRM Lead': __('Lead'),
+    'CRM Deal': __('Deal'),
+  }
+  return doctypeMap[doctype] || doctype.replace('CRM ', '')
 }
 
 function getDropdownOptions(template) {

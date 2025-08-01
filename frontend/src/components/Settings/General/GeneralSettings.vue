@@ -9,16 +9,16 @@
       </p>
     </div>
 
-    <div class="flex-1 flex flex-col overflow-y-auto">
+    <div class="flex-1 flex flex-col overflow-y-auto dark-scrollbar">
       <div
-        class="flex items-center justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded"
+        class="flex items-start justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded gap-3"
         @click="toggleForecasting()"
       >
-        <div class="flex flex-col">
-          <div class="text-p-base font-medium text-ink-gray-7 truncate">
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="text-p-base font-medium text-ink-gray-7">
             {{ __('Enable forecasting') }}
           </div>
-          <div class="text-p-sm text-ink-gray-5 truncate">
+          <div class="text-p-sm text-ink-gray-5 break-words">
             {{
               __(
                 'Makes "Expected Closure Date" and "Expected Deal Value" mandatory for deal value forecasting',
@@ -26,7 +26,7 @@
             }}
           </div>
         </div>
-        <div>
+        <div class="flex-shrink-0">
           <Switch
             size="sm"
             v-model="settings.doc.enable_forecasting"
@@ -35,20 +35,47 @@
         </div>
       </div>
       <div class="h-px border-t mx-2 border-outline-gray-modals" />
+      
+      <div
+        class="flex items-start justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded gap-3"
+        @click="toggleKanbanRealtime()"
+      >
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="text-p-base font-medium text-ink-gray-7">
+            {{ __('Disable Kanban Realtime Updates') }}
+          </div>
+          <div class="text-p-sm text-ink-gray-5 break-words">
+            {{
+              __(
+                'When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets.',
+              )
+            }}
+          </div>
+        </div>
+        <div class="flex-shrink-0">
+          <Switch
+            size="sm"
+            v-model="settings.doc.disable_realtime_updates"
+            @click.stop="toggleKanbanRealtime(settings.doc.disable_realtime_updates)"
+          />
+        </div>
+      </div>
+      <div class="h-px border-t mx-2 border-outline-gray-modals" />
+      
       <template v-for="(setting, i) in settingsList" :key="setting.name">
         <li
-          class="flex items-center justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded"
+          class="flex items-start justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded gap-3"
           @click="() => emit('updateStep', setting.name)"
         >
-          <div class="flex flex-col">
-            <div class="text-p-base font-medium text-ink-gray-7 truncate">
-              {{ __(setting.label) }}
+          <div class="flex flex-col flex-1 min-w-0">
+            <div class="text-p-base font-medium text-ink-gray-7">
+              {{ setting.label }}
             </div>
-            <div class="text-p-sm text-ink-gray-5 truncate">
-              {{ __(setting.description) }}
+            <div class="text-p-sm text-ink-gray-5 break-words">
+              {{ setting.description }}
             </div>
           </div>
-          <div>
+          <div class="flex-shrink-0">
             <FeatherIcon name="chevron-right" class="text-ink-gray-7 size-4" />
           </div>
         </li>
@@ -72,19 +99,24 @@ const { _settings: settings } = getSettings()
 const settingsList = [
   {
     name: 'currency-settings',
-    label: 'Currency & Exchange rate provider',
+    label: __('Currency & Exchange rate provider'),
     description:
-      'Configure the currency and exchange rate provider for your CRM',
+      __('Configure the currency and exchange rate provider for your CRM'),
   },
   {
     name: 'brand-settings',
-    label: 'Brand settings',
-    description: 'Configure your brand name, logo and favicon',
+    label: __('Brand settings'),
+    description: __('Configure your brand name, logo and favicon'),
+  },
+  {
+    name: 'conversion-settings',
+    label: __('Conversion settings'),
+    description: __('Configure lead conversion settings'),
   },
   {
     name: 'home-actions',
-    label: 'Home actions',
-    description: 'Configure actions that appear on the home dropdown',
+    label: __('Home actions'),
+    description: __('Configure actions that appear on the home dropdown'),
   },
 ]
 
@@ -98,6 +130,21 @@ function toggleForecasting(value) {
         settings.doc.enable_forecasting
           ? __('Forecasting enabled successfully')
           : __('Forecasting disabled successfully'),
+      )
+    },
+  })
+}
+
+function toggleKanbanRealtime(value) {
+  settings.doc.disable_realtime_updates =
+    value !== undefined ? value : !settings.doc.disable_realtime_updates
+
+  settings.save.submit(null, {
+    onSuccess: () => {
+      toast.success(
+        settings.doc.disable_realtime_updates
+          ? __('Kanban realtime updates disabled successfully')
+          : __('Kanban realtime updates enabled successfully'),
       )
     },
   })

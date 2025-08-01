@@ -80,7 +80,7 @@ def get_fields_layout(doctype: str, type: str, parent_doctype: str | None = None
 	if type == "Required Fields" and required_fields and tabs:
 		tabs[-1].get("sections").append(
 			{
-				"label": "Required Fields",
+				"label": _("Required Fields"),
 				"name": "required_fields_section_" + str(random_string(4)),
 				"opened": True,
 				"hideLabel": True,
@@ -155,7 +155,7 @@ def add_forecasting_section(layout, doctype):
 				contacts_section_index + 1,
 				{
 					"name": "forecasted_sales_section",
-					"label": "Forecasted Sales",
+					"label": _("Forecasted Sales"),
 					"opened": True,
 					"columns": [
 						{
@@ -198,16 +198,16 @@ def get_permlevel_access(permission_type="write", doctype=None, parent_doctype=N
 
 
 def get_field_obj(field):
-	field["placeholder"] = field.get("placeholder") or "Add " + field.label + "..."
+	field["placeholder"] = field.get("placeholder") or _("Add {0}...",field.label)
 
 	if field.fieldtype == "Link":
-		field["placeholder"] = field.get("placeholder") or "Select " + field.label + "..."
+		field["placeholder"] = field.get("placeholder") or _("Select {0}...",field.label)
 	elif field.fieldtype == "Select" and field.options:
-		field["placeholder"] = field.get("placeholder") or "Select " + field.label + "..."
+		field["placeholder"] = field.get("placeholder") or _("Select {0}...",field.label)
 		field["options"] = [{"label": option, "value": option} for option in field.options.split("\n")]
 
 	if field.read_only:
-		field["tooltip"] = "This field is read only and cannot be edited."
+		field["tooltip"] = _("This field is read only and cannot be edited.")
 
 	return field
 

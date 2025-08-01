@@ -22,7 +22,7 @@
       :placeholder="getPlaceholder(field)"
       v-model="data[field.fieldname]"
       :disabled="true"
-      :description="field.description"
+      :description="__(field.description)"
     />
     <Grid
       v-else-if="field.fieldtype === 'Table'"
@@ -41,7 +41,7 @@
       v-model="data[field.fieldname]"
       @change="(e) => fieldChange(e.target.value, field)"
       :placeholder="getPlaceholder(field)"
-      :description="field.description"
+      :description="__(field.description)"
     >
       <template v-if="field.prefix" #prefix>
         <IndicatorIcon :class="field.prefix" />
@@ -54,7 +54,7 @@
         v-model="data[field.fieldname]"
         @change="(e) => fieldChange(e.target.checked, field)"
         :disabled="Boolean(field.read_only)"
-        :description="field.description"
+        :description="__(field.description)"
       />
       <label
         class="text-sm text-ink-gray-5"
@@ -156,14 +156,14 @@
       type="textarea"
       :value="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange($event.target.value, field)"
     />
     <Password
       v-else-if="field.fieldtype === 'Password'"
       :value="data[field.fieldname]"
       :placeholder="getPlaceholder(field)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange($event.target.value, field)"
     />
     <FormattedInput
@@ -172,7 +172,7 @@
       :placeholder="getPlaceholder(field)"
       :value="data[field.fieldname] || '0'"
       :disabled="Boolean(field.read_only)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange($event.target.value, field)"
     />
     <FormattedInput
@@ -181,7 +181,7 @@
       :value="getFormattedPercent(field.fieldname, data)"
       :placeholder="getPlaceholder(field)"
       :disabled="Boolean(field.read_only)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange(flt($event.target.value), field)"
     />
     <FormattedInput
@@ -190,7 +190,7 @@
       :value="getFormattedFloat(field.fieldname, data)"
       :placeholder="getPlaceholder(field)"
       :disabled="Boolean(field.read_only)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange(flt($event.target.value), field)"
     />
     <FormattedInput
@@ -199,7 +199,7 @@
       :value="getFormattedCurrency(field.fieldname, data, parentDoc)"
       :placeholder="getPlaceholder(field)"
       :disabled="Boolean(field.read_only)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange(flt($event.target.value), field)"
     />
     <div v-else-if="field.fieldtype === 'Attach Image'" class="w-full">
@@ -218,7 +218,7 @@
       :placeholder="getPlaceholder(field)"
       :value="getDataValue(data[field.fieldname], field)"
       :disabled="Boolean(field.read_only)"
-      :description="field.description"
+      :description="__(field.description)"
       @change="fieldChange($event.target.value, field)"
     />
   </div>

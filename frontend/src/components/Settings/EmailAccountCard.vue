@@ -1,21 +1,20 @@
 <template>
   <div
-    class="flex items-center justify-between px-2 py-3 border-outline-gray-modals cursor-pointer hover:bg-surface-menu-bar rounded"
+    class="flex items-center justify-between px-2 py-3 border-outline-gray-modals cursor-pointer hover:bg-surface-menu-bar rounded gap-3"
   >
     <!-- avatar and name -->
-    <div class="flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2 flex-1 min-w-0">
       <EmailProviderIcon :logo="emailIcon[emailAccount.service]" />
-      <div>
-        <div class="text-p-base text-ink-gray-8">
+      <div class="flex flex-col min-w-0 flex-1">
+        <div class="text-p-base text-ink-gray-8 truncate">
           {{ emailAccount.email_account_name }}
         </div>
-        <div class="text-p-sm text-ink-gray-5">{{ emailAccount.email_id }}</div>
+        <div class="text-p-sm text-ink-gray-5 truncate">{{ emailAccount.email_id }}</div>
       </div>
     </div>
-    <div>
+    <div class="flex-shrink-0">
       <Badge variant="subtle" :label="badgeTitle" theme="gray" />
     </div>
-    <!-- email id -->
   </div>
 </template>
 

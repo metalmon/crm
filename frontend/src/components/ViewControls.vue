@@ -762,6 +762,7 @@ const viewsDropdownOptions = computed(() => {
 })
 
 const { getFields } = getMeta(props.doctype)
+const { users } = usersStore()
 
 const customizeQuickFilter = ref(false)
 
@@ -774,11 +775,26 @@ const newQuickFilters = ref([])
 
 function addQuickFilter(f) {
   if (!newQuickFilters.value.some((filter) => filter.fieldname === f.value)) {
-    newQuickFilters.value.push({
+    const newFilter = {
       label: f.label,
       fieldname: f.value,
       fieldtype: f.fieldtype,
-    })
+    }
+    
+    // Add options for _assign field
+    if (f.value === '_assign' && users.data?.crmUsers) {
+      const crmUsers = users.data.crmUsers
+      newFilter.options = [
+        { label: '', value: '' },
+        ...crmUsers.map(user => ({
+          label: user.full_name || user.name,
+          value: user.name,
+          email: user.email
+        }))
+      ]
+    }
+    
+    newQuickFilters.value.push(newFilter)
   }
 }
 
@@ -832,14 +848,26 @@ const quickFilterOptions = computed(() => {
     'Fold',
     'Heading',
   ]
+  // Add _assign field as available option if not already in quick filters
+  if (!existingQuickFilters.includes('_assign')) {
+    fields.push({
+      fieldname: '_assign',
+      fieldtype: 'Text',
+      label: __('Assigned To')
+    })
+  }
+
   let options = fields
     .filter((f) => f.label && !restrictedFieldtypes.includes(f.fieldtype))
     .filter((f) => !existingQuickFilters.includes(f.fieldname))
     .map((field) => ({
-      label: field.label,
+      label: __(field.label),
       value: field.fieldname,
       fieldtype: field.fieldtype,
     }))
+
+
+
 
   if (!options.some((f) => f.fieldname === 'name')) {
     options.push({
@@ -857,17 +885,42 @@ const quickFilterList = computed(() => {
 
   filters.forEach((filter) => {
     filter['value'] = filter.fieldtype == 'Check' ? false : ''
+    
+    // Load options for _assign field
+    if (filter.fieldname === '_assign' && !filter.options && users.data?.crmUsers) {
+      const crmUsers = users.data.crmUsers
+      filter.options = [
+        { label: '', value: '' },
+        ...crmUsers.map(user => ({
+          label: user.full_name || user.name,
+          value: user.name,
+          email: user.email
+        }))
+      ]
+    }
+    
     if (list.value.params?.filters[filter.fieldname]) {
       let value = list.value.params.filters[filter.fieldname]
+
       if (Array.isArray(value)) {
         if (
-          (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
+          ((['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
             filter.fieldtype,
           ) &&
             value[0]?.toLowerCase() == 'like') ||
-          value[0]?.toLowerCase() != 'like'
+          value[0]?.toLowerCase() != 'like') &&
+          !(filter.fieldname === '_assign' && value[0] === 'assigned_user') &&
+          !(['Date', 'Datetime'].includes(filter.fieldtype) && value[0] === 'timespan')
         )
           return
+        if (filter.fieldname === '_assign' && value[0] === 'assigned_user') {
+          filter['value'] = value[1]
+          return
+        }
+        if (['Date', 'Datetime'].includes(filter.fieldtype) && value[0] === 'timespan') {
+          filter['value'] = value[1]
+          return
+        }
         filter['value'] = value[1]?.replace(/%/g, '')
       } else if (typeof value == 'boolean') {
         filter['value'] = value
@@ -892,11 +945,29 @@ const quickFilters = createResource({
 if (!quickFilters.data) quickFilters.fetch()
 
 function setupNewQuickFilters(filters) {
-  newQuickFilters.value = filters.map((f) => ({
-    label: f.label,
-    fieldname: f.fieldname,
-    fieldtype: f.fieldtype,
-  }))
+  newQuickFilters.value = filters.map((f) => {
+    const newFilter = {
+      label: f.label,
+      fieldname: f.fieldname,
+      fieldtype: f.fieldtype,
+      options: f.options,
+    }
+    
+    // Add options for _assign field if not already present
+    if (f.fieldname === '_assign' && !f.options && users.data?.crmUsers) {
+      const crmUsers = users.data.crmUsers
+      newFilter.options = [
+        { label: '', value: '' },
+        ...crmUsers.map(user => ({
+          label: user.full_name || user.name,
+          value: user.name,
+          email: user.email
+        }))
+      ]
+    }
+    
+    return newFilter
+  })
 }
 
 function applyQuickFilter(filter, value) {
@@ -912,6 +983,9 @@ function applyQuickFilter(filter, value) {
       } else {
         filters[field] = value
       }
+    } else if (field === '_assign') {
+      // Handle assigned users filter
+      filters[field] = ['assigned_user', value]
     } else {
       filters[field] = ['LIKE', `%${value}%`]
     }

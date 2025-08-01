@@ -195,6 +195,8 @@ def get_quick_filters(doctype: str, cached: bool = True):
 		for filter in _quick_filters:
 			if filter == "name":
 				fields.append({"label": "Name", "fieldname": "name", "fieldtype": "Data"})
+			elif filter == "_assign":
+				fields.append({"label": "Assigned To", "fieldname": "_assign", "fieldtype": "Text"})
 			else:
 				field = next((f for f in meta.fields if f.fieldname == filter), None)
 				if field:
@@ -202,6 +204,8 @@ def get_quick_filters(doctype: str, cached: bool = True):
 
 	else:
 		fields = [field for field in meta.fields if field.in_standard_filter]
+
+
 
 	for field in fields:
 		options = field.get("options")
@@ -322,6 +326,13 @@ def get_data(
 				index = [i for i, v in enumerate(value) if v == "%@me%"]
 				for i in index:
 					value[i] = "%" + frappe.session.user + "%"
+			# Handle _assign field filtering
+			elif key == "_assign" and len(value) == 2 and value[0] == "assigned_user":
+				# Get user email by name
+				user_email = frappe.db.get_value("User", value[1], "email")
+				if user_email:
+					# Convert to LIKE filter for JSON field
+					filters[key] = ["LIKE", f"%{user_email}%"]
 		elif value == "@me":
 			filters[key] = frappe.session.user
 

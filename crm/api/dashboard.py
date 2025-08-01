@@ -463,9 +463,9 @@ def get_average_time_to_close_a_lead(from_date, to_date, user=""):
 		"title": _("Avg. time to close a lead"),
 		"tooltip": _("Average time taken from lead creation to deal closure"),
 		"value": current_avg_lead,
-		"suffix": " days",
+		"suffix": _(" days"),
 		"delta": delta_lead,
-		"deltaSuffix": " days",
+		"deltaSuffix": _("days"),
 		"negativeIsBetter": True,
 	}
 
@@ -517,9 +517,9 @@ def get_average_time_to_close_a_deal(from_date, to_date, user=""):
 		"title": _("Avg. time to close a deal"),
 		"tooltip": _("Average time taken from deal creation to deal closure"),
 		"value": current_avg_deal,
-		"suffix": " days",
+		"suffix": _("days"),
 		"delta": delta_deal,
-		"deltaSuffix": " days",
+		"deltaSuffix": _("days"),
 		"negativeIsBetter": True,
 	}
 
@@ -593,8 +593,24 @@ def get_sales_trend(from_date="", to_date="", user=""):
 		for row in result
 	]
 
+	# Pre-translate labels
+	leads_label = _("Leads")
+	deals_label = _("Deals")
+	won_deals_label = _("Won Deals")
+	
+	# Transform data to use translated keys
+	translated_sales_trend = []
+	for item in sales_trend:
+		translated_item = {
+			"date": item["date"],
+			leads_label: item["leads"],
+			deals_label: item["deals"],
+			won_deals_label: item["won_deals"]
+		}
+		translated_sales_trend.append(translated_item)
+	
 	return {
-		"data": sales_trend,
+		"data": translated_sales_trend,
 		"title": _("Sales trend"),
 		"subtitle": _("Daily performance of leads, deals, and wins"),
 		"xAxis": {
@@ -607,10 +623,19 @@ def get_sales_trend(from_date="", to_date="", user=""):
 			"title": _("Count"),
 		},
 		"series": [
-			{"name": "leads", "type": "line", "showDataPoints": True},
-			{"name": "deals", "type": "line", "showDataPoints": True},
-			{"name": "won_deals", "type": "line", "showDataPoints": True},
+			{"name": leads_label, "type": "line", "showDataPoints": True},
+			{"name": deals_label, "type": "line", "showDataPoints": True},
+			{"name": won_deals_label, "type": "line", "showDataPoints": True},
 		],
+		"options": {
+			"legend": {
+				"labels": {
+					leads_label: leads_label,
+					deals_label: deals_label,
+					won_deals_label: won_deals_label
+				}
+			}
+		}
 	}
 
 
@@ -656,13 +681,22 @@ def get_forecasted_revenue(from_date="", to_date="", user=""):
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	forecasted_label = _("Forecasted")
+	actual_label = _("Actual")
+
+	# Transform data to use translated keys
+	translated_result = []
 	for row in result:
-		row["month"] = frappe.utils.get_datetime(row["month"]).strftime("%Y-%m-01")
-		row["forecasted"] = row["forecasted"] or ""
-		row["actual"] = row["actual"] or ""
+		translated_row = {
+			"month": frappe.utils.get_datetime(row["month"]).strftime("%Y-%m-01"),
+			forecasted_label: row["forecasted"] or "",
+			actual_label: row["actual"] or ""
+		}
+		translated_result.append(translated_row)
 
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Forecasted revenue"),
 		"subtitle": _("Projected vs actual revenue based on deal probability"),
 		"xAxis": {
@@ -675,8 +709,8 @@ def get_forecasted_revenue(from_date="", to_date="", user=""):
 			"title": _("Revenue") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "forecasted", "type": "line", "showDataPoints": True},
-			{"name": "actual", "type": "line", "showDataPoints": True},
+			{"name": forecasted_label, "type": "line", "showDataPoints": True},
+			{"name": actual_label, "type": "line", "showDataPoints": True},
 		],
 	}
 
@@ -719,12 +753,24 @@ def get_funnel_conversion(from_date="", to_date="", user=""):
 	)
 	total_leads_count = total_leads[0].count if total_leads else 0
 
-	result.append({"stage": "Leads", "count": total_leads_count})
+	result.append({"stage": _("Leads"), "count": total_leads_count})
 
 	result += get_deal_status_change_counts(from_date, to_date, deal_conds)
 
+	# Pre-translate labels
+	count_label = _("Count")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"stage": row["stage"],
+			count_label: row["count"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Funnel conversion"),
 		"subtitle": _("Lead to deal conversion pipeline"),
 		"xAxis": {
@@ -738,7 +784,7 @@ def get_funnel_conversion(from_date="", to_date="", user=""):
 		"swapXY": True,
 		"series": [
 			{
-				"name": "count",
+				"name": count_label,
 				"type": "bar",
 				"echartOptions": {
 					"colorBy": "data",
@@ -783,8 +829,20 @@ def get_deals_by_stage_axis(from_date="", to_date="", user=""):
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	count_label = _("Count")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"stage": row["stage"],
+			count_label: row["count"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Deals by ongoing & won stage"),
 		"xAxis": {
 			"title": _("Stage"),
@@ -793,7 +851,7 @@ def get_deals_by_stage_axis(from_date="", to_date="", user=""):
 		},
 		"yAxis": {"title": _("Count")},
 		"series": [
-			{"name": "count", "type": "bar"},
+			{"name": count_label, "type": "bar"},
 		],
 	}
 
@@ -878,8 +936,20 @@ def get_lost_deal_reasons(from_date="", to_date="", user=""):
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	count_label = _("Count")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"reason": row["reason"],
+			count_label: row["count"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Lost deal reasons"),
 		"subtitle": _("Common reasons for losing deals"),
 		"xAxis": {
@@ -891,7 +961,7 @@ def get_lost_deal_reasons(from_date="", to_date="", user=""):
 			"title": _("Count"),
 		},
 		"series": [
-			{"name": "count", "type": "bar"},
+			{"name": count_label, "type": "bar"},
 		],
 	}
 
@@ -917,7 +987,7 @@ def get_leads_by_source(from_date="", to_date="", user=""):
 	result = frappe.db.sql(
 		f"""
 		SELECT
-			IFNULL(source, 'Empty') AS source,
+			IFNULL(source, %(empty)s) AS source,
 			COUNT(*) AS count
 		FROM `tabCRM Lead`
 		WHERE DATE(creation) BETWEEN %(from)s AND %(to)s
@@ -925,16 +995,28 @@ def get_leads_by_source(from_date="", to_date="", user=""):
 		GROUP BY source
 		ORDER BY count DESC
 		""",
-		{"from": from_date, "to": to_date},
+		{"from": from_date, "to": to_date, "empty": _("Empty")},
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	count_label = _("Count")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"source": row["source"],
+			count_label: row["count"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Leads by source"),
 		"subtitle": _("Lead generation channel analysis"),
 		"categoryColumn": "source",
-		"valueColumn": "count",
+		"valueColumn": count_label,
 	}
 
 
@@ -959,7 +1041,7 @@ def get_deals_by_source(from_date="", to_date="", user=""):
 	result = frappe.db.sql(
 		f"""
 		SELECT
-			IFNULL(source, 'Empty') AS source,
+			IFNULL(source, %(empty)s) AS source,
 			COUNT(*) AS count
 		FROM `tabCRM Deal`
 		WHERE DATE(creation) BETWEEN %(from)s AND %(to)s
@@ -967,16 +1049,28 @@ def get_deals_by_source(from_date="", to_date="", user=""):
 		GROUP BY source
 		ORDER BY count DESC
 		""",
-		{"from": from_date, "to": to_date},
+		{"from": from_date, "to": to_date, "empty": _("Empty")},
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	count_label = _("Count")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"source": row["source"],
+			count_label: row["count"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Deals by source"),
 		"subtitle": _("Deal generation channel analysis"),
 		"categoryColumn": "source",
-		"valueColumn": "count",
+		"valueColumn": count_label,
 	}
 
 
@@ -1001,7 +1095,7 @@ def get_deals_by_territory(from_date="", to_date="", user=""):
 	result = frappe.db.sql(
 		f"""
 		SELECT
-			IFNULL(d.territory, 'Empty') AS territory,
+			IFNULL(d.territory, %(empty)s) AS territory,
 			COUNT(*) AS deals,
 			SUM(COALESCE(d.deal_value, 0) * IFNULL(d.exchange_rate, 1)) AS value
 		FROM `tabCRM Deal` AS d
@@ -1010,12 +1104,26 @@ def get_deals_by_territory(from_date="", to_date="", user=""):
 		GROUP BY d.territory
 		ORDER BY value DESC
 		""",
-		{"from": from_date, "to": to_date},
+		{"from": from_date, "to": to_date, "empty": _("Empty")},
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	deals_label = _("Deals")
+	value_label = _("Value")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"territory": row["territory"],
+			deals_label: row["deals"],
+			value_label: row["value"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Deals by territory"),
 		"subtitle": _("Geographic distribution of deals and revenue"),
 		"xAxis": {
@@ -1030,8 +1138,8 @@ def get_deals_by_territory(from_date="", to_date="", user=""):
 			"title": _("Deal value") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "deals", "type": "bar"},
-			{"name": "value", "type": "line", "showDataPoints": True, "axis": "y2"},
+			{"name": deals_label, "type": "bar"},
+			{"name": value_label, "type": "line", "showDataPoints": True, "axis": "y2"},
 		],
 	}
 
@@ -1071,8 +1179,22 @@ def get_deals_by_salesperson(from_date="", to_date="", user=""):
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	deals_label = _("Deals")
+	value_label = _("Value")
+	
+	# Transform data to use translated keys
+	translated_result = []
+	for row in result:
+		translated_row = {
+			"salesperson": row["salesperson"],
+			deals_label: row["deals"],
+			value_label: row["value"]
+		}
+		translated_result.append(translated_row)
+	
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Deals by salesperson"),
 		"subtitle": _("Number of deals and total value per salesperson"),
 		"xAxis": {
@@ -1087,8 +1209,8 @@ def get_deals_by_salesperson(from_date="", to_date="", user=""):
 			"title": _("Deal value") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "deals", "type": "bar"},
-			{"name": "value", "type": "line", "showDataPoints": True, "axis": "y2"},
+			{"name": deals_label, "type": "bar"},
+			{"name": value_label, "type": "line", "showDataPoints": True, "axis": "y2"},
 		],
 	}
 

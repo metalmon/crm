@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div class="flex flex-col h-full">
     <!-- header -->
-    <div class="flex justify-between text-ink-gray-8">
-      <div class="flex flex-col gap-1 w-9/12">
+    <div class="flex justify-between text-ink-gray-8 gap-4">
+      <div class="flex flex-col gap-1 flex-1 min-w-0">
         <h2 class="flex gap-2 text-xl font-semibold leading-none h-5">
           {{ __('Email accounts') }}
         </h2>
-        <p class="text-p-base text-ink-gray-6">
+        <p class="text-p-base text-ink-gray-6 break-words">
           {{
             __(
               'Manage your email accounts to send and receive emails directly from CRM. You can add multiple accounts and set one as default for incoming and outgoing emails.',
@@ -14,7 +14,7 @@
           }}
         </p>
       </div>
-      <div class="flex item-center space-x-2 w-3/12 justify-end">
+      <div class="flex item-center space-x-2 flex-shrink-0">
         <Button
           :label="__('Add Account')"
           theme="gray"
@@ -28,7 +28,7 @@
     <!-- list accounts -->
     <div
       v-if="!emailAccounts.loading && Boolean(emailAccounts.data?.length)"
-      class="mt-4"
+      class="mt-4 flex-1 overflow-y-auto dark-scrollbar"
     >
       <div
         v-for="(emailAccount, i) in emailAccounts.data"
@@ -45,7 +45,7 @@
       </div>
     </div>
     <!-- fallback if no email accounts -->
-    <div v-else class="flex items-center justify-center h-64 text-ink-gray-4">
+    <div v-else class="flex items-center justify-center h-64 text-ink-gray-4 flex-1">
       {{ __('Please add an email account to continue.') }}
     </div>
   </div>

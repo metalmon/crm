@@ -4,11 +4,11 @@
 // Map of original status values to their translations
 export function taskStatusTranslations() {
   return {
-    'Backlog': window.__('Backlog'),
-    'Todo': window.__('Todo'),
-    'In Progress': window.__('In Progress'),
-    'Done': window.__('Done'),
-    'Canceled': window.__('Canceled')
+    'Backlog': window.__('Backlog', null, 'Task status - items waiting to be processed'),
+    'Todo': window.__('Todo', null, 'Task status - items that need to be done'),
+    'In Progress': window.__('In Progress', null, 'Task status - items currently being worked on'),
+    'Done': window.__('Done', null, 'Task status - completed items'),
+    'Canceled': window.__('Canceled', null, 'Task status - items that were cancelled')
   }
 }
 

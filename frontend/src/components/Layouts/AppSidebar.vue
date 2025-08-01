@@ -196,57 +196,63 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
-const allViews = computed(() => {
-  const links = [
-    {
-      label: __('Dashboard'),
-      icon: LucideLayoutDashboard,
-      to: 'Dashboard',
-      condition: () => isManager(),
-    },
-    {
-      label: __('Leads'),
-      icon: LeadsIcon,
-      to: 'Leads',
-    },
-    {
-      label: __('Deals'),
-      icon: DealsIcon,
-      to: 'Deals',
-    },
-    {
-      label: __('Contacts'),
-      icon: ContactsIcon,
-      to: 'Contacts',
-    },
-    {
-      label: __('Organizations'),
-      icon: OrganizationsIcon,
-      to: 'Organizations',
-    },
-    {
-      label: __('Notes'),
-      icon: NoteIcon,
-      to: 'Notes',
-    },
-    {
-      label: __('Tasks'),
-      icon: TaskIcon,
-      to: 'Tasks',
-    },
-    {
-      label: __('Call Logs'),
-      icon: PhoneIcon,
-      to: 'Call Logs',
-    },
-  ]
+// Navigation links with translations
+const navigationLinks = [
+  {
+    label: __('Dashboard', null, 'Sidebar'),
+    icon: LucideLayoutDashboard,
+    to: 'Dashboard',
+    condition: () => isManager(),
+  },
+  {
+    label: __('Leads', null, 'Sidebar'),
+    icon: LeadsIcon,
+    to: 'Leads',
+  },
+  {
+    label: __('Deals', null, 'Sidebar'),
+    icon: DealsIcon,
+    to: 'Deals',
+  },
+  {
+    label: __('Contacts', null, 'Sidebar'),
+    icon: ContactsIcon,
+    to: 'Contacts',
+  },
+  {
+    label: __('Organizations', null, 'Sidebar'),
+    icon: OrganizationsIcon,
+    to: 'Organizations',
+  },
+  {
+    label: __('Notes', null, 'Sidebar'),
+    icon: NoteIcon,
+    to: 'Notes',
+  },
+  {
+    label: __('Tasks', null, 'Sidebar'),
+    icon: TaskIcon,
+    to: 'Tasks',
+  },
+  {
+    label: __('Call Logs', null, 'Sidebar'),
+    icon: PhoneIcon,
+    to: 'Call Logs',
+  },
+]
 
+// View section names with translations
+const ALL_VIEWS_LABEL = __('All Views', null, 'Sidebar')
+const PUBLIC_VIEWS_LABEL = __('Public views', null, 'Sidebar')
+const PINNED_VIEWS_LABEL = __('Pinned views', null, 'Sidebar')
+
+const allViews = computed(() => {
   let _views = [
     {
-      name: __('All Views'),
+      name: ALL_VIEWS_LABEL,
       hideLabel: true,
       opened: true,
-      views: links.filter((link) => {
+      views: navigationLinks.filter((link) => {
         if (link.condition) {
           return link.condition()
         }
@@ -256,7 +262,7 @@ const allViews = computed(() => {
   ]
   if (getPublicViews().length) {
     _views.push({
-      name: __('Public views'),
+      name: PUBLIC_VIEWS_LABEL,
       opened: true,
       views: parseView(getPublicViews()),
     })
@@ -264,7 +270,7 @@ const allViews = computed(() => {
 
   if (getPinnedViews().length) {
     _views.push({
-      name: __('Pinned views'),
+      name: PINNED_VIEWS_LABEL,
       opened: true,
       views: parseView(getPinnedViews()),
     })

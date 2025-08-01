@@ -4,9 +4,9 @@
 // Map of original priority values to their translations
 export function taskPriorityTranslations() {
   return {
-    'Low': window.__('Low'),
-    'Medium': window.__('Medium'),
-    'High': window.__('High')
+    'Low': window.__('Low', null, 'Task priority - lowest urgency level'),
+    'Medium': window.__('Medium', null, 'Task priority - normal urgency level'),
+    'High': window.__('High', null, 'Task priority - highest urgency level')
   }
 }
 

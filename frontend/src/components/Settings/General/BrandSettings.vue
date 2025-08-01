@@ -31,11 +31,11 @@
     </div>
 
     <!-- Fields -->
-    <div class="flex flex-1 flex-col p-2 gap-4 overflow-y-auto">
+    <div class="flex flex-1 flex-col p-2 gap-4 overflow-y-auto dark-scrollbar">
       <div class="flex w-full">
         <FormControl
           type="text"
-          class="w-1/2"
+          class="w-full max-w-md"
           v-model="settings.doc.brand_name"
           :label="__('Brand Name')"
         />
@@ -46,9 +46,9 @@
         <span class="text-base font-semibold text-ink-gray-9">
           {{ __('Logo') }}
         </span>
-        <div class="flex flex-1 gap-5">
+        <div class="flex flex-col sm:flex-row gap-4">
           <div
-            class="flex items-center justify-center rounded border border-outline-gray-modals px-10 py-2"
+            class="flex items-center justify-center rounded border border-outline-gray-modals px-10 py-2 flex-shrink-0"
           >
             <img
               :src="settings.doc?.brand_logo || '/assets/crm/images/logo.png'"
@@ -56,15 +56,15 @@
               class="size-8 rounded"
             />
           </div>
-          <div class="flex flex-1 flex-col gap-2">
+          <div class="flex flex-1 flex-col gap-2 min-w-0">
             <ImageUploader
-              label="Favicon"
+              label="Logo"
               image_type="image/ico"
               :image_url="settings.doc?.brand_logo"
               @upload="(url) => (settings.doc.brand_logo = url)"
               @remove="() => (settings.doc.brand_logo = '')"
             />
-            <span class="text-p-sm text-ink-gray-6">
+            <span class="text-p-sm text-ink-gray-6 break-words">
               {{
                 __(
                   'Appears in the left sidebar. Recommended size is 32x32 px in PNG or SVG',
@@ -80,9 +80,9 @@
         <span class="text-base font-semibold text-ink-gray-9">
           {{ __('Favicon') }}
         </span>
-        <div class="flex flex-1 gap-5">
+        <div class="flex flex-col sm:flex-row gap-4">
           <div
-            class="flex items-center justify-center rounded border border-outline-gray-modals px-10 py-2"
+            class="flex items-center justify-center rounded border border-outline-gray-modals px-10 py-2 flex-shrink-0"
           >
             <img
               :src="settings.doc?.favicon || '/assets/crm/images/logo.png'"
@@ -90,7 +90,7 @@
               class="size-8 rounded"
             />
           </div>
-          <div class="flex flex-1 flex-col gap-2">
+          <div class="flex flex-1 flex-col gap-2 min-w-0">
             <ImageUploader
               label="Favicon"
               image_type="image/ico"
@@ -98,7 +98,7 @@
               @upload="(url) => (settings.doc.favicon = url)"
               @remove="() => (settings.doc.favicon = '')"
             />
-            <span class="text-p-sm text-ink-gray-6">
+            <span class="text-p-sm text-ink-gray-6 break-words">
               {{
                 __(
                   'Appears next to the title in your browser tab. Recommended size is 32x32 px in PNG or ICO',

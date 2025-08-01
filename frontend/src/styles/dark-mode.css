@@ -12,4 +12,26 @@ select option {
   @apply text-gray-100;
 }
 
+/* Fix chart text in dark mode */
+[data-theme="dark"] svg text {
+  @apply fill-gray-100 !important;
+}
+
+/* Fix white rectangles and backgrounds in charts for dark mode */
+[data-theme="dark"] svg path[fill="#fff"],
+[data-theme="dark"] svg path[fill="white"] {
+  @apply fill-gray-800 !important;
+}
+
+[data-theme="dark"] svg path[stroke="#fff"],
+[data-theme="dark"] svg path[stroke="white"] {
+  @apply stroke-gray-800 !important;
+}
+
+/* Fix chart backgrounds that might be white */
+[data-theme="dark"] svg rect[fill="#fff"],
+[data-theme="dark"] svg rect[fill="white"] {
+  @apply fill-gray-800 !important;
+}
+
 

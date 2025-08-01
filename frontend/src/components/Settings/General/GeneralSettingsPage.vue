@@ -6,6 +6,7 @@
 import GeneralSettings from './GeneralSettings.vue'
 import CurrencySettings from './CurrencySettings.vue'
 import BrandSettings from './BrandSettings.vue'
+import ConversionSettings from './ConversionSettings.vue'
 import HomeActions from './HomeActions.vue'
 import { ref } from 'vue'
 
@@ -25,6 +26,8 @@ function getComponent(step) {
       return CurrencySettings
     case 'brand-settings':
       return BrandSettings
+    case 'conversion-settings':
+      return ConversionSettings
     case 'home-actions':
       return HomeActions
     default:

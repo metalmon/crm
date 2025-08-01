@@ -5,8 +5,8 @@
     @close="activeSettingsPage = ''"
   >
     <template #body>
-      <div class="flex h-[calc(100vh_-_8rem)]">
-        <div class="flex flex-col p-2 w-52 shrink-0 bg-surface-gray-2">
+      <div class="flex h-[calc(100vh_-_8rem)] min-h-0">
+        <div class="flex flex-col p-2 w-52 shrink-0 bg-surface-gray-2 overflow-y-auto dark-scrollbar">
           <h1 class="px-2 pt-2 mb-3 text-lg font-semibold text-ink-gray-8">
             {{ __('Settings') }}
           </h1>
@@ -33,7 +33,7 @@
             </nav>
           </div>
         </div>
-        <div class="flex flex-col flex-1 overflow-y-auto bg-surface-modal">
+        <div class="flex flex-col flex-1 overflow-hidden bg-surface-modal">
           <component :is="activeTab.component" v-if="activeTab" />
         </div>
       </div>

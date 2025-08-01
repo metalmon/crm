@@ -82,7 +82,7 @@ export function getMeta(doctype) {
 
   function getFields(dt = null) {
     dt = dt || doctype
-    return doctypeMeta[dt]?.fields.map((f) => {
+    let fields = doctypeMeta[dt]?.fields.map((f) => {
       if (f.fieldtype === 'Select' && typeof f.options === 'string') {
         f.options = f.options.split('\n').map((option) => {
           return {
@@ -102,7 +102,11 @@ export function getMeta(doctype) {
         f.fieldtype = 'User'
       }
       return f
-    })
+    }) || []
+
+
+
+    return fields
   }
 
   function saveUserSettings(parentDoctype, key, value, callback) {

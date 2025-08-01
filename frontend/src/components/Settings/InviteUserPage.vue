@@ -1,11 +1,11 @@
 <template>
     <div class="flex h-full flex-col gap-6 p-8 text-ink-gray-8">
-      <div class="flex justify-between">
-        <div class="flex flex-col gap-1 w-9/12">
+      <div class="flex justify-between gap-4">
+        <div class="flex flex-col gap-1 flex-1 min-w-0">
           <h2 class="flex gap-2 text-xl font-semibold leading-none h-5">
             {{ __('Send invites to') }}
           </h2>
-          <p class="text-p-base text-ink-gray-6">
+          <p class="text-p-base text-ink-gray-6 break-words">
             {{
               __(
                 'Invite users to access CRM. Specify their roles to control access and permissions',
@@ -13,7 +13,7 @@
             }}
           </p>
         </div>
-        <div class="flex item-center space-x-2 w-3/12 justify-end">
+        <div class="flex item-center space-x-2 flex-shrink-0">
           <Button
             :label="__('Send Invites')"
             variant="solid"
@@ -23,7 +23,7 @@
           />
         </div>
       </div>
-      <div class="flex-1 flex flex-col gap-8 overflow-y-auto">
+      <div class="flex-1 flex flex-col gap-8 overflow-y-auto dark-scrollbar">
         <div>
           <label class="block text-xs text-ink-gray-5 mb-1.5">
             {{ __('Invite by email') }}
@@ -45,7 +45,7 @@
           </div>
           <div
             v-if="userExistMessage || inviteeExistMessage"
-            class="text-xs text-ink-red-3 mt-1.5"
+            class="text-xs text-ink-red-3 mt-1.5 break-words"
           >
             {{ userExistMessage || inviteeExistMessage }}
           </div>
@@ -67,19 +67,19 @@
             </div>
             <ul class="flex flex-col gap-1">
               <li
-                class="flex items-center justify-between px-2 py-1 rounded-lg bg-surface-gray-2"
+                class="flex items-center justify-between px-2 py-1 rounded-lg bg-surface-gray-2 gap-3"
                 v-for="user in pendingInvitations.data"
                 :key="user.name"
               >
-                <div class="text-base">
-                  <span class="text-ink-gray-8">
+                <div class="text-base flex-1 min-w-0">
+                  <span class="text-ink-gray-8 truncate">
                     {{ user.email }}
                   </span>
                   <span class="text-ink-gray-5">
                     ({{ roleMap[user.role] }})
                   </span>
                 </div>
-                <div>
+                <div class="flex-shrink-0">
                   <Tooltip text="Delete Invitation">
                     <div>
                       <Button

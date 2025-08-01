@@ -13,7 +13,7 @@
     </h2>
     <div
       v-if="!twilio.get.loading || !exotel.get.loading || !beeline.get.loading"
-      class="flex-1 flex flex-col gap-8 overflow-y-auto"
+      class="flex-1 flex flex-col gap-8 overflow-y-auto dark-scrollbar"
     >
       <!-- General -->
       <FormControl
@@ -119,9 +119,9 @@ const callingMediumOptions = computed(() => {
     { label: __('Twilio'), value: 'Twilio' },
     { label: __('Exotel'), value: 'Exotel' },
   ];
-  if (isBeelineInstalled.value) {
-    options.push({ label: __('Beeline'), value: 'Beeline' });
-  }
+  //if (isBeelineInstalled.value) {
+  //  options.push({ label: __('Beeline'), value: 'Beeline' });
+  //}
   return options;
 });
 

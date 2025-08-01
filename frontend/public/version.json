@@ -1,7 +1,7 @@
 {
-  "commit": "bfa3fbc4",
+  "commit": "7d43be0c",
   "branch": "develop",
-  "commit_message": "refactor: enhance document unlinking and improve UI consistency\n\n- Replaced `remove_doc_link` with `universal_remove_doc_link` in `doc.py` to provide a more comprehensive unlinking mechanism for documents.\n- Updated `sync_default_columns` call in `crm_view_settings.py` to pass the entire view object for better clarity.\n- Changed static labels to localized labels in `DeleteLinkedDocModal.vue` and `LinkedDocsListView.vue` for improved internationalization support.\n- Simplified toast notifications in `ViewControls.vue` by replacing `createToast` with `toast` methods for consistency across the application.",
-  "commit_date": "2025-07-24",
+  "commit_message": "chore: update dependencies in yarn.lock\n\n- Added new version for @tiptap/extension-heading (2.26.1) and updated highlight.js to version 11.11.1.\n- Ensured compatibility and improved package management by reflecting the latest versions in the yarn.lock file.",
+  "commit_date": "2025-07-30",
   "tag": "v1.50.2"
 }

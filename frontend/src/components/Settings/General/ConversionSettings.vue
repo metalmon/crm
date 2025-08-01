@@ -6,7 +6,7 @@
         <Button
           variant="ghost"
           icon-left="chevron-left"
-          :label="__('Home actions')"
+          :label="__('Conversion settings')"
           size="md"
           @click="() => emit('updateStep', 'general-settings')"
           class="text-xl !h-7 font-semibold hover:bg-transparent focus:bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:none active:bg-transparent active:outline-none active:ring-0 active:ring-offset-0 active:text-ink-gray-5"
@@ -26,17 +26,19 @@
 
     <!-- Fields -->
     <div class="flex flex-1 flex-col gap-4 overflow-y-auto dark-scrollbar">
-      <!-- Home actions -->
+      <!-- Lead conversion status -->
       <div class="flex flex-col justify-between gap-4">
         <span class="text-base font-semibold text-ink-gray-9">
-          {{ __('Home actions') }}
+          {{ __('Lead Conversion') }}
         </span>
-        <div class="flex flex-1 min-w-0">
-          <Grid
-            v-model="settings.doc.dropdown_items"
-            doctype="CRM Dropdown Item"
-            parentDoctype="FCRM Settings"
-            parentFieldname="dropdown_items"
+        <div class="flex w-full">
+          <FormControl
+            type="select"
+            class="w-full max-w-md"
+            v-model="settings.doc.default_converted_lead_status"
+            :label="__('Default Status for Converted Lead')"
+            :options="[{ label: '', value: '' }, ...statusOptions('deal')]"
+            :description="__('Status that will be set when lead is converted to deal. Leave empty to use first status by position.')"
           />
         </div>
       </div>
@@ -47,13 +49,14 @@
   </div>
 </template>
 <script setup>
-import Grid from '@/components/Controls/Grid.vue'
-import { ErrorMessage } from 'frappe-ui'
+import { FormControl, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { showSettings } from '@/composables/settings'
+import { statusesStore } from '@/stores/statuses'
 import { ref } from 'vue'
 
 const { _settings: settings } = getSettings()
+const { statusOptions } = statusesStore()
 
 const emit = defineEmits(['updateStep'])
 const errorMessage = ref('')
@@ -65,4 +68,4 @@ function updateSettings() {
     },
   })
 }
-</script>
+</script> 

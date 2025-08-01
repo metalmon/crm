@@ -11,6 +11,13 @@
     v-model="filter.value"
     @change.stop="updateFilter(filter, $event.target.checked)"
   />
+
+  <UserLink
+    v-else-if="filter.fieldname === '_assign'"
+    :value="filter.value"
+    :placeholder="filter.label"
+    @change="(data) => updateFilter(filter, data)"
+  />
   <FormControl
     v-else-if="filter.fieldtype === 'Select'"
     class="form-control cursor-pointer [&_select]:cursor-pointer"
@@ -31,23 +38,12 @@
     :placeholder="filter.label"
     @change="(data) => updateFilter(filter, data)"
   />
-  <div
+  <TimespanSelect
     v-else-if="['Date', 'Datetime'].includes(filter.fieldtype)"
-    class="date-time-select-wrapper"
-  >
-    <FormControl
-      class="form-control cursor-pointer [&_select]:cursor-pointer"
-      type="select"
-      v-model="filter.value"
-      :options="filter.options || timespanOptions"
-      :placeholder="filter.label"
-      @change.stop="updateFilter(filter, $event.target.value)"
-    >
-      <template #item-label="{ option }">
-        {{ option.label || option.value }}
-      </template>
-    </FormControl>
-  </div>
+    :value="filter.value"
+    :placeholder="filter.label"
+    @change.stop="updateFilter(filter, $event.target.value)"
+  />
   <FormControl
     v-else
     v-model="filter.value"
@@ -58,10 +54,10 @@
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
+import UserLink from '@/components/Controls/UserLink.vue'
+import TimespanSelect from '@/components/Controls/TimespanSelect.vue'
 import { FormControl } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
-import { timespanOptions } from '@/utils/timeOptions'
-import { onMounted, onUpdated, ref } from 'vue'
 
 const props = defineProps({
   filter: {
@@ -80,29 +76,6 @@ function updateFilter(f, value) {
   emit('applyQuickFilter', f, value)
 }
 
-// Add hooks that will be called after component mount and update
-onMounted(fixPlaceholder)
-onUpdated(fixPlaceholder)
-
-// Function to fix placeholder visibility
-function fixPlaceholder() {
-  setTimeout(() => {
-    const selects = document.querySelectorAll('.date-time-select-wrapper .form-control');
-    selects.forEach(select => {
-      // Find placeholder inside the component
-      const placeholder = select.querySelector('div[class*="pointer-events-none"]');
-      if (placeholder) {
-        // Override visibility based on whether a value is selected
-        const selectElement = select.querySelector('select');
-        if (selectElement && selectElement.value) {
-          placeholder.style.display = 'none';
-        } else {
-          placeholder.style.display = 'flex';
-        }
-      }
-    });
-  }, 0);
-}
 </script>
 
 <style scoped>

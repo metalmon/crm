@@ -31,13 +31,13 @@
     </div>
 
     <!-- Fields -->
-    <div class="flex flex-1 flex-col overflow-y-auto">
-      <div class="flex items-center justify-between gap-8 p-3">
-        <div class="flex flex-col">
-          <div class="text-p-base font-medium text-ink-gray-7 truncate">
+    <div class="flex flex-1 flex-col overflow-y-auto dark-scrollbar">
+      <div class="flex items-start justify-between gap-4 p-3">
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="text-p-base font-medium text-ink-gray-7">
             {{ __('Currency') }}
           </div>
-          <div class="text-p-sm text-ink-gray-5">
+          <div class="text-p-sm text-ink-gray-5 break-words">
             {{
               __(
                 'CRM currency for all monetary values. Once set, cannot be edited.',
@@ -45,13 +45,13 @@
             }}
           </div>
         </div>
-        <div>
+        <div class="flex-shrink-0">
           <div v-if="settings.doc?.currency" class="text-base text-ink-gray-8">
             {{ settings.doc.currency }}
           </div>
           <Link
             v-else
-            class="form-control flex-1 truncate w-40"
+            class="form-control w-40"
             :value="settings.doc?.currency"
             doctype="Currency"
             @change="(v) => setCurrency(v)"
@@ -61,16 +61,16 @@
         </div>
       </div>
       <div class="h-px border-t mx-2 border-outline-gray-modals" />
-      <div class="flex items-center justify-between gap-8 p-3">
-        <div class="flex flex-col">
-          <div class="text-p-base font-medium text-ink-gray-7 truncate">
+      <div class="flex items-start justify-between gap-4 p-3">
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="text-p-base font-medium text-ink-gray-7">
             {{ __('Exchange rate provider') }}
           </div>
-          <div class="text-p-sm text-ink-gray-5">
+          <div class="text-p-sm text-ink-gray-5 break-words">
             {{ __('Configure the exchange rate provider for your CRM') }}
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <FormControl
             type="select"
             class="w-44"
@@ -90,20 +90,20 @@
       />
       <div
         v-if="settings.doc.service_provider === 'exchangerate.host'"
-        class="flex items-center justify-between gap-8 p-3"
+        class="flex items-start justify-between gap-4 p-3"
       >
-        <div class="flex flex-col">
-          <div class="text-p-base font-medium text-ink-gray-7 truncate">
+        <div class="flex flex-col flex-1 min-w-0">
+          <div class="text-p-base font-medium text-ink-gray-7">
             {{ __('Access key') }}
           </div>
-          <div class="text-p-sm text-ink-gray-5">
+          <div class="text-p-sm text-ink-gray-5 break-words">
             {{
               __(
                 'Access key for Exchangerate Host. Required for fetching exchange rates.',
               )
             }}
           </div>
-          <div class="text-p-sm text-ink-gray-5">
+          <div class="text-p-sm text-ink-gray-5 break-words">
             {{ __('You can get your access key from ') }}
             <a
               class="hover:underline text-ink-gray-7"
@@ -114,7 +114,7 @@
             </a>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <FormControl
             type="text"
             class="w-44"
@@ -131,7 +131,7 @@
   </div>
 </template>
 <script setup>
-import { ErrorMessage } from 'frappe-ui'
+import { ErrorMessage, toast } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { showSettings } from '@/composables/settings'
