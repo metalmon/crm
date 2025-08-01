@@ -11,6 +11,12 @@
   "restore_defaults",
   "realtime_settings_tab",
   "disable_realtime_updates",
+  "currency_tab",
+  "currency",
+  "exchange_rate_provider_section",
+  "service_provider",
+  "column_break_vqck",
+  "access_key",
   "branding_tab",
   "brand_name",
   "brand_logo",
@@ -82,16 +88,51 @@
   },
   {
    "default": "0",
-   "description": "It will make deal's \"Close Date\" & \"Deal Value\" mandatory to get accurate forecasting insights",
+   "description": "It will make deal's \"Expected Closure Date\" & \"Expected Deal Value\" mandatory to get accurate forecasting insights",
    "fieldname": "enable_forecasting",
    "fieldtype": "Check",
    "label": "Enable Forecasting"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "currency_tab",
+   "fieldtype": "Tab Break",
+   "label": "Currency"
+  },
+  {
+   "fieldname": "exchange_rate_provider_section",
+   "fieldtype": "Section Break",
+   "label": "Exchange Rate Provider"
+  },
+  {
+   "default": "frankfurter.app",
+   "fieldname": "service_provider",
+   "fieldtype": "Select",
+   "label": "Service Provider",
+   "options": "frankfurter.app\nexchangerate.host"
+  },
+  {
+   "depends_on": "eval:doc.service_provider == 'exchangerate.host';",
+   "fieldname": "access_key",
+   "fieldtype": "Data",
+   "label": "Access Key",
+   "mandatory_depends_on": "eval:doc.service_provider == 'exchangerate.host';"
+  },
+  {
+   "fieldname": "column_break_vqck",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-01 13:20:48.757603",
+ "modified": "2025-07-29 11:26:50.420614",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "FCRM Settings",

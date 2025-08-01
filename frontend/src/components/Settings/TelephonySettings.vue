@@ -100,7 +100,7 @@ import { toast } from 'frappe-ui'
 import { getRandom } from '@/utils'
 import { ref, computed, watch } from 'vue'
 
-const { isManager, isAgent } = usersStore()
+const { isManager, isTelephonyAgent } = usersStore()
 
 // Resource to check if Beeline app is installed
 const beelineInstalledResource = createResource({
@@ -467,7 +467,7 @@ async function updateMedium() {
 const error = ref('')
 
 function validateIfDefaultMediumIsEnabled() {
-  if (isAgent() && !isManager()) return true
+  if (isTelephonyAgent() && !isManager()) return true
 
   if (defaultCallingMedium.value === 'Twilio' && !twilio.doc?.enabled) {
     error.value = __('Twilio is not enabled')

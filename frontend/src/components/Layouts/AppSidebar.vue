@@ -140,6 +140,7 @@
 </template>
 
 <script setup>
+import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
 import CRMLogo from '@/components/Icons/CRMLogo.vue'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import ConvertIcon from '@/components/Icons/ConvertIcon.vue'
@@ -195,52 +196,62 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
-const links = [
-  {
-    label: __('Leads'),
-    icon: LeadsIcon,
-    to: 'Leads',
-  },
-  {
-    label: __('Deals'),
-    icon: DealsIcon,
-    to: 'Deals',
-  },
-  {
-    label: __('Contacts'),
-    icon: ContactsIcon,
-    to: 'Contacts',
-  },
-  {
-    label: __('Organizations'),
-    icon: OrganizationsIcon,
-    to: 'Organizations',
-  },
-  {
-    label: __('Notes'),
-    icon: NoteIcon,
-    to: 'Notes',
-  },
-  {
-    label: __('Tasks'),
-    icon: TaskIcon,
-    to: 'Tasks',
-  },
-  {
-    label: __('Call Logs'),
-    icon: PhoneIcon,
-    to: 'Call Logs',
-  },
-]
-
 const allViews = computed(() => {
-  console.log('[AppSidebar] Computing allViews...')
+  const links = [
+    {
+      label: __('Dashboard'),
+      icon: LucideLayoutDashboard,
+      to: 'Dashboard',
+      condition: () => isManager(),
+    },
+    {
+      label: __('Leads'),
+      icon: LeadsIcon,
+      to: 'Leads',
+    },
+    {
+      label: __('Deals'),
+      icon: DealsIcon,
+      to: 'Deals',
+    },
+    {
+      label: __('Contacts'),
+      icon: ContactsIcon,
+      to: 'Contacts',
+    },
+    {
+      label: __('Organizations'),
+      icon: OrganizationsIcon,
+      to: 'Organizations',
+    },
+    {
+      label: __('Notes'),
+      icon: NoteIcon,
+      to: 'Notes',
+    },
+    {
+      label: __('Tasks'),
+      icon: TaskIcon,
+      to: 'Tasks',
+    },
+    {
+      label: __('Call Logs'),
+      icon: PhoneIcon,
+      to: 'Call Logs',
+    },
+  ]
+
   let _views = [
     {
       name: __('All Views'),
       hideLabel: true,
       opened: true,
-      views: links,
+      views: links.filter((link) => {
+        if (link.condition) {
+          return link.condition()
+        }
+        return true
+      }),
     },
   ]
   if (getPublicViews().length) {

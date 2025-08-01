@@ -1,18 +1,37 @@
 <template>
-  <div class="flex h-full flex-col gap-8 p-8 text-ink-gray-9">
-    <h2 class="flex items-baseline gap-2 text-xl font-semibold leading-none h-5">
-      <div class="mr-2">
-        {{ __('General') }}
+  <div class="flex h-full flex-col gap-6 px-6 py-8 text-ink-gray-8">
+    <!-- Header -->
+    <div class="flex px-2 justify-between">
+      <div class="flex items-center gap-1 -ml-4 w-9/12">
+        <Button
+          variant="ghost"
+          icon-left="chevron-left"
+          :label="__('Brand settings')"
+          size="md"
+          @click="() => emit('updateStep', 'general-settings')"
+          class="text-xl !h-7 font-semibold hover:bg-transparent focus:bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:none active:bg-transparent active:outline-none active:ring-0 active:ring-offset-0 active:text-ink-gray-5"
+        />
+        <Badge
+          v-if="settings.isDirty"
+          :label="__('Not Saved')"
+          variant="subtle"
+          theme="orange"
+        />
       </div>
-      <Badge
-        v-if="settings.isDirty"
-        :label="__('Not Saved')"
-        variant="subtle"
-        theme="orange"
-      />
-    </h2>
+      <div class="flex item-center space-x-2 w-3/12 justify-end">
+        <Button
+          :label="__('Update')"
+          icon-left="plus"
+          variant="solid"
+          :disabled="!settings.isDirty"
+          :loading="settings.loading"
+          @click="updateSettings"
+        />
+      </div>
+    </div>
 
-    <div v-if="settings.doc" class="flex-1 flex flex-col gap-8 overflow-y-auto">
+    <!-- Fields -->
+    <div class="flex flex-1 flex-col p-2 gap-4 overflow-y-auto">
       <div class="flex w-full">
         <FormControl
           type="text"
@@ -23,7 +42,6 @@
       </div>
 
       <!-- logo -->
-
       <div class="flex flex-col justify-between gap-4">
         <span class="text-base font-semibold text-ink-gray-9">
           {{ __('Logo') }}
@@ -58,7 +76,6 @@
       </div>
 
       <!-- favicon -->
-
       <div class="flex flex-col justify-between gap-4">
         <span class="text-base font-semibold text-ink-gray-9">
           {{ __('Favicon') }}
@@ -91,79 +108,20 @@
           </div>
         </div>
       </div>
-
-      <!-- Lead conversion status -->
-      <div class="flex flex-col justify-between gap-4">
-        <span class="text-base font-semibold text-ink-gray-9">
-          {{ __('Lead Conversion') }}
-        </span>
-        <div class="flex w-full">
-          <FormControl
-            type="select"
-            class="w-1/2"
-            v-model="settings.doc.default_converted_lead_status"
-            :label="__('Default Status for Converted Lead')"
-            :options="[{ label: '', value: '' }, ...statusOptions('deal')]"
-            :description="__('Status that will be set when lead is converted to deal. Leave empty to use first status by position.')"
-          />
-        </div>
-      </div>
-
-      <!-- Realtime Settings -->
-      <div class="flex flex-col justify-between gap-4">
-        <span class="text-base font-semibold text-ink-gray-9">
-          {{ __('Kanban View Settings') }}
-        </span>
-        <div class="flex w-full">
-          <FormControl
-            type="checkbox"
-            class="w-1/2"
-            v-model="settings.doc.disable_realtime_updates"
-            :label=" __('Disable Kanban Realtime Updates')"
-            :description="__('When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets. Changes apply immediately.')"
-          />
-        </div>
-      </div>
-
-      <!-- Home actions -->
-
-      <div class="flex flex-col justify-between gap-4">
-        <span class="text-base font-semibold text-ink-gray-9">
-          {{ __('Home actions') }}
-        </span>
-        <div class="flex flex-1">
-          <Grid
-            v-model="settings.doc.dropdown_items"
-            doctype="CRM Dropdown Item"
-            parentDoctype="FCRM Settings"
-            parentFieldname="dropdown_items"
-          />
-        </div>
-      </div>
     </div>
-
-    <div class="flex justify-between flex-row-reverse">
-      <Button
-        variant="solid"
-        :label="__('Update')"
-        :disabled="!settings.isDirty"
-        @click="updateSettings"
-      />
-      <ErrorMessage :message="settings.save.error" />
+    <div v-if="errorMessage">
+      <ErrorMessage :message="__(errorMessage)" />
     </div>
   </div>
 </template>
 <script setup>
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
-import Grid from '@/components/Controls/Grid.vue'
-import { FormControl, Badge, ErrorMessage } from 'frappe-ui'
+import { FormControl, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { showSettings } from '@/composables/settings'
-import { statusesStore } from '@/stores/statuses'
 import { ref } from 'vue'
 
 const { _settings: settings, setupBrand } = getSettings()
-const { statusOptions } = statusesStore()
 
 function updateSettings() {
   settings.save.submit(null, {
@@ -173,4 +131,7 @@ function updateSettings() {
     },
   })
 }
+
+const emit = defineEmits(['updateStep'])
+const errorMessage = ref('')
 </script>

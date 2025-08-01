@@ -23,9 +23,23 @@ def get_users():
 		if frappe.session.user == user.name:
 			user.session_user = True
 
-		user.is_manager = "Sales Manager" in frappe.get_roles(user.name) or user.name == "Administrator"
+		user.roles = frappe.get_roles(user.name)
 
-		user.is_agent = frappe.db.exists("CRM Telephony Agent", {"user": user.name})
+		user.role = ""
+
+		if "System Manager" in user.roles:
+			user.role = "System Manager"
+		elif "Sales Manager" in user.roles:
+			user.role = "Sales Manager"
+		elif "Sales User" in user.roles:
+			user.role = "Sales User"
+		elif "Guest" in user.roles:
+			user.role = "Guest"
+
+		if frappe.session.user == user.name:
+			user.session_user = True
+
+		user.is_telephony_agent = frappe.db.exists("CRM Telephony Agent", {"user": user.name})
 
 	return users
 

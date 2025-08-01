@@ -48,7 +48,7 @@ import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import EmailTemplateIcon from '@/components/Icons/EmailTemplateIcon.vue'
 import Users from '@/components/Settings/Users.vue'
-import GeneralSettings from '@/components/Settings/GeneralSettings.vue'
+import GeneralSettingsPage from '@/components/Settings/General/GeneralSettingsPage.vue'
 import InviteUserPage from '@/components/Settings/InviteUserPage.vue'
 import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
 import WhatsAppSettings from '@/components/Settings/WhatsAppSettings.vue'
@@ -68,7 +68,7 @@ import { isAvitoInstalled } from '@/composables/avito'
 import { Dialog, Avatar } from 'frappe-ui'
 import { ref, markRaw, computed, watch, h } from 'vue'
 
-const { isManager, isAgent, getUser } = usersStore()
+const { isManager, isTelephonyAgent, getUser } = usersStore()
 
 const user = computed(() => getUser() || {})
 
@@ -91,7 +91,7 @@ const tabs = computed(() => {
         {
           label: __('General'),
           icon: 'settings',
-          component: markRaw(GeneralSettings),
+          component: markRaw(GeneralSettingsPage),
           condition: () => isManager(),
         },
         {
@@ -126,7 +126,7 @@ const tabs = computed(() => {
           label: __('Telephony'),
           icon: PhoneIcon,
           component: markRaw(TelephonySettings),
-          condition: () => isManager() || isAgent(),
+          condition: () => isManager() || isTelephonyAgent(),
         },
         {
           label: __('WhatsApp'),
@@ -147,7 +147,7 @@ const tabs = computed(() => {
           condition: () => isManager(),
         },
       ],
-      condition: () => isManager() || isAgent(),
+      condition: () => isManager() || isTelephonyAgent(),
     },
   ]
 

@@ -37,7 +37,12 @@
 import Link from '@/components/Controls/Link.vue'
 import Autocomplete from '@/components/frappe-ui/Autocomplete.vue'
 import { capture } from '@/telemetry'
-import { FormControl, call, createResource, TextEditor } from 'frappe-ui'
+import {
+  FormControl,
+  call,
+  createResource,
+  TextEditor,
+} from 'frappe-ui'
 import { ref, computed, onMounted, h } from 'vue'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
@@ -91,8 +96,8 @@ const recordCount = computed(() => props.selectedValues?.size || 0)
 
 const field = ref({
   label: '',
-  type: '',
-  value: '',
+  fieldtype: '',
+  fieldname: '',
   options: '',
 })
 
@@ -101,7 +106,7 @@ const loading = ref(false)
 
 function updateValues() {
   let fieldVal = newValue.value
-  if (field.value.type == 'Check') {
+  if (field.value.fieldtype == 'Check') {
     fieldVal = fieldVal == __('Yes') ? 1 : 0
   }
   loading.value = true
@@ -112,14 +117,14 @@ function updateValues() {
       docnames: Array.from(props.selectedValues),
       action: 'update',
       data: {
-        [field.value.value]: fieldVal || null,
+        [field.value.fieldname]: fieldVal || null,
       },
-    }
+    },
   ).then(() => {
     field.value = {
       label: '',
-      type: '',
-      value: '',
+      fieldtype: '',
+      fieldname: '',
       options: '',
     }
     newValue.value = ''
@@ -136,8 +141,8 @@ function changeField(f) {
   
   field.value = {
     label: f.label,
-    type: f.fieldtype,
-    value: f.fieldname,
+    fieldtype: f.fieldtype,
+    fieldname: f.fieldname,
     options: f.options || '',
   }
 }
@@ -153,13 +158,13 @@ function getSelectOptions(options) {
 }
 
 function getValueComponent(f) {
-  const { type, options, value: fieldname } = f
+  const { fieldtype, options, fieldname } = f
   
   // Special handling for status and priority fields
   const isStatus = fieldname === 'status'
   const isPriority = fieldname === 'priority'
 
-  if ((isStatus || isPriority) && (type === 'Link' || type === 'Select')) {
+  if ((isStatus || isPriority) && (fieldtype === 'Link' || fieldtype === 'Select')) {
     let _options = []
     let translateFn = null
 
@@ -194,8 +199,8 @@ function getValueComponent(f) {
     }
   }
 
-  if (typeSelect.includes(type) || typeCheck.includes(type)) {
-    const _options = type == 'Check' ? ['Yes', 'No'] : getSelectOptions(options)
+  if (typeSelect.includes(fieldtype) || typeCheck.includes(fieldtype)) {
+    const _options = fieldtype == 'Check' ? ['Yes', 'No'] : getSelectOptions(options)
     return h(FormControl, {
       type: 'select',
       options: _options.map((o) => ({
@@ -205,9 +210,13 @@ function getValueComponent(f) {
       value: newValue.value,
       onChange: (e) => updateValue(e)
     })
-  } else if (typeLink.includes(type)) {
-    if (type == 'Dynamic Link') {
-      return h(FormControl, { type: 'text' })
+  } else if (typeLink.includes(fieldtype)) {
+    if (fieldtype == 'Dynamic Link') {
+      return h(FormControl, { 
+        type: 'text',
+        value: newValue.value,
+        onChange: (e) => updateValue(e)
+      })
     }
     return h(Link, { 
       class: 'form-control', 
@@ -215,20 +224,20 @@ function getValueComponent(f) {
       value: newValue.value,
       onChange: (v) => updateValue(v)
     })
-  } else if (typeNumber.includes(type)) {
+  } else if (typeNumber.includes(fieldtype)) {
     return h(FormControl, { 
       type: 'number',
       value: newValue.value,
       onChange: (e) => updateValue(e)
     })
-  } else if (typeDate.includes(type)) {
+  } else if (typeDate.includes(fieldtype)) {
     return h('input', {
-      type: type === 'Date' ? 'date' : 'datetime-local',
+      type: fieldtype === 'Date' ? 'date' : 'datetime-local',
       value: newValue.value,
       class: 'w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
       onInput: (e) => updateValue(e)
     })
-  } else if (typeEditor.includes(type)) {
+  } else if (typeEditor.includes(fieldtype)) {
     return h(TextEditor, {
       variant: 'outline',
       editorClass:

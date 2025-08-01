@@ -139,7 +139,7 @@ const defaultActions = computed(() => {
     },
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
-      label: __('Create Call Log'),
+      label: __('Log a Call'),
       onClick: () => props.modalRef.createCallLog(),
     },
     {
@@ -188,7 +188,7 @@ function getTabIndex(name) {
 const callActions = computed(() => {
   let actions = [
     {
-      label: __('Create Call Log'),
+      label: __('Log a Call'),
       icon: 'plus',
       onClick: () => {
         console.log('Create Call Log button clicked');
