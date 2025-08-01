@@ -60,12 +60,6 @@
    "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "is_group",
-   "fieldtype": "Check",
-   "label": "Is Group"
-  },
-  {
    "fieldname": "old_parent",
    "fieldtype": "Link",
    "label": "Old Parent",
