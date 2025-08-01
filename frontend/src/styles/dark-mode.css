@@ -34,4 +34,13 @@ select option {
   @apply fill-gray-800 !important;
 }
 
+/* Fix border colors in dark mode for Link/Autocomplete components */
+[data-theme="dark"] .border-gray-100 {
+  border-color: transparent !important;
+}
+
+[data-theme="dark"] .hover\:border-outline-gray-modals:hover {
+  border-color: var(--outline-gray-modals) !important;
+}
+
 
