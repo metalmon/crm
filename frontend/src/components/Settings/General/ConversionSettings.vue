@@ -51,7 +51,6 @@
 <script setup>
 import { FormControl, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
-import { showSettings } from '@/composables/settings'
 import { statusesStore } from '@/stores/statuses'
 import { ref } from 'vue'
 
@@ -64,7 +63,7 @@ const errorMessage = ref('')
 function updateSettings() {
   settings.save.submit(null, {
     onSuccess: () => {
-      showSettings.value = false
+      // Settings saved successfully, modal stays open
     },
   })
 }

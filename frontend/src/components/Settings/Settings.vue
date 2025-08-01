@@ -2,7 +2,7 @@
   <Dialog
     v-model="showSettings"
     :options="{ size: '5xl' }"
-    @close="activeSettingsPage = ''"
+    @close="handleClose"
   >
     <template #body>
       <div class="flex h-[calc(100vh_-_8rem)] min-h-0">
@@ -177,4 +177,9 @@ const activeTab = computed(() => {
   
   return foundTab
 })
+
+function handleClose() {
+  activeSettingsPage.value = ''
+  showSettings.value = false
+}
 </script>

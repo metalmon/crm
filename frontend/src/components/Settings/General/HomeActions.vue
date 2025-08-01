@@ -50,7 +50,6 @@
 import Grid from '@/components/Controls/Grid.vue'
 import { ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
-import { showSettings } from '@/composables/settings'
 import { ref } from 'vue'
 
 const { _settings: settings } = getSettings()
@@ -61,7 +60,7 @@ const errorMessage = ref('')
 function updateSettings() {
   settings.save.submit(null, {
     onSuccess: () => {
-      showSettings.value = false
+      // Settings saved successfully, modal stays open
     },
   })
 }

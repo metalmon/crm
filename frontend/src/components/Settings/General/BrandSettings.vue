@@ -118,7 +118,6 @@
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
 import { FormControl, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
-import { showSettings } from '@/composables/settings'
 import { ref } from 'vue'
 
 const { _settings: settings, setupBrand } = getSettings()
@@ -126,8 +125,8 @@ const { _settings: settings, setupBrand } = getSettings()
 function updateSettings() {
   settings.save.submit(null, {
     onSuccess: () => {
-      showSettings.value = false
       setupBrand()
+      // Settings saved successfully, modal stays open
     },
   })
 }
