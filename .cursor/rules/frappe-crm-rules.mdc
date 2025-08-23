@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+Мы разрабатываем и добавляем функционал в форк CRM системы, оригинал здесь - https://github.com/frappe/crm/blob/main/
+
+Онбоардинг мы используем здесь кастомный, т.е. используем
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
+вместо
+import { useOnboarding } from 'frappe-ui/frappe'
