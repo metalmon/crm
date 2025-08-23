@@ -20,7 +20,15 @@ export const reverseTaskPriorityTranslations = Object.entries(taskPriorityTransl
 // Translate a priority to localized version
 export const translateTaskPriority = (priority) => {
   if (!priority) return ''
-  return window.__(priority) // Use __ directly to ensure translation at render time
+  
+  // Explicit translations for each priority
+  const translations = {
+    'Low': window.__('Low', null, 'Task priority - lowest urgency level'),
+    'Medium': window.__('Medium', null, 'Task priority - normal urgency level'),
+    'High': window.__('High', null, 'Task priority - highest urgency level')
+  }
+  
+  return translations[priority] || priority
 }
 
 // Get original priority from translated version
