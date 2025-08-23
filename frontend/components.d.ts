@@ -183,6 +183,7 @@ declare module 'vue' {
     LoadingView: typeof import('./src/components/common/LoadingView.vue')['default']
     LostReasonModal: typeof import('./src/components/Modals/LostReasonModal.vue')['default']
     LucideCalendar: typeof import('~icons/lucide/calendar')['default']
+    LucideInfo: typeof import('~icons/lucide/info')['default']
     MarkAsDoneIcon: typeof import('./src/components/Icons/MarkAsDoneIcon.vue')['default']
     MaximizeIcon: typeof import('./src/components/Icons/MaximizeIcon.vue')['default']
     MenuIcon: typeof import('./src/components/Icons/MenuIcon.vue')['default']

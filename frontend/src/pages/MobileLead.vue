@@ -622,10 +622,6 @@ function trackPhoneActivities(type) {
   })
 }
 
-function errorMessage(message) {
-  toast.error(message)
-}
-
 function openWebsite(url) {
   if (!url.startsWith('http')) {
     url = 'https://' + url

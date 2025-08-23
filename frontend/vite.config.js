@@ -87,7 +87,8 @@ export default defineConfig({
       srcDir: 'public',
       filename: 'sw.js',
       injectRegister: null,
-      outDir: "../crm/public/crm",
+      outDir: "../crm/public/frontend",
+      globDirectory: "../crm/public/frontend",
       manifest: {
         name: 'Frappe CRM',
         short_name: 'Frappe CRM',

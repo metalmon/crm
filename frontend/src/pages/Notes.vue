@@ -93,9 +93,7 @@
     >
       <NoteIcon class="h-10 w-10" />
       <span>{{ __('No Notes Found') }}</span>
-      <Button :label="__('Create')" @click="createNote">
-        <template #prefix><PlusIcon class="h-4" /></template>
-      </Button>
+      <Button :label="__('Create')" @click="createNote" :iconLeft="plus" />
     </div>
   </div>
   <NoteModal
@@ -117,7 +115,6 @@ import { timeAgo, formatDate } from '@/utils'
 import { TextEditor, call, Dropdown, Tooltip } from 'frappe-ui'
 import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { ref, watch } from 'vue'
-import PlusIcon from '@/components/Icons/PlusIcon.vue'
 
 const { getUser } = usersStore()
 

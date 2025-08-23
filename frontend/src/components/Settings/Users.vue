@@ -89,7 +89,7 @@
           ]"
         />
       </div>
-      <ul class="divide-y divide-outline-gray-modals overflow-y-auto px-2">
+      <ul class="divide-y divide-outline-gray-modals overflow-y-auto dark-scrollbar px-2">
         <template v-for="user in usersList" :key="user.name">
           <li class="flex items-center justify-between py-2">
             <div class="flex items-center">

@@ -27,3 +27,26 @@ def get_deal_contacts(name):
 		}
 		deal_contacts.append(_contact)
 	return deal_contacts
+
+
+@frappe.whitelist()
+def get_deal_display_name(name):
+	"""Get the display name for a CRM Deal"""
+	deal = frappe.get_doc("CRM Deal", name)
+	
+	# First try to get organization name
+	if deal.organization:
+		org = frappe.get_doc("CRM Organization", deal.organization)
+		if org.organization_name:
+			return {"display_name": org.organization_name}
+	
+	# If no organization, try to get primary contact name
+	if deal.contacts:
+		for contact in deal.contacts:
+			if contact.is_primary and contact.contact:
+				contact_doc = frappe.get_doc("Contact", contact.contact)
+				if contact_doc.full_name:
+					return {"display_name": contact_doc.full_name}
+	
+	# Fallback to untitled
+	return {"display_name": None}

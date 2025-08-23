@@ -109,9 +109,11 @@ const removeValue = (value) => {
     assignToMe.value = false
   }
 
-  assignees.value = assignees.value.filter(
-    (assignee) => assignee.name !== value,
-  )
+  if (assignees.value && Array.isArray(assignees.value)) {
+    assignees.value = assignees.value.filter(
+      (assignee) => assignee.name !== value,
+    )
+  }
 }
 
 const addValue = (value) => {
@@ -125,66 +127,9 @@ const addValue = (value) => {
     image: getUser(value).user_image,
     label: getUser(value).full_name,
   }
-  if (!assignees.value.find((assignee) => assignee.name === value)) {
+  if (!assignees.value?.find((assignee) => assignee.name === value)) {
+    if (!assignees.value) assignees.value = []
     assignees.value.push(obj)
-  }
-}
-
-watch(assignToMe, (val) => {
-  let user = getUser('')
-  if (val) {
-    addValue(user.name)
-  } else {
-    removeValue(user.name)
-  }
-})
-
-watch(
-  () => props.open,
-  (val) => {
-    if (val) {
-      oldAssignees.value = [...(assignees.value || [])]
-
-      assignToMe.value = assignees.value.some(
-        (assignee) => assignee.name === getUser('').name,
-      )
-    } else {
-      updateAssignees()
-    }
-  },
-  { immediate: true },
-)
-
-async function updateAssignees() {
-  if (JSON.stringify(oldAssignees.value) === JSON.stringify(assignees.value))
-    return
-
-  const removedAssignees = oldAssignees.value
-    .filter(
-      (assignee) => !assignees.value.find((a) => a.name === assignee.name),
-    )
-    .map((assignee) => assignee.name)
-
-  const addedAssignees = assignees.value
-    .filter(
-      (assignee) => !oldAssignees.value.find((a) => a.name === assignee.name),
-    )
-    .map((assignee) => assignee.name)
-
-  if (props.onUpdate) {
-    props.onUpdate(
-      addedAssignees,
-      removedAssignees,
-      addAssignees,
-      removeAssignees,
-    )
-  } else {
-    if (removedAssignees.length) {
-      await removeAssignees.submit(removedAssignees)
-    }
-    if (addedAssignees.length) {
-      addAssignees.submit(addedAssignees)
-    }
   }
 }
 
@@ -208,4 +153,62 @@ const removeAssignees = createResource({
     assignees: removedAssignees,
   }),
 })
+
+async function updateAssignees() {
+  if (JSON.stringify(oldAssignees.value) === JSON.stringify(assignees.value))
+    return
+
+  const removedAssignees = (oldAssignees.value || [])
+    .filter(
+      (assignee) => !assignees.value?.find((a) => a.name === assignee.name),
+    )
+    .map((assignee) => assignee.name)
+
+  const addedAssignees = (assignees.value || [])
+    .filter(
+      (assignee) => !oldAssignees.value?.find((a) => a.name === assignee.name),
+    )
+    .map((assignee) => assignee.name)
+
+  if (props.onUpdate) {
+    props.onUpdate(
+      addedAssignees,
+      removedAssignees,
+      addAssignees,
+      removeAssignees,
+    )
+  } else {
+    if (removedAssignees.length) {
+      await removeAssignees.submit(removedAssignees)
+    }
+    if (addedAssignees.length) {
+      addAssignees.submit(addedAssignees)
+    }
+  }
+}
+
+watch(assignToMe, (val) => {
+  let user = getUser('')
+  if (val) {
+    addValue(user.name)
+  } else {
+    removeValue(user.name)
+  }
+})
+
+watch(
+  () => props.open,
+  (val) => {
+    if (val) {
+      oldAssignees.value = [...(assignees.value || [])]
+
+      assignToMe.value = assignees.value?.some(
+        (assignee) => assignee.name === getUser('').name,
+      ) || false
+    } else {
+      updateAssignees()
+    }
+  },
+  { immediate: true },
+)
 </script>

@@ -168,8 +168,6 @@ const callActions = computed(() => {
       label: __('Log a Call'),
       icon: 'plus',
       onClick: () => {
-        console.log('Create Call Log button clicked');
-        console.log('modalRef:', props.modalRef);
         if (!props.modalRef || typeof props.modalRef.createCallLog !== 'function') {
           console.error('modalRef or createCallLog function is missing!');
           return;

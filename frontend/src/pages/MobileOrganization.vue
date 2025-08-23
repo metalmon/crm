@@ -81,7 +81,7 @@
                   theme="red"
                   size="sm"
                   class="dark:text-red-400 dark:hover:bg-gray-700"
-                  :iconLeft="TrashIcon"
+                  iconLeft="trash-2"
                   @click="deleteOrganization"
                 />
               </div>
@@ -163,7 +163,6 @@ import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
-import TrashIcon from '@/components/Icons/TrashIcon.vue'
 import { showAddressModal, addressProps } from '@/composables/modals'
 import { useDocument } from '@/data/document'
 import { getSettings } from '@/stores/settings'

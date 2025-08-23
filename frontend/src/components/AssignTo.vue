@@ -58,7 +58,12 @@ async function saveAssignees(
   removedAssignees.length && (await removeAssignees.submit(removedAssignees))
   addedAssignees.length && (await addAssignees.submit(addedAssignees))
 
-  const nextAssignee = assignees.value.find(
+  // Check if document.doc exists before proceeding
+  if (!document.doc || !ownerField.value) {
+    return
+  }
+
+  const nextAssignee = assignees.value?.find(
     (a) => a.name !== document.doc[ownerField.value],
   )
 

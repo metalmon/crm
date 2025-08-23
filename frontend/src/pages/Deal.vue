@@ -9,10 +9,6 @@
     </template>
     <template v-if="!errorTitle" #right-header>
       <CustomActions
-        v-if="document._actions?.length"
-        :actions="document._actions"
-      />
-      <CustomActions
         v-if="document.actions?.length"
         :actions="document.actions"
       />
@@ -62,6 +58,9 @@
         class="flex h-10.5 cursor-copy items-center border-b px-5 py-2.5 text-lg font-medium text-ink-gray-9"
         @click="copyToClipboard(dealId)"
       >
+        <span v-if="!doc.name" class="mr-2">
+          <LoadingIndicator class="h-4 w-4" />
+        </span>
         {{ __(dealId) }}
       </div>
       <div class="flex items-center justify-start gap-5 border-b p-5">
@@ -70,15 +69,15 @@
             <Avatar
               size="3xl"
               class="size-12"
-              :label="displayName"
-              :image="organization?.organization_logo"
+              :label="displayName.data || __('Loading...')"
+              :image="doc.organization_logo"
             />
           </div>
         </Tooltip>
         <div class="flex flex-col gap-2.5 truncate text-ink-gray-9">
-          <Tooltip :text="displayName">
+          <Tooltip :text="displayName.data || __('Loading...')">
             <div class="truncate text-2xl font-medium">
-              {{ displayName }}
+              {{ displayName.data || __('Loading...') }}
             </div>
           </Tooltip>
           <div class="flex gap-1.5">
@@ -113,7 +112,7 @@
               :tooltip="__('Send an email')"
               :iconLeft="Email2Icon"
               @click="
-                deal.data.email
+                doc.email
                   ? openEmailBox()
                   : toast.error(__('No email set'))
               "
@@ -122,8 +121,8 @@
               :tooltip="__('Go to website')"
               :iconLeft="LinkIcon"
               @click="
-                deal.data.website
-                  ? openWebsite(deal.data.website)
+                doc.website
+                  ? openWebsite(doc.website)
                   : toast.error(__('No website set'))
               "
             />
@@ -292,7 +291,6 @@
   <OrganizationModal
     v-if="showOrganizationModal"
     v-model="showOrganizationModal"
-    :data="_organization"
     :options="{
       redirect: false,
       afterInsert: (_doc) => updateField('organization', _doc.name),
@@ -479,23 +477,8 @@ watch(
   { once: true },
 )
 
-const organizationDocument = ref(null)
-
-watch(
-  () => doc.value.organization,
-  (org) => {
-    if (org && !organizationDocument.value?.doc) {
-      let { document: _organizationDocument } = useDocument(
-        'CRM Organization',
-        org,
-      )
-      organizationDocument.value = _organizationDocument
-    }
-  },
-  { immediate: true },
-)
-
-const organization = computed(() => organizationDocument.value?.doc || {})
+// Organization data is automatically loaded by Frappe when accessing doc.value.organization
+// No need for separate resource
 
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
@@ -510,23 +493,13 @@ onBeforeUnmount(() => {
 const reload = ref(false)
 const showOrganizationModal = ref(false)
 const showFilesUploader = ref(false)
-const _organization = ref({})
 
-const displayName = computed(() => {
-  if (!deal.data) return __('Loading...')
-  
-  if (organization.data?.name) {
-    return organization.data.name
-  }
-  
-  if (dealContacts.data) {
-    const primaryContact = dealContacts.data.find(c => c.is_primary)
-    if (primaryContact?.full_name) {
-      return primaryContact.full_name
-    }
-  }
-  
-  return __('Untitled')
+const displayName = createResource({
+  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_display_name',
+  params: { name: props.dealId },
+  cache: ['deal_display_name', props.dealId],
+  transform: (data) => data.display_name || __('Untitled'),
+  auto: true,
 })
 
 const breadcrumbs = computed(() => {
@@ -547,8 +520,9 @@ const breadcrumbs = computed(() => {
     }
   }
 
+  // Use displayName which now properly handles loading states
   items.push({
-    label: title.value,
+    label: displayName.data || __('Loading...'),
     route: { name: 'Deal', params: { dealId: props.dealId } },
   })
   return items
@@ -568,7 +542,7 @@ const statuses = computed(() => {
 
 usePageMeta(() => {
   return {
-    title: displayName.value,
+    title: displayName.data || props.dealId,
     icon: brand.favicon,
   }
 })
@@ -642,7 +616,6 @@ function getParsedSections(_sections) {
     section.columns[0].fields.forEach((field) => {
       if (field.fieldname == 'organization') {
         field.create = (value, close) => {
-          _organization.value.organization_name = value
           showOrganizationModal.value = true
           close()
         }
@@ -728,7 +701,7 @@ function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
     doctype: 'CRM Deal',
-    docname: deal.data.name,
+    docname: doc.value.name,
     phoneNumber: primaryContact.value.mobile_no,
     activities: activities.value,
     contactName: primaryContact.value.name
@@ -746,7 +719,12 @@ const dealContacts = createResource({
   },
 })
 
-if (!dealContacts.data) dealContacts.fetch()
+// Fetch contacts if not already loaded
+if (!dealContacts.data) {
+  dealContacts.fetch()
+}
+
+
 
 function triggerCall() {
   if (!primaryContact.value) {
@@ -800,7 +778,6 @@ function deleteDeal() {
   showDeleteLinkedDocModal.value = true
 }
 
-const activities = ref(null)
 const showEmailTemplateSelectorModal = ref(false)
 
 function openEmailBox() {
@@ -825,12 +802,12 @@ function applyMessageTemplate(template) {
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Deal',
-    docname: deal.data.name,
+    docname: doc.value.name,
     phoneNumber: primaryContactMobileNo.value,
     activities: activities.value,
     contactName: primaryContact.value.full_name,
     message: template,
-    modelValue: deal.data
+    modelValue: doc.value
   })
   showEmailTemplateSelectorModal.value = false
 }

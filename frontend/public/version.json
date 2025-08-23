@@ -1,7 +1,7 @@
 {
-  "commit": "7d43be0c",
+  "commit": "764afade",
   "branch": "develop",
-  "commit_message": "chore: update dependencies in yarn.lock\n\n- Added new version for @tiptap/extension-heading (2.26.1) and updated highlight.js to version 11.11.1.\n- Ensured compatibility and improved package management by reflecting the latest versions in the yarn.lock file.",
-  "commit_date": "2025-07-30",
-  "tag": "v1.50.2"
+  "commit_message": "Merge remote-tracking branch 'frappe/main' into develop",
+  "commit_date": "2025-08-24",
+  "tag": "v1.52.8"
 }

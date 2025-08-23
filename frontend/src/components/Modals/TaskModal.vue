@@ -27,10 +27,9 @@
           <FormControl
             ref="title"
             :label="__('Title')"
-            v-model="_task.doc.title"
+            v-model="_task.title"
             :placeholder="__('Call with John Doe')"
             required
-            @update:modelValue="handleFieldChange"
           />
         </div>
         <div>
@@ -40,8 +39,8 @@
           <TextEditor variant="outline" ref="description"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
-            :content="_task.doc.description"
-            @change="(val) => { _task.doc.description = val; handleFieldChange(); }"
+            :content="_task.description"
+            @change="(val) => (_task.description = val)"
             :placeholder="
               __('Took a call with John Doe and discussed the new project.')
             "
@@ -62,11 +61,10 @@
                 : 'flex'
             ]"
           >
-            <Button :label="extractLabel(_task.doc.status, translateTaskStatus)" class="w-full justify-between">
+            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="justify-between w-full">
               <template #prefix>
-                <TaskStatusIcon :status="extractValue(_task.doc.status)" class="flex-shrink-0" />
+                <TaskStatusIcon :status="extractValue(_task.status)" />
               </template>
-              <span class="truncate">{{ extractLabel(_task.doc.status, translateTaskStatus) }}</span>
             </Button>
           </Dropdown>
           <Link
@@ -78,12 +76,12 @@
             ]"
             :value="getUser(_task.assigned_to).full_name"
             doctype="User"
-            @change="(option) => { _task.assigned_to = option; handleFieldChange(); }"
+            @change="(option) => (_task.assigned_to = option)"
             :placeholder="__('John Doe')"
             :hideMe="true"
           >
             <template #prefix>
-              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.assigned_to" />
+              <UserAvatar class="mr-2 !h-4 !w-4" :user="_task.assigned_to" />
             </template>
             <template #item-prefix="{ option }">
               <UserAvatar class="mr-2" :user="option.value" size="sm" />
@@ -105,11 +103,10 @@
                 : 'flex'
             ]"
           >
-            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
+            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="justify-between w-full">
               <template #prefix>
-                <TaskPriorityIcon :priority="extractValue(_task.priority)" class="flex-shrink-0" />
+                <TaskPriorityIcon :priority="extractValue(_task.priority)" />
               </template>
-              <span class="truncate">{{ extractLabel(_task.priority, translateTaskPriority) }}</span>
             </Button>
           </Dropdown>
           <input
@@ -122,7 +119,6 @@
                 : 'min-w-0 flex-1'
             ]"
             @click.stop
-            @change="handleFieldChange"
           />
         </div>
         <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
@@ -138,11 +134,6 @@
       </div>
     </template>
   </Dialog>
-  <ConfirmCloseDialog 
-    v-model="showConfirmClose"
-    @confirm="confirmClose"
-    @cancel="cancelClose"
-  />
 </template>
 
 <script setup>
@@ -160,10 +151,6 @@ import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
-import ConfirmCloseDialog from '@/components/Modals/ConfirmCloseDialog.vue'
-import { isMobileView } from '@/composables/settings'
-import { useDirtyState } from '@/composables/useDirtyState'
-import { useDocument } from '@/data/document'
 
 const props = defineProps({
   task: {
@@ -185,8 +172,6 @@ const props = defineProps({
 })
 
 const show = defineModel()
-const dialogShow = ref(false)
-const showConfirmClose = ref(false)
 const tasks = defineModel('reloadTasks')
 
 const emit = defineEmits(['updateTask', 'after'])
@@ -199,18 +184,23 @@ const error = ref(null)
 const title = ref(null)
 const editMode = ref(false)
 
-const { isDirty, markAsDirty, resetDirty } = useDirtyState()
-
-const { document: _task } = useDocument('CRM Task')
+const _task = ref({
+  title: '',
+  description: '',
+  assigned_to: '',
+  due_date: '',
+  status: 'Backlog',
+  priority: 'Low',
+  reference_doctype: props.doctype,
+  reference_docname: null,
+})
 
 function updateTaskStatus(status) {
-  _task.doc.status = extractValue(status)
-  markAsDirty()
+  _task.value.status = extractValue(status)
 }
 
 function updateTaskPriority(priority) {
-  _task.doc.priority = extractValue(priority)
-  markAsDirty()
+  _task.value.priority = extractValue(priority)
 }
 
 function redirect() {
@@ -224,27 +214,18 @@ function redirect() {
 }
 
 async function updateTask() {
-  if (!_task.doc.assigned_to) {
-    _task.doc.assigned_to = getUser().name
+  if (!_task.value.assigned_to) {
+    _task.value.assigned_to = getUser().name
   }
-  const taskData = {
-    ..._task.doc,
-    status: extractValue(_task.doc.status),
-    priority: extractValue(_task.doc.priority)
-  }
-  if (_task.doc.name) {
+  if (_task.value.name) {
     let d = await call('frappe.client.set_value', {
       doctype: 'CRM Task',
-      name: _task.doc.name,
-      fieldname: taskData,
+      name: _task.value.name,
+      fieldname: _task.value,
     })
     if (d.name) {
       tasks.value?.reload()
       emit('after', d)
-      resetDirty()
-      if (props.autoClose) {
-        dialogShow.value = false
-      }
     }
   } else {
     let d = await call('frappe.client.insert', {
@@ -252,7 +233,7 @@ async function updateTask() {
         doctype: 'CRM Task',
         reference_doctype: props.doctype,
         reference_docname: props.doc || null,
-        ...taskData,
+        ..._task.value,
       },
     }, {
       onError: (err) => {
@@ -266,105 +247,28 @@ async function updateTask() {
       capture('task_created')
       tasks.value?.reload()
       emit('after', d, true)
-      resetDirty()
-      if (props.autoClose) {
-        dialogShow.value = false
-      }
     }
   }
+  show.value = false
 }
 
 function render() {
   editMode.value = false
   nextTick(() => {
     title.value?.el?.focus?.()
-    if (props.task?.name) {
-      _task.doc = { ...props.task }
+    _task.value = { ...props.task }
+    if (_task.value.title) {
       editMode.value = true
-    } else {
-      _task.doc = {
-        title: '',
-        description: '',
-        assigned_to: '',
-        due_date: '',
-        status: 'Backlog',
-        priority: 'Low',
-        reference_doctype: props.doctype,
-        reference_docname: props.doc || null,
-      }
     }
-    resetDirty()
   })
 }
 
-onMounted(() => {
-  // onMounted should only run once. The watch for 'show' will handle initial render and subsequent openings.
+onMounted(() => show.value && render())
+
+watch(show, (value) => {
+  if (!value) return
+  render()
 })
 
-watch(
-  () => show.value,
-  (value) => {
-    if (value === dialogShow.value) return
-    if (value) {
-      resetDirty()
-      // Initialize task document when the modal opens
-      _task.doc = {
-        title: '',
-        description: '',
-        assigned_to: '',
-        due_date: '',
-        status: 'Backlog',
-        priority: 'Low',
-        reference_doctype: props.doctype,
-        reference_docname: props.doc || null,
-        ...props.task
-      }
-      editMode.value = !!props.task?.name
-      dialogShow.value = true
-    } else {
-      // Reset task document when the modal closes
-      _task.doc = {}
-      dialogShow.value = false
-    }
-  },
-  { immediate: true }
-)
 
-watch(
-  () => dialogShow.value,
-  (value) => {
-    if (value) return
-    if (isDirty.value) {
-      showConfirmClose.value = true
-      nextTick(() => {
-        dialogShow.value = true
-      })
-    } else {
-      show.value = false
-    }
-  }
-)
-
-function handleFieldChange() {
-  markAsDirty()
-}
-
-function handleClose() {
-  if (isDirty.value) {
-    showConfirmClose.value = true
-  } else {
-    dialogShow.value = false
-    show.value = false
-  }
-}
-
-function confirmClose() {
-  resetDirty()
-  dialogShow.value = false
-  show.value = false
-}
-
-function cancelClose() {
-  showConfirmClose.value = false
-}
 </script>

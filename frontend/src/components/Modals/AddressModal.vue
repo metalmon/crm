@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="dialogShow" :options="dialogOptions">
+  <Dialog v-model="show" :options="dialogOptions">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
@@ -77,7 +77,6 @@ const props = defineProps({
 const { isManager } = usersStore()
 
 const show = defineModel()
-const dialogShow = ref(false)
 const loading = ref(false)
 const error = ref(null)
 const editMode = ref(false)
@@ -302,7 +301,6 @@ function handleAddressUpdate(doc) {
 watch(
   () => show.value,
   async (value) => {
-    if (value === dialogShow.value) return
     if (value) {
       editMode.value = !!props.address
       
@@ -323,12 +321,9 @@ watch(
         }),
         ...props.address
       }
-
-      dialogShow.value = true
     } else {
       // Reset address document when the modal closes
       _address.doc = {}
-      dialogShow.value = false
     }
   },
   { immediate: true }

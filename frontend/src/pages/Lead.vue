@@ -539,17 +539,17 @@ function reloadAssignees(data) {
 }
 
 function applyMessageTemplate(template) {
-  if (!lead.data.lead_name) return toast.error(__('Contact name not set'))
+  if (!doc.value?.lead_name) return toast.error(__('Contact name not set'))
   
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: doc.value.name,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
     message: template,
-    modelValue: lead.data
+    modelValue: doc.value
   })
   showEmailTemplateSelectorModal.value = false
 }

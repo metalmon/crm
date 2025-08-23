@@ -18,7 +18,7 @@
         <Button
           variant="solid"
           :label="__('Create')"
-          :iconLeft="PlusIcon"
+          iconLeft="plus"
           @click="showOrganizationModal = true"
         />
       </div>
@@ -71,7 +71,7 @@
     >
       <OrganizationsIcon class="h-10 w-10" />
       <span>{{ __('No Organizations Found') }}</span>
-      <Button :label="__('Create')" @click="showOrganizationModal = true" :iconLeft="PlusIcon"
+      <Button :label="__('Create')" @click="showOrganizationModal = true" :iconLeft="plus"
       />
     </div>
   </div>

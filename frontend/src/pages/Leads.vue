@@ -19,7 +19,7 @@
         <Button
           variant="solid"
           :label="__('Create')"
-          :iconLeft="PlusIcon"
+          iconLeft="plus"
           @click="showLeadModal = true"
         />
       </div>

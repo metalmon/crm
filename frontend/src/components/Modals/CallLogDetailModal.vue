@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="dialogShow">
+  <Dialog v-model="show">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
@@ -202,7 +202,6 @@ import dayjs from '@/utils/dayjs'
 const router = useRouter()
 
 const show = defineModel()
-const dialogShow = ref(false)
 const showNoteModal = ref(false)
 const showTaskModal = ref(false)
 
@@ -416,44 +415,13 @@ watch(showNoteModal, (value) => {
   emit('update:showNoteModal', value)
 })
 
-watch(
-  () => show.value,
-  (value) => {
-    if (value === dialogShow.value) return
-    if (value) {
-      dialogShow.value = true
-    } else {
-      if (showTaskModal.value || showNoteModal.value) {
-        return
-      }
-      dialogShow.value = false
-    }
-  }
-)
 
-watch(
-  () => dialogShow.value,
-  (value) => {
-    if (value === show.value) return
-    if (value) {
-      show.value = true
-    } else {
-      if (showTaskModal.value || showNoteModal.value) {
-        nextTick(() => {
-          dialogShow.value = true
-        })
-        return
-      }
-      show.value = false
-    }
-  }
-)
 
 function handleClose() {
   if (showTaskModal.value || showNoteModal.value) {
     return
   }
-  dialogShow.value = false
+  show.value = false
 }
 </script>
 
