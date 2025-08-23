@@ -245,6 +245,23 @@ msgstr "Ключ доступа"
 msgid "Access key for Exchangerate Host. Required for fetching exchange rates."
 msgstr "Ключ доступа для Exchangerate Host. Необходим для получения данных о курсах обмена."
 
+#. Label of the access_key (Data) field in DocType 'FCRM Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "Access Key"
+msgstr ""
+
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.py:156
+msgid "Access Key is required for Service Provider: {0}"
+msgstr ""
+
+#: frontend/src/components/Settings/General/CurrencySettings.vue:97
+msgid "Access key"
+msgstr ""
+
+#: frontend/src/components/Settings/General/CurrencySettings.vue:101
+msgid "Access key for Exchangerate Host. Required for fetching exchange rates."
+msgstr ""
+
 #: frontend/src/components/Settings/emailConfig.js:13
 msgid "Account Name"
 msgstr "Имя учетной записи"
@@ -455,6 +472,10 @@ msgstr "Произошла ошибка"
 #: frontend/src/data/document.js:47
 msgid "An error occurred while updating the document"
 msgstr "При обновлении документа произошла ошибка"
+
+#: frontend/src/data/document.js:63
+msgid "An error occurred while updating the document"
+msgstr ""
 
 #. Description of the 'Favicon' (Attach) field in DocType 'FCRM Settings'
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
@@ -1172,7 +1193,7 @@ msgid "Change deal status"
 msgstr "Измените статус сделки"
 
 #: frontend/src/components/Settings/ProfileSettings.vue:26
-#: frontend/src/pages/Contact.vue:41 frontend/src/pages/Lead.vue:103
+#: frontend/src/pages/Contact.vue:41 frontend/src/pages/Lead.vue:95
 #: frontend/src/pages/MobileContact.vue:37
 #: frontend/src/pages/MobileOrganization.vue:37
 #: frontend/src/pages/Organization.vue:41
@@ -1387,6 +1408,10 @@ msgstr "Настройте поставщика обменных курсов д
 #: frontend/src/components/Settings/General/GeneralSettings.vue:109
 msgid "Configure your brand name, logo and favicon"
 msgstr "Настройте название Вашего бренда, логотип и фавикон"
+
+#: frontend/src/components/Settings/General/CurrencySettings.vue:70
+msgid "Configure the exchange rate provider for your CRM"
+msgstr ""
 
 #: frontend/src/composables/frappecloud.js:29
 msgid "Confirm"
@@ -1964,7 +1989,7 @@ msgstr "Статусы по умолчанию, пользовательские
 msgid "Defaults"
 msgstr "По умолчанию"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:135
+#: frontend/src/components/Activities/AttachmentArea.vue:142
 #: frontend/src/components/Activities/NoteArea.vue:12
 #: frontend/src/components/Activities/TaskArea.vue:55
 #: frontend/src/components/Activities/TaskArea.vue:63
@@ -2010,8 +2035,8 @@ msgstr "Удалиить представление"
 msgid "Delete all"
 msgstr "Удалить все"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:60
-#: frontend/src/components/Activities/AttachmentArea.vue:131
+#: frontend/src/components/Activities/AttachmentArea.vue:62
+#: frontend/src/components/Activities/AttachmentArea.vue:138
 msgid "Delete attachment"
 msgstr "Удалить вложение"
 
@@ -2141,6 +2166,10 @@ msgstr "Название документа"
 #: crm/fcrm/doctype/sales_funnel_report_document/sales_funnel_report_document.json
 msgid "Document Type"
 msgstr "Тип документа"
+
+#: frontend/src/data/document.js:28
+msgid "Document does not exist"
+msgstr ""
 
 #: crm/api/activities.py:19
 msgid "Document not found"
@@ -2604,6 +2633,16 @@ msgstr "Исключить потерянные"
 msgid "Exclude Lost/Junk Stages (Filter)"
 msgstr "Исключите потерянные/неиспользованные этапы (фильтр)"
 
+#. Label of the exchange_rate_provider_section (Section Break) field in DocType
+#. 'FCRM Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "Exchange Rate Provider"
+msgstr ""
+
+#: frontend/src/components/Settings/General/CurrencySettings.vue:67
+msgid "Exchange rate provider"
+msgstr ""
+
 #. Option for the 'Telephony Medium' (Select) field in DocType 'CRM Call Log'
 #. Label of the exotel (Check) field in DocType 'CRM Telephony Agent'
 #. Option for the 'Default Medium' (Select) field in DocType 'CRM Telephony
@@ -2654,6 +2693,10 @@ msgstr "Ожидаемая дата закрытия"
 msgid "Expected Closure Date is required."
 msgstr "Требуется указать ожидаемую дату закрытия."
 
+#: crm/fcrm/doctype/crm_deal/crm_deal.py:161
+msgid "Expected Closure Date is required."
+msgstr ""
+
 #. Label of the expected_deal_value (Currency) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 msgid "Expected Deal Value"
@@ -2662,6 +2705,10 @@ msgstr "Ожидаемая стоимость сделки"
 #: crm/fcrm/doctype/crm_deal/crm_deal.py:167
 msgid "Expected Deal Value is required."
 msgstr "Требуется ожидаемая стоимость сделки."
+
+#: crm/fcrm/doctype/crm_deal/crm_deal.py:159
+msgid "Expected Deal Value is required."
+msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'CRM Invitation'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
@@ -3733,6 +3780,12 @@ msgstr "Журнал"
 msgid "Log a Call"
 msgstr "Зарегистрируйте вызов"
 
+#: frontend/src/components/Activities/Activities.vue:803
+#: frontend/src/components/Activities/ActivityHeader.vue:137
+#: frontend/src/components/Activities/ActivityHeader.vue:180
+msgid "Log a Call"
+msgstr ""
+
 #: frontend/src/composables/frappecloud.js:23
 msgid "Login to Frappe Cloud?"
 msgstr "Войти в Frappe Cloud?"
@@ -3818,7 +3871,7 @@ msgstr "Позвонить"
 msgid "Make a call"
 msgstr "Позвонить"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:102
+#: frontend/src/components/Activities/AttachmentArea.vue:109
 msgid "Make attachment {0}"
 msgstr "Сделайте вложение {0}"
 
@@ -3834,7 +3887,7 @@ msgstr "Сделать приватным"
 msgid "Make public"
 msgstr "Сделать публичным"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:111
+#: frontend/src/components/Activities/AttachmentArea.vue:118
 msgid "Make {0}"
 msgstr "Сделайте {0}"
 
@@ -4796,6 +4849,10 @@ msgstr "Пожалуйста, введите корректный URL"
 msgid "Please enter the Exchangerate Host access key."
 msgstr "Пожалуйста, введите ключ доступа Exchangerate Host."
 
+#: frontend/src/components/Settings/General/CurrencySettings.vue:159
+msgid "Please enter the Exchangerate Host access key."
+msgstr ""
+
 #: frontend/src/components/Modals/LostReasonModal.vue:9
 msgid "Please provide a reason for marking this deal as lost"
 msgstr "Пожалуйста, укажите причину, по которой эта сделка была помечена как потерянная"
@@ -4803,6 +4860,10 @@ msgstr "Пожалуйста, укажите причину, по которой
 #: frontend/src/components/Settings/General/CurrencySettings.vue:152
 msgid "Please select a currency before saving."
 msgstr "Пожалуйста, выберите валюту перед сохранением."
+
+#: frontend/src/components/Settings/General/CurrencySettings.vue:152
+msgid "Please select a currency before saving."
+msgstr ""
 
 #: frontend/src/components/Modals/ConvertToDealModal.vue:145
 #: frontend/src/pages/MobileLead.vue:588
@@ -5100,7 +5161,7 @@ msgid "Remove column"
 msgstr "Удалить колонку"
 
 #: frontend/src/components/Settings/ProfileSettings.vue:32
-#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:109
+#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:101
 #: frontend/src/pages/MobileContact.vue:43
 #: frontend/src/pages/MobileOrganization.vue:43
 #: frontend/src/pages/Organization.vue:47
@@ -5604,7 +5665,7 @@ msgstr "Установить по умолчанию"
 msgid "Set currency"
 msgstr "Установите валюту"
 
-#: frontend/src/pages/Lead.vue:130
+#: frontend/src/pages/Lead.vue:122
 msgid "Set first name"
 msgstr "Установите имя"
 
@@ -6443,7 +6504,7 @@ msgid "Upload finished but failed to get file URL."
 msgstr "Загрузка завершена, но не удалось получить URL-адрес файла."
 
 #: frontend/src/components/Settings/ProfileSettings.vue:27
-#: frontend/src/pages/Contact.vue:42 frontend/src/pages/Lead.vue:104
+#: frontend/src/pages/Contact.vue:42 frontend/src/pages/Lead.vue:96
 #: frontend/src/pages/MobileContact.vue:38
 #: frontend/src/pages/MobileOrganization.vue:38
 #: frontend/src/pages/Organization.vue:42
@@ -6669,6 +6730,10 @@ msgstr "Вы можете изменить средство вызова по у
 msgid "You can get your access key from "
 msgstr "Вы можете получить свой ключ доступа из "
 
+#: frontend/src/components/Settings/General/CurrencySettings.vue:107
+msgid "You can get your access key from "
+msgstr ""
+
 #: crm/integrations/exotel/handler.py:85
 msgid "You do not have Exotel Number set in your Telephony Agent"
 msgstr "У Вас не установлен номер Exotel в Агенте телефонии"
@@ -6828,6 +6893,17 @@ msgstr "frankfurter.app"
 #: frontend/src/components/Activities/Activities.vue:886
 msgid "from"
 msgstr "с"
+
+#. Option for the 'Service Provider' (Select) field in DocType 'FCRM Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+#: frontend/src/components/Settings/General/CurrencySettings.vue:113
+msgid "exchangerate.host"
+msgstr ""
+
+#. Option for the 'Service Provider' (Select) field in DocType 'FCRM Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "frankfurter.app"
+msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'CRM Deal Status'
 #. Option for the 'Color' (Select) field in DocType 'CRM Lead Status'
@@ -6992,11 +7068,11 @@ msgstr "розовый"
 msgid "previous"
 msgstr "назад"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:101
+#: frontend/src/components/Activities/AttachmentArea.vue:108
 msgid "private"
 msgstr "личное"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:101
+#: frontend/src/components/Activities/AttachmentArea.vue:108
 msgid "public"
 msgstr "публичное"
 

@@ -36,14 +36,17 @@
             <Button
               v-if="!isMobileView"
               variant="ghost"
+              :tooltip="__('Edit call log')"
+              :icon="EditIcon"
               class="w-7"
               @click="openCallLogModal"
-            >
-              <EditIcon class="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" class="w-7" @click="handleClose">
-              <FeatherIcon name="x" class="h-4 w-4" />
-            </Button>
+            />
+            <Button
+              icon="x"
+              variant="ghost"
+              class="w-7"
+              @click="show = false"
+            />
           </div>
         </div>
         <div class="flex flex-col gap-3.5">

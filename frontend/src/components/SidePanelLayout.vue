@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="!document.get?.loading"
-    class="sections flex flex-col overflow-y-auto"
-  >
+  <div class="sections flex flex-col overflow-y-auto">
     <template v-for="(section, i) in _sections" :key="section.name">
       <div v-if="section.visible" class="section flex flex-col">
         <div
@@ -23,10 +20,9 @@
                   v-if="section.showEditButton"
                   variant="ghost"
                   class="w-7 mr-2"
+                  :icon="EditIcon"
                   @click="showSidePanelModal = true"
-                >
-                  <EditIcon class="h-4 w-4" />
-                </Button>
+                />
               </slot>
             </template>
             <slot v-bind="{ section }">
@@ -77,21 +73,22 @@
                           class="flex h-7 cursor-pointer items-center px-2 py-1 text-ink-gray-5"
                         >
                           <Tooltip :text="__(field.tooltip)">
-                            <div>{{ document.doc[field.fieldname] }}</div>
+                            <div>{{ doc[field.fieldname] }}</div>
                           </Tooltip>
                         </div>
                         <div v-else-if="field.fieldtype === 'Dropdown'">
-                          <NestedPopover>
-                            <template #target="{ open }">
+                          <Popover>
+                            <template #target="{ isOpen, togglePopover }">
                               <Button
-                                :label="document.doc[field.fieldname]"
-                                class="dropdown-button flex w-full items-center justify-between rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+                                :label="doc[field.fieldname]"
+                                class="dropdown-button flex items-center justify-between bg-surface-white !px-2.5 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:bg-surface-white focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0"
+                                @click="togglePopover"
                               >
                                 <div
-                                  v-if="document.doc[field.fieldname]"
+                                  v-if="doc[field.fieldname]"
                                   class="truncate"
                                 >
-                                  {{ document.doc[field.fieldname] }}
+                                  {{ doc[field.fieldname] }}
                                 </div>
                                 <div
                                   v-else
@@ -101,7 +98,9 @@
                                 </div>
                                 <template #suffix>
                                   <FeatherIcon
-                                    :name="open ? 'chevron-up' : 'chevron-down'"
+                                    :name="
+                                      isOpen ? 'chevron-up' : 'chevron-down'
+                                    "
                                     class="h-4 text-ink-gray-5"
                                   />
                                 </template>
@@ -133,22 +132,19 @@
                                     variant="ghost"
                                     class="w-full !justify-start"
                                     :label="__('Create New')"
+                                    iconLeft="plus"
                                     @click="field.create()"
-                                  >
-                                    <template #prefix>
-                                      <FeatherIcon name="plus" class="h-4" />
-                                    </template>
-                                  </Button>
+                                  />
                                 </div>
                               </div>
                             </template>
-                          </NestedPopover>
+                          </Popover>
                         </div>
                         <FormControl
                           v-else-if="field.fieldtype == 'Check'"
                           class="form-control"
                           type="checkbox"
-                          v-model="document.doc[field.fieldname]"
+                          v-model="doc[field.fieldname]"
                           @change.stop="
                             fieldChange($event.target.checked, field)
                           "
@@ -165,7 +161,7 @@
                           "
                           class="form-control"
                           type="textarea"
-                          :value="document.doc[field.fieldname]"
+                          :value="doc[field.fieldname]"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="fieldChange($event.target.value, field)"
@@ -174,7 +170,7 @@
                           v-else-if="field.fieldtype === 'Select'"
                           class="form-control cursor-pointer [&_select]:cursor-pointer truncate"
                           type="select"
-                          v-model="document.doc[field.fieldname]"
+                          v-model="doc[field.fieldname]"
                           :options="field.options"
                           :placeholder="field.placeholder"
                           @change.stop="fieldChange($event.target.value, field)"
@@ -183,8 +179,8 @@
                           v-else-if="field.fieldtype === 'User'"
                           class="form-control"
                           :value="
-                            document.doc[field.fieldname] &&
-                            getUser(document.doc[field.fieldname]).full_name
+                            doc[field.fieldname] &&
+                            getUser(doc[field.fieldname]).full_name
                           "
                           doctype="User"
                           :filters="field.filters"
@@ -192,13 +188,10 @@
                           :placeholder="__('Select') + ' ' + __(field.label) + '...'"
                           :hideMe="true"
                         >
-                          <template
-                            v-if="document.doc[field.fieldname]"
-                            #prefix
-                          >
+                          <template v-if="doc[field.fieldname]" #prefix>
                             <UserAvatar
                               class="mr-1.5"
-                              :user="document.doc[field.fieldname]"
+                              :user="doc[field.fieldname]"
                               size="sm"
                             />
                           </template>
@@ -222,11 +215,11 @@
                             ['Link', 'Dynamic Link'].includes(field.fieldtype)
                           "
                           class="form-control select-text"
-                          :value="document.doc[field.fieldname]"
+                          :value="doc[field.fieldname]"
                           :doctype="
                             field.fieldtype == 'Link'
                               ? field.options
-                              : document.doc[field.options]
+                              : doc[field.options]
                           "
                           :filters="field.filters"
                           :placeholder="field.placeholder"
@@ -239,7 +232,7 @@
                         >
                           <input
                             type="datetime-local"
-                            :value="document.doc[field.fieldname] ? toUserTimezone(document.doc[field.fieldname]).format('YYYY-MM-DDTHH:mm') : ''"
+                            :value="doc[field.fieldname] ? toUserTimezone(doc[field.fieldname]).format('YYYY-MM-DDTHH:mm') : ''"
                             :placeholder="field.placeholder"
                             class="w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
                             @change="(e) => {
@@ -259,7 +252,7 @@
                         >
                           <input
                             type="date"
-                            :value="document.doc[field.fieldname]"
+                            :value="doc[field.fieldname]"
                             :placeholder="field.placeholder"
                             class="w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
                             @change="(e) => fieldChange(e.target.value, field)"
@@ -269,9 +262,7 @@
                           v-else-if="field.fieldtype === 'Percent'"
                           class="form-control"
                           type="text"
-                          :value="
-                            getFormattedPercent(field.fieldname, document.doc)
-                          "
+                          :value="getFormattedPercent(field.fieldname, doc)"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="
@@ -282,7 +273,7 @@
                         <Password
                           v-else-if="field.fieldtype === 'Password'"
                           class="form-control"
-                          :value="document.doc[field.fieldname]"
+                          :value="doc[field.fieldname]"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="fieldChange($event.target.value, field)"
@@ -292,7 +283,7 @@
                           v-else-if="field.fieldtype === 'Int'"
                           class="form-control"
                           type="text"
-                          :value="document.doc[field.fieldname] || '0'"
+                          :value="doc[field.fieldname] || '0'"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="fieldChange($event.target.value, field)"
@@ -302,9 +293,7 @@
                           v-else-if="field.fieldtype === 'Float'"
                           class="form-control"
                           type="text"
-                          :value="
-                            getFormattedFloat(field.fieldname, document.doc)
-                          "
+                          :value="getFormattedFloat(field.fieldname, doc)"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="
@@ -316,9 +305,7 @@
                           v-else-if="field.fieldtype === 'Currency'"
                           class="form-control"
                           type="text"
-                          :value="
-                            getFormattedCurrency(field.fieldname, document.doc)
-                          "
+                          :value="getFormattedCurrency(field.fieldname, doc)"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="
@@ -330,7 +317,7 @@
                           v-else
                           class="form-control"
                           type="text"
-                          :value="document.doc[field.fieldname]"
+                          :value="doc[field.fieldname]"
                           :placeholder="field.placeholder"
                           :debounce="500"
                           @change.stop="fieldChange($event.target.value, field)"
@@ -341,23 +328,19 @@
                           v-if="
                             field.fieldtype === 'Link' &&
                             field.link &&
-                            document.doc[field.fieldname]
+                            doc[field.fieldname]
                           "
                           class="h-4 w-4 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
-                          @click.stop="
-                            field.link(document.doc[field.fieldname])
-                          "
+                          @click.stop="field.link(doc[field.fieldname])"
                         />
                         <EditIcon
                           v-if="
                             field.fieldtype === 'Link' &&
                             field.edit &&
-                            document.doc[field.fieldname]
+                            doc[field.fieldname]
                           "
                           class="size-3.5 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
-                          @click.stop="
-                            field.edit(document.doc[field.fieldname])
-                          "
+                          @click.stop="field.edit(doc[field.fieldname])"
                         />
                       </div>
                     </div>
@@ -382,7 +365,6 @@
 import Password from '@/components/Controls/Password.vue'
 import FormattedInput from '@/components/Controls/FormattedInput.vue'
 import Section from '@/components/Section.vue'
-import NestedPopover from '@/components/NestedPopover.vue'
 import DropdownItem from '@/components/DropdownItem.vue'
 import FadedScrollableDiv from '@/components/FadedScrollableDiv.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
@@ -395,7 +377,7 @@ import { usersStore } from '@/stores/users'
 import { isMobileView } from '@/composables/settings'
 import { evaluateDependsOnValue } from '@/utils'
 import { flt } from '@/utils/numberFormat.js'
-import { Tooltip } from 'frappe-ui'
+import { Tooltip, Popover } from 'frappe-ui'
 import { useDocument } from '@/data/document'
 import dayjs, { toUserTimezone, toSystemTimezone } from '@/utils/dayjs'
 import { ref, computed, getCurrentInstance } from 'vue'
@@ -439,6 +421,8 @@ if (props.docname) {
   document = d.document
   triggerOnChange = d.triggerOnChange
 }
+
+const doc = computed(() => document.doc || {})
 
 const _sections = computed(() => {
   if (!props.sections?.length) return []
@@ -484,11 +468,7 @@ function parsedField(field) {
         `${__('Enter')} ${__(field.label)}`,
     display_via_depends_on: evaluateDependsOnValue(
       field.depends_on,
-      document.doc,
-    ),
-    mandatory_via_depends_on: evaluateDependsOnValue(
-      field.mandatory_depends_on,
-      document.doc,
+      doc.value,
     ),
   }
 
@@ -545,7 +525,7 @@ function isFieldVisible(field) {
   if (props.preview) return true
   return (
     (field.fieldtype == 'Check' ||
-      (field.read_only && (document.doc?.[field.fieldname] !== undefined || ['Currency', 'Float', 'Int', 'Percent'].includes(field.fieldtype))) ||
+      (field.read_only && doc.value?.[field.fieldname]) ||
       !field.read_only) &&
     (!field.depends_on || field.display_via_depends_on) &&
     !field.hidden

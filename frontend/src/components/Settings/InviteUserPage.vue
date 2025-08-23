@@ -43,20 +43,34 @@
               :fetchUsers="false"
             />
           </div>
-          <div
-            v-if="userExistMessage || inviteeExistMessage"
-            class="text-xs text-ink-red-3 mt-1.5 break-words"
-          >
-            {{ userExistMessage || inviteeExistMessage }}
-          </div>
-          <FormControl
-            type="select"
-            class="mt-4"
-            v-model="role"
-            :label="__('Invite as')"
-            :options="roleOptions"
-            :description="description"
-          />
+          <ul class="flex flex-col gap-1">
+            <li
+              class="flex items-center justify-between px-2 py-1 rounded-lg bg-surface-gray-2"
+              v-for="user in pendingInvitations.data"
+              :key="user.name"
+            >
+              <div class="text-base">
+                <span class="text-ink-gray-8">
+                  {{ user.email }}
+                </span>
+                <span class="text-ink-gray-5">
+                  ({{ roleMap[user.role] }})
+                </span>
+              </div>
+              <div>
+                <Button
+                  :tooltip="__('Delete invitation')"
+                  icon="x"
+                  variant="ghost"
+                  :loading="
+                    pendingInvitations.delete.loading &&
+                    pendingInvitations.delete.params.name === user.name
+                  "
+                  @click="pendingInvitations.delete.submit(user.name)"
+                />
+              </div>
+            </li>
+          </ul>
         </div>
         <template v-if="pendingInvitations.data?.length && !invitees.length">
           <div class="flex flex-col gap-4">

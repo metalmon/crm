@@ -17,7 +17,7 @@
       <!-- Main app content - only shown when everything is loaded -->
       <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
         <Layout v-if="session().isLoggedIn">
-          <router-view :key="translationKey" />
+          <router-view :key="$route.fullPath + '::' + translationKey" />
         </Layout>
         <Dialogs />
       </div>

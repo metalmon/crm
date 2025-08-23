@@ -18,10 +18,9 @@
         <Button
           variant="solid"
           :label="__('Create')"
+          :iconLeft="PlusIcon"
           @click="showOrganizationModal = true"
-        >
-          <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-        </Button>
+        />
       </div>
     </template>
   </LayoutHeader>
@@ -72,9 +71,8 @@
     >
       <OrganizationsIcon class="h-10 w-10" />
       <span>{{ __('No Organizations Found') }}</span>
-      <Button :label="__('Create')" @click="showOrganizationModal = true">
-        <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-      </Button>
+      <Button :label="__('Create')" @click="showOrganizationModal = true" :iconLeft="PlusIcon"
+      />
     </div>
   </div>
   <OrganizationModal

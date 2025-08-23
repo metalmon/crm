@@ -16,10 +16,10 @@
     <div class="flex gap-1">
       <Button
         v-if="isManager() && !isMobileView"
+        :tooltip="__('Edit fields layout')"
+        :icon="EditIcon"
         @click="showDataFieldsModal = true"
-      >
-        <EditIcon class="h-4 w-4" />
-      </Button>
+      />
       <Button
         :label="__('Save')"
         :disabled="!document.isDirty"

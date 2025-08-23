@@ -3,8 +3,8 @@
     class="relative flex h-full flex-col justify-between transition-all duration-300 ease-in-out"
     :class="isSidebarCollapsed ? 'w-12' : 'w-[220px]'"
   >
-    <div>
-      <UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
+    <div class="p-2">
+      <UserDropdown :isCollapsed="isSidebarCollapsed" />
     </div>
     <div class="flex-1 overflow-y-auto dark-scrollbar">
       <div class="mb-3 flex flex-col">
@@ -202,7 +202,6 @@ const navigationLinks = [
     label: __('Dashboard', null, 'Sidebar'),
     icon: LucideLayoutDashboard,
     to: 'Dashboard',
-    condition: () => isManager(),
   },
   {
     label: __('Leads', null, 'Sidebar'),

@@ -19,10 +19,9 @@
         <Button
           variant="solid"
           :label="__('Create')"
+          :iconLeft="PlusIcon"
           @click="showLeadModal = true"
-        >
-          <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-        </Button>
+        />
       </div>
     </template>
   </LayoutHeader>
@@ -287,9 +286,7 @@
     >
       <LeadsIcon class="h-10 w-10" />
       <span>{{ __('No Leads Found') }}</span>
-      <Button :label="__('Create')" @click="showLeadModal = true">
-        <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-      </Button>
+      <Button :label="__('Create')" iconLeft="plus" @click="showLeadModal = true" />
     </div>
   </div>
   <LeadModal

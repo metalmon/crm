@@ -4,9 +4,12 @@
       <ViewBreadcrumbs v-model="viewControls" routeName="Notes" />
     </template>
     <template #right-header>
-      <Button variant="solid" :label="__('Create')" @click="createNote">
-        <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
-      </Button>
+      <Button
+        variant="solid"
+        :label="__('Create')"
+        iconLeft="plus"
+        @click="createNote"
+      />
     </template>
   </LayoutHeader>
   <ViewControls
@@ -91,7 +94,7 @@
       <NoteIcon class="h-10 w-10" />
       <span>{{ __('No Notes Found') }}</span>
       <Button :label="__('Create')" @click="createNote">
-        <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
+        <template #prefix><PlusIcon class="h-4" /></template>
       </Button>
     </div>
   </div>
@@ -114,6 +117,7 @@ import { timeAgo, formatDate } from '@/utils'
 import { TextEditor, call, Dropdown, Tooltip } from 'frappe-ui'
 import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { ref, watch } from 'vue'
+import PlusIcon from '@/components/Icons/PlusIcon.vue'
 
 const { getUser } = usersStore()
 

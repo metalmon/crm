@@ -88,58 +88,39 @@
                   <ErrorMessage :message="__(error)" />
                 </div>
               </div>
-              <div class="flex p-3">
-                <div class="flex gap-1.5">
-                  <Button
-                    v-if="contact.doc.mobile_no && ipTelephonyEnabled"
-                    size="sm"
-                    class="dark:text-white dark:hover:bg-gray-700"
-                    @click="makeCall(contact.doc.mobile_no)"
-                  >
-                    <template #prefix>
-                      <PhoneIcon class="h-4 w-4" />
-                    </template>
-                    {{ __('Make Call') }}
-                  </Button>
+              <div class="flex gap-1.5">
+                <Button
+                  v-if="contact.doc.mobile_no && ipTelephonyEnabled"
+                  :label="__('Make Call')"
+                  size="sm"
+                  :iconLeft="PhoneIcon"
+                  @click="makeCall(contact.doc.mobile_no)"
+                />
 
-                  <Button
-                    v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
-                    size="sm"
-                    class="dark:text-white dark:hover:bg-gray-700"
-                    @click="trackPhoneActivities('phone')"
-                  >
-                    <template #prefix>
-                      <PhoneIcon class="h-4 w-4" />
-                    </template>
-                    {{ __('Make Call') }}
-                  </Button>
+                <Button
+                  v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
+                  :label="__('Make Call')"
+                  size="sm"
+                  :iconLeft="PhoneIcon"
+                  @click="trackPhoneActivities('phone')"
+                />
 
-                  <Button
-                    v-if="contact.doc.mobile_no"
-                    size="sm"
-                    class="dark:text-white dark:hover:bg-gray-700"
-                    @click="trackPhoneActivities('whatsapp')"
-                  >
-                    <template #prefix>
-                      <WhatsAppIcon class="h-4 w-4" />
-                    </template>
-                    {{ __('Chat') }}
-                  </Button>
-                </div>
+                <Button
+                  v-if="contact.doc.mobile_no"
+                  :label="__('Chat')"
+                  size="sm"
+                  :iconLeft="WhatsAppIcon"
+                  @click="trackPhoneActivities('whatsapp')"
+                />
 
                 <Button
                   :label="__('Delete')"
                   variant="ghost"
                   theme="red"
                   size="sm"
-                  class="dark:text-red-400 dark:hover:bg-gray-700"
-                  @click="deleteContact"
-                >
-                  <template #prefix>
-                    <FeatherIcon name="trash-2" class="h-4 w-4" />
-                  </template>
-                  {{ __('Delete') }}  
-                </Button>
+                  iconLeft="trash-2"
+                  @click="deleteContact()"
+                />
               </div>
             </div>
           </template>

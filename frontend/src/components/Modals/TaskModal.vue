@@ -1,31 +1,21 @@
 <template>
-  <Dialog
-    v-model="dialogShow"
-    :options="{
-      size: 'xl',
-      actions: [
-        {
-          label: editMode ? __('Update') : __('Create'),
-          variant: 'solid',
-          onClick: () => updateTask(),
-        },
-      ],
-    }"
-  >
+  <Dialog v-model="show" :options="{ size: 'xl' }">
     <template #body-title>
       <div class="flex items-baseline gap-3">
         <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9 mr-2">
           {{ editMode ? __('Edit Task') : __('Create Task') }}
         </h3>
-        <Badge v-if="isDirty" :label="__('Not Saved')" theme="orange" />
-        <Button v-if="task?.reference_docname" size="sm" :label="task.reference_doctype == 'CRM Deal'
-          ? __('Open Deal')
-          : __('Open Lead')
-          " @click="redirect()">
-          <template #suffix>
-            <ArrowUpRightIcon class="w-4 h-4" />
-          </template>
-        </Button>
+        <Button
+          v-if="task?.reference_docname"
+          size="sm"
+          :label="
+            task.reference_doctype == 'CRM Deal'
+              ? __('Open Deal')
+              : __('Open Lead')
+          "
+          :iconRight="ArrowUpRightIcon"
+          @click="redirect()"
+        />
       </div>
     </template>
     <template #body-content>
@@ -86,14 +76,14 @@
                 ? 'col-span-7 row-start-1 w-full' 
                 : 'flex max-w-[200px] min-w-0'
             ]"
-            :value="getUser(_task.doc.assigned_to).full_name"
+            :value="getUser(_task.assigned_to).full_name"
             doctype="User"
-            @change="(option) => { _task.doc.assigned_to = option; handleFieldChange(); }"
+            @change="(option) => { _task.assigned_to = option; handleFieldChange(); }"
             :placeholder="__('John Doe')"
             :hideMe="true"
           >
             <template #prefix>
-              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.doc.assigned_to" />
+              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.assigned_to" />
             </template>
             <template #item-prefix="{ option }">
               <UserAvatar class="mr-2" :user="option.value" size="sm" />
@@ -115,16 +105,16 @@
                 : 'flex'
             ]"
           >
-            <Button :label="extractLabel(_task.doc.priority, translateTaskPriority)" class="w-full justify-between">
+            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
               <template #prefix>
-                <TaskPriorityIcon :priority="extractValue(_task.doc.priority)" class="flex-shrink-0" />
+                <TaskPriorityIcon :priority="extractValue(_task.priority)" class="flex-shrink-0" />
               </template>
-              <span class="truncate">{{ extractLabel(_task.doc.priority, translateTaskPriority) }}</span>
+              <span class="truncate">{{ extractLabel(_task.priority, translateTaskPriority) }}</span>
             </Button>
           </Dropdown>
           <input
             type="datetime-local"
-            v-model="_task.doc.due_date"
+            v-model="_task.due_date"
             :class="[
               'min-w-0',
               isMobileView 
@@ -136,6 +126,15 @@
           />
         </div>
         <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
+      </div>
+    </template>
+    <template #actions>
+      <div class="flex justify-end">
+        <Button
+          :label="editMode ? __('Update') : __('Create')"
+          variant="solid"
+          @click="updateTask"
+        />
       </div>
     </template>
   </Dialog>

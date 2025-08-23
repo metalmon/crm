@@ -14,13 +14,16 @@
               v-if="isManager() && !isMobileView"
               variant="ghost"
               class="w-7"
+              :tooltip="__('Edit fields layout')"
+              :icon="EditIcon"
               @click="openQuickEntryModal"
-            >
-              <EditIcon class="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" class="w-7" @click="handleClose">
-              <FeatherIcon name="x" class="h-4 w-4" />
-            </Button>
+            />
+            <Button
+              variant="ghost"
+              class="w-7"
+              @click="show = false"
+              icon="x"
+            />
           </div>
         </div>
         <FieldLayout
@@ -105,12 +108,16 @@ const { document: _contact, triggerOnBeforeCreate } = useDocument('Contact')
 
 async function createContact() {
   if (_contact.doc.email_id) {
-    _contact.doc.email_ids = [{ email_id: _contact.doc.email_id, is_primary: 1 }]
+    _contact.doc.email_ids = [
+      { email_id: _contact.doc.email_id, is_primary: 1 },
+    ]
     delete _contact.doc.email_id
   }
 
   if (_contact.doc.mobile_no) {
-    _contact.doc.phone_nos = [{ phone: _contact.doc.mobile_no, is_primary_mobile_no: 1 }]
+    _contact.doc.phone_nos = [
+      { phone: _contact.doc.mobile_no, is_primary_mobile_no: 1 },
+    ]
     delete _contact.doc.mobile_no
   }
 

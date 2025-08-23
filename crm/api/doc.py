@@ -688,7 +688,7 @@ def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False, only_re
 
 @frappe.whitelist()
 def remove_assignments(doctype, name, assignees, ignore_permissions=False, retry_count=3):
-	assignees = json.loads(assignees)
+	assignees = frappe.parse_json(assignees)
 
 	if not assignees:
 		return

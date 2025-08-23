@@ -71,11 +71,13 @@
             class="activity grid grid-cols-[30px_minmax(auto,_1fr)] gap-2 px-3 sm:gap-4 sm:px-10"
           >
             <div
-              class="relative flex justify-center after:absolute after:left-[50%] after:top-0 after:-z-10 after:border-l after:border-outline-gray-modals"
-              :class="i != activities.length - 1 ? 'after:h-full' : 'after:h-4'"
+              class="z-0 relative flex justify-center before:absolute before:left-[50%] before:-z-[1] before:top-0 before:border-l before:border-outline-gray-modals"
+              :class="
+                i != activities.length - 1 ? 'before:h-full' : 'before:h-4'
+              "
             >
               <div
-                class="z-10 flex h-8 w-7 items-center justify-center bg-surface-white"
+                class="flex h-8 w-7 items-center justify-center bg-surface-white"
               >
                 <CommentIcon class="text-ink-gray-8" />
               </div>
@@ -93,11 +95,13 @@
             class="activity grid grid-cols-[30px_minmax(auto,_1fr)] gap-4 px-3 sm:px-10"
           >
             <div
-              class="relative flex justify-center after:absolute after:left-[50%] after:top-0 after:-z-10 after:border-l after:border-outline-gray-modals"
-              :class="i != activities.length - 1 ? 'after:h-full' : 'after:h-4'"
+              class="z-0 relative flex justify-center before:absolute before:left-[50%] before:-z-[1] before:top-0 before:border-l before:border-outline-gray-modals"
+              :class="
+                i != activities.length - 1 ? 'before:h-full' : 'before:h-4'
+              "
             >
               <div
-                class="z-10 flex h-8 w-7 items-center justify-center bg-surface-white text-ink-gray-8"
+                class="flex h-8 w-7 items-center justify-center bg-surface-white text-ink-gray-8"
               >
                 <MissedCallIcon
                   v-if="call.status == 'No Answer'"
@@ -138,11 +142,11 @@
       >
         <div
           v-if="['Activity', 'Emails'].includes(title)"
-          class="relative flex justify-center before:absolute before:left-[50%] before:top-0 before:-z-10 before:border-l before:border-outline-gray-modals"
+          class="z-0 relative flex justify-center before:absolute before:left-[50%] before:-z-[1] before:top-0 before:border-l before:border-outline-gray-modals"
           :class="[i != activities.length - 1 ? 'before:h-full' : 'before:h-4']"
         >
           <div
-            class="z-10 flex h-7 w-7 items-center justify-center bg-surface-white"
+            class="flex h-7 w-7 items-center justify-center bg-surface-white"
             :class="{
               'mt-2.5': ['communication'].includes(activity.activity_type),
               'bg-surface-white': ['added', 'removed', 'changed'].includes(
@@ -256,12 +260,9 @@
               <Button
                 class="!size-4"
                 variant="ghost"
+                :icon="SelectIcon"
                 @click="activity.show_others = !activity.show_others"
-              >
-                <template #icon>
-                  <SelectIcon />
-                </template>
-              </Button>
+              />
             </div>
             <div
               v-else
@@ -389,7 +390,7 @@
     <div v-else-if="title == 'Data'" class="h-full flex flex-col px-3 sm:px-10">
       <DataFields
         :doctype="doctype"
-        :docname="doc.data.name"
+        :docname="docname"
         @beforeSave="(data) => emit('beforeSave', data)"
         @afterSave="(data) => emit('afterSave', data)"
       />
@@ -469,10 +470,9 @@
     :doc="doc"
   />
   <FilesUploader
-    v-if="doc.data?.name"
     v-model="showFilesUploader"
     :doctype="doctype"
-    :docname="doc.data.name"
+    :docname="docname"
     @after="
       () => {
         all_activities.reload()
@@ -525,6 +525,7 @@ import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { avitoEnabled } from '@/composables/avito'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
 import { Button, Tooltip, createResource } from 'frappe-ui'
 import { useElementVisibility, useDebounceFn } from '@vueuse/core'
@@ -552,6 +553,10 @@ const props = defineProps({
     type: String,
     default: 'CRM Lead',
   },
+  docname: {
+    type: String,
+    default: '',
+  },
   tabs: {
     type: Array,
     default: () => [],
@@ -562,9 +567,12 @@ const emit = defineEmits(['beforeSave', 'afterSave'])
 
 const route = useRoute()
 
-const doc = defineModel()
 const reload = defineModel('reload')
 const tabIndex = defineModel('tabIndex')
+
+const { document: _document } = useDocument(props.doctype, props.docname)
+
+const doc = computed(() => _document.doc || {})
 
 const reload_email = ref(false)
 const modalRef = ref(null)
@@ -586,15 +594,16 @@ const noMoreActivities = ref(false)
 const all_activities = createResource({
   url: 'crm.api.activities.get_activities',
   params: { 
-    name: doc.value.data.name,
+    name: props.docname,
     limit: 20,
     offset: 0
   },
-  cache: ['activity', doc.value.data.name],
+  cache: ['activity', props.docname],
   auto: true,
   transform: ([versions, calls, notes, tasks, attachments]) => {
     return { versions, calls, notes, tasks, attachments }
   },
+  onSuccess: () => nextTick(() => scroll()),
 })
 
 const reloadDebounced = useDebounceFn(() => {
@@ -610,6 +619,8 @@ function handleScroll(e) {
     loadMore()
   }
 }
+
+
 
 async function loadMore() {
   if (isLoadingMore.value || noMoreActivities.value) return
@@ -649,7 +660,7 @@ async function loadMore() {
     const result = await createResource({
       url: 'crm.api.activities.get_activities',
       params: {
-        name: doc.value.data.name,
+        name: props.docname,
         limit: 20,
         offset: currentLength
       }
@@ -709,7 +720,7 @@ async function loadMore() {
     all_activities.data.attachments = mergeUniqueById(all_activities.data.attachments, attachments)
 
     // After data is updated and DOM is re-rendered, restore scroll position
-  nextTick(() => {
+    nextTick(() => {
       const newScrollHeight = scrollEl.scrollHeight
       const heightDiff = newScrollHeight - oldScrollHeight
       scrollEl.scrollTop = oldScrollTop + heightDiff
@@ -722,6 +733,8 @@ async function loadMore() {
   }
 }
 
+
+
 function sendTemplate(template) {
   showWhatsappTemplates.value = false
   capture('send_whatsapp_template', { doctype: props.doctype })
@@ -729,8 +742,8 @@ function sendTemplate(template) {
     url: 'crm.api.whatsapp.send_whatsapp_template',
     params: {
       reference_doctype: props.doctype,
-      reference_name: doc.value.data.name,
-      to: doc.value.data.mobile_no,
+      reference_name: props.docname,
+      to: doc.value?.mobile_no,
       template,
     },
     auto: true,
@@ -957,6 +970,7 @@ const avitoBox = ref(null)
 watch([reload, reload_email], ([reload_value, reload_email_value]) => {
   if (reload_value || reload_email_value) {
     all_activities.reload()
+    _document.reload()
     reload.value = false
     reload_email.value = false
   }
@@ -988,10 +1002,10 @@ const showWhatsappTemplates = ref(false)
 
 const whatsappMessages = createResource({
   url: 'crm.api.whatsapp.get_whatsapp_messages',
-  cache: ['whatsapp_messages', doc.value.data.name],
+  cache: ['whatsapp_messages', props.docname],
   params: {
     reference_doctype: props.doctype,
-    reference_name: doc.value.data.name,
+    reference_name: props.docname,
   },
   auto: true,
   transform: (data) => data.sort(sortByModified),
@@ -1000,10 +1014,10 @@ const whatsappMessages = createResource({
 
 const avitoMessages = createResource({
   url: 'crm.api.avito.get_avito_messages',
-  cache: ['avito_messages', doc.value.data.name],
+  cache: ['avito_messages', props.docname],
   params: {
     reference_doctype: props.doctype,
-    reference_name: doc.value.data.name,
+    reference_name: props.docname,
   },
   auto: true,
   transform: (data) => data.sort(sortByModified),
@@ -1020,7 +1034,7 @@ onMounted(() => {
   // Setup socket event handlers
   const handleWhatsAppMessage = (data) => {
     if (data.reference_doctype === props.doctype && 
-        data.reference_name === doc.value.data.name) {
+        data.reference_name === props.docname) {
       whatsappMessages.reload()
       reloadDebounced()
     }
@@ -1028,7 +1042,7 @@ onMounted(() => {
 
   const handleAvitoMessage = (data) => {
     if (data.reference_doctype === props.doctype && 
-        data.reference_name === doc.value.data.name) {
+        data.reference_name === props.docname) {
       avitoMessages.reload()
       reloadDebounced()
     }
@@ -1075,7 +1089,7 @@ const callActions = computed(() => {
     },
     {
       label: __('Make a Call'),
-      onClick: () => makeCall(doc.data.mobile_no),
+      onClick: () => makeCall(doc.value?.mobile_no),
       condition: () => callEnabled.value,
     },
   ]

@@ -71,39 +71,30 @@
                 <div class="flex gap-1.5">
                   <Button
                     v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
+                    :label="__('Make Call')"
+                    :iconLeft="PhoneIcon"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="makeCall(contact.data.actual_mobile_no)"
-                  >
-                    <template #prefix>
-                      <PhoneIcon class="h-4 w-4" />
-                    </template>
-                    {{ __('Make Call') }}
-                  </Button>
+                  />
 
                   <Button
                     v-if="contact.data.actual_mobile_no && !ipTelephonyEnabled"
+                    :label="__('Make Call')"
+                    :iconLeft="PhoneIcon"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="trackPhoneActivities('phone')"
-                  >
-                    <template #prefix>
-                      <PhoneIcon class="h-4 w-4" />
-                    </template>
-                    {{ __('Make Call') }}
-                  </Button>
+                  />
 
                   <Button
                     v-if="contact.data.actual_mobile_no"
+                    :label="__('Chat')"
+                    :iconLeft="WhatsAppIcon"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="trackPhoneActivities('whatsapp')"
-                  >
-                    <template #prefix>
-                      <WhatsAppIcon class="h-4 w-4" />
-                    </template>
-                    {{ __('Chat') }}
-                  </Button>
+                  />
                 </div>
 
                 <Button
