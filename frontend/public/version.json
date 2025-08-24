@@ -1,7 +1,7 @@
 {
-  "commit": "764afade",
+  "commit": "5fc0e2ae",
   "branch": "develop",
-  "commit_message": "Merge remote-tracking branch 'frappe/main' into develop",
+  "commit_message": "refactor: standardize dialog handling in modals and improve loading states\n\n- Updated modal components to use a consistent `show` variable instead of `dialogShow`.\n- Enhanced loading state management for display names in Deal and Lead pages.\n- Cleaned up unused variables and improved code readability across various components.\n- Adjusted button icons for consistency in the UI.",
   "commit_date": "2025-08-24",
   "tag": "v1.52.8"
 }

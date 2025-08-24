@@ -1,7 +1,7 @@
 {
     "private": true,
 	"type": "module",
-    "workspaces": ["frontend", "frappe-ui"],
+    "workspaces": ["frontend"],
     "scripts": {
         "postinstall": "./apply-tiptap-patch.sh && cd frontend && yarn install",
         "dev": "cd frontend && yarn dev",
