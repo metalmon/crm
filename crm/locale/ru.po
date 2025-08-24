@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
 "POT-Creation-Date: 2025-08-23 23:20+0000\n"
-"PO-Revision-Date: 2025-08-24 03:23+0400\n"
+"PO-Revision-Date: 2025-08-24 04:30+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -1048,12 +1048,12 @@ msgstr "Детализация звонков"
 
 #: frontend/src/components/Mobile/MobileSidebar.vue:152
 msgid "Call Logs"
-msgstr "Журналы вызовов"
+msgstr "Звонки"
 
 #: frontend/src/components/Layouts/AppSidebar.vue:237
 msgctxt "Sidebar"
 msgid "Call Logs"
-msgstr "Журналы вызовов"
+msgstr "Звонки"
 
 #. Label of the receiver (Link) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
@@ -2309,7 +2309,7 @@ msgstr "Редактировать"
 
 #: frontend/src/components/Modals/CallLogModal.vue:97
 msgid "Edit Call Log"
-msgstr "Редактирование журнала вызовов"
+msgstr "Редактировать звонок"
 
 #: frontend/src/components/Modals/DataFieldsModal.vue:7
 msgid "Edit Data Fields Layout"
@@ -2349,7 +2349,7 @@ msgstr "Редактировать представление"
 
 #: frontend/src/components/Modals/CallLogDetailModal.vue:39
 msgid "Edit call log"
-msgstr "Редактирование журнала вызовов"
+msgstr "Редактировать звонок"
 
 #: frontend/src/components/Activities/DataFields.vue:19
 #: frontend/src/components/Controls/GridRowModal.vue:14
@@ -3804,7 +3804,7 @@ msgstr "Журнал"
 #: frontend/src/components/Activities/ActivityHeader.vue:119
 #: frontend/src/components/Activities/ActivityHeader.vue:168
 msgid "Log a Call"
-msgstr "Зарегистрируйте вызов"
+msgstr "Зарегистрировать вызов"
 
 #: frontend/src/composables/frappecloud.js:23
 msgid "Login to Frappe Cloud?"
@@ -4136,7 +4136,7 @@ msgstr "Новое сообщение Авито"
 
 #: frontend/src/components/Modals/CallLogModal.vue:97
 msgid "New Call Log"
-msgstr "Новый журнал вызовов"
+msgstr "Новый звонок"
 
 #: frontend/src/components/Activities/Activities.vue:417
 #: frontend/src/components/Activities/ActivityHeader.vue:19
@@ -4254,7 +4254,7 @@ msgstr "Нет сообщений Авито"
 
 #: frontend/src/components/Activities/Activities.vue:927
 msgid "No Call Logs"
-msgstr "Нет журнала вызовов"
+msgstr "Нет звонков"
 
 #: frontend/src/components/Activities/Activities.vue:923
 msgid "No Comments"
@@ -4287,7 +4287,7 @@ msgstr "Лиды не найдены"
 
 #: frontend/src/pages/CallLogs.vue:59
 msgid "No Logs Found"
-msgstr "Журналы не найдены"
+msgstr "Записей не найдено"
 
 #: frontend/src/components/Activities/Activities.vue:929
 msgid "No Notes"
