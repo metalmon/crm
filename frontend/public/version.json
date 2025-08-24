@@ -1,7 +1,7 @@
 {
-  "commit": "5fc0e2ae",
+  "commit": "ca9c0223",
   "branch": "develop",
-  "commit_message": "refactor: standardize dialog handling in modals and improve loading states\n\n- Updated modal components to use a consistent `show` variable instead of `dialogShow`.\n- Enhanced loading state management for display names in Deal and Lead pages.\n- Cleaned up unused variables and improved code readability across various components.\n- Adjusted button icons for consistency in the UI.",
+  "commit_message": "chore: update package.json and yarn.lock for dependency management\n\n- Removed 'frappe-ui' from workspaces in package.json.\n- Updated dependencies in yarn.lock, including version bumps for several packages.\n- Standardized versioning for 'frappe-ui' in frontend/package.json.\n- Updated commit hash and message in version.json for consistency.",
   "commit_date": "2025-08-24",
   "tag": "v1.52.8"
 }
