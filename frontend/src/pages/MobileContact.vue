@@ -69,32 +69,38 @@
               </div>
               <div class="flex items-center gap-1.5">
                 <div class="flex gap-1.5">
-                  <Button
-                    v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
-                    :label="__('Make Call')"
-                    :iconLeft="PhoneIcon"
-                    size="sm"
-                    class="dark:text-white dark:hover:bg-gray-700"
-                    @click="makeCall(contact.data.actual_mobile_no)"
-                  />
+                  <Tooltip :text="__('Make Call')">
+                    <Button
+                      v-if="contact.doc.mobile_no && ipTelephonyEnabled"
+                      :label="__('Make Call')"
+                      size="sm"
+                      class="dark:text-white dark:hover:bg-gray-700"
+                      :icon="PhoneIcon"
+                      @click="makeCall(contact.doc.mobile_no)"
+                    />
+                  </Tooltip>
 
-                  <Button
-                    v-if="contact.data.actual_mobile_no && !ipTelephonyEnabled"
-                    :label="__('Make Call')"
-                    :iconLeft="PhoneIcon"
-                    size="sm"
-                    class="dark:text-white dark:hover:bg-gray-700"
-                    @click="trackPhoneActivities('phone')"
-                  />
+                  <Tooltip :text="__('Make Call')">
+                    <Button
+                      v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
+                      :label="__('Make Call')"
+                      size="sm"
+                      class="dark:text-white dark:hover:bg-gray-700"
+                      :icon="PhoneIcon"
+                      @click="trackPhoneActivities('phone')"
+                    />
+                  </Tooltip>
 
-                  <Button
-                    v-if="contact.data.actual_mobile_no"
-                    :label="__('Chat')"
-                    :iconLeft="WhatsAppIcon"
-                    size="sm"
-                    class="dark:text-white dark:hover:bg-gray-700"
-                    @click="trackPhoneActivities('whatsapp')"
-                  />
+                  <Tooltip :text="__('Chat')">
+                    <Button
+                      v-if="contact.doc.mobile_no"
+                      :label="__('Chat')"
+                      size="sm"
+                      class="dark:text-white dark:hover:bg-gray-700"
+                      :icon="WhatsAppIcon"
+                      @click="trackPhoneActivities('whatsapp')"
+                    />
+                  </Tooltip>
                 </div>
 
                 <Button
@@ -215,6 +221,7 @@ import {
   usePageMeta,
   Dropdown,
   toast,
+  Tooltip,
 } from 'frappe-ui'
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -570,7 +577,7 @@ const dealColumns = [
 const activities = ref([])
 
 function trackPhoneActivities(type = 'phone') {
-  if (!contact.data?.actual_mobile_no) {
+  if (!contact.doc?.mobile_no) {
     toast.error(__('No phone number set'))
     return
   }
@@ -578,10 +585,10 @@ function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
     doctype: 'Contact',
-    docname: contact.data.name,
-    phoneNumber: contact.data.actual_mobile_no,
+    docname: contact.doc.name,
+    phoneNumber: contact.doc.mobile_no,
     activities: activities.value,
-    contactName: contact.data.full_name,
+    contactName: contact.doc.full_name,
   })
 }
 function openAddressModal(_address) {

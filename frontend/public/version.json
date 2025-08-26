@@ -1,7 +1,7 @@
 {
-  "commit": "ca9c0223",
+  "commit": "5efdeb17",
   "branch": "develop",
-  "commit_message": "chore: update package.json and yarn.lock for dependency management\n\n- Removed 'frappe-ui' from workspaces in package.json.\n- Updated dependencies in yarn.lock, including version bumps for several packages.\n- Standardized versioning for 'frappe-ui' in frontend/package.json.\n- Updated commit hash and message in version.json for consistency.",
+  "commit_message": "chore: update version.json with new commit hash and message\n\n- Updated commit hash to \"ca9c0223\" for consistency.\n- Changed commit message to reflect recent updates in package.json and yarn.lock for dependency management.",
   "commit_date": "2025-08-24",
   "tag": "v1.52.8"
 }

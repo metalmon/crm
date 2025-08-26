@@ -89,29 +89,35 @@
                 </div>
               </div>
               <div class="flex gap-1.5">
-                <Button
-                  v-if="contact.doc.mobile_no && ipTelephonyEnabled"
-                  :label="__('Make Call')"
-                  size="sm"
-                  :iconLeft="PhoneIcon"
-                  @click="makeCall(contact.doc.mobile_no)"
-                />
+                <Tooltip :text="__('Make Call')">
+                  <Button
+                    v-if="contact.doc.mobile_no && ipTelephonyEnabled"
+                    :label="__('Make Call')"
+                    size="sm"
+                    :icon="PhoneIcon"
+                    @click="makeCall(contact.doc.mobile_no)"
+                  />
+                </Tooltip>
 
-                <Button
-                  v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
-                  :label="__('Make Call')"
-                  size="sm"
-                  :iconLeft="PhoneIcon"
-                  @click="trackPhoneActivities('phone')"
-                />
+                <Tooltip :text="__('Make Call')">
+                  <Button
+                    v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
+                    :label="__('Make Call')"
+                    size="sm"
+                    :icon="PhoneIcon"
+                    @click="trackPhoneActivities('phone')"
+                  />
+                </Tooltip>
 
-                <Button
-                  v-if="contact.doc.mobile_no"
-                  :label="__('Chat')"
-                  size="sm"
-                  :iconLeft="WhatsAppIcon"
-                  @click="trackPhoneActivities('whatsapp')"
-                />
+                <Tooltip :text="__('Chat')">
+                  <Button
+                    v-if="contact.doc.mobile_no"
+                    :label="__('Chat')"
+                    size="sm"
+                    :icon="WhatsAppIcon"
+                    @click="trackPhoneActivities('whatsapp')"
+                  />
+                </Tooltip>
 
                 <Button
                   :label="__('Delete')"
@@ -226,6 +232,7 @@ import {
   usePageMeta,
   Dropdown,
   toast,
+  Tooltip,
 } from 'frappe-ui'
 import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

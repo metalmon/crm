@@ -76,7 +76,7 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
 import { usersStore } from '@/stores/users'
-import { taskStatusOptions, taskPriorityOptions, getFormat } from '@/utils'
+import { taskStatusOptions, taskPriorityOptions, getFormat, extractValue } from '@/utils'
 import { TextEditor, Dropdown, Tooltip } from 'frappe-ui'
 
 const props = defineProps({
@@ -96,11 +96,11 @@ const props = defineProps({
 const { getUser } = usersStore()
 
 function updateTaskStatus(status) {
-  props.task.status = status
+  props.task.status = extractValue(status)
 }
 
 function updateTaskPriority(priority) {
-  props.task.priority = priority
+  props.task.priority = extractValue(priority)
 }
 </script>
 <style scoped>

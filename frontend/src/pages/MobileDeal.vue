@@ -223,50 +223,56 @@
       </TabPanel>
     </Tabs>
   </div>
-  <div  v-if="doc.name" class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+  <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
     <div ref="bottomToolbar" class="flex gap-2 overflow-x-auto scrollbar-hide">
       <Button
         v-if="primaryContactMobileNo && ipTelephonyEnabled"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        :iconLeft="PhoneIcon"
+        :icon="PhoneIcon"
         @click="triggerCall"
+        :title="__('Make a call')"
       />
 
       <Button
         v-if="primaryContactMobileNo && !ipTelephonyEnabled"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        :iconLeft="PhoneIcon"
+        :icon="PhoneIcon"
         @click="trackPhoneActivities('phone')"
+        :title="__('Call via phone app')"
       />
       
       <Button
         v-if="primaryContactMobileNo"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        :iconLeft="WhatsAppIcon"
+        :icon="WhatsAppIcon"
         @click="trackPhoneActivities('whatsapp')"
+        :title="__('Open WhatsApp')"
       />
 
       <Button
-        v-if="dealContacts.data?.find(c => c.is_primary)?.mobile_no"
+        v-if="primaryContactMobileNo"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        :iconLeft="CommentIcon"
+        :icon="CommentIcon"
         @click="showEmailTemplateSelectorModal = true"
+        :title="__('Send WhatsApp Template')"
       />
 
       <Button
+        v-if="doc.website"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        @click="openWebsite"
-        :iconLeft="LinkIcon"
+        :icon="LinkIcon"
+        @click="openWebsite(doc.website)"
+        :title="__('Go to website')"
       />
     </div>
   </div>
   <ErrorPage
-    v-else-if="errorTitle"
+    v-if="errorTitle"
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
@@ -302,7 +308,7 @@
   />
   <EmailTemplateSelectorModal
     v-model="showEmailTemplateSelectorModal"
-    :doctype="doctype"
+    :doctype="'CRM Deal'"
     @apply="applyMessageTemplate"
   />
 </template>
@@ -385,6 +391,7 @@ const props = defineProps({
 const errorTitle = ref('')
 const errorMessage = ref('')
 const showDeleteLinkedDocModal = ref(false)
+const showEmailTemplateSelectorModal = ref(false)
 
 const { triggerOnChange, assignees, document, scripts, error } = useDocument(
   'CRM Deal',
@@ -433,46 +440,11 @@ const reload = ref(false)
 const showOrganizationModal = ref(false)
 const _organization = ref({})
 
-function updateDeal(fieldname, value, callback) {
-  value = Array.isArray(fieldname) ? '' : value
-
-  if (validateRequired(fieldname, value)) return
-
-  createResource({
-    url: 'frappe.client.set_value',
-    params: {
-      doctype: 'CRM Deal',
-      name: props.dealId,
-      fieldname,
-      value,
-    },
-    auto: true,
-    onSuccess: () => {
-      deal.reload()
-      reload.value = true
-      toast.success(__('Deal updated'))
-      callback?.()
-    },
-    onError: (err) => {
-      toast.error(err.messages?.[0] || __('Error updating deal'))
-    },
-  })
-}
-
-function validateRequired(fieldname, value) {
-  let meta = deal.data.fields_meta || {}
-  if (meta[fieldname]?.reqd && !value) {
-    toast.error(__('{0} is a required field', [meta[fieldname].label]))
-    return true
-  }
-  return false
-}
-
 const displayName = computed(() => {
-  if (!deal.data) return __('Loading...')
+  if (!doc.value) return __('Loading...')
   
-  if (organization.data?.name) {
-    return organization.data.name
+  if (doc.value.organization) {
+    return doc.value.organization
   }
   
   if (dealContacts.data) {
@@ -732,14 +704,14 @@ function deleteDeal() {
 function trackPhoneActivities(type) {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)
   if (!primaryContact?.mobile_no) {
-    errorMessage(__('No phone number set'))
+    toast.error(__('No phone number set'))
     return
   }
   
   trackCommunication({
     type,
     doctype: 'CRM Deal',
-    docname: deal.data.name,
+    docname: doc.value.name,
     phoneNumber: primaryContact.mobile_no,
     activities: activities.value,
     contactName: primaryContact.name
@@ -751,16 +723,23 @@ function triggerCall() {
   const mobile_no = primaryContact?.mobile_no || null
 
   if (!primaryContact) {
-    errorMessage(__('No primary contact set'))
+    toast.error(__('No primary contact set'))
     return
   }
 
   if (!mobile_no) {
-    errorMessage(__('No mobile number set'))
+    toast.error(__('No mobile number set'))
     return
   }
 
   makeCall(mobile_no)
+}
+
+function openWebsite(url) {
+  if (!url.startsWith('http')) {
+    url = 'https://' + url
+  }
+  window.open(url, '_blank')
 }
 
 const showMessageTemplateModal = ref(false)
@@ -768,17 +747,20 @@ const activities = ref(null)
 
 function applyMessageTemplate(template) {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)
-  if (!primaryContact) return errorMessage(__('No primary contact set'))
+  if (!primaryContact) {
+    toast.error(__('No primary contact set'))
+    return
+  }
   
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Deal',
-    docname: deal.data.name,
+    docname: doc.value.name,
     phoneNumber: primaryContactMobileNo.value,
     activities: activities.value,
     contactName: primaryContact.full_name,
     message: template,
-    modelValue: deal.data
+    modelValue: doc.value
   })
   showEmailTemplateSelectorModal.value = false
 }
@@ -793,9 +775,9 @@ const showLostReasonModal = ref(false)
 
 function setLostReason() {
   if (
-    getDealStatus(doc.status).type !== 'Lost' ||
-    (doc.lost_reason && doc.lost_reason !== 'Other') ||
-    (doc.lost_reason === 'Other' && doc.lost_notes)
+    getDealStatus(doc.value.status).type !== 'Lost' ||
+    (doc.value.lost_reason && doc.value.lost_reason !== 'Other') ||
+    (doc.value.lost_reason === 'Other' && doc.value.lost_notes)
   ) {
     document.save.submit()
     return

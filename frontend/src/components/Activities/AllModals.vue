@@ -30,6 +30,7 @@ import TaskModal from '@/components/Modals/TaskModal.vue'
 import NoteModal from '@/components/Modals/NoteModal.vue'
 import CallLogModal from '@/components/Modals/CallLogModal.vue'
 import { call } from 'frappe-ui'
+import { extractValue } from '@/utils'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -69,7 +70,7 @@ function updateTaskStatus(status, task) {
     doctype: 'CRM Task',
     name: task.name,
     fieldname: 'status',
-    value: status,
+    value: extractValue(status),
   }).then(() => {
     activities.value.reload()
   })

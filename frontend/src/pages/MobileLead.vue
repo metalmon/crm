@@ -58,7 +58,7 @@
     </div>
   </div>
   <div v-if="doc.name" class="flex h-full overflow-hidden">
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+        <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
       <TabList class="!px-3" />
       <TabPanel v-slot="{ tab }">
         <div v-if="tab.name == 'Details'">
@@ -94,51 +94,56 @@
       </TabPanel>
     </Tabs>
   </div>
-  <div v-if="lead.data" class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+  <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
     <div class="flex gap-2 overflow-x-auto scrollbar-hide">
       <Button
-        v-if="lead.data?.mobile_no && ipTelephonyEnabled"
+        v-if="doc?.mobile_no && ipTelephonyEnabled"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        :iconLeft="PhoneIcon"
+        :icon="PhoneIcon"
         @click="triggerCall"
+        :title="__('Make a call')"
       />
 
       <Button
-        v-if="lead.data?.mobile_no && !ipTelephonyEnabled"
+        v-if="doc?.mobile_no && !ipTelephonyEnabled"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        :icon="PhoneIcon"
         @click="trackPhoneActivities('phone')"
-        :iconLeft="PhoneIcon"
+        :title="__('Call via phone app')"
       />
       
       <Button
-        v-if="lead.data?.mobile_no"
+        v-if="doc?.mobile_no"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        :icon="WhatsAppIcon"
         @click="trackPhoneActivities('whatsapp')"
-        :iconLeft="WhatsAppIcon"
+        :title="__('Open WhatsApp')"
       />
 
       <Button
-        v-if="lead.data?.mobile_no"
+        v-if="doc?.mobile_no"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
+        :icon="CommentIcon"
         @click="showEmailTemplateSelectorModal = true"
-        :iconLeft="CommentIcon"
+        :title="__('Send WhatsApp Template')"
       />
 
       <Button
-        v-if="lead.data?.website"
+        v-if="doc?.website"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        @click="openWebsite(lead.data.website)"
-        :iconLeft="LinkIcon"
+        :icon="LinkIcon"
+        @click="openWebsite(doc.website)"
+        :title="__('Go to website')"
       />
     </div>
   </div>
   <ErrorPage
-    v-else-if="errorTitle"
+    v-if="errorTitle"
     :errorTitle="errorTitle"
     :errorMessage="errorMessage"
   />
@@ -220,7 +225,7 @@
   </Dialog>
   <EmailTemplateSelectorModal
     v-model="showEmailTemplateSelectorModal"
-    :doctype="doctype"
+    :doctype="'CRM Lead'"
     @apply="applyMessageTemplate"
   />
   <DeleteLinkedDocModal
@@ -310,6 +315,7 @@ const props = defineProps({
 const errorTitle = ref('')
 const errorMessage = ref('')
 const showDeleteLinkedDocModal = ref(false)
+const showEmailTemplateSelectorModal = ref(false)
 
 const { triggerOnChange, assignees, document, scripts, error } = useDocument(
   'CRM Lead',
@@ -549,8 +555,8 @@ const dealTabs = createResource({
 
 // Watch for the modal opening
 watch(showConvertToDealModal, async (newValue) => {
-  if (newValue && lead.data?.email) { // Check when modal opens & email exists
-    const contactName = await findContactByEmail(lead.data.email);
+  if (newValue && doc.value?.email) { // Check when modal opens & email exists
+    const contactName = await findContactByEmail(doc.value.email);
     if (contactName) {
       existingContact.value = contactName;
       existingContactChecked.value = true;
@@ -607,7 +613,7 @@ async function convertToDeal() {
 }
 
 function trackPhoneActivities(type) {
-  if (!lead.data?.mobile_no) {
+  if (!doc.value?.mobile_no) {
     toast.error(__('No phone number set'))
     return
   }
@@ -615,10 +621,10 @@ function trackPhoneActivities(type) {
   trackCommunication({
     type,
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: doc.value.name,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
   })
 }
 
@@ -630,25 +636,26 @@ function openWebsite(url) {
 }
 
 const showMessageTemplateModal = ref(false)
+const activities = ref(null)
 
 function applyMessageTemplate(template) {
-  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  if (!doc.value.lead_name) return errorMessage(__('Contact name not set'))
   
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: doc.value.name,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
     message: template,
-    modelValue: lead.data
+    modelValue: doc.value
   })
   showEmailTemplateSelectorModal.value = false
 }
 
 function triggerCall() {
-  makeCall(lead.data.mobile_no)
+  makeCall(doc.value.mobile_no)
 }
 
 async function triggerStatusChange(value) {

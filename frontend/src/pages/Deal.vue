@@ -81,56 +81,63 @@
             </div>
           </Tooltip>
           <div class="flex gap-1.5">
-            <Button
-              v-if="ipTelephonyEnabled"
-              :tooltip="__('Make a call')"
-              :iconLeft="PhoneIcon"
-              @click="triggerCall"
-            />
+            <Tooltip :text="__('Make a call')">
+              <Button
+                v-if="ipTelephonyEnabled"
+                :icon="PhoneIcon"
+                @click="triggerCall"
+              />
+            </Tooltip>
 
-            <Button
-              v-if="primaryContactMobileNo && !ipTelephonyEnabled"
-              :tooltip="__('Call via phone app')"
-              :iconLeft="PhoneIcon"
-              @click="trackPhoneActivities('phone')"
-            />
+            <Tooltip :text="__('Call via phone app')">
+              <Button
+                v-if="primaryContactMobileNo && !ipTelephonyEnabled"
+                :icon="PhoneIcon"
+                @click="trackPhoneActivities('phone')"
+              />
+            </Tooltip>
 
-            <Button
-              v-if="primaryContactMobileNo"
-              :tooltip="__('Open WhatsApp')"
-              :iconLeft="WhatsAppIcon"
-              @click="trackPhoneActivities('whatsapp')"
-            />
+            <Tooltip :text="__('Open WhatsApp')">
+              <Button
+                v-if="primaryContactMobileNo"
+                :icon="WhatsAppIcon"
+                @click="trackPhoneActivities('whatsapp')"
+              />
+            </Tooltip>
 
-            <Button
-              v-if="primaryContactMobileNo"
-              :tooltip="__('Send WhatsApp Template')"
-              :iconLeft="CommentIcon"
-              @click="showEmailTemplateSelectorModal = true"
-            />
-            <Button
-              :tooltip="__('Send an email')"
-              :iconLeft="Email2Icon"
-              @click="
-                doc.email
-                  ? openEmailBox()
-                  : toast.error(__('No email set'))
-              "
-            />
-            <Button
-              :tooltip="__('Go to website')"
-              :iconLeft="LinkIcon"
-              @click="
-                doc.website
-                  ? openWebsite(doc.website)
-                  : toast.error(__('No website set'))
-              "
-            />
-            <Button
-              :tooltip="__('Attach a file')"
-              :iconLeft="AttachmentIcon"
-              @click="showFilesUploader = true"
-            />
+            <Tooltip :text="__('Send WhatsApp Template')">
+              <Button
+                v-if="primaryContactMobileNo"
+                :icon="CommentIcon"
+                @click="showEmailTemplateSelectorModal = true"
+              />
+            </Tooltip>
+            <Tooltip :text="__('Send an email')">
+              <Button
+                :icon="Email2Icon"
+                @click="
+                  doc.email
+                    ? openEmailBox()
+                    : toast.error(__('No email set'))
+                "
+              />
+            </Tooltip>
+            <Tooltip :text="__('Go to website')">
+              <Button
+                :icon="LinkIcon"
+                @click="
+                  doc.website
+                    ? openWebsite(doc.website)
+                    : toast.error(__('No website set'))
+                "
+              />
+            </Tooltip>
+            <Tooltip :text="__('Attach a file')">
+              <Button
+                :icon="AttachmentIcon"
+                @click="showFilesUploader = true"
+              />
+            </Tooltip>
           </div>
         </div>
       </div>
