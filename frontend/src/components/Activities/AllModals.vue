@@ -39,6 +39,7 @@ import CallLogModal from '@/components/Modals/CallLogModal.vue'
 import EventModal from '@/components/Modals/EventModal.vue'
 import { showEventModal, activeEvent } from '@/composables/event'
 import { call } from 'frappe-ui'
+import { extractValue } from '@/utils'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -84,7 +85,7 @@ function updateTaskStatus(status, task) {
     doctype: 'CRM Task',
     name: task.name,
     fieldname: 'status',
-    value: status,
+    value: extractValue(status),
   }).then(() => {
     activities.value.reload()
   })

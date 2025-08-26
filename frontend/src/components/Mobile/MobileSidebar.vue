@@ -144,11 +144,6 @@ const links = [
     to: 'Organizations',
   },
   {
-    label: __('Message Templates'),
-    icon: Email2Icon,
-    to: 'Email Templates',
-  },
-  {
     label: __('Call Logs'),
     icon: PhoneIcon,
     to: 'Call Logs',

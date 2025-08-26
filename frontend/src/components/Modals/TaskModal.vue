@@ -54,7 +54,7 @@
           'w-full',
           isMobileView 
             ? 'grid grid-cols-12 grid-rows-2 gap-2' 
-            : 'flex items-center gap-2'
+            : 'flex flex-wrap items-center gap-2'
         ]">
           <Dropdown 
             :options="taskStatusOptions(updateTaskStatus)" 
@@ -125,7 +125,7 @@
               'min-w-0',
               isMobileView 
                 ? 'col-span-8 row-start-2 w-full' 
-                : 'min-w-0 flex-1'
+                : 'w-44'
             ]"
             @click.stop
           />
@@ -161,7 +161,6 @@ import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { isMobileView } from '@/composables/settings'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-
 const props = defineProps({
   task: {
     type: Object,
@@ -223,10 +222,20 @@ async function updateTask() {
     _task.value.assigned_to = getUser().name
   }
   if (_task.value.name) {
+    // Extract values for select fields to ensure we send only the value, not the full object
+    const updateData = {
+      title: _task.value.title,
+      description: _task.value.description,
+      assigned_to: _task.value.assigned_to,
+      due_date: _task.value.due_date,
+      status: extractValue(_task.value.status),
+      priority: extractValue(_task.value.priority),
+    }
+    
     let d = await call('frappe.client.set_value', {
       doctype: 'CRM Task',
       name: _task.value.name,
-      fieldname: _task.value,
+      fieldname: updateData,
     })
     if (d.name) {
       tasks.value?.reload()
@@ -265,7 +274,12 @@ function render() {
   editMode.value = false
   setTimeout(() => title.value?.el?.focus?.(), 100)
   nextTick(() => {
-    _task.value = { ...props.task }
+    // Copy task data and ensure select fields have proper values
+    _task.value = { 
+      ...props.task,
+      status: extractValue(props.task.status),
+      priority: extractValue(props.task.priority)
+    }
     if (_task.value.title) {
       editMode.value = true
     }
