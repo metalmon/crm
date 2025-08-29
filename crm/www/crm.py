@@ -1,10 +1,9 @@
 # Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and Contributors
 # GNU GPLv3 License. See license.txt
 import os
-import subprocess
+import json
 
 import frappe
-from frappe import safe_decode
 from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
 from frappe.utils import cint, get_system_timezone
 from frappe.utils.telemetry import capture
@@ -56,30 +55,29 @@ def get_default_route():
 
 def get_app_version():
 	app = "crm"
-	branch = run_git_command(f"cd ../apps/{app} && git rev-parse --abbrev-ref HEAD")
-	commit = run_git_command(f"git -C ../apps/{app} rev-parse --short=7 HEAD")
-	tag = run_git_command(f"git -C ../apps/{app} describe --tags --abbrev=0")
-	dirty = run_git_command(f"git -C ../apps/{app} diff --quiet || echo 'dirty'") == "dirty"
-	commit_date = run_git_command(f"git -C ../apps/{app} log -1 --format=%cd")
-	commit_message = run_git_command(f"git -C ../apps/{app} log -1 --pretty=%B")
-
-	return {
-		"branch": branch,
-		"commit": commit,
-		"commit_date": commit_date,
-		"commit_message": commit_message,
-		"tag": tag,
-		"dirty": dirty,
-	}
-
-
-def run_git_command(command):
+	version_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "public", "version.json")
+	
 	try:
-		with open(os.devnull, "wb") as null_stream:
-			result = subprocess.check_output(command, shell=True, stdin=null_stream, stderr=null_stream)
-		return safe_decode(result).strip()
+		with open(version_file_path, 'r') as f:
+			version_data = json.load(f)
+		
+		return {
+			"branch": version_data.get("branch", ""),
+			"commit": version_data.get("commit", ""),
+			"commit_date": version_data.get("commit_date", ""),
+			"commit_message": version_data.get("commit_message", ""),
+			"tag": version_data.get("tag", ""),
+			"dirty": False,  # Set to False since we can't determine this from version.json
+		}
 	except Exception:
 		frappe.log_error(
-			title="Git Command Error",
+			title="Version File Read Error",
 		)
-		return ""
+		return {
+			"branch": "",
+			"commit": "",
+			"commit_date": "",
+			"tag": "",
+			"commit_message": "",
+			"dirty": False,
+		}

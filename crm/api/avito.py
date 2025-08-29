@@ -160,7 +160,7 @@ def get_avito_messages(reference_doctype, reference_name):
                 fields=[
                     "name",
                     "type",
-                    "to",
+                    "chat_id",
                     "from",
                     "content_type",
                     "message_type",
@@ -261,7 +261,11 @@ def get_avito_messages(reference_doctype, reference_name):
             reacted_message["reaction"] = reaction_message["message"]
 
     for message in messages:
-        from_name = get_from_name(message) if message["from"] else _("You")
+        # In Avito, we determine sender based on message type
+        if message.get("type") == "Incoming":
+            from_name = get_from_name(message)
+        else:
+            from_name = _("You")
         message["from_name"] = from_name
     # Filter messages to get only replies
     reply_messages = [message for message in messages if message["is_reply"]]
@@ -279,9 +283,7 @@ def get_avito_messages(reference_doctype, reference_name):
         )
 
         # If the replied message is found, add the reply details to the reply message
-        from_name = (
-            get_from_name(reply_message) if replied_message["from"] else _("You")
-        )
+        from_name = get_from_name(reply_message) if replied_message.get("type") == "Incoming" else _("You")
         if replied_message:
             message = replied_message["message"]
             if replied_message["message_type"] == "Template":
@@ -378,7 +380,7 @@ def create_avito_message(
             "reference_doctype": reference_doctype,
             "reference_name": reference_name,
             "message": message or attach,
-            "chat_id": chat_id, # chat_id to,
+            "chat_id": chat_id,
             "attach": attach,
             "content_type": content_type,
             "type": _type,
@@ -389,7 +391,7 @@ def create_avito_message(
 
 
 @frappe.whitelist()
-def send_avito_template(reference_doctype, reference_name, template, to):
+def send_avito_template(reference_doctype, reference_name, template, chat_id):
     doc = frappe.new_doc("Avito Message")
     doc.update(
         {
@@ -400,7 +402,7 @@ def send_avito_template(reference_doctype, reference_name, template, to):
             "content_type": "text",
             "use_template": True,
             "template": template,
-            "to": to,
+            "chat_id": chat_id,
         }
     )
     doc.insert(ignore_permissions=True)
@@ -410,14 +412,14 @@ def send_avito_template(reference_doctype, reference_name, template, to):
 @frappe.whitelist()
 def react_on_avito_message(emoji, reply_to_name):
     reply_to_doc = frappe.get_doc("Avito Message", reply_to_name)
-    to = reply_to_doc.type == "Incoming" and reply_to_doc.get("from") or reply_to_doc.to
+    chat_id = reply_to_doc.chat_id
     doc = frappe.new_doc("Avito Message")
     doc.update(
         {
             "reference_doctype": reply_to_doc.reference_doctype,
             "reference_name": reply_to_doc.reference_name,
             "message": emoji,
-            "to": to,
+            "chat_id": chat_id,
             "reply_to_message_id": reply_to_doc.message_id,
             "content_type": "reaction",
         }
