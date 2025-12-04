@@ -154,6 +154,31 @@ const removeAssignees = createResource({
   }),
 })
 
+watch(assignToMe, (val) => {
+  let user = getUser('')
+  if (val) {
+    addValue(user.name)
+  } else {
+    removeValue(user.name)
+  }
+})
+
+watch(
+  () => props.open,
+  (val) => {
+    if (val) {
+      oldAssignees.value = [...(assignees.value || [])]
+
+      assignToMe.value = assignees.value?.some(
+        (assignee) => assignee.name === getUser('').name,
+      ) || false
+    } else {
+      updateAssignees()
+    }
+  },
+  { immediate: true },
+)
+
 async function updateAssignees() {
   if (JSON.stringify(oldAssignees.value) === JSON.stringify(assignees.value))
     return
@@ -186,29 +211,4 @@ async function updateAssignees() {
     }
   }
 }
-
-watch(assignToMe, (val) => {
-  let user = getUser('')
-  if (val) {
-    addValue(user.name)
-  } else {
-    removeValue(user.name)
-  }
-})
-
-watch(
-  () => props.open,
-  (val) => {
-    if (val) {
-      oldAssignees.value = [...(assignees.value || [])]
-
-      assignToMe.value = assignees.value?.some(
-        (assignee) => assignee.name === getUser('').name,
-      ) || false
-    } else {
-      updateAssignees()
-    }
-  },
-  { immediate: true },
-)
 </script>

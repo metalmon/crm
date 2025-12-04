@@ -15,6 +15,7 @@
   "website",
   "territory",
   "industry",
+  "job_title",
   "source",
   "sales_funnel",
   "lead_owner",
@@ -22,7 +23,6 @@
   "salutation",
   "first_name",
   "last_name",
-  "job_title",
   "email",
   "mobile_no",
   "organization_tab",
@@ -55,8 +55,19 @@
   "column_break_pweh",
   "first_response_time",
   "first_responded_on",
+  "section_break_xnpz",
+  "rolling_responses",
+  "section_break_kikl",
+  "column_break_ygds",
+  "last_response_time",
+  "column_break_tcqb",
+  "last_responded_on",
   "log_tab",
-  "status_change_log"
+  "status_change_log",
+  "syncing_tab",
+  "facebook_lead_id",
+  "column_break_ixmu",
+  "facebook_form_id"
  ],
  "fields": [
   {
@@ -156,14 +167,12 @@
   {
    "fieldname": "source",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Source",
    "options": "CRM Lead Source"
   },
   {
    "fieldname": "industry",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Industry",
    "options": "CRM Industry"
   },
@@ -240,7 +249,7 @@
    "fieldname": "sla_status",
    "fieldtype": "Select",
    "label": "SLA Status",
-   "options": "\nFirst Response Due\nFailed\nFulfilled",
+   "options": "\nFirst Response Due\nRolling Response Due\nFailed\nFulfilled",
    "read_only": 1
   },
   {
@@ -280,7 +289,6 @@
   {
    "fieldname": "territory",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Territory",
    "options": "CRM Territory"
   },
@@ -336,13 +344,68 @@
    "label": "Net Total",
    "options": "currency",
    "read_only": 1
+  },
+  {
+   "fieldname": "syncing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Syncing"
+  },
+  {
+   "fieldname": "facebook_lead_id",
+   "fieldtype": "Data",
+   "label": "Facebook Lead ID",
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_ixmu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "facebook_form_id",
+   "fieldtype": "Data",
+   "label": "Facebook Form ID"
+  },
+  {
+   "fieldname": "section_break_kikl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "rolling_responses",
+   "fieldtype": "Table",
+   "label": "Rolling Responses",
+   "options": "CRM Rolling Response Time"
+  },
+  {
+   "fieldname": "section_break_xnpz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "last_response_time",
+   "fieldtype": "Duration",
+   "label": "Last Response Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tcqb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_responded_on",
+   "fieldtype": "Datetime",
+   "label": "Last Responded On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ygds",
+   "fieldtype": "Column Break",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 19:51:06.184569",
+ "modified": "2025-11-10 21:21:50.089284",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

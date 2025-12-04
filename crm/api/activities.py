@@ -1,6 +1,7 @@
 import json
-from bs4 import BeautifulSoup
+
 import frappe
+from bs4 import BeautifulSoup
 from frappe import _
 from frappe.desk.form.load import get_docinfo
 from crm.utils.communications import prepare_communication_activity
@@ -43,17 +44,20 @@ def get_deal_activities(name, limit=20, offset=0):
 	notes = []
 	tasks = []
 	attachments = []
-	creation_text = _("created this deal")
+	# Use _() for translation extraction to .po files, but pass untranslated key to frontend
+	_unused = _("created this deal")  # For translation extraction only
+	creation_text = "created this deal"
 
 	if lead:
-		activities, calls, notes, tasks, attachments = get_lead_activities(lead)
-		creation_text = _("converted the lead to this deal")
+		activities, calls, notes, tasks, attachments = get_lead_activities(lead, limit, offset)
+		_unused = _("converted the lead to this deal")  # For translation extraction only
+		creation_text = "converted the lead to this deal"
 
 	activities.append({
 		"activity_type": "creation",
 		"creation": doc[0],
 		"owner": doc[1],
-		"data": creation_text,
+		"data": creation_text,  # Pass key for frontend translation
 		"is_lead": False,
 	})
 
@@ -124,11 +128,11 @@ def get_deal_activities(name, limit=20, offset=0):
 
 	for attachment_log in docinfo.attachment_logs:
 		activity = {
-			"name": attachment_log.get("name"),
+			"name": attachment_log.name,
 			"activity_type": "attachment_log",
-			"creation": attachment_log.get("creation"),
-			"owner": attachment_log.get("owner"),
-			"data": parse_attachment_log(attachment_log.get("content"), attachment_log.get("comment_type")),
+			"creation": attachment_log.creation,
+			"owner": attachment_log.owner,
+			"data": parse_attachment_log(attachment_log.content, attachment_log.comment_type),
 			"is_lead": False,
 		}
 		activities.append(activity)
@@ -164,14 +168,16 @@ def get_lead_activities(name, limit=20, offset=0):
 	]
 
 	doc = frappe.db.get_values("CRM Lead", name, ["creation", "owner"])[0]
+	# Use _() for translation extraction to .po files, but pass untranslated key to frontend
+	_unused = _("created this lead")  # For translation extraction only
 	activities = [
 		{
-		"activity_type": "creation",
-		"creation": doc[0],
-		"owner": doc[1],
-		"data": _("created this lead"),
-		"is_lead": True,
-		"name": f"{name}_creation"
+			"activity_type": "creation",
+			"creation": doc[0],
+			"owner": doc[1],
+			"data": "created this lead",  # Pass key for frontend translation
+			"is_lead": True,
+			"name": f"{name}_creation"
 		}
 	]
 
@@ -243,11 +249,14 @@ def get_lead_activities(name, limit=20, offset=0):
 
 	for attachment_log in docinfo.attachment_logs:
 		activity = {
-			"name": attachment_log.get("name"),
+			"name": attachment_log.get("name") if hasattr(attachment_log, "get") else attachment_log.name,
 			"activity_type": "attachment_log",
-			"creation": attachment_log.get("creation"),
-			"owner": attachment_log.get("owner"),
-			"data": parse_attachment_log(attachment_log.get("content"), attachment_log.get("comment_type")),
+			"creation": attachment_log.get("creation") if hasattr(attachment_log, "get") else attachment_log.creation,
+			"owner": attachment_log.get("owner") if hasattr(attachment_log, "get") else attachment_log.owner,
+			"data": parse_attachment_log(
+				attachment_log.get("content") if hasattr(attachment_log, "get") else attachment_log.content,
+				attachment_log.get("comment_type") if hasattr(attachment_log, "get") else attachment_log.comment_type
+			),
 			"is_lead": True,
 		}
 		activities.append(activity)
@@ -330,6 +339,7 @@ def handle_multiple_versions(versions):
 
 	return activities
 
+
 def parse_grouped_versions(versions):
 	version = versions[0]
 	if len(versions) == 1:
@@ -337,6 +347,7 @@ def parse_grouped_versions(versions):
 	other_versions = versions[1:]
 	version["other_versions"] = other_versions
 	return version
+
 
 def get_linked_calls(name):
 	calls = frappe.db.get_all(
@@ -457,6 +468,7 @@ def get_linked_tasks(name):
 		],
 	)
 	return tasks or []
+
 
 def parse_attachment_log(html, type):
 	soup = BeautifulSoup(html, "html.parser")

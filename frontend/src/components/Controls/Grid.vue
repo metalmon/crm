@@ -70,6 +70,7 @@
           :delay="isTouchScreenDevice() ? 200 : 0"
           group="rows"
           item-key="name"
+          @end="reorder"
         >
           <template #item="{ element: row, index }">
             <div
@@ -260,6 +261,16 @@
                     :disabled="Boolean(field.read_only)"
                     @change="fieldChange(flt($event.target.value), field, row)"
                   />
+                  <Autocomplete
+                    v-else-if="field.fieldtype === 'Autocomplete'"
+                    class="text-sm text-ink-gray-8"
+                    :modelValue="row[field.fieldname]"
+                    @update:modelValue="(v) => row[field.fieldname] = typeof v == 'object' ? v.value : v"
+                    @change="(v) => fieldChange(typeof v == 'object' ? v.value : v, field, row)"
+                    :options="field.options"
+                    :placeholder="field.placeholder"
+                    :disabled="Boolean(field.read_only)"
+                  />
                   <FormControl
                     v-else
                     class="text-sm text-ink-gray-8"
@@ -342,13 +353,13 @@ import { usersStore } from '@/stores/users'
 import { getMeta } from '@/stores/meta'
 import { createDocument } from '@/composables/document'
 import {
-  FeatherIcon,
   FormControl,
   Checkbox,
   DateTimePicker,
   DatePicker,
   Tooltip,
   dayjs,
+  Autocomplete
 } from 'frappe-ui'
 import Draggable from 'vuedraggable'
 import { ref, reactive, computed, inject, provide } from 'vue'
@@ -368,13 +379,15 @@ const props = defineProps({
   },
   parentFieldname: {
     type: String,
-    required: true,
-  },
+  overrides: {
+    type: Object,
+    default: () => ({}),
+  }
 })
 
-const triggerOnChange = inject('triggerOnChange')
-const triggerOnRowAdd = inject('triggerOnRowAdd')
-const triggerOnRowRemove = inject('triggerOnRowRemove')
+const triggerOnChange = inject('triggerOnChange', () => {})
+const triggerOnRowAdd = inject('triggerOnRowAdd', () => {})
+const triggerOnRowRemove = inject('triggerOnRowRemove', () => {})
 
 const {
   getGridViewSettings,
@@ -385,7 +398,7 @@ const {
   getGridSettings,
 } = getMeta(props.doctype)
 getMeta(props.parentDoctype)
-const { getUser } = usersStore()
+const { users, getUser } = usersStore()
 
 const rows = defineModel()
 const parentDoc = defineModel('parent')
@@ -430,10 +443,25 @@ function getFieldObj(field) {
     }
   }
 
-  return {
+  if (field.fieldtype === 'Link' && field.options === 'User') {
+    field.fieldtype = 'User'
+    field.link_filters = JSON.stringify({
+      ...(field.link_filters ? JSON.parse(field.link_filters) : {}),
+      name: ['in', users.data.crmUsers?.map((user) => user.name)],
+    })
+  }
+
+  const fieldObjWithFilters = {
     ...field,
     filters: field.link_filters && JSON.parse(field.link_filters),
     placeholder: field.placeholder || field.label,
+  }
+  
+  return {
+    ...fieldObjWithFilters,
+    ...props.overrides.fields?.find(
+      (f) => f.fieldname === field.fieldname,
+    ),
   }
 }
 
@@ -504,8 +532,13 @@ const deleteRows = () => {
   selectedRows.clear()
 }
 
+const reorder = () => {
+  rows.value.forEach((row, index) => {
+    row.idx = index + 1
+  })
+}
+
 function fieldChange(value, field, row) {
-  row[field.fieldname] = value
   triggerOnChange(field.fieldname, value, row)
 }
 

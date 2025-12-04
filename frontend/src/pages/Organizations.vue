@@ -71,8 +71,7 @@
     >
       <OrganizationsIcon class="h-10 w-10" />
       <span>{{ __('No Organizations Found') }}</span>
-      <Button :label="__('Create')" @click="showOrganizationModal = true" :iconLeft="plus"
-      />
+      <Button :label="__('Create')" @click="showOrganizationModal = true" :iconLeft="plus" />
     </div>
   </div>
   <OrganizationModal
@@ -199,17 +198,5 @@ function handleSmartFilter(filters) {
     ...filters
   };
   organizations.value.reload();
-}
-  
-  
-async function openAddressModal(_address) {
-  if (_address) {
-    _address = await call('frappe.client.get', {
-      doctype: 'Address',
-      name: _address,
-    })
-  }
-  showAddressModal.value = true
-  address.value = _address || {}
 }
 </script>

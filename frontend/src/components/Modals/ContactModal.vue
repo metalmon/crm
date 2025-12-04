@@ -31,6 +31,7 @@
           :data="_contact.doc"
           doctype="Contact"
         />
+        <ErrorMessage class="mt-8" v-if="error" :message="__(error)" />
       </div>
       <div class="px-4 pb-7 pt-4 sm:px-6">
         <div class="space-y-2">
@@ -88,10 +89,14 @@ const router = useRouter()
 const show = defineModel()
 
 const loading = ref(false)
+const error = ref(null)
 
 const { document: _contact, triggerOnBeforeCreate } = useDocument('Contact')
 
 async function createContact() {
+  loading.value = true
+  error.value = null
+
   if (_contact.doc.email_id) {
     _contact.doc.email_ids = [
       { email_id: _contact.doc.email_id, is_primary: 1 },
@@ -108,12 +113,22 @@ async function createContact() {
 
   await triggerOnBeforeCreate?.()
 
-  const doc = await call('frappe.client.insert', {
-    doc: {
-      doctype: 'Contact',
-      ..._contact.doc,
+  const doc = await call(
+    'frappe.client.insert',
+    {
+      doc: {
+        doctype: 'Contact',
+        ..._contact.doc,
+      },
     },
-  })
+    {
+      onError: (err) => {
+        error.value = err.error?.messages?.[0]
+        loading.value = false
+      },
+    },
+  )
+  loading.value = false
   if (doc.name) {
     capture('contact_created')
     handleContactUpdate(doc)
@@ -154,9 +169,7 @@ const tabs = createResource({
                 openAddressModal()
                 close()
               }
-              field.edit = (address) => {
-                openAddressModal(address)
-              }
+              field.edit = (address) => openAddressModal(address)
             } else if (field.fieldtype === 'Table') {
               _contact.doc[field.fieldname] = []
             }
@@ -167,28 +180,32 @@ const tabs = createResource({
   },
 })
 
+onMounted(() => {
+  _contact.doc = {}
+  const contactData = props.contact?.data || props.contact || {}
+  Object.assign(_contact.doc, contactData, props.initialValues)
+})
+
 function openQuickEntryModal() {
-  nextTick(() => {
-    showQuickEntryModal.value = true
-    quickEntryProps.value = { doctype: 'Contact' }
-    show.value = false
-  })
+  showQuickEntryModal.value = true
+  quickEntryProps.value = { doctype: 'Contact' }
+  nextTick(() => (show.value = false))
 }
 
-function openAddressModal(address) {
+function openAddressModal(_address) {
+  showAddressModal.value = true
   addressProps.value = {
-    address: address || null,
+    doctype: 'Address',
+    address: _address || null,
     afterInsert: (address) => {
       _contact.doc.address = address.name
     },
   }
-  showAddressModal.value = true
 }
-
-onMounted(() => {
-  _contact.doc = {
-    ...props.contact,
-    ...props.initialValues,
-  }
-})
 </script>
+
+<style scoped>
+:deep(:has(> .dropdown-button)) {
+  width: 100%;
+}
+</style>

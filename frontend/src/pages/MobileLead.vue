@@ -58,7 +58,7 @@
     </div>
   </div>
   <div v-if="doc.name" class="flex h-full overflow-hidden">
-        <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
       <TabList class="!px-3" />
       <TabPanel v-slot="{ tab }">
         <div v-if="tab.name == 'Details'">
@@ -507,12 +507,13 @@ const existingOrganizationChecked = ref(false)
 
 const existingContact = ref('')
 const existingOrganization = ref('')
+const deal = ref({})
 
 // Added dealStatuses computed property
 const dealStatuses = computed(() => {
   let statuses = statusOptions('deal')
-  if (!deal.status) {
-    deal.status = statuses[0].value
+  if (!deal.value.status) {
+    deal.value.status = statuses[0].value
   }
   return statuses
 })
@@ -537,11 +538,11 @@ const dealTabs = createResource({
                 ...status,
                 label: translateDealStatus(status.label)
               }));
-              field.prefix = getDealStatus(deal.status).color;
+              field.prefix = getDealStatus(deal.value.status).color;
             }
 
             if (field.fieldtype === 'Table') {
-              deal[field.fieldname] = [];
+              deal.value[field.fieldname] = [];
             }
           });
         });
@@ -591,9 +592,9 @@ async function convertToDeal() {
     existingOrganization.value = ''
   }
 
-  let deal = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
+  let dealResult = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
     lead: props.leadId,
-    deal: {},
+    deal: deal.value,
     existing_contact: existingContact.value,
     existing_organization: existingOrganization.value,
   })
@@ -601,16 +602,18 @@ async function convertToDeal() {
     toast.error(__('Error converting to deal') + ': ' + __(err.messages?.[0]))
   })
 
-  if (_deal) {
+  if (dealResult) {
     showConvertToDealModal.value = false
     existingContactChecked.value = false
     existingOrganizationChecked.value = false
     existingContact.value = ''
     existingOrganization.value = ''
     capture('convert_lead_to_deal')
-    router.push({ name: 'Deal', params: { dealId: _deal } })
+    router.push({ name: 'Deal', params: { dealId: dealResult } })
   }
 }
+
+const activities = ref(null)
 
 function trackPhoneActivities(type) {
   if (!doc.value?.mobile_no) {
@@ -635,11 +638,8 @@ function openWebsite(url) {
   window.open(url, '_blank')
 }
 
-const showMessageTemplateModal = ref(false)
-const activities = ref(null)
-
 function applyMessageTemplate(template) {
-  if (!doc.value.lead_name) return errorMessage(__('Contact name not set'))
+  if (!doc.value.lead_name) return toast.error(__('Contact name not set'))
   
   trackCommunication({
     type: 'whatsapp',
@@ -657,7 +657,6 @@ function applyMessageTemplate(template) {
 function triggerCall() {
   makeCall(doc.value.mobile_no)
 }
-
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)
   document.save.submit()

@@ -15,23 +15,29 @@ export const usersStore = defineStore('crm-users', () => {
     cache: 'crm-users',
     initialData: [],
     auto: true,
-    transform(users) {
-      // Проверяем, что users является массивом
-      if (!Array.isArray(users)) {
-        console.error('Users data is not an array:', users)
-        return { allUsers: [], crmUsers: [] }
+    transform(data) {
+      // Handle both old format (single array) and new format (tuple [allUsers, crmUsers])
+      let allUsers, crmUsers
+      
+      if (Array.isArray(data) && data.length === 2 && Array.isArray(data[0]) && Array.isArray(data[1])) {
+        // New format: tuple [allUsers, crmUsers]
+        [allUsers, crmUsers] = data
+      } else if (Array.isArray(data)) {
+        // Old format: single array - fallback for compatibility
+        allUsers = data
+        crmUsers = data.filter(user => user.enabled && user.user_type !== 'Website User')
+      } else {
+        console.error('Invalid users data format:', data)
+        allUsers = []
+        crmUsers = []
       }
       
-      for (let user of users) {
+      for (let user of allUsers) {
         usersByName[user.name] = user
         if (user.name === 'Administrator') {
           usersByName[user.email] = user
         }
       }
-      
-      // Разделяем всех пользователей и CRM пользователей
-      const crmUsers = users.filter(user => user.enabled && user.user_type !== 'Website User')
-      const allUsers = users
       
       return { allUsers, crmUsers }
     },
@@ -68,6 +74,10 @@ export const usersStore = defineStore('crm-users', () => {
     return getUser(email).role === 'Sales Manager' || isAdmin(email)
   }
 
+  function isWebsiteUser(email) {
+    return getUser(email).user_type === 'Website User'
+  }
+
   function isSalesUser(email) {
     return getUser(email).role === 'Sales User'
   }
@@ -92,5 +102,6 @@ export const usersStore = defineStore('crm-users', () => {
     isSalesUser,
     isTelephonyAgent,
     getUserRole,
+    isWebsiteUser,
   }
 })

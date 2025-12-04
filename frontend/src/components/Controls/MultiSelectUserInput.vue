@@ -1,5 +1,5 @@
 <template>
-    <div>
+  <div>
       <div class="flex flex-wrap gap-1">
         <Button
           ref="emails"
@@ -275,4 +275,4 @@
   }
   
   defineExpose({ setFocus })
-  </script>
+</script>

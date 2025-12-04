@@ -51,7 +51,7 @@
           </div>
         </div>
         <div>
-          <div class="text-ink-gray-5">
+          <div class="text-ink-gray-5 text-base">
             {{
               confirmDeleteInfo.delete
                 ? __(
@@ -140,25 +140,13 @@ const deleteDocs = () => {
     items: props.items,
     doctype: props.doctype,
     delete_linked: confirmDeleteInfo.value.delete,
+  }).then(() => {
+    confirmDeleteInfo.value = {
+      show: false,
+      title: '',
+    }
+    show.value = false
+    props.reload()
   })
-    .then(() => {
-      confirmDeleteInfo.value = {
-        show: false,
-        title: '',
-      }
-      show.value = false
-      props.reload()
-    })
-    .catch((error) => {
-      console.error('Error in bulk delete operation:', error)
-      // Still close the modal even if there was an error
-      confirmDeleteInfo.value = {
-        show: false,
-        title: '',
-      }
-      show.value = false
-      // Call reload to refresh the list view
-      props.reload()
-    })
 }
 </script>

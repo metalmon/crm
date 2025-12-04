@@ -701,6 +701,8 @@ function deleteDeal() {
   showDeleteLinkedDocModal.value = true
 }
 
+const activities = ref(null)
+
 function trackPhoneActivities(type) {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)
   if (!primaryContact?.mobile_no) {
@@ -742,9 +744,6 @@ function openWebsite(url) {
   window.open(url, '_blank')
 }
 
-const showMessageTemplateModal = ref(false)
-const activities = ref(null)
-
 function applyMessageTemplate(template) {
   const primaryContact = dealContacts.data?.find(c => c.is_primary)
   if (!primaryContact) {
@@ -764,7 +763,6 @@ function applyMessageTemplate(template) {
   })
   showEmailTemplateSelectorModal.value = false
 }
-
 
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)
@@ -805,14 +803,3 @@ function reloadAssignees(data) {
   }
 }
 </script>
-
-<style scoped>
-.bottom-toolbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.bottom-toolbar::-webkit-scrollbar {
-  display: none;
-}
-</style>

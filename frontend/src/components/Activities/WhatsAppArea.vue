@@ -178,8 +178,6 @@ import { capture } from '@/telemetry'
 import { Tooltip, Dropdown, createResource } from 'frappe-ui'
 import { ref } from 'vue'
 import dayjs from '@/utils/dayjs'
-import { usersStore } from '@/stores/users'
-import { globalStore } from '@/stores/global'
 
 const props = defineProps({
   messages: Array,

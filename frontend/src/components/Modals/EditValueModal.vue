@@ -42,6 +42,10 @@ import {
   call,
   createResource,
   TextEditor,
+  DatePicker,
+  DateTimePicker,
+  Button,
+  Dialog,
 } from 'frappe-ui'
 import { ref, computed, onMounted, h } from 'vue'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
@@ -84,7 +88,7 @@ const fields = createResource({
         ...f,
         label: __(f.label)
       }))
-  }
+  },
 })
 
 onMounted(() => {
@@ -193,8 +197,8 @@ function getValueComponent(f) {
       return h(FormControl, {
         type: 'select',
         options: translatedOptions,
-        value: newValue.value,
-        onChange: (e) => updateValue(e)
+        modelValue: newValue.value,
+        'onUpdate:modelValue': (v) => updateValue(v)
       })
     }
   }
@@ -207,15 +211,15 @@ function getValueComponent(f) {
         label: __(o),
         value: o,
       })),
-      value: newValue.value,
-      onChange: (e) => updateValue(e)
+      modelValue: newValue.value,
+      'onUpdate:modelValue': (v) => updateValue(v)
     })
   } else if (typeLink.includes(fieldtype)) {
     if (fieldtype == 'Dynamic Link') {
       return h(FormControl, { 
         type: 'text',
-        value: newValue.value,
-        onChange: (e) => updateValue(e)
+        modelValue: newValue.value,
+        'onUpdate:modelValue': (v) => updateValue(v)
       })
     }
     return h(Link, { 
@@ -227,15 +231,15 @@ function getValueComponent(f) {
   } else if (typeNumber.includes(fieldtype)) {
     return h(FormControl, { 
       type: 'number',
-      value: newValue.value,
-      onChange: (e) => updateValue(e)
+      modelValue: newValue.value,
+      'onUpdate:modelValue': (v) => updateValue(v)
     })
   } else if (typeDate.includes(fieldtype)) {
-    return h('input', {
-      type: fieldtype === 'Date' ? 'date' : 'datetime-local',
-      value: newValue.value,
-      class: 'w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
-      onInput: (e) => updateValue(e)
+    const DateComponent = fieldtype === 'Date' ? DatePicker : DateTimePicker
+    return h(DateComponent, {
+      modelValue: newValue.value,
+      'onUpdate:modelValue': (v) => updateValue(v),
+      class: 'w-full'
     })
   } else if (typeEditor.includes(fieldtype)) {
     return h(TextEditor, {
@@ -249,8 +253,8 @@ function getValueComponent(f) {
   } else {
     return h(FormControl, { 
       type: 'text',
-      value: newValue.value,
-      onChange: (e) => updateValue(e)
+      modelValue: newValue.value,
+      'onUpdate:modelValue': (v) => updateValue(v)
     })
   }
 }

@@ -15,6 +15,57 @@ from crm.utils import parse_phone_number
 
 
 class CRMLead(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from crm.fcrm.doctype.crm_products.crm_products import CRMProducts
+		from crm.fcrm.doctype.crm_rolling_response_time.crm_rolling_response_time import CRMRollingResponseTime
+		from crm.fcrm.doctype.crm_status_change_log.crm_status_change_log import CRMStatusChangeLog
+		from frappe.types import DF
+
+		annual_revenue: DF.Currency
+		communication_status: DF.Link | None
+		converted: DF.Check
+		email: DF.Data | None
+		facebook_form_id: DF.Data | None
+		facebook_lead_id: DF.Data | None
+		first_name: DF.Data
+		first_responded_on: DF.Datetime | None
+		first_response_time: DF.Duration | None
+		gender: DF.Link | None
+		image: DF.AttachImage | None
+		industry: DF.Link | None
+		job_title: DF.Data | None
+		last_name: DF.Data | None
+		last_responded_on: DF.Datetime | None
+		last_response_time: DF.Duration | None
+		lead_name: DF.Data | None
+		lead_owner: DF.Link | None
+		middle_name: DF.Data | None
+		mobile_no: DF.Data | None
+		naming_series: DF.Literal["CRM-LEAD-.YYYY.-"]
+		net_total: DF.Currency
+		no_of_employees: DF.Literal["1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"]
+		organization: DF.Data | None
+		phone: DF.Data | None
+		products: DF.Table[CRMProducts]
+		response_by: DF.Datetime | None
+		rolling_responses: DF.Table[CRMRollingResponseTime]
+		salutation: DF.Link | None
+		sla: DF.Link | None
+		sla_creation: DF.Datetime | None
+		sla_status: DF.Literal["", "First Response Due", "Rolling Response Due", "Failed", "Fulfilled"]
+		source: DF.Link | None
+		status: DF.Link
+		status_change_log: DF.Table[CRMStatusChangeLog]
+		territory: DF.Link | None
+		total: DF.Currency
+		website: DF.Data | None
+	# end: auto-generated types
+
 	def before_validate(self):
 		self.set_sla()
 		self.normalize_phone_numbers()
@@ -445,8 +496,8 @@ def convert_to_deal(lead, doc=None, deal=None, existing_contact=None, existing_o
 	lead.db_set("converted", 1)
 	if lead.sla and frappe.db.exists("CRM Communication Status", "Replied"):
 		lead.db_set("communication_status", "Replied")
-	contact = lead.create_contact(existing_contact)
-	organization = lead.create_organization()
+	contact = lead.create_contact(existing_contact, False)
+	organization = lead.create_organization(existing_organization)
 	
 	# Create deal with status
 	deal_data = deal or {}

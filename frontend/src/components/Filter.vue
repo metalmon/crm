@@ -164,7 +164,6 @@ import {
 } from 'frappe-ui'
 import { h, computed, onMounted } from 'vue'
 import { isMobileView } from '@/composables/settings'
-import { timespanOptions } from '@/utils/timeOptions'
 
 const typeCheck = ['Check']
 const typeLink = ['Link', 'Dynamic Link']
@@ -263,36 +262,36 @@ function getOperators(fieldtype, fieldname) {
   if (typeString.includes(fieldtype)) {
     options.push(
       ...[
-        { label: __('Equals','Filter operator'), value: 'equals' },
-        { label: __('Not Equals','Filter operator'), value: 'not equals' },
-        { label: __('Like','Filter operator'), value: 'like' },
-        { label: __('Not Like','Filter operator'), value: 'not like' },
-        { label: __('In','Filter operator'), value: 'in' },
-        { label: __('Not In','Filter operator'), value: 'not in' },
-        { label: __('Is','Filter operator'), value: 'is' },
+        { label: __('Equals', null, 'Filter operator'), value: 'equals' },
+        { label: __('Not Equals', null, 'Filter operator'), value: 'not equals' },
+        { label: __('Like', null, 'Filter operator'), value: 'like' },
+        { label: __('Not Like', null, 'Filter operator'), value: 'not like' },
+        { label: __('In', null, 'Filter operator'), value: 'in' },
+        { label: __('Not In', null, 'Filter operator'), value: 'not in' },
+        { label: __('Is', null, 'Filter operator'), value: 'is' },
       ],
     )
   }
   if (fieldname === '_assign') {
     // TODO: make equals and not equals work
     options = [
-      { label: __('Like','Filter operator'), value: 'like' },
-      { label: __('Not Like','Filter operator'), value: 'not like' },
-      { label: __('Is','Filter operator'), value: 'is' },
+      { label: __('Like', null, 'Filter operator'), value: 'like' },
+      { label: __('Not Like', null, 'Filter operator'), value: 'not like' },
+      { label: __('Is', null, 'Filter operator'), value: 'is' },
     ]
   }
   if (typeNumber.includes(fieldtype)) {
     options.push(
       ...[
-        { label: __('Equals','Filter operator'), value: 'equals' },
-        { label: __('Not Equals','Filter operator'), value: 'not equals' },
-        { label: __('Like','Filter operator'), value: 'like' },
-        { label: __('Not Like','Filter operator'), value: 'not like' },
-        { label: __('In','Filter operator'), value: 'in' },
-        { label: __('Not In','Filter operator'), value: 'not in' },
-        { label: __('Is','Filter operator'), value: 'is' },
-        { label: __('<',), value: '<' },
-        { label: __('>',), value: '>' },
+        { label: __('Equals', null, 'Filter operator'), value: 'equals' },
+        { label: __('Not Equals', null, 'Filter operator'), value: 'not equals' },
+        { label: __('Like', null, 'Filter operator'), value: 'like' },
+        { label: __('Not Like', null, 'Filter operator'), value: 'not like' },
+        { label: __('In', null, 'Filter operator'), value: 'in' },
+        { label: __('Not In', null, 'Filter operator'), value: 'not in' },
+        { label: __('Is', null, 'Filter operator'), value: 'is' },
+        { label: __('<'), value: '<' },
+        { label: __('>'), value: '>' },
         { label: __('<='), value: '<=' },
         { label: __('>='), value: '>=' },
       ],
@@ -301,53 +300,53 @@ function getOperators(fieldtype, fieldname) {
   if (typeSelect.includes(fieldtype)) {
     options.push(
       ...[
-        { label: __('Equals','Filter operator'), value: 'equals' },
-        { label: __('Not Equals','Filter operator'), value: 'not equals' },
-        { label: __('In','Filter operator'), value: 'in' },
-        { label: __('Not In','Filter operator'), value: 'not in' },
-        { label: __('Is','Filter operator'), value: 'is' },
+        { label: __('Equals', null, 'Filter operator'), value: 'equals' },
+        { label: __('Not Equals', null, 'Filter operator'), value: 'not equals' },
+        { label: __('In', null, 'Filter operator'), value: 'in' },
+        { label: __('Not In', null, 'Filter operator'), value: 'not in' },
+        { label: __('Is', null, 'Filter operator'), value: 'is' },
       ],
     )
   }
   if (typeLink.includes(fieldtype)) {
     options.push(
       ...[
-        { label: __('Equals','Filter operator'), value: 'equals' },
-        { label: __('Not Equals','Filter operator'), value: 'not equals' },
-        { label: __('Like','Filter operator'), value: 'like' },
-        { label: __('Not Like','Filter operator'), value: 'not like' },
-        { label: __('In','Filter operator'), value: 'in' },
-        { label: __('Not In','Filter operator'), value: 'not in' },
-        { label: __('Is','Filter operator'), value: 'is' },
+        { label: __('Equals', null, 'Filter operator'), value: 'equals' },
+        { label: __('Not Equals', null, 'Filter operator'), value: 'not equals' },
+        { label: __('Like', null, 'Filter operator'), value: 'like' },
+        { label: __('Not Like', null, 'Filter operator'), value: 'not like' },
+        { label: __('In', null, 'Filter operator'), value: 'in' },
+        { label: __('Not In', null, 'Filter operator'), value: 'not in' },
+        { label: __('Is', null, 'Filter operator'), value: 'is' },
       ],
     )
   }
   if (typeCheck.includes(fieldtype)) {
-    options.push(...[{ label: __('Equals','Filter operator'), value: 'equals' }])
+    options.push(...[{ label: __('Equals', null, 'Filter operator'), value: 'equals' }])
   }
   if (['Duration'].includes(fieldtype)) {
     options.push(
       ...[
-        { label: __('Like','Filter operator'), value: 'like' },
-        { label: __('Not Like','Filter operator'), value: 'not like' },
-        { label: __('In','Filter operator'), value: 'in' },
-        { label: __('Not In','Filter operator'), value: 'not in' },
-        { label: __('Is','Filter operator'), value: 'is' },
+        { label: __('Like', null, 'Filter operator'), value: 'like' },
+        { label: __('Not Like', null, 'Filter operator'), value: 'not like' },
+        { label: __('In', null, 'Filter operator'), value: 'in' },
+        { label: __('Not In', null, 'Filter operator'), value: 'not in' },
+        { label: __('Is', null, 'Filter operator'), value: 'is' },
       ],
     )
   }
   if (typeDate.includes(fieldtype)) {
     options.push(
       ...[
-        { label: __('Equals','Filter operator'), value: 'equals' },
-        { label: __('Not Equals','Filter operator'), value: 'not equals' },
-        { label: __('Is','Filter operator'), value: 'is' },
-        { label: __('>','Filter operator'), value: '>' },
-        { label: __('<','Filter operator'), value: '<' },
+        { label: __('Equals', null, 'Filter operator'), value: 'equals' },
+        { label: __('Not Equals', null, 'Filter operator'), value: 'not equals' },
+        { label: __('Is', null, 'Filter operator'), value: 'is' },
+        { label: __('>'), value: '>' },
+        { label: __('<'), value: '<' },
         { label: __('>='), value: '>=' },
         { label: __('<='), value: '<=' },
-        { label: __('Between','Filter operator'), value: 'between' },
-        { label: __('Timespan','Filter operator'), value: 'timespan' },
+        { label: __('Between', null, 'Filter operator'), value: 'between' },
+        { label: __('Timespan', null, 'Filter operator'), value: 'timespan' },
       ],
     )
   }
@@ -362,11 +361,11 @@ function getValueControl(f) {
       type: 'select',
       options: [
         {
-          label: __('Set','Filter operator'),
+          label: __('Set', null, 'Filter operator'),
           value: 'set',
         },
         {
-          label: __('Not Set','Filter operator'),
+          label: __('Not Set', null, 'Filter operator'),
           value: 'not set',
         },
       ],
@@ -598,4 +597,75 @@ const oppositeOperatorMap = {
   between: 'between',
   timespan: 'timespan',
 }
+
+const timespanOptions = [
+  {
+    label: __('Last Week'),
+    value: 'last week',
+  },
+  {
+    label: __('Last Month'),
+    value: 'last month',
+  },
+  {
+    label: __('Last Quarter'),
+    value: 'last quarter',
+  },
+  {
+    label: __('Last 6 Months'),
+    value: 'last 6 months',
+  },
+  {
+    label: __('Last Year'),
+    value: 'last year',
+  },
+  {
+    label: __('Yesterday'),
+    value: 'yesterday',
+  },
+  {
+    label: __('Today'),
+    value: 'today',
+  },
+  {
+    label: __('Tomorrow'),
+    value: 'tomorrow',
+  },
+  {
+    label: __('This Week'),
+    value: 'this week',
+  },
+  {
+    label: __('This Month'),
+    value: 'this month',
+  },
+  {
+    label: __('This Quarter'),
+    value: 'this quarter',
+  },
+  {
+    label: __('This Year'),
+    value: 'this year',
+  },
+  {
+    label: __('Next Week'),
+    value: 'next week',
+  },
+  {
+    label: __('Next Month'),
+    value: 'next month',
+  },
+  {
+    label: __('Next Quarter'),
+    value: 'next quarter',
+  },
+  {
+    label: __('Next 6 Months'),
+    value: 'next 6 months',
+  },
+  {
+    label: __('Next Year'),
+    value: 'next year',
+  },
+]
 </script>

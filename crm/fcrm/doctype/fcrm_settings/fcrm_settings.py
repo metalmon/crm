@@ -4,9 +4,8 @@
 import frappe
 import requests
 from frappe import _
-from frappe.model.document import Document
 from frappe.custom.doctype.property_setter.property_setter import delete_property_setter, make_property_setter
-
+from frappe.model.document import Document
 
 from crm.install import after_install
 

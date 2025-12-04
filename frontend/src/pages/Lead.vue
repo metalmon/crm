@@ -177,6 +177,14 @@
                     @click="showFilesUploader = true"
                   />
                 </Tooltip>
+                <Button
+                  v-if="canDelete"
+                  :tooltip="__('Delete')"
+                  variant="subtle"
+                  theme="red"
+                  icon="trash-2"
+                  @click="deleteLead"
+                />
               </div>
               <ErrorMessage :message="__(error)" />
             </div>
@@ -326,10 +334,12 @@ const showConvertToDealModal = ref(false)
 const showEmailTemplateSelectorModal = ref(false)
 const showFilesUploader = ref(false)
 
-const { triggerOnChange, assignees, document, scripts, error } = useDocument(
+const { triggerOnChange, assignees, permissions, document, scripts, error } = useDocument(
   'CRM Lead',
   props.leadId,
 )
+
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 
 const doc = computed(() => document.doc || {})
 

@@ -10,7 +10,7 @@
           <h1 class="px-2 pt-2 mb-3 text-lg font-semibold text-ink-gray-8">
             {{ __('Settings') }}
           </h1>
-          <div v-for="tab in tabs">
+          <div v-for="tab in tabs" :key="tab.label">
             <div
               v-if="!tab.hideLabel"
               class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
@@ -41,12 +41,16 @@
   </Dialog>
 </template>
 <script setup>
+import CircleDollarSignIcon from '~icons/lucide/circle-dollar-sign'
+import TrendingUpDownIcon from '~icons/lucide/trending-up-down'
+import SparkleIcon from '@/components/Icons/SparkleIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import ERPNextIcon from '@/components/Icons/ERPNextIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import EmailTemplateIcon from '@/components/Icons/EmailTemplateIcon.vue'
+import SettingsIcon2 from '@/components/Icons/SettingsIcon2.vue'
 import Users from '@/components/Settings/Users.vue'
 import GeneralSettingsPage from '@/components/Settings/General/GeneralSettingsPage.vue'
 import InviteUserPage from '@/components/Settings/InviteUserPage.vue'
@@ -54,6 +58,11 @@ import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
 import WhatsAppSettings from '@/components/Settings/WhatsAppSettings.vue'
 import AvitoSettings from '@/components/Settings/AvitoSettings.vue'
 import ERPNextSettings from '@/components/Settings/ERPNextSettings.vue'
+import LeadSyncSourcePage from '@/components/Settings/LeadSyncing/LeadSyncSourcePage.vue'
+import BrandSettings from '@/components/Settings/BrandSettings.vue'
+import HomeActions from '@/components/Settings/HomeActions.vue'
+import ForecastingSettings from '@/components/Settings/ForecastingSettings.vue'
+import CurrencySettings from '@/components/Settings/CurrencySettings.vue'
 import EmailTemplatePage from '@/components/Settings/EmailTemplate/EmailTemplatePage.vue'
 import TelephonySettings from '@/components/Settings/TelephonySettings.vue'
 import EmailConfig from '@/components/Settings/EmailConfig.vue'
@@ -62,11 +71,11 @@ import { usersStore } from '@/stores/users'
 import {
   isWhatsappInstalled,
   showSettings,
-  activeSettingsPage,
 } from '@/composables/settings'
 import { isAvitoInstalled } from '@/composables/avito'
 import { Dialog, Avatar } from 'frappe-ui'
 import { ref, markRaw, computed, watch, h } from 'vue'
+import AssignmentRulePage from './AssignmentRules/AssignmentRulePage.vue'
 
 const { isManager, isTelephonyAgent, getUser } = usersStore()
 
@@ -75,7 +84,7 @@ const user = computed(() => getUser() || {})
 const tabs = computed(() => {
   let _tabs = [
     {
-      label: __('Settings'),
+      label: __('Personal Settings'),
       hideLabel: true,
       items: [
         {
@@ -88,12 +97,38 @@ const tabs = computed(() => {
             }),
           component: markRaw(ProfileSettings),
         },
+      ],
+    },
+    {
+      label: __('System Configuration'),
+      items: [
         {
           label: __('General'),
           icon: 'settings',
           component: markRaw(GeneralSettingsPage),
           condition: () => isManager(),
         },
+        {
+          label: __('Forecasting'),
+          component: markRaw(ForecastingSettings),
+          icon: TrendingUpDownIcon,
+        },
+        {
+          label: __('Currency & Exchange Rate'),
+          icon: CircleDollarSignIcon,
+          component: markRaw(CurrencySettings),
+        },
+        {
+          label: __('Brand Settings'),
+          icon: SparkleIcon,
+          component: markRaw(BrandSettings),
+        },
+      ],
+      condition: () => isManager(),
+    },
+    {
+      label: __('User Management'),
+      items: [
         {
           label: __('Users'),
           icon: 'user',
@@ -106,6 +141,12 @@ const tabs = computed(() => {
           component: markRaw(InviteUserPage),
           condition: () => isManager(),
         },
+      ],
+      condition: () => isManager(),
+    },
+    {
+      label: __('Email Settings'),
+      items: [
         {
           label: __('Email Accounts'),
           icon: Email2Icon,
@@ -118,6 +159,27 @@ const tabs = computed(() => {
           component: markRaw(EmailTemplatePage),
         },
       ],
+    },
+    {
+      label: __('Automation & Rules'),
+      items: [
+        {
+          label: __('Assignment rules'),
+          icon: markRaw(h(SettingsIcon2, { class: 'rotate-90' })),
+          component: markRaw(AssignmentRulePage),
+        },
+      ],
+    },
+    {
+      label: __('Customization'),
+      items: [
+        {
+          label: __('Home Actions'),
+          component: markRaw(HomeActions),
+          icon: 'home',
+        },
+      ],
+      condition: () => isManager(),
     },
     {
       label: __('Integrations', null, 'FCRM'),
@@ -144,6 +206,12 @@ const tabs = computed(() => {
           label: __('ERPNext'),
           icon: ERPNextIcon,
           component: markRaw(ERPNextSettings),
+          condition: () => isManager(),
+        },
+        {
+          label: __('Lead Syncing'),
+          icon: 'refresh-cw',
+          component: markRaw(LeadSyncSourcePage),
           condition: () => isManager(),
         },
       ],

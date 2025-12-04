@@ -6,7 +6,7 @@
         :class="
           isCollapsed
             ? 'w-auto px-0'
-            : open
+            :             open
               ? 'w-52 bg-surface-white px-2 shadow-sm'
               : 'w-52 px-2 hover:bg-surface-gray-3'
         "

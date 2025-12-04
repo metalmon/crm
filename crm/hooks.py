@@ -23,6 +23,8 @@ add_to_apps_screen = [
 	}
 ]
 
+export_python_type_annotations = True
+
 # Includes in <head>
 # ------------------
 
@@ -177,20 +179,35 @@ doc_events = {
 	"User": {
 		"before_validate": ["crm.api.demo.validate_user"],
 		"validate_reset_password": ["crm.api.demo.validate_reset_password"],
-	}
+	},
 }
 
 # Scheduled Tasks
 # ---------------
 
 scheduler_events = {
-	"hourly": [
-		"crm.api.communication.update_email_references"
-	]
+	"daily_long": [
+		"crm.api.communication.update_email_references",
+		"crm.lead_syncing.background_sync.sync_leads_from_sources_daily"
+	],
+	"hourly_long": [
+		"crm.lead_syncing.background_sync.sync_leads_from_sources_hourly"
+	],
+	"monthly_long": [
+		"crm.lead_syncing.background_sync.sync_leads_from_sources_monthly"
+	],
+    "cron": {
+        "*/5 * * * *": [
+            "crm.lead_syncing.background_sync.sync_leads_from_sources_5_minutes"
+		],
+        "*/10 * * * *": [
+			"crm.lead_syncing.background_sync.sync_leads_from_sources_10_minutes"
+		],
+        "*/15 * * * *": [
+			"crm.lead_syncing.background_sync.sync_leads_from_sources_15_minutes"
+		],
+	}
 }
-
-# Workspace
-# ---------------
 
 # Testing
 # -------
@@ -218,7 +235,7 @@ scheduler_events = {
 # Ignore links to specified DocTypes when deleting documents
 # -----------------------------------------------------------
 
-# ignore_links_on_delete = ["Communication", "ToDo"]
+ignore_links_on_delete = ["Failed Lead Sync Log"]
 
 # Request Events
 # ----------------

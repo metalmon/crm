@@ -80,8 +80,21 @@
   overflow: auto;
 }
 
+/* Hide scrollbar completely */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 /* 
  * Usage:
  * Add the 'dark-scrollbar' class to any scrollable container
  * Example: <div class="overflow-y-auto dark-scrollbar">
+ * 
+ * Add the 'scrollbar-hide' class to hide scrollbar completely
+ * Example: <div class="overflow-x-auto scrollbar-hide">
  */ 

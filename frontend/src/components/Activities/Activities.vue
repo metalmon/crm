@@ -271,14 +271,14 @@
               <span class="font-medium text-ink-gray-8">
                 {{ activity.owner_name }}
               </span>
-              <span v-if="activity.type">{{ activity.type }}</span>
+              <span v-if="activity.type">{{ __(activity.type) }}</span>
               <span
                 v-if="activity.data?.field_label"
                 class="max-w-xs truncate font-medium text-ink-gray-8"
               >
                 {{ __(activity.data.field_label) }}
               </span>
-              <span v-if="activity.value">{{ activity.value }}</span>
+              <span v-if="activity.value">{{ __(activity.value) }}</span>
               <span
                 v-if="activity.data?.old_value"
                 class="max-w-xs font-medium text-ink-gray-8"
@@ -294,7 +294,7 @@
                   {{ activity.data.old_value }}
                 </div>
               </span>
-              <span v-if="activity.to">{{ __('to') }}</span>
+              <span v-if="activity.to">{{ __('to', null, 'activity value') }}</span>
               <span
                 v-if="activity.data?.value"
                 class="max-w-xs font-medium text-ink-gray-8"
@@ -357,7 +357,7 @@
                     {{ activity.data.old_value }}
                   </div>
                 </span>
-                <span v-if="activity.to">{{ __('to', 'change activityto') }}</span>
+                <span v-if="activity.to">{{ __('to', null, 'activity value') }}</span>
                 <span
                   v-if="activity.data?.value"
                   class="max-w-xs font-medium text-ink-gray-8"
@@ -520,7 +520,7 @@ import CommunicationArea from '@/components/CommunicationArea.vue'
 import WhatsappTemplateSelectorModal from '@/components/Modals/WhatsappTemplateSelectorModal.vue'
 import AllModals from '@/components/Activities/AllModals.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
-import { timeAgo, startCase } from '@/utils'
+import { timeAgo, formatDate, startCase } from '@/utils'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { avitoEnabled } from '@/composables/avito'
@@ -547,6 +547,16 @@ import moment from 'moment'
 
 const { makeCall, $socket } = globalStore()
 const { getUser } = usersStore()
+
+// Translation keys for extraction to .po files
+// These strings are used as keys in update_activities_details and translated in template
+__('added', null, 'activity type')
+__('removed', null, 'activity type')
+__('changed', null, 'activity type')
+__('as', null, 'activity value')
+__('from', null, 'activity value')
+__('to', null, 'activity value')
+__('value', null, 'activity value')
 
 const props = defineProps({
   doctype: {
@@ -619,8 +629,6 @@ function handleScroll(e) {
     loadMore()
   }
 }
-
-
 
 async function loadMore() {
   if (isLoadingMore.value || noMoreActivities.value) return
@@ -733,7 +741,31 @@ async function loadMore() {
   }
 }
 
+const showWhatsappTemplates = ref(false)
 
+const whatsappMessages = createResource({
+  url: 'crm.api.whatsapp.get_whatsapp_messages',
+  cache: ['whatsapp_messages', props.docname],
+  params: {
+    reference_doctype: props.doctype,
+    reference_name: props.docname,
+  },
+  auto: whatsappEnabled.value,
+  transform: (data) => data.sort(sortByModified),
+  onSuccess: () => nextTick(() => scroll()),
+})
+
+const avitoMessages = createResource({
+  url: 'crm.api.avito.get_avito_messages',
+  cache: ['avito_messages', props.docname],
+  params: {
+    reference_doctype: props.doctype,
+    reference_name: props.docname,
+  },
+  auto: avitoEnabled.value,
+  transform: (data) => data.sort(sortByModified),
+  onSuccess: () => nextTick(() => scroll()),
+})
 
 function sendTemplate(template) {
   showWhatsappTemplates.value = false
@@ -889,15 +921,15 @@ function update_activities_details(activity) {
   if (activity.activity_type == 'creation') {
     activity.type = activity.data
   } else if (activity.activity_type == 'added') {
-    activity.type = __('added', 'activity type')
-    activity.value = __('as', 'activity value')
+    activity.type = 'added'
+    activity.value = 'as'
   } else if (activity.activity_type == 'removed') {
-    activity.type = __('removed', 'activity type')
-    activity.value = __('value', 'activity value' )
+    activity.type = 'removed'
+    activity.value = 'value'
   } else if (activity.activity_type == 'changed') {
-    activity.type = __('changed', 'activity type')
-    activity.value = __('from', 'activity value')
-    activity.to = __('to', 'activity value')
+    activity.type = 'changed'
+    activity.value = 'from'
+    activity.to = 'to'
 
     // Translate status values if the field is 'status'
     if (activity.data.field_label === 'Status') {
@@ -998,32 +1030,6 @@ function formatActivityDate(date, format) {
   return dayjs(date).format(format)
 }
 
-const showWhatsappTemplates = ref(false)
-
-const whatsappMessages = createResource({
-  url: 'crm.api.whatsapp.get_whatsapp_messages',
-  cache: ['whatsapp_messages', props.docname],
-  params: {
-    reference_doctype: props.doctype,
-    reference_name: props.docname,
-  },
-  auto: true,
-  transform: (data) => data.sort(sortByModified),
-  onSuccess: () => nextTick(() => scroll()),
-})
-
-const avitoMessages = createResource({
-  url: 'crm.api.avito.get_avito_messages',
-  cache: ['avito_messages', props.docname],
-  params: {
-    reference_doctype: props.doctype,
-    reference_name: props.docname,
-  },
-  auto: true,
-  transform: (data) => data.sort(sortByModified),
-  onSuccess: () => nextTick(() => scroll()),
-})
-
 onBeforeUnmount(() => {
   $socket.off('whatsapp_message')
   $socket.off('avito_message')
@@ -1081,6 +1087,7 @@ watch(title, () => {
     }
   })
 })
+
 const callActions = computed(() => {
   let actions = [
     {

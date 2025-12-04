@@ -45,12 +45,12 @@
                 onClick: () => deleteNote(note.name),
               },
             ]"
-            @click.stop
           >
             <Button
               icon="more-horizontal"
               variant="ghosted"
               class="hover:bg-surface-white"
+              @click.stop
             />
           </Dropdown>
         </div>
@@ -93,7 +93,7 @@
     >
       <NoteIcon class="h-10 w-10" />
       <span>{{ __('No Notes Found') }}</span>
-      <Button :label="__('Create')" @click="createNote" :iconLeft="plus" />
+      <Button :label="__('Create')" iconLeft="plus" @click="createNote" />
     </div>
   </div>
   <NoteModal

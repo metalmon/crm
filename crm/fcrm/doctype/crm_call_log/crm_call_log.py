@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 from crm.integrations.api import get_contact_by_phone_number
@@ -13,51 +14,51 @@ class CRMCallLog(Document):
 	def default_list_data():
 		columns = [
 			{
-				"label": frappe._("Caller"),
+				"label": _("Caller"),
 				"type": "Link",
 				"key": "caller",
 				"options": "User",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Receiver"),
+				"label": _("Receiver"),
 				"type": "Link",
 				"key": "receiver",
 				"options": "User",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Type"),
+				"label": _("Type"),
 				"type": "Select",
 				"key": "type",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Status"),
+				"label": _("Status"),
 				"type": "Select",
 				"key": "status",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Duration"),
+				"label": _("Duration"),
 				"type": "Duration",
 				"key": "duration",
 				"width": "6rem",
 			},
 			{
-				"label": frappe._("From (number)"),
+				"label": _("From (number)"),
 				"type": "Data",
 				"key": "from",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("To (number)"),
+				"label": _("To (number)"),
 				"type": "Data",
 				"key": "to",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Created On"),
+				"label": _("Created On"),
 				"type": "Datetime",
 				"key": "creation",
 				"width": "8rem",

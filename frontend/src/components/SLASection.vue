@@ -57,20 +57,20 @@ let slaSection = computed(() => {
         ? 'green'
         : 'orange'
 
-  if (status == 'First Response Due') {
+  if (status == 'First Response Due' || status == 'Rolling Response Due') {
     status = timeAgo(data.value.response_by)
     if (status == 'just now') {
-      status = 'In less than a minute'
+      status = __('In less than a minute')
     }
     tooltipText = formatDate(data.value.response_by)
     if (new Date(data.value.response_by) < new Date()) {
       color = 'red'
       if (status == __('In less than a minute')) {
-        status = 'less than a minute ago'
+        status = __('less than a minute ago')
       }
     }
   } else if (['Fulfilled', 'Failed'].includes(status)) {
-    status = __(status) + ' in ' + formatTime(data.value.first_response_time)
+    status = __('{0} in {1}', [__(status), formatTime(data.value.first_response_time)])
     tooltipText = formatDate(data.value.first_responded_on)
   }
 
@@ -79,7 +79,7 @@ let slaSection = computed(() => {
       {
         label: 'First Response',
         type: 'Badge',
-        value: __(status),
+        value: status,
         tooltipText: tooltipText,
         color: color,
       },

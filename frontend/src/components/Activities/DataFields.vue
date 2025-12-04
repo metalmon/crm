@@ -31,7 +31,7 @@
   </div>
   <div
     v-if="document.get.loading"
-    class="flex flex-1 flex-col items-center justify-center gap-3 text-xl font-medium text-gray-500"
+    class="flex flex-1 flex-col items-center justify-center gap-3 text-xl font-medium text-ink-gray-6"
   >
     <LoadingIndicator class="h-6 w-6" />
     <span>{{ __('Loading...') }}</span>
@@ -89,7 +89,6 @@ const attrs = instance?.vnode?.props ?? {}
 const showDataFieldsModal = ref(false)
 
 const { document } = useDocument(props.doctype, props.docname)
-
 
 const tabs = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',

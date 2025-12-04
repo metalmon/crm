@@ -36,7 +36,9 @@
           <div class="mb-1.5 text-xs text-ink-gray-5">
             {{ __('Description') }}
           </div>
-          <TextEditor variant="outline" ref="description"
+          <TextEditor
+            variant="outline"
+            ref="description"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
             :content="_task.description"
@@ -109,17 +111,22 @@
               </template>
             </Button>
           </Dropdown>
-          <input
-            type="datetime-local"
-            v-model="_task.due_date"
+          <div 
             :class="[
               'min-w-0',
               isMobileView 
                 ? 'col-span-8 row-start-2 w-full' 
-                : 'min-w-0 flex-1'
+                : 'w-36'
             ]"
-            @click.stop
-          />
+          >
+            <DateTimePicker
+              class="datepicker"
+              v-model="_task.due_date"
+              :placeholder="__('01/04/2024 11:30 PM')"
+              :formatter="(date) => getFormat(date, '', true, true)"
+              input-class="border-none"
+            />
+          </div>
         </div>
         <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
       </div>
@@ -142,16 +149,17 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
-import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } from '@/utils'
+import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel, getFormat } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
-import { TextEditor, Dropdown, Tooltip, call, Badge } from 'frappe-ui'
+import { TextEditor, Dropdown, Tooltip, call, DateTimePicker, ErrorMessage, FormControl, Button, Dialog } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import { isMobileView } from '@/composables/settings'
+
 const props = defineProps({
   task: {
     type: Object,
@@ -238,20 +246,29 @@ async function updateTask() {
       emit('after', d)
     }
   } else {
-    let d = await call('frappe.client.insert', {
-      doc: {
-        doctype: 'CRM Task',
-        reference_doctype: props.doctype,
-        reference_docname: props.doc || null,
-        ..._task.value,
+    let d = await call(
+      'frappe.client.insert',
+      {
+        doc: {
+          doctype: 'CRM Task',
+          reference_doctype: props.doctype,
+          reference_docname: props.doc || null,
+          title: _task.value.title,
+          description: _task.value.description,
+          assigned_to: _task.value.assigned_to,
+          due_date: _task.value.due_date,
+          status: extractValue(_task.value.status),
+          priority: extractValue(_task.value.priority),
+        },
       },
-    }, {
-      onError: (err) => {
-        if (err.error.exc_type == 'MandatoryError') {
-          error.value = __("Title is mandatory")
-        }
-      }
-    })
+      {
+        onError: (err) => {
+          if (err.error.exc_type == 'MandatoryError') {
+            error.value = __('Title is mandatory')
+          }
+        },
+      },
+    )
     if (d.name) {
       updateOnboardingStep('create_first_task')
       capture('task_created')
@@ -259,7 +276,9 @@ async function updateTask() {
       emit('after', d, true)
     }
   }
-  show.value = false
+  if (props.autoClose) {
+    show.value = false
+  }
 }
 
 function render() {
@@ -284,6 +303,11 @@ watch(show, (value) => {
   if (!value) return
   render()
 })
-
-
 </script>
+
+<style scoped>
+:deep(.datepicker svg) {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+</style>

@@ -29,7 +29,7 @@ export const defaultCallingMedium = ref('')
 // New computed property for IP telephony
 export const ipTelephonyEnabled = computed(() => {
   return twilioEnabled.value || exotelEnabled.value;
-});
+})
 
 createResource({
   url: 'crm.integrations.api.is_call_integration_enabled',
@@ -65,4 +65,7 @@ export const mobileSidebarOpened = ref(false)
 export const isMobileView = computed(() => window.innerWidth < 768)
 
 export const showSettings = ref(false)
+
+export const disableSettingModalOutsideClick = ref(false)
+
 export const activeSettingsPage = ref('')

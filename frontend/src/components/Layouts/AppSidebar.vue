@@ -6,7 +6,7 @@
     <div class="p-2">
       <UserDropdown :isCollapsed="isSidebarCollapsed" />
     </div>
-    <div class="flex-1 overflow-y-auto dark-scrollbar">
+    <div class="flex-1 overflow-y-auto">
       <div class="mb-3 flex flex-col">
         <SidebarLink
           id="notifications-btn"
@@ -24,7 +24,7 @@
             />
             <div
               v-else-if="unreadNotificationsCount"
-              class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-red-500 ring-1 ring-white"
+              class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-surface-gray-6 ring-1 ring-white"
             />
           </template>
         </SidebarLink>
@@ -172,6 +172,7 @@ import {
 import { usersStore } from '@/stores/users'
 import { sessionStore } from '@/stores/session'
 import { showSettings, activeSettingsPage } from '@/composables/settings'
+import { showChangePasswordModal } from '@/composables/modals'
 import { FeatherIcon, call } from 'frappe-ui'
 import {
   SignupBanner,
@@ -185,8 +186,7 @@ import IntermediateStepModal from '../custom-ui/onboarding/IntermediateStepModal
 import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'
-import { ref, reactive, computed, h, markRaw, onMounted, watch } from 'vue'
-import { callEnabled } from '@/composables/settings'
+import { ref, reactive, computed, h, markRaw, onMounted } from 'vue'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
@@ -340,8 +340,7 @@ const steps = reactive([
     completed: false,
     onClick: () => {
       minimize.value = true
-      showSettings.value = true
-      activeSettingsPage.value = 'Profile'
+      showChangePasswordModal.value = true
     },
   },
   {
@@ -362,7 +361,7 @@ const steps = reactive([
     onClick: () => {
       minimize.value = true
       showSettings.value = true
-      activeSettingsPage.value = 'Invite Members'
+      activeSettingsPage.value = 'Invite User'
     },
     condition: () => isManager(),
   },
@@ -457,7 +456,7 @@ const steps = reactive([
   },
   {
     name: 'send_first_email',
-    title: __('Send email', null, 'onboarding_step'),
+    title: __('Send email'),
     icon: markRaw(EmailIcon),
     completed: false,
     dependsOn: 'create_first_lead',
@@ -540,7 +539,7 @@ const articles = ref([
       { name: 'profile', title: __('Profile') },
       { name: 'custom-branding', title: __('Custom branding') },
       { name: 'home-actions', title: __('Home actions') },
-      { name: 'invite-members', title: __('Invite members') },
+      { name: 'invite-users', title: __('Invite users') },
     ],
   },
   {

@@ -82,7 +82,7 @@ const data = createDocumentResource({
   auto: true,
   setValue: {
     onSuccess: () => {
-      toast.success(__(props.successMessage))
+      toast.success(props.successMessage)
     },
     onError: (err) => {
       toast.error(err.message + ': ' + err.messages[0])

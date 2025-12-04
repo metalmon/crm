@@ -1,7 +1,10 @@
 <template>
   <FrappeUIProvider>
-    <div class="app-container">
-      <!-- Loading overlay for Redis warmup, network errors, or translations loading -->
+    <!-- First: NotPermitted check (highest priority) -->
+    <NotPermitted v-if="$route.name === 'Not Permitted'" />
+    
+    <!-- Second: Loading overlay for Redis warmup, network errors, or translations loading -->
+    <div v-else class="app-container">
       <LoadingView 
         v-if="redisWarmup.isWarmingUp || hasNetworkErrors || translationsLoading"
         :redis-warmup="redisWarmup.isWarmingUp" 
@@ -16,7 +19,7 @@
       
       <!-- Main app content - only shown when everything is loaded -->
       <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
-        <Layout v-if="session().isLoggedIn">
+        <Layout v-if="session().isLoggedIn" class="isolate">
           <router-view :key="$route.fullPath + '::' + translationKey" />
         </Layout>
         <Dialogs />
@@ -26,6 +29,7 @@
 </template>
 
 <script setup>
+import NotPermitted from '@/pages/NotPermitted.vue'
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
 import { setTheme } from '@/stores/theme'
@@ -229,7 +233,7 @@ function startRedisCheck() {
   redisCheckTimer = setTimeout(() => {
     if (!receivedFirstRedisResponse) {
       console.warn('No Redis response received, checking system status')
-      handleRedisError(__('Checking system readiness...'))
+      handleRedisError('Checking system readiness...')
     }
   }, 1500)
 }

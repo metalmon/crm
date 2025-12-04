@@ -61,7 +61,7 @@ import {
 } from '@/composables/modals'
 import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
-import { call, FeatherIcon, createResource } from 'frappe-ui'
+import { call, createResource } from 'frappe-ui'
 import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -108,7 +108,10 @@ async function createOrganization() {
       onError: (err) => {
         if (err.error.exc_type == 'ValidationError') {
           error.value = err.error?.messages?.[0]
+        } else {
+          error.value = err.error?.messages?.[0]
         }
+        loading.value = false
       },
     },
   )
@@ -174,6 +177,5 @@ function openAddressModal(_address) {
     doctype: 'Address',
     address: _address,
   }
-  nextTick(() => (show.value = false))
 }
 </script>

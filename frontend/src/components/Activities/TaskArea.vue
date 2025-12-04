@@ -101,7 +101,7 @@ import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import { usersStore } from '@/stores/users'
 import { globalStore } from '@/stores/global'
 import { Tooltip, Dropdown } from 'frappe-ui'
-import dayjs, { formatDateInUserTimezone } from '@/utils/dayjs'
+import { formatDateInUserTimezone } from '@/utils/dayjs'
 
 const props = defineProps({
   tasks: Array,

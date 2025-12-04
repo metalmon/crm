@@ -90,7 +90,6 @@
   />
   <QuickEntryModal v-if="showQuickEntryModal" v-model="showQuickEntryModal" />
 </template>
-
 <script setup>
 import AvatarIcon from '@/components/Icons/AvatarIcon.vue'
 import GoogleIcon from '@/components/Icons/GoogleIcon.vue'

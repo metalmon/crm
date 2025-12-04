@@ -117,6 +117,23 @@ def add_task_to_call_log(call_sid, task):
 
 
 @frappe.whitelist()
+def get_contact_lead_or_deal_from_number(number):
+	"""Get contact, lead or deal from the given number."""
+	contact = get_contact_by_phone_number(number)
+	if contact.get("name"):
+		doctype = "Contact"
+		docname = contact.get("name")
+		if contact.get("lead"):
+			doctype = "CRM Lead"
+			docname = contact.get("lead")
+		elif contact.get("deal"):
+			doctype = "CRM Deal"
+			docname = contact.get("deal")
+		return docname, doctype
+	return None, None
+
+
+@frappe.whitelist()
 def get_contact_by_phone_number(phone_number):
 	"""Get contact by phone number."""
 	number = parse_phone_number(phone_number)
@@ -127,7 +144,7 @@ def get_contact_by_phone_number(phone_number):
 		return get_contact(phone_number, number.get("country"), exact_match=True)
 
 
-def get_contact(phone_number, country="IN", exact_match=False):
+def get_contact(phone_number, country="RU", exact_match=False):
 	if not phone_number:
 		return {"mobile_no": phone_number}
 
@@ -164,9 +181,6 @@ def get_contact(phone_number, country="IN", exact_match=False):
 				if are_same_phone_number(contact.mobile_no, phone_number, country, validate=not exact_match):
 					contact["deal"] = deal
 					return contact
-		# Else, return the first contact
-		if are_same_phone_number(contacts[0].mobile_no, phone_number, country, validate=not exact_match):
-			return contacts[0]
 
 	# Else, Check if the number is associated with a lead
 	Lead = frappe.qb.DocType("CRM Lead")
@@ -189,5 +203,10 @@ def get_contact(phone_number, country="IN", exact_match=False):
 				lead["lead"] = lead.name
 				lead["full_name"] = lead.lead_name
 				return lead
+
+	if len(contacts) and are_same_phone_number(
+		contacts[0].mobile_no, phone_number, country, validate=not exact_match
+	):
+		return contacts[0]
 
 	return {"mobile_no": phone_number}

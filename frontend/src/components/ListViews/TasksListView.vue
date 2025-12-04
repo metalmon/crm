@@ -35,7 +35,7 @@
     <ListRows
       class="mx-3 sm:mx-5"
       :rows="rows"
-      v-slot="{ idx, column, item }"
+      v-slot="{ idx, column, item, row }"
       doctype="CRM Task"
     >
       <div v-if="column.key === 'due_date'">
@@ -174,16 +174,11 @@ import {
   Dropdown,
   Tooltip,
 } from 'frappe-ui'
-import { sessionStore } from '@/stores/session'
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { usersStore } from '@/stores/users'
-import { translateTaskStatus } from '@/utils/taskStatusTranslations'
-import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
-import UserAvatar from '@/components/UserAvatar.vue'
-import dayjs from '@/utils/dayjs'
 import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
 import ListFooter from '@/components/custom-ui/ListFooter.vue'
+import { sessionStore } from '@/stores/session'
+import { ref, computed, watch } from 'vue'
+import dayjs from '@/utils/dayjs'
 
 const props = defineProps({
   rows: {

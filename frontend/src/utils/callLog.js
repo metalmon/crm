@@ -1,6 +1,5 @@
 import { formatDate, timeAgo } from '@/utils'
 import { getMeta } from '@/stores/meta'
-import dayjs, { formatDateInUserTimezone, formatDateInSystemTimezone } from '@/utils/dayjs'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Call Log')

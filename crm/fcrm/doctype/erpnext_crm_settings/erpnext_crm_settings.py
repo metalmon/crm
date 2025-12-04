@@ -81,6 +81,7 @@ class ERPNextCRMSettings(Document):
 			frappe.log_error(frappe.get_traceback(), "Error while resetting form script")
 			return False
 
+
 def get_erpnext_site_client(erpnext_crm_settings):
 	site_url = erpnext_crm_settings.erpnext_site_url
 	api_key = erpnext_crm_settings.api_key
@@ -239,15 +240,13 @@ def get_organization_address(organization):
 
 def create_customer_in_erpnext(doc, method):
 	erpnext_crm_settings = frappe.get_single("ERPNext CRM Settings")
-	print(f"[CRM DEBUG] doc.status: {doc.status}")
-	print(f"[CRM DEBUG] erpnext_crm_settings.deal_status: {erpnext_crm_settings.deal_status}")
-	print(f"[CRM DEBUG] Comparison result: {doc.status == erpnext_crm_settings.deal_status}")
 	if (
 		not erpnext_crm_settings.enabled
 		or not erpnext_crm_settings.create_customer_on_status_change
 		or doc.status != erpnext_crm_settings.deal_status
 	):
 		return
+
 	contacts = get_contacts(doc)
 	address = get_organization_address(doc.organization)
 	customer = {
@@ -263,16 +262,15 @@ def create_customer_in_erpnext(doc, method):
 		"address": json.dumps(address) if address else None,
 		"account_manager": doc.deal_owner,
 	}
-	print(f"[CRM DEBUG] customer dict to be sent: {customer}")
 	if not erpnext_crm_settings.is_erpnext_in_different_site:
 		from erpnext.crm.frappe_crm_api import create_customer
-		print(f"[CRM DEBUG] Calling create_customer with: {customer}")
+
 		create_customer(customer)
 	else:
-		print(f"[CRM DEBUG] Calling create_customer_in_remote_site with: {customer}")
 		create_customer_in_remote_site(customer, erpnext_crm_settings)
 
 	frappe.publish_realtime("crm_customer_created")
+
 
 def create_customer_in_remote_site(customer, erpnext_crm_settings):
 	client = get_erpnext_site_client(erpnext_crm_settings)

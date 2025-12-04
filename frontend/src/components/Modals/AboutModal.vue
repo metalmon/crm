@@ -65,6 +65,7 @@ import LucideGitHub from '~icons/lucide/github'
 import LucideHeadset from '~icons/lucide/headset'
 import LucideBug from '~icons/lucide/bug'
 import LucideBookOpen from '~icons/lucide/book-open'
+import LucideInfo from '~icons/lucide/info'
 import TelegramIcon from '@/components/Icons/TelegramIcon.vue'
 
 let show = defineModel()

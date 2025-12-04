@@ -2,7 +2,7 @@
   <Dialog v-model="show" :options="{ size: 'xl' }">
     <template #body v-if="!confirmDeleteInfo.show">
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-6 flex items-center justify-between">
           <div>
             <h3 class="text-2xl leading-6 text-ink-gray-9 font-semibold">
               {{
@@ -32,11 +32,12 @@
                 {
                   label: __('Document'),
                   key: 'title',
+                  width: '19rem',
                 },
                 {
                   label: __('Master'),
                   key: 'reference_doctype',
-                  width: '30%',
+                  width: '12rem',
                 },
               ]"
               @selectionsChanged="
@@ -48,7 +49,10 @@
           </div>
           <div v-if="linkedDocs?.length == 0" class="text-ink-gray-5 text-base">
             {{
-              __('Are you sure you want to delete {0} - {1}?', [props.doctype, props.docname])
+              __('Are you sure you want to delete {0} - {1}?', [
+                props.doctype,
+                props.docname,
+              ])
             }}
           </div>
         </div>

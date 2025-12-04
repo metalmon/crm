@@ -38,11 +38,13 @@
     :placeholder="filter.label"
     @change="(data) => updateFilter(filter, data)"
   />
-  <TimespanSelect
+  <component
     v-else-if="['Date', 'Datetime'].includes(filter.fieldtype)"
+    class="border-none"
+    :is="filter.fieldtype === 'Date' ? DatePicker : DateTimePicker"
     :value="filter.value"
+    @change="(v) => updateFilter(filter, v)"
     :placeholder="filter.label"
-    @change.stop="updateFilter(filter, $event.target.value)"
   />
   <FormControl
     v-else
@@ -55,8 +57,7 @@
 <script setup>
 import Link from '@/components/Controls/Link.vue'
 import UserLink from '@/components/Controls/UserLink.vue'
-import TimespanSelect from '@/components/Controls/TimespanSelect.vue'
-import { FormControl } from 'frappe-ui'
+import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
 
 const props = defineProps({

@@ -2,10 +2,10 @@ import frappe
 import hashlib
 import json
 from bs4 import BeautifulSoup
+from frappe.config import get_modules_from_all_apps_for_user
 from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_all_translations
 from frappe.utils import cstr, split_emails, validate_email_address
-from frappe.utils.modules import get_modules_from_all_apps_for_user
 from frappe.utils.telemetry import POSTHOG_HOST_FIELD, POSTHOG_PROJECT_FIELD
 
 
@@ -19,7 +19,7 @@ def get_translations():
 
 		translations = get_all_translations(language)
 		
-		# Generate hash for translations to detect changes
+		# Generate hash for translations to detect changes (our custom implementation)
 		translations_json = json.dumps(translations, sort_keys=True)
 		translations_hash = hashlib.md5(translations_json.encode()).hexdigest()
 		
@@ -120,9 +120,9 @@ def accept_invitation(key: str | None = None):
 
 @frappe.whitelist()
 def invite_by_email(emails: str, role: str):
-	frappe.only_for("Sales Manager")
+	frappe.only_for(["Sales Manager", "System Manager"])
 
-	if role not in ["Sales Manager", "Sales User"]:
+	if role not in ["System Manager", "Sales Manager", "Sales User"]:
 		frappe.throw("Cannot invite for this role")
 
 	if not emails:
@@ -135,7 +135,10 @@ def invite_by_email(emails: str, role: str):
 	existing_members = frappe.db.get_all("User", filters={"email": ["in", email_list]}, pluck="email")
 	existing_invites = frappe.db.get_all(
 		"CRM Invitation",
-		filters={"email": ["in", email_list], "role": ["in", ["Sales Manager", "Sales User"]]},
+		filters={
+			"email": ["in", email_list],
+			"role": ["in", ["System Manager", "Sales Manager", "Sales User"]],
+		},
 		pluck="email",
 	)
 

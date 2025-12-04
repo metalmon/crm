@@ -214,17 +214,17 @@ async function updateAddress() {
   try {
     const doc = await _address.save()
     if (doc.name) {
-      // Call afterInsert callback before closing modal
-      if (props.options?.afterInsert) {
-        props.options.afterInsert(doc)
-      }
-      show.value = false
+      loading.value = false
+      handleAddressUpdate(doc)
     }
   } catch (err) {
     loading.value = false
     if (err.exc_type == 'MandatoryError') {
       const errorMessage = err.messages
-        .map((msg) => msg.split(': ')[2].trim())
+        .map((msg) => {
+          let arr = msg.split(': ')
+          return arr[arr.length - 1].trim()
+        })
         .join(', ')
       error.value = __('These fields are required: {0}', [errorMessage])
       return
@@ -276,20 +276,12 @@ const _createAddress = createResource({
     loading.value = false
     if (doc.name) {
       capture('address_created')
-      // Call afterInsert callback before closing modal
-      if (props.options?.afterInsert) {
-        props.options.afterInsert(doc)
-      }
-      show.value = false
+      handleAddressUpdate(doc)
     }
   },
-  async onError(err) {
-    // Try to handle duplicate entry error
-    const handled = await handleDuplicateEntry(err, 'Address', () => createAddress.submit())
-    if (!handled) {
-      loading.value = false
-      error.value = err
-    }
+  onError(err) {
+    loading.value = false
+    error.value = err
   },
 })
 

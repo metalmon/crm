@@ -2,8 +2,10 @@
 # GNU GPLv3 License. See license.txt
 import os
 import json
+import subprocess
 
 import frappe
+from frappe import _, safe_decode
 from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
 from frappe.utils import cint, get_system_timezone
 from frappe.utils.telemetry import capture
@@ -12,6 +14,14 @@ no_cache = 1
 
 
 def get_context():
+	from crm.api import check_app_permission
+
+	if not check_app_permission():
+		frappe.throw(
+			_("You do not have permission to access Frappe CRM"),
+			frappe.PermissionError
+		)
+
 	frappe.db.commit()
 	context = frappe._dict()
 	context.boot = get_boot()
@@ -23,7 +33,7 @@ def get_context():
 @frappe.whitelist(methods=["POST"], allow_guest=True)
 def get_context_for_dev():
 	if not frappe.conf.developer_mode:
-		frappe.throw("This method is only meant for developer mode")
+		frappe.throw(_("This method is only meant for developer mode"))
 	return get_boot()
 
 
@@ -54,6 +64,7 @@ def get_default_route():
 
 
 def get_app_version():
+	"""Get app version from version.json file (our custom implementation)"""
 	app = "crm"
 	version_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "public", "version.json")
 	
@@ -81,3 +92,16 @@ def get_app_version():
 			"commit_message": "",
 			"dirty": False,
 		}
+
+
+def run_git_command(command):
+	"""Run git command (from frappe/main, kept for compatibility)"""
+	try:
+		with open(os.devnull, "wb") as null_stream:
+			result = subprocess.check_output(command, shell=True, stdin=null_stream, stderr=null_stream)
+		return safe_decode(result).strip()
+	except Exception:
+		frappe.log_error(
+			title="Git Command Error",
+		)
+		return ""

@@ -39,7 +39,7 @@
     <ListRows
       class="mx-3 sm:mx-5"
       :rows="rows"
-      v-slot="{ idx, column, item }"
+      v-slot="{ idx, column, item, row }"
       doctype="CRM Organization"
     >
       <ListRowItem :item="item" :align="column.align">
@@ -144,7 +144,6 @@
 import HeartIcon from '@/components/Icons/HeartIcon.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
-import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
 import {
   Avatar,
   ListView,
@@ -154,10 +153,11 @@ import {
   Tooltip,
   Dropdown,
 } from 'frappe-ui'
+import ListSelectBanner from '@/components/custom-ui/ListSelectBanner.vue'
+import ListFooter from '@/components/custom-ui/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import ListFooter from '@/components/custom-ui/ListFooter.vue'
 
 const props = defineProps({
   rows: {

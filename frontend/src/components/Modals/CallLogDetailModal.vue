@@ -193,7 +193,7 @@ import FadedScrollableDiv from '@/components/FadedScrollableDiv.vue'
 import { getCallLogDetail } from '@/utils/callLog'
 import { isMobileView } from '@/composables/settings'
 import { useDocument } from '@/data/document'
-import { FeatherIcon, Dropdown, Avatar, Tooltip, call } from 'frappe-ui'
+import { FeatherIcon, Dropdown, Avatar, Tooltip, call, Button, Dialog } from 'frappe-ui'
 import { ref, computed, h, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Teleport } from 'vue'
@@ -414,8 +414,6 @@ watch(showTaskModal, (value) => {
 watch(showNoteModal, (value) => {
   emit('update:showNoteModal', value)
 })
-
-
 
 function handleClose() {
   if (showTaskModal.value || showNoteModal.value) {

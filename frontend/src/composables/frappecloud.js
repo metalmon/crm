@@ -28,9 +28,9 @@ export const confirmLoginToFrappeCloud = () => {
       {
         label: __('Confirm'),
         variant: 'solid',
-        onClick(context) {
+        onClick(close) {
           loginToFrappeCloud()
-          context.close()
+          close()
         },
       },
     ],

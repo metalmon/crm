@@ -237,6 +237,7 @@ const slotName = computed(() => {
 const restrictedFieldTypes = [
   'Geolocation',
   'Attach',
+  'Attach Image',
   'HTML',
   'Signature',
 ]
@@ -278,17 +279,12 @@ const fields = createResource({
       })
     })
 
-    return data
-      .filter((field) => {
-        return (
-          !existingFields.find((f) => f.fieldname === field.fieldname) &&
-          !restrictedFields.includes(field.fieldname)
-        )
-      })
-      .map(field => ({
-        ...field,
-        label: __(field.label)
-      }))
+    return data.filter((field) => {
+      return (
+        !existingFields.find((f) => f.fieldname === field.fieldname) &&
+        !restrictedFields.includes(field.fieldname)
+      )
+    })
   },
 })
 

@@ -124,7 +124,6 @@ import { Avatar, Badge, Tooltip, createResource } from 'frappe-ui'
 import { ref } from 'vue'
 import { formatDateInUserTimezone } from '@/utils/dayjs'
 
-
 const props = defineProps({
   activity: Object,
   activities: Object,

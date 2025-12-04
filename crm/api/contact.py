@@ -143,3 +143,34 @@ def search_emails(txt: str):
 	)
 
 	return results
+
+
+@frappe.whitelist()
+def get_contact_personal_data(contact_name):
+	"""Get personal data (first_name, last_name, salutation, email, mobile_no) from Contact"""
+	if not contact_name:
+		return None
+	
+	contact = frappe.get_cached_doc("Contact", contact_name)
+	
+	# Get primary email
+	email = ""
+	for email_row in contact.email_ids or []:
+		if email_row.is_primary:
+			email = email_row.email_id or ""
+			break
+	
+	# Get primary mobile number
+	mobile_no = ""
+	for phone_row in contact.phone_nos or []:
+		if phone_row.is_primary_mobile_no:
+			mobile_no = phone_row.phone or ""
+			break
+	
+	return {
+		"first_name": contact.first_name or "",
+		"last_name": contact.last_name or "",
+		"salutation": contact.salutation or "",
+		"email": email,
+		"mobile_no": mobile_no,
+	}

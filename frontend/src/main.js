@@ -6,7 +6,7 @@ import './styles/dark-mode.css'
 import './styles/forms.css'
 import './utils/dayjs'
 
-import { createApp, watch } from 'vue'
+import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createDialog } from './utils/dialogs'
 import { initSocket } from './socket'
@@ -15,7 +15,6 @@ import translationPlugin from './translation'
 import { posthogPlugin } from './telemetry'
 import App from './App.vue'
 import { setLocale } from './utils/localeUtils'
-
 
 import {
   FrappeUI,

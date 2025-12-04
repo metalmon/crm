@@ -16,7 +16,7 @@
           <div>
             <UserDropdown class="p-2" :isCollapsed="!sidebarOpened" />
           </div>
-          <div class="flex-1 overflow-y-auto dark-scrollbar">
+          <div class="flex-1 overflow-y-auto">
             <div class="mb-3 flex flex-col">
               <SidebarLink
                 id="notifications-btn"
@@ -108,60 +108,70 @@ import { createResource } from 'frappe-ui'
 import { TrialBanner } from 'frappe-ui/frappe'
 import { computed, h, provide } from 'vue'
 import { mobileSidebarOpened as sidebarOpened } from '@/composables/settings'
-import { callEnabled } from '@/composables/settings'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 
-const links = [
+// Navigation links with translations
+const navigationLinks = [
   {
-    label: __('Leads'),
+    label: __('Leads', null, 'Sidebar'),
     icon: LeadsIcon,
     to: 'Leads',
   },
   {
-    label: __('Deals'),
+    label: __('Deals', null, 'Sidebar'),
     icon: DealsIcon,
     to: 'Deals',
   },
   {
-    label: __('Notes'),
-    icon: NoteIcon,
-    to: 'Notes',
-  },
-  {
-    label: __('Tasks'),
-    icon: TaskIcon,
-    to: 'Tasks',
-  },
-  {
-    label: __('Contacts'),
+    label: __('Contacts', null, 'Sidebar'),
     icon: ContactsIcon,
     to: 'Contacts',
   },
   {
-    label: __('Organizations'),
+    label: __('Organizations', null, 'Sidebar'),
     icon: OrganizationsIcon,
     to: 'Organizations',
   },
   {
-    label: __('Call Logs'),
+    label: __('Notes', null, 'Sidebar'),
+    icon: NoteIcon,
+    to: 'Notes',
+  },
+  {
+    label: __('Tasks', null, 'Sidebar'),
+    icon: TaskIcon,
+    to: 'Tasks',
+  },
+  {
+    label: __('Call Logs', null, 'Sidebar'),
     icon: PhoneIcon,
     to: 'Call Logs',
   },
+  {
+    label: __('Email Templates', null, 'Sidebar'),
+    icon: Email2Icon,
+    to: 'Email Templates',
+  },
 ]
+
+// View section names with translations
+const ALL_VIEWS_LABEL = __('All Views', null, 'Sidebar')
+const PUBLIC_VIEWS_LABEL = __('Public views', null, 'Sidebar')
+const PINNED_VIEWS_LABEL = __('Pinned views', null, 'Sidebar')
 
 const allViews = computed(() => {
   let _views = [
     {
-      name: __('All Views'),
+      name: ALL_VIEWS_LABEL,
       hideLabel: true,
       opened: true,
-      views: links,
+      views: navigationLinks,
     },
   ]
   if (getPublicViews().length) {
     _views.push({
-      name: __('Public views'),
+      name: PUBLIC_VIEWS_LABEL,
       opened: true,
       views: parseView(getPublicViews()),
     })
@@ -169,7 +179,7 @@ const allViews = computed(() => {
 
   if (getPinnedViews().length) {
     _views.push({
-      name: __('Pinned views'),
+      name: PINNED_VIEWS_LABEL,
       opened: true,
       views: parseView(getPinnedViews()),
     })

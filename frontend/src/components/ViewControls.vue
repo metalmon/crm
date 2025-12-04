@@ -200,7 +200,7 @@
           @update="(isDefault) => updateColumns(isDefault)"
         />
         <Dropdown
-          v-if="isManager()"
+          v-if="route.params.viewType !== 'kanban' || isManager()"
           placement="right"
           :options="[
             {
@@ -211,12 +211,15 @@
                   label: __('Export'),
                   icon: () => h(ExportIcon, { class: 'h-4 w-4' }),
                   onClick: () => (showExportDialog = true),
-                  condition: () => !options.hideColumnsButton,
+                  condition: () =>
+                    !options.hideColumnsButton &&
+                    route.params.viewType !== 'kanban',
                 },
                 {
                   label: __('Customize quick filters'),
                   icon: () => h(QuickFilterIcon, { class: 'h-4 w-4' }),
                   onClick: () => showCustomizeQuickFilter(),
+                  condition: () => isManager(),
                 },
                 {
                   label: __('Reset column settings'),
@@ -628,13 +631,16 @@ async function exportRows() {
     ...list.value.params.filters,
   })
 
+  // Convert fields array to JSON string for URL
+  let fieldsJson = JSON.stringify(fields)
+
   let order_by = list.value.params.order_by
   let page_length = list.value.params.page_length
   if (export_all.value) {
     page_length = list.value.data.total_count
   }
 
-  let url = `/api/method/frappe.desk.reportview.export_query?file_format_type=${export_type.value}&title=${props.doctype}&doctype=${props.doctype}&fields=${fields}&filters=${encodeURIComponent(filters)}&order_by=${order_by}&page_length=${page_length}&start=0&view=Report&with_comment_count=1`
+  let url = `/api/method/frappe.desk.reportview.export_query?file_format_type=${export_type.value}&title=${props.doctype}&doctype=${props.doctype}&fields=${fieldsJson}&filters=${encodeURIComponent(filters)}&order_by=${order_by}&page_length=${page_length}&start=0&view=Report&with_comment_count=1`
 
   // Add selected items parameter if rows are selected
   if (selectedRows.value?.length && !export_all.value) {
@@ -866,8 +872,6 @@ const quickFilterOptions = computed(() => {
       value: field.fieldname,
       fieldtype: field.fieldtype,
     }))
-
-
 
 
   if (!options.some((f) => f.fieldname === 'name')) {
@@ -1190,6 +1194,7 @@ async function updateKanbanSettings(data) {
   let isDirty = viewUpdated.value
 
   viewUpdated.value = true
+
   if (!defaultParams.value) {
     defaultParams.value = getParams()
   }

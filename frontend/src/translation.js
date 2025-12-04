@@ -1,13 +1,11 @@
 import { createResource } from 'frappe-ui'
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 
 // Constants for translation storage
 const TRANSLATION_STORAGE_KEY = 'crm_translations'
 const TRANSLATION_HASH_KEY = 'crm_translations_hash'
 const TRANSLATION_TIMESTAMP_KEY = 'crm_translations_timestamp'
 
-// Global Vue app instance reference for force update
-let appInstance = null
 let translationResource = null
 
 // Export timestamp ref for components that need to react to translation updates
@@ -15,7 +13,6 @@ export const lastTranslationUpdate = ref(parseInt(localStorage.getItem(TRANSLATI
 export const translationsLoading = ref(false)
 
 export default function translationPlugin(app) {
-  appInstance = app
   app.config.globalProperties.__ = translate
   window.__ = translate
   

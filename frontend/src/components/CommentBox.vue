@@ -11,7 +11,7 @@
   >
     <template v-slot:editor="{ editor }">
       <EditorContent
-        :class="[
+          :class="[
           editable &&
             'sm:mx-10 mx-4 max-h-[50vh] overflow-y-auto dark-scrollbar border-t py-3',
         ]"

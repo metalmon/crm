@@ -76,6 +76,7 @@
                   {{ __('Open website') }}
                 </Button>
                 <Button
+                  v-if="canDelete"
                   :label="__('Delete')"
                   variant="ghost"
                   theme="red"
@@ -171,7 +172,12 @@ import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { getView } from '@/utils/view'
-import { formatDate, timeAgo, validateIsImageFile } from '@/utils'
+import {
+  formatDate,
+  timeAgo,
+  validateIsImageFile,
+  openWebsite as openExternalWebsite,
+} from '@/utils'
 import {
   Breadcrumbs,
   Avatar,
@@ -205,11 +211,12 @@ const { doctypeMeta } = getMeta('CRM Organization')
 const route = useRoute()
 const router = useRouter()
 
-const { document: organization } = useDocument(
+const { document: organization, permissions } = useDocument(
   'CRM Organization',
   props.organizationId,
 )
 
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Organizations'), route: { name: 'Organizations' } }]
 
@@ -273,12 +280,12 @@ async function deleteOrganization() {
         label: __('Delete'),
         theme: 'red',
         variant: 'solid',
-        async onClick(context) {
+        async onClick(close) {
           await call('frappe.client.delete', {
             doctype: 'CRM Organization',
             name: props.organizationId,
           })
-          context.close()
+          close()
           router.push({ name: 'Organizations' })
         },
       },
@@ -287,8 +294,11 @@ async function deleteOrganization() {
 }
 
 function openWebsite() {
-  if (!organization.doc.website) toast.error(__('No website found'))
-  else window.open(organization.doc.website, '_blank')
+  if (!organization.doc.website) {
+    toast.error(__('No website found'))
+    return
+  }
+  openExternalWebsite(organization.doc.website)
 }
 
 const sections = createResource({

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { userResource } from '@/stores/user'
+import { usersStore } from '@/stores/users'
 import { sessionStore } from '@/stores/session'
 import { viewsStore } from '@/stores/views'
 
@@ -117,6 +118,11 @@ const routes = [
     name: 'Invalid Page',
     component: () => import('@/pages/InvalidPage.vue'),
   },
+  {
+    path: '/not-permitted',
+    name: 'Not Permitted',
+    component: () => import('@/pages/NotPermitted.vue'),
+  },
 ]
 
 const handleMobileView = (componentName) => {
@@ -150,8 +156,23 @@ let router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const { isLoggedIn } = sessionStore()
+  const { users, isWebsiteUser } = usersStore()
 
   isLoggedIn && (await userResource.promise)
+
+  if (isLoggedIn && !users.fetched) {
+    try {
+      await users.promise
+    } catch (error) {
+      console.error('Error loading users', error)
+    }
+  }
+
+  // Check for website users (from frappe/main)
+  if (isLoggedIn && to.name !== 'Not Permitted' && isWebsiteUser()) {
+    next({ name: 'Not Permitted' })
+    return
+  }
 
   if (from.meta?.scrollPos) {
     from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop

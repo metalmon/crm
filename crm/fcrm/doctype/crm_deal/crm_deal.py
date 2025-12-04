@@ -12,6 +12,66 @@ from crm.fcrm.doctype.fcrm_settings.fcrm_settings import get_exchange_rate
 
 
 class CRMDeal(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from crm.fcrm.doctype.crm_contacts.crm_contacts import CRMContacts
+		from crm.fcrm.doctype.crm_products.crm_products import CRMProducts
+		from crm.fcrm.doctype.crm_rolling_response_time.crm_rolling_response_time import CRMRollingResponseTime
+		from crm.fcrm.doctype.crm_status_change_log.crm_status_change_log import CRMStatusChangeLog
+		from frappe.types import DF
+
+		annual_revenue: DF.Currency
+		closed_date: DF.Date | None
+		communication_status: DF.Link | None
+		contact: DF.Link | None
+		contacts: DF.Table[CRMContacts]
+		currency: DF.Link | None
+		deal_owner: DF.Link | None
+		deal_value: DF.Currency
+		email: DF.Data | None
+		exchange_rate: DF.Float
+		expected_closure_date: DF.Date | None
+		expected_deal_value: DF.Currency
+		first_name: DF.Data | None
+		first_responded_on: DF.Datetime | None
+		first_response_time: DF.Duration | None
+		gender: DF.Link | None
+		industry: DF.Link | None
+		job_title: DF.Data | None
+		last_name: DF.Data | None
+		last_responded_on: DF.Datetime | None
+		last_response_time: DF.Duration | None
+		lead: DF.Link | None
+		lead_name: DF.Data | None
+		lost_notes: DF.Text | None
+		lost_reason: DF.Link | None
+		mobile_no: DF.Data | None
+		naming_series: DF.Literal["CRM-DEAL-.YYYY.-"]
+		net_total: DF.Currency
+		next_step: DF.Data | None
+		no_of_employees: DF.Literal["1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"]
+		organization: DF.Link | None
+		organization_name: DF.Data | None
+		phone: DF.Data | None
+		probability: DF.Percent
+		products: DF.Table[CRMProducts]
+		response_by: DF.Datetime | None
+		rolling_responses: DF.Table[CRMRollingResponseTime]
+		salutation: DF.Link | None
+		sla: DF.Link | None
+		sla_creation: DF.Datetime | None
+		sla_status: DF.Literal["", "First Response Due", "Rolling Response Due", "Failed", "Fulfilled"]
+		source: DF.Link | None
+		status: DF.Link
+		status_change_log: DF.Table[CRMStatusChangeLog]
+		territory: DF.Link | None
+		total: DF.Currency
+		website: DF.Data | None
+	# end: auto-generated types
 	def before_validate(self):
 		self.set_sla()
 
@@ -25,7 +85,7 @@ class CRMDeal(Document):
 			add_status_change_log(self)
 			if frappe.db.get_value("CRM Deal Status", self.status, "type") == "Won":
 				self.closed_date = frappe.utils.nowdate()
-		self.validate_forcasting_fields()
+		self.validate_forecasting_fields()
 		self.validate_lost_reason()
 		self.update_exchange_rate()
 
@@ -159,9 +219,21 @@ class CRMDeal(Document):
 		if not self.probability or self.probability == 0:
 			self.probability = frappe.db.get_value("CRM Deal Status", self.status, "probability") or 0
 
-	def validate_forcasting_fields(self):
+	def update_expected_deal_value(self):
+		"""
+		Update the expected deal value based on the net total or total.
+		"""
+		if (
+			frappe.db.get_single_value("FCRM Settings", "auto_update_expected_deal_value")
+			and (self.net_total or self.total)
+			and self.expected_deal_value
+		):
+			self.expected_deal_value = self.net_total or self.total
+
+	def validate_forecasting_fields(self):
 		self.update_closed_date()
 		self.update_default_probability()
+		self.update_expected_deal_value()
 		if frappe.db.get_single_value("FCRM Settings", "enable_forecasting"):
 			if not self.expected_deal_value or self.expected_deal_value == 0:
 				frappe.throw(_("Expected Deal Value is required."), frappe.MandatoryError)
@@ -170,7 +242,7 @@ class CRMDeal(Document):
 
 	def validate_lost_reason(self):
 		"""
-		Validate the lost reason if the status is marked as lost in CRM Deal Status.
+		Validate the lost reason if the status is set to "Lost".
 		"""
 		if self.status and frappe.get_cached_value("CRM Deal Status", self.status, "type") == "Lost":
 			if not self.lost_reason:
@@ -308,7 +380,6 @@ def set_primary_contact(deal, contact):
 				"email": contact_data.get("email", ""),
 				"mobile_no": contact_data.get("mobile_no", "")
 			})
-	
 	deal.save()
 	return True
 

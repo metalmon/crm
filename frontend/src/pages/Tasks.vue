@@ -221,7 +221,6 @@ const { getUser } = usersStore()
 const router = useRouter()
 
 const tasksListView = ref(null)
-
 const viewControls = ref(null)
 
 // tasks data is loaded in the ViewControls component

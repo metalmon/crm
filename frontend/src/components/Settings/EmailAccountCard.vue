@@ -45,5 +45,3 @@ const badgeTitle = computed(() => {
   }
 })
 </script>
-
-<style scoped></style>

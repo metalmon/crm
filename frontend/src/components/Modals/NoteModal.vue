@@ -63,7 +63,6 @@ import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import { capture } from '@/telemetry'
 import { TextEditor, call } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
-
 import { ref, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 

@@ -9,6 +9,10 @@
     </template>
     <template v-if="!errorTitle" #right-header>
       <CustomActions
+        v-if="document._actions?.length"
+        :actions="document._actions"
+      />
+      <CustomActions
         v-if="document.actions?.length"
         :actions="document.actions"
       />
@@ -138,6 +142,15 @@
                 @click="showFilesUploader = true"
               />
             </Tooltip>
+
+            <Button
+              v-if="canDelete"
+              :tooltip="__('Delete')"
+              variant="subtle"
+              icon="trash-2"
+              theme="red"
+              @click="deleteDeal"
+            />
           </div>
         </div>
       </div>
@@ -259,16 +272,26 @@
                         </div>
                       </div>
                     </template>
-                    <div
-                      class="flex flex-col gap-1.5 text-base text-ink-gray-8"
-                    >
-                      <div class="flex items-center gap-3 pb-1.5 pl-1 pt-4">
+                    <div class="flex flex-col gap-1.5 text-base">
+                      <div
+                        v-if="contact.email"
+                        class="flex items-center gap-3 pb-1.5 pl-1 pt-4 text-ink-gray-8"
+                      >
                         <Email2Icon class="h-4 w-4" />
                         {{ contact.email }}
                       </div>
-                      <div class="flex items-center gap-3 p-1 py-1.5">
+                      <div
+                        v-if="contact.mobile_no"
+                        class="flex items-center gap-3 p-1 py-1.5 text-ink-gray-8"
+                      >
                         <PhoneIcon class="h-4 w-4" />
                         {{ contact.mobile_no }}
+                      </div>
+                      <div
+                        v-if="!contact.email && !contact.mobile_no"
+                        class="flex items-center justify-center py-4 text-sm text-ink-gray-4"
+                      >
+                        {{ __('No details added') }}
                       </div>
                     </div>
                   </Section>
@@ -298,6 +321,7 @@
   <OrganizationModal
     v-if="showOrganizationModal"
     v-model="showOrganizationModal"
+    :data="_organization"
     :options="{
       redirect: false,
       afterInsert: (_doc) => updateField('organization', _doc.name),
@@ -401,6 +425,7 @@ import {
   call,
   usePageMeta,
   toast,
+  FeatherIcon,
 } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import {
@@ -441,11 +466,12 @@ const errorTitle = ref('')
 const errorMessage = ref('')
 const showDeleteLinkedDocModal = ref(false)
 
-const { triggerOnChange, assignees, document, scripts, error } = useDocument(
+const { triggerOnChange, assignees, permissions, document, scripts, error } = useDocument(
   'CRM Deal',
   props.dealId,
 )
 
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 const doc = computed(() => document.doc || {})
 
 watch(error, (err) => {
@@ -484,8 +510,31 @@ watch(
   { once: true },
 )
 
-// Organization data is automatically loaded by Frappe when accessing doc.value.organization
-// No need for separate resource
+const organizationDocument = ref(null)
+
+watch(
+  () => doc.value.organization,
+  (org) => {
+    if (org && !organizationDocument.value?.doc) {
+      let { document: _organizationDocument } = useDocument(
+        'CRM Organization',
+        org,
+      )
+      organizationDocument.value = _organizationDocument
+    }
+  },
+  { immediate: true },
+)
+
+const organization = computed(() => organizationDocument.value?.doc || {})
+
+const displayName = createResource({
+  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_display_name',
+  params: { name: props.dealId },
+  cache: ['deal_display_name', props.dealId],
+  transform: (data) => data.display_name || __('Untitled'),
+  auto: true,
+})
 
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
@@ -500,14 +549,9 @@ onBeforeUnmount(() => {
 const reload = ref(false)
 const showOrganizationModal = ref(false)
 const showFilesUploader = ref(false)
-
-const displayName = createResource({
-  url: 'crm.fcrm.doctype.crm_deal.api.get_deal_display_name',
-  params: { name: props.dealId },
-  cache: ['deal_display_name', props.dealId],
-  transform: (data) => data.display_name || __('Untitled'),
-  auto: true,
-})
+const _organization = ref({})
+const showEmailTemplateSelectorModal = ref(false)
+const activities = ref(null)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Deals'), route: { name: 'Deals' } }]
@@ -527,7 +571,6 @@ const breadcrumbs = computed(() => {
     }
   }
 
-  // Use displayName which now properly handles loading states
   items.push({
     label: displayName.data || __('Loading...'),
     route: { name: 'Deal', params: { dealId: props.dealId } },
@@ -623,6 +666,7 @@ function getParsedSections(_sections) {
     section.columns[0].fields.forEach((field) => {
       if (field.fieldname == 'organization') {
         field.create = (value, close) => {
+          _organization.value.organization_name = value
           showOrganizationModal.value = true
           close()
         }
@@ -699,21 +743,6 @@ async function setPrimaryContact(contact) {
   }
 }
 
-function trackPhoneActivities(type = 'phone') {
-  if (!primaryContact.value?.mobile_no) {
-    toast.error(__('No phone number set'))
-    return
-  }
-  
-  trackCommunication({
-    type,
-    doctype: 'CRM Deal',
-    docname: doc.value.name,
-    phoneNumber: primaryContact.value.mobile_no,
-    activities: activities.value,
-    contactName: primaryContact.value.name
-  })
-}
 const dealContacts = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal_contacts',
   params: { name: props.dealId },
@@ -731,7 +760,29 @@ if (!dealContacts.data) {
   dealContacts.fetch()
 }
 
+const primaryContactMobileNo = computed(() => {
+  return dealContacts.data?.find(c => c.is_primary)?.mobile_no
+})
 
+const primaryContact = computed(() => {
+  return dealContacts.data?.find(c => c.is_primary)
+})
+
+function trackPhoneActivities(type = 'phone') {
+  if (!primaryContact.value?.mobile_no) {
+    toast.error(__('No phone number set'))
+    return
+  }
+  
+  trackCommunication({
+    type,
+    doctype: 'CRM Deal',
+    docname: doc.value.name,
+    phoneNumber: primaryContact.value.mobile_no,
+    activities: activities.value,
+    contactName: primaryContact.value.name
+  })
+}
 
 function triggerCall() {
   if (!primaryContact.value) {
@@ -785,8 +836,6 @@ function deleteDeal() {
   showDeleteLinkedDocModal.value = true
 }
 
-const showEmailTemplateSelectorModal = ref(false)
-
 function openEmailBox() {
   let currentTab = tabs.value[tabIndex.value]
   if (!['Emails', 'Comments', 'Activity'].includes(currentTab.name)) {
@@ -794,14 +843,6 @@ function openEmailBox() {
   }
   nextTick(() => (activities.value.emailBox.show = true))
 }
-
-const primaryContactMobileNo = computed(() => {
-  return dealContacts.data?.find(c => c.is_primary)?.mobile_no
-})
-
-const primaryContact = computed(() => {
-  return dealContacts.data?.find(c => c.is_primary)
-})
 
 function applyMessageTemplate(template) {
   if (!primaryContact.value) return toast.error(__('No primary contact set'))
@@ -818,7 +859,6 @@ function applyMessageTemplate(template) {
   })
   showEmailTemplateSelectorModal.value = false
 }
-
 const showLostReasonModal = ref(false)
 
 function setLostReason() {

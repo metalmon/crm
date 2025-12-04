@@ -307,6 +307,7 @@ import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import { ref, reactive, computed, h, watch } from 'vue'
 import SmartFilterField from '@/components/SmartFilterField.vue'
+import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Deal')
@@ -332,6 +333,7 @@ const viewControls = ref(null)
 const desktopSmartFilter = ref(null)
 const mobileSmartFilter = ref(null)
 const isResettingFilters = ref(false)
+const showQuickEntryModal = ref(false)
 
 // Watch for filter changes in the list
 watch(() => deals.value?.params?.filters, (newFilters) => {
@@ -346,7 +348,6 @@ watch(() => deals.value?.params?.filters, (newFilters) => {
     isResettingFilters.value = false;
   }
 }, { deep: true })
-
 function getRow(name, field) {
   function getValue(value) {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -586,6 +587,7 @@ function showTask(name) {
   docname.value = name
   showTaskModal.value = true
 }
+
 function handleSmartFilter(filters) {
   if (!viewControls.value || !filters) return;
   if (isResettingFilters.value) return;

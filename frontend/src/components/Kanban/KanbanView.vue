@@ -203,7 +203,6 @@
 }
 
 </style>
-
 <script setup>
 import Autocomplete from '@/components/frappe-ui/Autocomplete.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
