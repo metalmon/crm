@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-12-07 12:59+0000\n"
-"PO-Revision-Date: 2025-12-07 12:59+0000\n"
+"POT-Creation-Date: 2025-12-07 16:17+0000\n"
+"PO-Revision-Date: 2025-12-07 16:17+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -18,11 +18,6 @@ msgstr ""
 
 #: frontend/src/components/ViewControls.vue:1482
 msgid " (New)"
-msgstr ""
-
-#: crm/api/dashboard.py:483 crm/api/dashboard.py:485 crm/api/dashboard.py:536
-#: crm/api/dashboard.py:538
-msgid " days"
 msgstr ""
 
 #: crm/fcrm/report/sales_funnel_conversion/sales_funnel_conversion.py:212
@@ -307,7 +302,7 @@ msgstr ""
 msgid "Activity"
 msgstr ""
 
-#: crm/api/dashboard.py:701
+#: crm/api/dashboard.py:708
 msgid "Actual"
 msgstr ""
 
@@ -1006,7 +1001,7 @@ msgstr ""
 msgid "Beeline settings updated successfully"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:407
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:436
 msgid "Between"
 msgstr ""
 
@@ -1578,7 +1573,7 @@ msgstr ""
 msgid "Comments"
 msgstr ""
 
-#: crm/api/dashboard.py:920
+#: crm/api/dashboard.py:990
 msgid "Common reasons for losing deals"
 msgstr ""
 
@@ -1868,8 +1863,9 @@ msgstr ""
 msgid "Could not track communication: {0}"
 msgstr ""
 
-#: crm/api/dashboard.py:626 crm/api/dashboard.py:763 crm/api/dashboard.py:824
-#: crm/api/dashboard.py:826 crm/api/dashboard.py:927 crm/api/dashboard.py:930
+#: crm/api/dashboard.py:642 crm/api/dashboard.py:788 crm/api/dashboard.py:809
+#: crm/api/dashboard.py:863 crm/api/dashboard.py:882 crm/api/dashboard.py:976
+#: crm/api/dashboard.py:997
 msgid "Count"
 msgstr ""
 
@@ -2003,7 +1999,7 @@ msgstr ""
 msgid "Current Status"
 msgstr ""
 
-#: crm/api/dashboard.py:872
+#: crm/api/dashboard.py:930
 msgid "Current pipeline distribution"
 msgstr ""
 
@@ -2054,7 +2050,7 @@ msgstr ""
 msgid "Daily"
 msgstr ""
 
-#: crm/api/dashboard.py:618
+#: crm/api/dashboard.py:634
 msgid "Daily performance of leads, deals, and wins"
 msgstr ""
 
@@ -2077,7 +2073,7 @@ msgid "Data Fields"
 msgstr ""
 
 #. Label of the date (Date) field in DocType 'CRM Holiday'
-#: crm/api/dashboard.py:620 crm/fcrm/doctype/crm_holiday/crm_holiday.json
+#: crm/api/dashboard.py:636 crm/fcrm/doctype/crm_holiday/crm_holiday.json
 msgid "Date"
 msgstr ""
 
@@ -2130,7 +2126,7 @@ msgstr ""
 msgid "Deal Value"
 msgstr ""
 
-#: crm/api/dashboard.py:1029
+#: crm/api/dashboard.py:1099
 msgid "Deal generation channel analysis"
 msgstr ""
 
@@ -2140,12 +2136,12 @@ msgstr ""
 msgid "Deal owner"
 msgstr ""
 
-#: crm/api/dashboard.py:1090 crm/api/dashboard.py:1150
+#: crm/api/dashboard.py:1170 crm/api/dashboard.py:1244
 msgid "Deal value"
 msgstr ""
 
 #. Label of a shortcut in the Frappe CRM Workspace
-#: crm/api/dashboard.py:630 crm/api/dashboard.py:1093 crm/api/dashboard.py:1153
+#: crm/api/dashboard.py:617 crm/api/dashboard.py:1143 crm/api/dashboard.py:1218
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/pages/Deal.vue:557 frontend/src/pages/MobileContact.vue:329
 #: frontend/src/pages/MobileDeal.vue:467
@@ -2164,27 +2160,27 @@ msgstr ""
 msgid "Deals Closed"
 msgstr ""
 
-#: crm/api/dashboard.py:818
+#: crm/api/dashboard.py:876
 #: frontend/src/components/Dashboard/AddChartModal.vue:97
 msgid "Deals by ongoing & won stage"
 msgstr ""
 
-#: crm/api/dashboard.py:1139
+#: crm/api/dashboard.py:1233
 #: frontend/src/components/Dashboard/AddChartModal.vue:100
 msgid "Deals by salesperson"
 msgstr ""
 
-#: crm/api/dashboard.py:1028
+#: crm/api/dashboard.py:1098
 #: frontend/src/components/Dashboard/AddChartModal.vue:107
 msgid "Deals by source"
 msgstr ""
 
-#: crm/api/dashboard.py:871
+#: crm/api/dashboard.py:929
 #: frontend/src/components/Dashboard/AddChartModal.vue:105
 msgid "Deals by stage"
 msgstr ""
 
-#: crm/api/dashboard.py:1079
+#: crm/api/dashboard.py:1159
 #: frontend/src/components/Dashboard/AddChartModal.vue:99
 msgid "Deals by territory"
 msgstr ""
@@ -2770,8 +2766,8 @@ msgstr ""
 msgid "Emails"
 msgstr ""
 
-#: crm/api/dashboard.py:974 crm/api/dashboard.py:1024 crm/api/dashboard.py:1075
-#: frontend/src/components/ListViews/ListRows.vue:12
+#: crm/api/dashboard.py:1044 crm/api/dashboard.py:1094
+#: crm/api/dashboard.py:1149 frontend/src/components/ListViews/ListRows.vue:12
 msgid "Empty"
 msgstr ""
 
@@ -2878,13 +2874,13 @@ msgstr ""
 msgid "Equals"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:325
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:345
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:362
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:373
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:384
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:400
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:414
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:354
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:374
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:391
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:402
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:413
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:429
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:443
 #: frontend/src/components/Filter.vue:265
 #: frontend/src/components/Filter.vue:286
 #: frontend/src/components/Filter.vue:303
@@ -3369,7 +3365,7 @@ msgstr ""
 msgid "For"
 msgstr ""
 
-#: crm/api/dashboard.py:700
+#: crm/api/dashboard.py:707
 msgid "Forecasted"
 msgstr ""
 
@@ -3377,7 +3373,7 @@ msgstr ""
 msgid "Forecasted Sales"
 msgstr ""
 
-#: crm/api/dashboard.py:688
+#: crm/api/dashboard.py:722
 #: frontend/src/components/Dashboard/AddChartModal.vue:95
 msgid "Forecasted revenue"
 msgstr ""
@@ -3479,7 +3475,7 @@ msgstr ""
 msgid "Full Name"
 msgstr ""
 
-#: crm/api/dashboard.py:755
+#: crm/api/dashboard.py:801
 #: frontend/src/components/Dashboard/AddChartModal.vue:96
 msgid "Funnel conversion"
 msgstr ""
@@ -3509,7 +3505,7 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: crm/api/dashboard.py:1080
+#: crm/api/dashboard.py:1160
 msgid "Geographic distribution of deals and revenue"
 msgstr ""
 
@@ -3726,11 +3722,11 @@ msgstr ""
 msgid "Import your contacts, sync emails and manage calendar events"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:329
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:349
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:364
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:377
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:391
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:358
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:378
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:393
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:406
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:420
 #: frontend/src/components/Filter.vue:269
 #: frontend/src/components/Filter.vue:290
 #: frontend/src/components/Filter.vue:305
@@ -3912,14 +3908,14 @@ msgstr ""
 msgid "Invited By"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:331
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:339
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:351
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:366
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:379
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:393
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:402
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:416
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:360
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:368
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:380
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:395
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:408
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:422
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:431
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:445
 #: frontend/src/components/Filter.vue:271
 #: frontend/src/components/Filter.vue:280
 #: frontend/src/components/Filter.vue:292
@@ -4252,7 +4248,7 @@ msgstr ""
 msgid "Lead conversion settings updated successfully"
 msgstr ""
 
-#: crm/api/dashboard.py:979
+#: crm/api/dashboard.py:1049
 msgid "Lead generation channel analysis"
 msgstr ""
 
@@ -4264,12 +4260,12 @@ msgstr ""
 msgid "Lead sync initiated."
 msgstr ""
 
-#: crm/api/dashboard.py:756
+#: crm/api/dashboard.py:802
 msgid "Lead to deal conversion pipeline"
 msgstr ""
 
 #. Label of a shortcut in the Frappe CRM Workspace
-#: crm/api/dashboard.py:629 crm/api/dashboard.py:749
+#: crm/api/dashboard.py:616 crm/api/dashboard.py:783
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/pages/InvalidPage.vue:9 frontend/src/pages/Lead.vue:383
 #: frontend/src/pages/MobileLead.vue:366
@@ -4282,7 +4278,7 @@ msgctxt "Sidebar"
 msgid "Leads"
 msgstr ""
 
-#: crm/api/dashboard.py:978
+#: crm/api/dashboard.py:1048
 #: frontend/src/components/Dashboard/AddChartModal.vue:106
 msgid "Leads by source"
 msgstr ""
@@ -4305,11 +4301,11 @@ msgstr ""
 msgid "Library"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:327
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:337
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:347
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:375
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:389
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:356
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:366
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:376
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:404
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:418
 #: frontend/src/components/Filter.vue:267
 #: frontend/src/components/Filter.vue:278
 #: frontend/src/components/Filter.vue:288
@@ -4443,7 +4439,7 @@ msgstr ""
 msgid "Lost Reason"
 msgstr ""
 
-#: crm/api/dashboard.py:919
+#: crm/api/dashboard.py:989
 #: frontend/src/components/Dashboard/AddChartModal.vue:98
 msgid "Lost deal reasons"
 msgstr ""
@@ -4678,7 +4674,7 @@ msgstr ""
 msgid "Monday"
 msgstr ""
 
-#: crm/api/dashboard.py:691
+#: crm/api/dashboard.py:725
 msgid "Month"
 msgstr ""
 
@@ -5101,12 +5097,12 @@ msgstr ""
 msgid "Not Allowed"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:326
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:346
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:363
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:374
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:401
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:415
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:355
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:375
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:392
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:403
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:430
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:444
 #: frontend/src/components/Filter.vue:266
 #: frontend/src/components/Filter.vue:287
 #: frontend/src/components/Filter.vue:304
@@ -5116,11 +5112,11 @@ msgctxt "Filter operator"
 msgid "Not Equals"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:330
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:350
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:365
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:378
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:392
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:359
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:379
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:394
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:407
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:421
 #: frontend/src/components/Filter.vue:270
 #: frontend/src/components/Filter.vue:291
 #: frontend/src/components/Filter.vue:306
@@ -5130,11 +5126,11 @@ msgctxt "Filter operator"
 msgid "Not In"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:328
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:338
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:348
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:376
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:390
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:357
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:367
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:377
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:405
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:419
 #: frontend/src/components/Filter.vue:268
 #: frontend/src/components/Filter.vue:279
 #: frontend/src/components/Filter.vue:289
@@ -5256,11 +5252,11 @@ msgstr ""
 msgid "Number chart"
 msgstr ""
 
-#: crm/api/dashboard.py:1087 crm/api/dashboard.py:1147
+#: crm/api/dashboard.py:1167 crm/api/dashboard.py:1241
 msgid "Number of deals"
 msgstr ""
 
-#: crm/api/dashboard.py:1140
+#: crm/api/dashboard.py:1234
 msgid "Number of deals and total value per salesperson"
 msgstr ""
 
@@ -5744,7 +5740,7 @@ msgstr ""
 msgid "Profile updated successfully"
 msgstr ""
 
-#: crm/api/dashboard.py:689
+#: crm/api/dashboard.py:723
 msgid "Projected vs actual revenue based on deal probability"
 msgstr ""
 
@@ -5841,7 +5837,7 @@ msgstr ""
 msgid "Realtime Settings"
 msgstr ""
 
-#: crm/api/dashboard.py:922
+#: crm/api/dashboard.py:992
 #: frontend/src/components/Settings/LeadSyncing/FailureLogs.vue:16
 msgid "Reason"
 msgstr ""
@@ -5911,7 +5907,7 @@ msgstr ""
 msgid "Reject call"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:192
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:193
 #: frontend/src/components/Controls/ImageUploader.vue:26
 #: frontend/src/components/Controls/SingleImageUploader.vue:38
 #: frontend/src/components/Settings/Users.vue:218
@@ -5931,7 +5927,7 @@ msgstr ""
 msgid "Remove column"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:200
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:201
 msgid "Remove group"
 msgstr ""
 
@@ -6092,7 +6088,7 @@ msgstr ""
 msgid "Retry Sync"
 msgstr ""
 
-#: crm/api/dashboard.py:697
+#: crm/api/dashboard.py:731
 msgid "Revenue"
 msgstr ""
 
@@ -6285,7 +6281,7 @@ msgstr ""
 msgid "Sales User"
 msgstr ""
 
-#: crm/api/dashboard.py:617
+#: crm/api/dashboard.py:633
 #: frontend/src/components/Dashboard/AddChartModal.vue:94
 msgid "Sales trend"
 msgstr ""
@@ -6294,7 +6290,7 @@ msgstr ""
 msgid "Sales user"
 msgstr ""
 
-#: crm/api/dashboard.py:1142
+#: crm/api/dashboard.py:1236
 msgid "Salesperson"
 msgstr ""
 
@@ -6688,7 +6684,7 @@ msgstr ""
 msgid "Spacer"
 msgstr ""
 
-#: crm/api/dashboard.py:758 crm/api/dashboard.py:820
+#: crm/api/dashboard.py:804 crm/api/dashboard.py:878
 #: crm/fcrm/report/sales_funnel_conversion/sales_funnel_conversion.py:206
 msgid "Stage"
 msgstr ""
@@ -6967,7 +6963,7 @@ msgstr ""
 #. Label of the territory (Link) field in DocType 'CRM Deal'
 #. Label of the territory (Link) field in DocType 'CRM Lead'
 #. Label of the territory (Link) field in DocType 'CRM Organization'
-#: crm/api/dashboard.py:1082 crm/fcrm/doctype/crm_deal/crm_deal.json
+#: crm/api/dashboard.py:1162 crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
 #: crm/fcrm/report/sales_funnel_conversion/sales_funnel_conversion.js:43
@@ -7208,7 +7204,7 @@ msgstr ""
 msgid "Tuesday"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:173
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:174
 msgid "Turn into a group"
 msgstr ""
 
@@ -7317,7 +7313,7 @@ msgstr ""
 msgid "Uncollapsible"
 msgstr ""
 
-#: frontend/src/components/ConditionsFilter/CFCondition.vue:183
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:184
 msgid "Ungroup conditions"
 msgstr ""
 
@@ -7517,7 +7513,7 @@ msgstr ""
 msgid "Validity"
 msgstr ""
 
-#: crm/api/dashboard.py:1094 crm/api/dashboard.py:1154
+#: crm/api/dashboard.py:1144 crm/api/dashboard.py:1219
 #: frontend/src/components/Modals/EditValueModal.vue:14
 msgid "Value"
 msgstr ""
@@ -7643,7 +7639,11 @@ msgstr ""
 msgid "Won"
 msgstr ""
 
-#: crm/api/dashboard.py:310 crm/api/dashboard.py:631
+#: crm/api/dashboard.py:618
+msgid "Won Deals"
+msgstr ""
+
+#: crm/api/dashboard.py:310
 #: frontend/src/components/Dashboard/AddChartModal.vue:79
 msgid "Won deals"
 msgstr ""
@@ -7661,7 +7661,7 @@ msgstr ""
 msgid "Working Hours"
 msgstr ""
 
-#: frontend/src/components/Modals/EditValueModal.vue:114
+#: frontend/src/components/Modals/EditValueModal.vue:115
 msgid "Yes"
 msgstr ""
 
@@ -7864,6 +7864,12 @@ msgstr ""
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
 #: crm/fcrm/doctype/crm_lead_status/crm_lead_status.json
 msgid "cyan"
+msgstr ""
+
+#: crm/api/dashboard.py:483 crm/api/dashboard.py:485 crm/api/dashboard.py:536
+#: crm/api/dashboard.py:538
+msgctxt "suffix in data card"
+msgid "days"
 msgstr ""
 
 #: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:125
