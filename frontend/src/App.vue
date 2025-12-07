@@ -18,13 +18,15 @@
       />
       
       <!-- Main app content - only shown when everything is loaded -->
-      <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
+      <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading">
         <Layout v-if="session().isLoggedIn" class="isolate">
           <router-view :key="$route.fullPath + '::' + translationKey" />
         </Layout>
-        <Dialogs />
       </div>
     </div>
+    
+    <!-- Dialogs MUST be outside of v-show block to allow Teleport to work properly -->
+    <Dialogs />
   </FrappeUIProvider>
 </template>
 
@@ -273,12 +275,6 @@ setConfig('localTimezone', window.timezone?.user || null)
 </script>
 
 <style>
-.app-container {
-  position: relative;
-  min-height: 100vh;
-  width: 100%;
-}
-
 .app-overlay {
   position: fixed;
   top: 0;
@@ -286,10 +282,5 @@ setConfig('localTimezone', window.timezone?.user || null)
   width: 100%;
   height: 100%;
   z-index: 9999;
-}
-
-.app-content {
-  position: relative;
-  z-index: 1;
 }
 </style>

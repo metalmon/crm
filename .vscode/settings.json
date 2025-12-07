@@ -1,18 +1,47 @@
 {
-    "python.defaultInterpreterPath": "frappe-bench/env/bin/python",
-    "debug.node.autoAttach": "disabled",
-    "sqltools.connections": [
-        {
-            "mysqlOptions": {
-                "authProtocol": "default"
-            },
-            "previewLimit": 50,
-            "server": "mariadb",
-            "port": 3306,
-            "driver": "MariaDB",
-            "name": "MariaDB",
-            "username": "root",
-            "password": "123"
-        }
-    ]
+  // Отключить проверку TypeScript для Vue template блоков
+  "typescript.validate.enable": true,
+  "javascript.validate.enable": true,
+  
+  // Настройки для Vue файлов (Volar/Vue Language Features)
+  "volar.takeOverMode.enabled": true,
+  "volar.codeLens.pugTools": false,
+  "volar.codeLens.scriptSetupTools": false,
+  
+  // Старые настройки Vetur (если используется)
+  "vetur.validation.template": false,
+  "vetur.validation.script": true,
+  "vetur.validation.style": false,
+  
+  // Ассоциации файлов
+  "files.associations": {
+    "*.vue": "vue"
+  },
+  
+  // Настройки ESLint для Vue (если используется)
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "vue"
+  ],
+  
+  // Отключить диагностику TypeScript в template блоках
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  
+  // Ключевая настройка: отключить проверку TypeScript для template
+  // Это предотвращает парсинг template как TypeScript код
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  
+  // Настройки Vue Language Server (Volar)
+  "vue.codeActions.enabled": true,
+  "vue.complete.casing.tags": "kebab",
+  "vue.complete.casing.props": "camel",
+  "vue.server.hybridMode": false,
+  
+  // Отключить проверку в template блоках Vue файлов
+  // Это главная настройка для решения проблемы
+  "[vue]": {
+    "typescript.validate.enable": false,
+    "javascript.validate.enable": false
+  }
 }

@@ -139,7 +139,7 @@ const viewLinkedDoc = (doc) => {
   }
   let base = '/crm'
   if (openDesk) {
-    base = '/app'
+    base = '/desk'
   }
   window.open(`${base}/${page}/${id}`)
 }

@@ -26,7 +26,7 @@
 
 		<Tabs as="div" v-model="tabIndex" :tabs="tabs" class="mt-2">
 			<template #tab-panel="{ tab }">
-				<div v-if="tab.label == 'Details'" class="overflow-hidden flex h-full flex-col gap-6 mt-4">
+				<div v-if="tab.name == 'Details'" class="overflow-hidden flex h-full flex-col gap-6 mt-4">
 					<!-- Form -->
 					<div class="grid grid-cols-2 gap-4">
 						<FormControl type="autocomplete" required="true" v-model="syncSource.type"
@@ -84,7 +84,7 @@
 					</div>
 				</div>
 
-				<div class="mt-4" v-if="tab.label == 'Failure Logs'">
+				<div class="mt-4" v-if="tab.name == 'Failure Logs'">
 					<FailureLogs :source="syncSource.name" />
 				</div>
 			</template>
@@ -128,6 +128,7 @@ const emit = defineEmits(["updateStep"]);
 const tabs = computed(() => {
 	const tabList = [
 		{
+			name: 'Details',
 			label: __('Details'),
 			icon: DetailsIcon
 		}
@@ -135,6 +136,7 @@ const tabs = computed(() => {
 
 	if (!isLocal.value) {
 		tabList.push({
+			name: 'Failure Logs',
 			label: __('Failure Logs'),
 			icon: RefreshIcon
 		})

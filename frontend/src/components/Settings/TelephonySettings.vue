@@ -110,6 +110,17 @@ const beelineInstalledResource = createResource({
   url: 'crm.api.telephony.is_beeline_installed',
   auto: true,
   cache: 'beeline_installed_status',
+  onSuccess: (installed) => {
+    // Load Beeline resources only if app is installed
+    if (installed === true) {
+      beelineFields.submit().catch(err => {
+        console.warn('Failed to load Beeline fields:', err);
+      });
+      beeline.get.submit().catch(err => {
+        console.warn('Failed to load Beeline settings:', err);
+      });
+    }
+  },
 });
 
 // Computed property based on the resource data
@@ -155,7 +166,7 @@ const beelineFields = createResource({
     doctype: 'Beeline Settings',
     allow_all_fieldtypes: true,
   },
-  auto: true,
+  auto: false,
 })
 
 const twilio = createDocumentResource({
@@ -192,7 +203,7 @@ const beeline = createDocumentResource({
   doctype: 'Beeline Settings',
   name: 'Beeline Settings',
   fields: ['*'],
-  auto: true,
+  auto: false,
   onLoad: (doc) => {
     try {
       console.log('Beeline Settings loaded:', doc);
@@ -224,6 +235,7 @@ const beeline = createDocumentResource({
     },
   }
 })
+
 
 const twilioTabs = computed(() => {
   if (!twilioFields.data) return []

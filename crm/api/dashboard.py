@@ -480,9 +480,9 @@ def get_average_time_to_close_a_lead(from_date, to_date, user=""):
 		"title": _("Avg. time to close a lead"),
 		"tooltip": _("Average time taken from lead creation to deal closure"),
 		"value": current_avg_lead,
-		"suffix": " days",
+		"suffix": _(" days"),
 		"delta": delta_lead,
-		"deltaSuffix": " days",
+		"deltaSuffix": _(" days"),
 		"negativeIsBetter": True,
 	}
 
@@ -533,9 +533,9 @@ def get_average_time_to_close_a_deal(from_date, to_date, user=""):
 		"title": _("Avg. time to close a deal"),
 		"tooltip": _("Average time taken from deal creation to deal closure"),
 		"value": current_avg_deal,
-		"suffix": " days",
+		"suffix": _(" days"),
 		"delta": delta_deal,
-		"deltaSuffix": " days",
+		"deltaSuffix": _(" days"),
 		"negativeIsBetter": True,
 	}
 
@@ -626,9 +626,9 @@ def get_sales_trend(from_date="", to_date="", user=""):
 			"title": _("Count"),
 		},
 		"series": [
-			{"name": "leads", "type": "line", "showDataPoints": True},
-			{"name": "deals", "type": "line", "showDataPoints": True},
-			{"name": "won_deals", "type": "line", "showDataPoints": True},
+			{"name": _("Leads"), "type": "line", "showDataPoints": True},
+			{"name": _("Deals"), "type": "line", "showDataPoints": True},
+			{"name": _("Won deals"), "type": "line", "showDataPoints": True},
 		],
 	}
 
@@ -697,8 +697,8 @@ def get_forecasted_revenue(from_date="", to_date="", user=""):
 			"title": _("Revenue") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "forecasted", "type": "line", "showDataPoints": True},
-			{"name": "actual", "type": "line", "showDataPoints": True},
+			{"name": _("Forecasted"), "type": "line", "showDataPoints": True},
+			{"name": _("Actual"), "type": "line", "showDataPoints": True},
 		],
 	}
 
@@ -746,7 +746,7 @@ def get_funnel_conversion(from_date="", to_date="", user=""):
 	)
 	total_leads_count = total_leads[0].count if total_leads else 0
 
-	result.append({"stage": "Leads", "count": total_leads_count})
+	result.append({"stage": _("Leads"), "count": total_leads_count})
 
 	result += get_deal_status_change_counts(from_date, to_date, deal_conds, deal_filters)
 
@@ -823,7 +823,7 @@ def get_deals_by_stage_axis(from_date="", to_date="", user=""):
 		},
 		"yAxis": {"title": _("Count")},
 		"series": [
-			{"name": "count", "type": "bar"},
+			{"name": _("Count"), "type": "bar"},
 		],
 	}
 
@@ -927,7 +927,7 @@ def get_lost_deal_reasons(from_date="", to_date="", user=""):
 			"title": _("Count"),
 		},
 		"series": [
-			{"name": "count", "type": "bar"},
+			{"name": _("Count"), "type": "bar"},
 		],
 	}
 
@@ -967,6 +967,11 @@ def get_leads_by_source(from_date="", to_date="", user=""):
 		params,
 		as_dict=True,
 	)
+
+	# Translate 'Empty' for NULL values
+	for row in result:
+		if row.get("source") == "Empty":
+			row["source"] = _("Empty")
 
 	return {
 		"data": result or [],
@@ -1012,6 +1017,11 @@ def get_deals_by_source(from_date="", to_date="", user=""):
 		params,
 		as_dict=True,
 	)
+
+	# Translate 'Empty' for NULL values
+	for row in result:
+		if row.get("source") == "Empty":
+			row["source"] = _("Empty")
 
 	return {
 		"data": result or [],
@@ -1059,6 +1069,11 @@ def get_deals_by_territory(from_date="", to_date="", user=""):
 		as_dict=True,
 	)
 
+	# Translate 'Empty' for NULL values
+	for row in result:
+		if row.get("territory") == "Empty":
+			row["territory"] = _("Empty")
+
 	return {
 		"data": result or [],
 		"title": _("Deals by territory"),
@@ -1075,8 +1090,8 @@ def get_deals_by_territory(from_date="", to_date="", user=""):
 			"title": _("Deal value") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "deals", "type": "bar"},
-			{"name": "value", "type": "line", "showDataPoints": True, "axis": "y2"},
+			{"name": _("Deals"), "type": "bar"},
+			{"name": _("Value"), "type": "line", "showDataPoints": True, "axis": "y2"},
 		],
 	}
 
@@ -1135,8 +1150,8 @@ def get_deals_by_salesperson(from_date="", to_date="", user=""):
 			"title": _("Deal value") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "deals", "type": "bar"},
-			{"name": "value", "type": "line", "showDataPoints": True, "axis": "y2"},
+			{"name": _("Deals"), "type": "bar"},
+			{"name": _("Value"), "type": "line", "showDataPoints": True, "axis": "y2"},
 		],
 	}
 

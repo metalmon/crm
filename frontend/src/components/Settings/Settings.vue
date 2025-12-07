@@ -52,7 +52,6 @@ import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import EmailTemplateIcon from '@/components/Icons/EmailTemplateIcon.vue'
 import SettingsIcon2 from '@/components/Icons/SettingsIcon2.vue'
 import Users from '@/components/Settings/Users.vue'
-import GeneralSettingsPage from '@/components/Settings/General/GeneralSettingsPage.vue'
 import InviteUserPage from '@/components/Settings/InviteUserPage.vue'
 import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
 import WhatsAppSettings from '@/components/Settings/WhatsAppSettings.vue'
@@ -63,6 +62,8 @@ import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import HomeActions from '@/components/Settings/HomeActions.vue'
 import ForecastingSettings from '@/components/Settings/ForecastingSettings.vue'
 import CurrencySettings from '@/components/Settings/CurrencySettings.vue'
+import RealtimeSettings from '@/components/Settings/RealtimeSettings.vue'
+import LeadConversionSettings from '@/components/Settings/LeadConversionSettings.vue'
 import EmailTemplatePage from '@/components/Settings/EmailTemplate/EmailTemplatePage.vue'
 import TelephonySettings from '@/components/Settings/TelephonySettings.vue'
 import EmailConfig from '@/components/Settings/EmailConfig.vue'
@@ -71,6 +72,7 @@ import { usersStore } from '@/stores/users'
 import {
   isWhatsappInstalled,
   showSettings,
+  activeSettingsPage,
 } from '@/composables/settings'
 import { isAvitoInstalled } from '@/composables/avito'
 import { Dialog, Avatar } from 'frappe-ui'
@@ -103,15 +105,19 @@ const tabs = computed(() => {
       label: __('System Configuration'),
       items: [
         {
-          label: __('General'),
-          icon: 'settings',
-          component: markRaw(GeneralSettingsPage),
-          condition: () => isManager(),
-        },
-        {
           label: __('Forecasting'),
           component: markRaw(ForecastingSettings),
           icon: TrendingUpDownIcon,
+        },
+        {
+          label: __('Realtime Settings'),
+          component: markRaw(RealtimeSettings),
+          icon: 'zap',
+        },
+        {
+          label: __('Lead Conversion'),
+          component: markRaw(LeadConversionSettings),
+          icon: 'repeat',
         },
         {
           label: __('Currency & Exchange Rate'),

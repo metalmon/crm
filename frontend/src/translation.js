@@ -117,6 +117,7 @@ function format(message, replace) {
  * Translate a message with optional replacement values and context
  */
 function translate(message, replace, context = null) {
+
   let translatedMessages = window.translatedMessages || {}
   let translatedMessage = ''
 

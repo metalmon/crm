@@ -117,9 +117,7 @@ const confirmDelete = () => {
   confirmDeleteInfo.value = {
     show: true,
     title: __('Delete'),
-    message: __('Are you sure you want to delete {0} linked doc(s)?', [
-      props.items.length,
-    ]),
+    message: __('Are you sure you want to delete {0} linked doc(s)?', [props.items.length]),
     delete: true,
   }
 }
@@ -128,9 +126,7 @@ const confirmUnlink = () => {
   confirmDeleteInfo.value = {
     show: true,
     title: __('Unlink'),
-    message: __('Are you sure you want to unlink {0} linked doc(s)?', [
-      props.items.length,
-    ]),
+    message: __('Are you sure you want to unlink {0} linked doc(s)?', [props.items.length]),
     delete: false,
   }
 }

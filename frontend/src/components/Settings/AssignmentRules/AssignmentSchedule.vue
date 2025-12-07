@@ -33,11 +33,11 @@ const assignmentRuleErrors = inject('assignmentRuleErrors')
 
 const columns = [
   {
-    label: 'Days',
+    label: __('Days'),
     key: 'day',
   },
   {
-    label: 'Active',
+    label: __('Active'),
     key: 'active',
   },
 ]

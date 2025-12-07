@@ -10,12 +10,11 @@ export const notifications = createResource({
     limit: 20,
     offset: 0
   },
-  initialData: [],
   auto: true,
 })
 
 export const unreadNotificationsCount = computed(
-  () => notifications.data?.unread_count || notifications.data?.filter((n) => !n.read).length || 0,
+  () => notifications.data?.unread_count || 0,
 )
 
 export const notificationsStore = defineStore('crm-notifications', () => {

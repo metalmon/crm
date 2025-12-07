@@ -58,7 +58,7 @@ import LockKeyhole from '~icons/lucide/lock-keyhole'
 import Password from '@/components/Controls/Password.vue'
 import { usersStore } from '@/stores/users'
 import { Dialog, toast, createResource } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, watch } from 'vue'
 
 const show = defineModel()

@@ -36,9 +36,7 @@
           <div class="mb-1.5 text-xs text-ink-gray-5">
             {{ __('Description') }}
           </div>
-          <TextEditor
-            variant="outline"
-            ref="description"
+          <TextEditor variant="outline" ref="description"
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
             :content="_task.description"
@@ -57,13 +55,15 @@
           <Dropdown 
             :options="taskStatusOptions(updateTaskStatus)" 
             :class="[
-              'min-w-0',
               isMobileView 
                 ? 'col-span-5 row-start-1' 
-                : 'flex'
+                : 'flex flex-shrink-0'
             ]"
           >
-            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="justify-between w-full">
+            <Button :label="extractLabel(_task.status, translateTaskStatus)" :class="[
+              'justify-between',
+              isMobileView ? 'w-full' : ''
+            ]">
               <template #prefix>
                 <TaskStatusIcon :status="extractValue(_task.status)" />
               </template>
@@ -99,34 +99,31 @@
           <Dropdown 
             :options="taskPriorityOptions(updateTaskPriority)" 
             :class="[
-              'min-w-0',
               isMobileView 
                 ? 'col-span-4 row-start-2' 
-                : 'flex'
+                : 'flex flex-shrink-0'
             ]"
           >
-            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="justify-between w-full">
+            <Button :label="extractLabel(_task.priority, translateTaskPriority)" :class="[
+              'justify-between',
+              isMobileView ? 'w-full' : ''
+            ]">
               <template #prefix>
                 <TaskPriorityIcon :priority="extractValue(_task.priority)" />
               </template>
             </Button>
           </Dropdown>
-          <div 
+          <input
+            type="datetime-local"
+            v-model="_task.due_date"
             :class="[
               'min-w-0',
               isMobileView 
                 ? 'col-span-8 row-start-2 w-full' 
-                : 'w-36'
+                : 'min-w-0 flex-1'
             ]"
-          >
-            <DateTimePicker
-              class="datepicker"
-              v-model="_task.due_date"
-              :placeholder="__('01/04/2024 11:30 PM')"
-              :formatter="(date) => getFormat(date, '', true, true)"
-              input-class="border-none"
-            />
-          </div>
+            @click.stop
+          />
         </div>
         <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
       </div>
@@ -149,10 +146,10 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
-import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel, getFormat } from '@/utils'
+import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { capture } from '@/telemetry'
-import { TextEditor, Dropdown, Tooltip, call, DateTimePicker, ErrorMessage, FormControl, Button, Dialog } from 'frappe-ui'
+import { TextEditor, Dropdown, Tooltip, call, ErrorMessage, FormControl, Button, Dialog } from 'frappe-ui'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'

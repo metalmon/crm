@@ -355,8 +355,6 @@ import { createDocument } from '@/composables/document'
 import {
   FormControl,
   Checkbox,
-  DateTimePicker,
-  DatePicker,
   Tooltip,
   dayjs,
   Autocomplete
@@ -379,10 +377,11 @@ const props = defineProps({
   },
   parentFieldname: {
     type: String,
+  },
   overrides: {
     type: Object,
     default: () => ({}),
-  }
+  },
 })
 
 const triggerOnChange = inject('triggerOnChange', () => {})

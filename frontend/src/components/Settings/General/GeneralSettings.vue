@@ -12,32 +12,6 @@
     <div class="flex-1 flex flex-col overflow-y-auto dark-scrollbar">
       <div
         class="flex items-start justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded gap-3"
-        @click="toggleForecasting()"
-      >
-        <div class="flex flex-col flex-1 min-w-0">
-          <div class="text-p-base font-medium text-ink-gray-7">
-            {{ __('Enable forecasting') }}
-          </div>
-          <div class="text-p-sm text-ink-gray-5 break-words">
-            {{
-              __(
-                'Makes "Expected Closure Date" and "Expected Deal Value" mandatory for deal value forecasting',
-              )
-            }}
-          </div>
-        </div>
-        <div class="flex-shrink-0">
-          <Switch
-            size="sm"
-            v-model="settings.doc.enable_forecasting"
-            @click.stop="toggleForecasting(settings.doc.enable_forecasting)"
-          />
-        </div>
-      </div>
-      <div class="h-px border-t mx-2 border-outline-gray-modals" />
-      
-      <div
-        class="flex items-start justify-between p-3 cursor-pointer hover:bg-surface-menu-bar rounded gap-3"
         @click="toggleKanbanRealtime()"
       >
         <div class="flex flex-col flex-1 min-w-0">
@@ -119,21 +93,6 @@ const settingsList = [
     description: __('Configure actions that appear on the home dropdown'),
   },
 ]
-
-function toggleForecasting(value) {
-  settings.doc.enable_forecasting =
-    value !== undefined ? value : !settings.doc.enable_forecasting
-
-  settings.save.submit(null, {
-    onSuccess: () => {
-      toast.success(
-        settings.doc.enable_forecasting
-          ? __('Forecasting enabled successfully')
-          : __('Forecasting disabled successfully'),
-      )
-    },
-  })
-}
 
 function toggleKanbanRealtime(value) {
   settings.doc.disable_realtime_updates =

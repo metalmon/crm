@@ -43,11 +43,12 @@ import {
   createResource,
   TextEditor,
   DatePicker,
-  DateTimePicker,
   Button,
   Dialog,
 } from 'frappe-ui'
 import { ref, computed, onMounted, h } from 'vue'
+import { toUserTimezone, toSystemTimezone } from '@/utils/dayjs'
+import dayjs from 'dayjs'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
 import { translateDealStatus } from '@/utils/dealStatusTranslations'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
@@ -234,12 +235,39 @@ function getValueComponent(f) {
       modelValue: newValue.value,
       'onUpdate:modelValue': (v) => updateValue(v)
     })
-  } else if (typeDate.includes(fieldtype)) {
-    const DateComponent = fieldtype === 'Date' ? DatePicker : DateTimePicker
-    return h(DateComponent, {
+  } else if (typeDate.includes(fieldtype) && fieldtype === 'Date') {
+    return h(DatePicker, {
       modelValue: newValue.value,
       'onUpdate:modelValue': (v) => updateValue(v),
       class: 'w-full'
+    })
+  } else if (typeDate.includes(fieldtype) && fieldtype === 'Datetime') {
+    const formatValue = (val) => {
+      if (!val) return ''
+      try {
+        return toUserTimezone(val).format('YYYY-MM-DDTHH:mm')
+      } catch (e) {
+        return val
+      }
+    }
+    return h('input', {
+      type: 'datetime-local',
+      value: formatValue(newValue.value),
+      class: 'w-full rounded border border-gray-100 bg-surface-gray-2 px-2 py-1.5 text-base text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:border-outline-gray-4 focus:bg-surface-white focus:shadow-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
+      onInput: (e) => {
+        const val = e.target.value
+        if (!val) {
+          updateValue(null)
+          return
+        }
+        try {
+          const localDate = dayjs(val)
+          const systemDate = toSystemTimezone(localDate)
+          updateValue(systemDate.format())
+        } catch (err) {
+          updateValue(val)
+        }
+      }
     })
   } else if (typeEditor.includes(fieldtype)) {
     return h(TextEditor, {

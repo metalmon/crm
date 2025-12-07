@@ -41,7 +41,7 @@
    "fieldname": "from",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Caller",
+   "label": "From (number)",
    "reqd": 1
   },
   {
@@ -79,7 +79,7 @@
    "fieldname": "to",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Caller",
+   "label": "To (number)",
    "reqd": 1
   },
   {
