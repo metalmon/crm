@@ -1,7 +1,7 @@
 {
-  "commit": "07831adf",
+  "commit": "21493aef",
   "branch": "main",
-  "commit_message": "refactor: enhance localization in dashboard API and update translations\n\n- Updated dashboard API to utilize pre-translated labels for various metrics and data points.\n- Improved suffix handling for average time metrics to ensure consistent localization.\n- Transformed data structures to use translated keys for sales trends, forecasted revenue, funnel conversion, and deals by territory/salesperson.\n- Updated translation files to reflect changes in the dashboard API and added missing translations for various labels.",
-  "commit_date": "2025-12-07",
+  "commit_message": "feat: add description for background sync frequency in lead sync source\n\n- Added a description field to clarify the purpose of the 'Background Sync Frequency' option in the Lead Sync Source DocType.\n- Updated localization files to include the new description for better user understanding.",
+  "commit_date": "2025-12-15",
   "tag": "v1.56.4"
 }
