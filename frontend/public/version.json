@@ -1,7 +1,7 @@
 {
-  "commit": "623283dc",
-  "branch": "merge-frappe-main",
-  "commit_message": "feat: update Vue and TypeScript settings in VSCode, enhance CRM API for localization, and improve UI components\n\n- Updated VSCode settings for TypeScript and Vue to enhance development experience.\n- Refactored CRM API to utilize localization for various dashboard metrics and labels.\n- Improved UI components for better user interaction and accessibility, including date handling and assignment rules.\n- Added new settings for lead synchronization and forecasting features.\n- Updated translations and fixed minor bugs in the notification system.",
+  "commit": "07831adf",
+  "branch": "main",
+  "commit_message": "refactor: enhance localization in dashboard API and update translations\n\n- Updated dashboard API to utilize pre-translated labels for various metrics and data points.\n- Improved suffix handling for average time metrics to ensure consistent localization.\n- Transformed data structures to use translated keys for sales trends, forecasted revenue, funnel conversion, and deals by territory/salesperson.\n- Updated translation files to reflect changes in the dashboard API and added missing translations for various labels.",
   "commit_date": "2025-12-07",
   "tag": "v1.56.4"
 }

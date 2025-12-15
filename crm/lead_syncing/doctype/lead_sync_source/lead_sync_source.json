@@ -75,6 +75,7 @@
   },
   {
    "default": "Hourly",
+   "description": "How often to sync leads from Facebook Lead Forms in the background",
    "fieldname": "background_sync_frequency",
    "fieldtype": "Select",
    "label": "Background Sync Frequency",

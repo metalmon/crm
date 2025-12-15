@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-12-07 16:17+0000\n"
-"PO-Revision-Date: 2025-12-07 16:17+0000\n"
+"POT-Creation-Date: 2025-12-15 13:05+0000\n"
+"PO-Revision-Date: 2025-12-15 13:05+0000\n"
 "Last-Translator: shariq@frappe.io\n"
 "Language-Team: shariq@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -3657,6 +3657,12 @@ msgstr ""
 #. Sync Source'
 #: crm/lead_syncing/doctype/lead_sync_source/lead_sync_source.json
 msgid "Hourly"
+msgstr ""
+
+#. Description of the 'Background Sync Frequency' (Select) field in DocType
+#. 'Lead Sync Source'
+#: crm/lead_syncing/doctype/lead_sync_source/lead_sync_source.json
+msgid "How often to sync leads from Facebook Lead Forms in the background"
 msgstr ""
 
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:160
