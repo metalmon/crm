@@ -25,7 +25,7 @@
     </div>
     <div v-if="!data.get.loading" class="flex-1 overflow-y-auto">
       <FieldLayout
-        v-if="data?.doc && tabs"
+        v-if="data?.doc && tabs.length"
         :tabs="tabs"
         :data="data.doc"
         :doctype="doctype"

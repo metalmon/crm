@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2025-12-15 13:05+0000\n"
-"PO-Revision-Date: 2025-12-15 16:07+0300\n"
+"POT-Creation-Date: 2025-12-19 09:45+0000\n"
+"PO-Revision-Date: 2025-12-19 12:30+0300\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
-"Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
+"Language-Team: shariq@frappe.io\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "Generated-By: Babel 2.16.0\n"
-"X-Generator: Poedit 3.8\n"
 
 #: frontend/src/components/ViewControls.vue:1482
 msgid " (New)"
@@ -3678,7 +3677,7 @@ msgstr "Почасовая"
 #. 'Lead Sync Source'
 #: crm/lead_syncing/doctype/lead_sync_source/lead_sync_source.json
 msgid "How often to sync leads from Facebook Lead Forms in the background"
-msgstr ""
+msgstr "С какой периодичностью синхронизировать лидов из форм сбора лидов Facebook в фоновом режиме"
 
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:160
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:244
@@ -8291,3 +8290,4 @@ msgstr "⚠️ Не найдено данных для родительског�
 #: frontend/src/data/script.js:188
 msgid "⚠️ No row found for idx: {0} in parent field: {1}"
 msgstr "⚠️ Не найдено ни одной строки для idx: {0} в родительском поле: {1}"
+

@@ -313,7 +313,7 @@ standard_dropdown_items = [
 	},
 	{
 		"name1": "about",
-		"label": "About",
+		"label": "About Us",
 		"type": "Route",
 		"icon": "info",
 		"route": "#",

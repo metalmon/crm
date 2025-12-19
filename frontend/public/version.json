@@ -1,7 +1,7 @@
 {
-  "commit": "21493aef",
+  "commit": "1f9f1b6e",
   "branch": "main",
-  "commit_message": "feat: add description for background sync frequency in lead sync source\n\n- Added a description field to clarify the purpose of the 'Background Sync Frequency' option in the Lead Sync Source DocType.\n- Updated localization files to include the new description for better user understanding.",
+  "commit_message": "chore: update version.json with new commit details\n\n- Updated commit hash to \"21493aef\" and changed commit date to \"2025-12-15\".\n- Revised commit message to reflect the addition of a description for background sync frequency in the Lead Sync Source DocType.",
   "commit_date": "2025-12-15",
   "tag": "v1.56.4"
 }
