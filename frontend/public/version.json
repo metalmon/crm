@@ -1,7 +1,7 @@
 {
-  "commit": "1f9f1b6e",
+  "commit": "c9e33974",
   "branch": "main",
-  "commit_message": "chore: update version.json with new commit details\n\n- Updated commit hash to \"21493aef\" and changed commit date to \"2025-12-15\".\n- Revised commit message to reflect the addition of a description for background sync frequency in the Lead Sync Source DocType.",
-  "commit_date": "2025-12-15",
+  "commit_message": "fix: update label and localization files for improved clarity\n\n- Changed the label from \"About\" to \"About Us\" for better user understanding.\n- Updated POT and PO files with new creation and revision dates.\n- Added missing translations and improved existing ones in the Russian localization files.",
+  "commit_date": "2025-12-19",
   "tag": "v1.56.4"
 }

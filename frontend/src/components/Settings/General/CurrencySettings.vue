@@ -131,11 +131,10 @@
   </div>
 </template>
 <script setup>
-import { ErrorMessage, toast } from 'frappe-ui'
+import { ErrorMessage, toast, FormControl } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
 import { ref } from 'vue'
-import FormControl from 'frappe-ui/src/components/FormControl/FormControl.vue'
 
 const { _settings: settings } = getSettings()
 const { $dialog } = globalStore()

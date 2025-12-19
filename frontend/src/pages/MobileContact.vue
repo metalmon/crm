@@ -167,7 +167,7 @@
             />
           </div>
         </div>
-        <template v-else-if="tab.name === 'Deals'">
+        <div v-else-if="tab.name === 'Deals'">
           <DealsListView
             v-if="rows.length"
             class="mt-4"
