@@ -1,14 +1,14 @@
 <template>
   <Dropdown :options="dropdownItems" v-bind="$attrs">
-    <template v-slot="{ open }">
+    <template #default="{ open }">
       <button
         class="flex h-12 items-center rounded-md py-2 duration-300 ease-in-out"
         :class="
           isCollapsed
             ? 'w-auto px-0'
-            :             open
-              ? 'w-52 bg-surface-white px-2 shadow-sm'
-              : 'w-52 px-2 hover:bg-surface-gray-3'
+            : open
+              ? 'w-full px-2 bg-surface-white shadow-sm'
+              : 'w-full px-2 hover:bg-surface-gray-3'
         "
       >
         <BrandLogo v-model="brand" class="h-8 max-w-16 flex-shrink-0" />

@@ -733,11 +733,11 @@ msgstr ""
 msgid "Assignment rule created"
 msgstr ""
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:111
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:119
 msgid "Assignment rule deleted"
 msgstr ""
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:156
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:164
 msgid "Assignment rule duplicated"
 msgstr ""
 
@@ -745,7 +745,7 @@ msgstr ""
 msgid "Assignment rule updated"
 msgstr ""
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:188
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:196
 msgid "Assignment rule {0} updated"
 msgstr ""
 
@@ -1401,7 +1401,7 @@ msgid "Change deal status"
 msgstr ""
 
 #: frontend/src/components/Settings/ProfileSettings.vue:26
-#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:88
+#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:92
 #: frontend/src/pages/MobileContact.vue:37
 #: frontend/src/pages/MobileOrganization.vue:37
 #: frontend/src/pages/Organization.vue:47
@@ -1506,7 +1506,7 @@ msgid "Click or drag to upload image"
 msgstr ""
 
 #: frontend/src/components/Notifications.vue:26
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:54
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:62
 msgid "Close"
 msgstr ""
 
@@ -2539,7 +2539,7 @@ msgstr ""
 msgid "Duplicate"
 msgstr ""
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:38
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:46
 msgid "Duplicate Assignment Rule"
 msgstr ""
 
@@ -4790,7 +4790,7 @@ msgstr ""
 msgid "New Assignment Rule"
 msgstr ""
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:44
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:52
 msgid "New Assignment Rule Name"
 msgstr ""
 
@@ -5938,7 +5938,7 @@ msgid "Remove group"
 msgstr ""
 
 #: frontend/src/components/Settings/ProfileSettings.vue:32
-#: frontend/src/pages/Contact.vue:53 frontend/src/pages/Lead.vue:94
+#: frontend/src/pages/Contact.vue:53 frontend/src/pages/Lead.vue:98
 #: frontend/src/pages/MobileContact.vue:43
 #: frontend/src/pages/MobileOrganization.vue:43
 #: frontend/src/pages/Organization.vue:53
@@ -6510,7 +6510,7 @@ msgstr ""
 msgid "Set currency"
 msgstr ""
 
-#: frontend/src/pages/Lead.vue:115
+#: frontend/src/pages/Lead.vue:119
 msgid "Set first name"
 msgstr ""
 
@@ -7458,7 +7458,7 @@ msgid "Upload finished but failed to get file URL."
 msgstr ""
 
 #: frontend/src/components/Settings/ProfileSettings.vue:27
-#: frontend/src/pages/Contact.vue:48 frontend/src/pages/Lead.vue:89
+#: frontend/src/pages/Contact.vue:48 frontend/src/pages/Lead.vue:93
 #: frontend/src/pages/MobileContact.vue:38
 #: frontend/src/pages/MobileOrganization.vue:38
 #: frontend/src/pages/Organization.vue:48
