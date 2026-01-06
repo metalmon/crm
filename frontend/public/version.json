@@ -1,7 +1,7 @@
 {
-  "commit": "c9e33974",
+  "commit": "3978bc9a",
   "branch": "main",
-  "commit_message": "fix: update label and localization files for improved clarity\n\n- Changed the label from \"About\" to \"About Us\" for better user understanding.\n- Updated POT and PO files with new creation and revision dates.\n- Added missing translations and improved existing ones in the Russian localization files.",
+  "commit_message": "chore: update dependencies and improve imports\n\n- Bumped version of `frappe-ui` to ^0.1.242 in package.json and yarn.lock.\n- Updated commit hash and message in version.json.\n- Simplified imports in socket.js by consolidating resource imports from `frappe-ui`.\n- Added FormControl import in CurrencySettings.vue for enhanced functionality.\n- Fixed template structure in MobileContact.vue for proper rendering.",
   "commit_date": "2025-12-19",
   "tag": "v1.56.4"
 }
