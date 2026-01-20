@@ -68,13 +68,12 @@
                 <span>{{ contact.doc.full_name }}</span>
               </div>
               <div class="flex items-center gap-1.5">
-<<<<<<< HEAD
                 <div class="flex gap-1.5">
                   <Button
-                    v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
+                    v-if="contact.doc.actual_mobile_no && ipTelephonyEnabled"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
-                    @click="makeCall(contact.data.actual_mobile_no)"
+                    @click="makeCall(contact.doc.actual_mobile_no)"
                   >
                     <template #prefix>
                       <PhoneIcon class="h-4 w-4" />
@@ -83,7 +82,7 @@
                   </Button>
 
                   <Button
-                    v-if="contact.data.actual_mobile_no && !ipTelephonyEnabled"
+                    v-if="contact.doc.actual_mobile_no && !ipTelephonyEnabled"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="trackPhoneActivities('phone')"
@@ -95,7 +94,7 @@
                   </Button>
 
                   <Button
-                    v-if="contact.data.actual_mobile_no"
+                    v-if="contact.doc.actual_mobile_no"
                     size="sm"
                     class="dark:text-white dark:hover:bg-gray-700"
                     @click="trackPhoneActivities('whatsapp')"
@@ -106,16 +105,6 @@
                     {{ __('Chat') }}
                   </Button>
                 </div>
-
-=======
-                <Button
-                  v-if="callEnabled && contact.doc.mobile_no"
-                  :label="__('Make Call')"
-                  size="sm"
-                  :iconLeft="PhoneIcon"
-                  @click="callEnabled && makeCall(contact.doc.mobile_no)"
-                />
->>>>>>> frappe/main
                 <Button
                   v-if="canDelete"
                   :label="__('Delete')"
@@ -148,12 +137,8 @@
     >
       <template #tab-item="{ tab, selected }">
         <button
-<<<<<<< HEAD
-          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
-=======
           v-if="tab.name == 'Deals'"
-          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:text-ink-gray-9 !px-4"
->>>>>>> frappe/main
+          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9 !px-4"
           :class="{ 'text-ink-gray-9': selected }"
         >
           <component v-if="tab.icon" :is="tab.icon" class="h-5" />
@@ -169,15 +154,9 @@
             {{ tab.count }}
           </Badge>
         </button>
-<<<<<<< HEAD
-      </TabList>
-      <TabPanel v-slot="{ tab }">
-        <div v-if="tab.name === 'Details'">
-=======
       </template>
       <template #tab-panel="{ tab }">
         <div v-if="tab.name == 'Details'">
->>>>>>> frappe/main
           <div
             v-if="sections.data"
             class="flex flex-1 flex-col justify-between overflow-hidden"
@@ -190,7 +169,7 @@
             />
           </div>
         </div>
-        <template v-else-if="tab.name === 'Deals'">
+        <div v-else-if="tab.name === 'Deals'">
           <DealsListView
             v-if="rows.length"
             class="mt-4"
@@ -207,13 +186,8 @@
               <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
             </div>
           </div>
-<<<<<<< HEAD
-        </template>
-      </TabPanel>
-=======
         </div>
       </template>
->>>>>>> frappe/main
     </Tabs>
   </div>
 </template>
@@ -614,7 +588,7 @@ const dealColumns = [
 const activities = ref([])
 
 function trackPhoneActivities(type = 'phone') {
-  if (!contact.data?.actual_mobile_no) {
+  if (!contact.doc?.actual_mobile_no) {
     toast.error(__('No phone number set'))
     return
   }
@@ -622,10 +596,10 @@ function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
     doctype: 'Contact',
-    docname: contact.data.name,
-    phoneNumber: contact.data.actual_mobile_no,
+    docname: contact.doc.name,
+    phoneNumber: contact.doc.actual_mobile_no,
     activities: activities.value,
-    contactName: contact.data.full_name,
+    contactName: contact.doc.full_name,
   })
 }
 function openAddressModal(_address) {

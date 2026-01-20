@@ -81,11 +81,8 @@
                   variant="ghost"
                   theme="red"
                   size="sm"
-<<<<<<< HEAD
-                  class="dark:text-red-400 dark:hover:bg-gray-700"
-=======
                   iconLeft="trash-2"
->>>>>>> frappe/main
+                  class="dark:text-red-400 dark:hover:bg-gray-700"
                   @click="deleteOrganization"
                 />
               </div>

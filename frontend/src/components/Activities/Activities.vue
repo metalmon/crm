@@ -594,11 +594,11 @@ const noMoreActivities = ref(false)
 const all_activities = createResource({
   url: 'crm.api.activities.get_activities',
   params: { 
-    name: doc.value.data.name,
+    name: doc.value.name,
     limit: 20,
     offset: 0
   },
-  cache: ['activity', doc.value.data.name],
+  cache: ['activity', doc.value.name],
   auto: true,
   transform: ([versions, calls, notes, tasks, attachments]) => {
     return { versions, calls, notes, tasks, attachments }
@@ -658,7 +658,7 @@ async function loadMore() {
     const result = await createResource({
       url: 'crm.api.activities.get_activities',
       params: {
-        name: doc.value.data.name,
+        name: doc.value.name,
         limit: 20,
         offset: currentLength
       }
@@ -998,10 +998,10 @@ const showWhatsappTemplates = ref(false)
 
 const whatsappMessages = createResource({
   url: 'crm.api.whatsapp.get_whatsapp_messages',
-  cache: ['whatsapp_messages', doc.value.data.name],
+  cache: ['whatsapp_messages', doc.value.name],
   params: {
     reference_doctype: props.doctype,
-    reference_name: doc.value.data.name,
+    reference_name: doc.value.name,
   },
   auto: true,
   transform: (data) => data.sort(sortByModified),
@@ -1010,10 +1010,10 @@ const whatsappMessages = createResource({
 
 const avitoMessages = createResource({
   url: 'crm.api.avito.get_avito_messages',
-  cache: ['avito_messages', doc.value.data.name],
+  cache: ['avito_messages', doc.value.name],
   params: {
     reference_doctype: props.doctype,
-    reference_name: doc.value.data.name,
+    reference_name: doc.value.name,
   },
   auto: true,
   transform: (data) => data.sort(sortByModified),
@@ -1030,7 +1030,7 @@ onMounted(() => {
   // Setup socket event handlers
   const handleWhatsAppMessage = (data) => {
     if (data.reference_doctype === props.doctype && 
-        data.reference_name === doc.value.data.name) {
+        data.reference_name === doc.value.name) {
       whatsappMessages.reload()
       reloadDebounced()
     }
@@ -1038,7 +1038,7 @@ onMounted(() => {
 
   const handleAvitoMessage = (data) => {
     if (data.reference_doctype === props.doctype && 
-        data.reference_name === doc.value.data.name) {
+        data.reference_name === doc.value.name) {
       avitoMessages.reload()
       reloadDebounced()
     }
