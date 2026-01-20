@@ -155,8 +155,8 @@ msgstr "<b>МЕТА</b>"
 msgid "<b>ЯРЛЫКИ</b>"
 msgstr "<b>ЯРЛЫКИ</b>"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:98
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:98
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:95
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:95
 msgid "<p>Dear {{ lead_name }},</p>\\n\\n<p>This is a reminder for the payment of {{ grand_total }}.</p>\\n\\n<p>Thanks,</p>\\n<p>Frappé</p>"
 msgstr "<p>Уважаемый {{имя_клиента}},</p>\\n\\nЭто<p>напоминание о выплате {{сумма_итого}}.</p>\\n\\nСпасибо<p>,</p>\\n<p>Подпись</p>"
 
@@ -165,7 +165,7 @@ msgstr "<p>Уважаемый {{имя_клиента}},</p>\\n\\nЭто<p>на�
 msgid "<span class=\"h5\"><b>ПОРТАЛ</b></span>"
 msgstr "<span class=\"h5\"><b>ПОРТАЛ</b></span>"
 
-#: frontend/src/components/CommunicationArea.vue:85
+#: frontend/src/components/CommunicationArea.vue:81
 msgid "@John, can you please check this?"
 msgstr "@John, не могли бы Вы проверить это?"
 
@@ -210,7 +210,7 @@ msgstr "Абсолютный подсчет документов, прогрес
 msgid "Absolute number difference between the \"Count Reached\" of the *previous displayed* stage and this stage. Helps identify bottlenecks between visible stages."
 msgstr "Абсолютная разность чисел между \"Кол-во достигших\" *предыдущего отображаемого* этапа и этого этапа. Помогает выявить узкие места между видимыми этапами."
 
-#: frontend/src/components/Telephony/TwilioCallUI.vue:92
+#: frontend/src/components/Telephony/TwilioCallUI.vue:88
 msgid "Accept"
 msgstr "Ответить"
 
@@ -303,7 +303,7 @@ msgstr "Добавить существующего пользователя"
 msgid "Add Field"
 msgstr "Добавить поле"
 
-#: frontend/src/components/Filter.vue:138
+#: frontend/src/components/Filter.vue:136
 msgid "Add Filter"
 msgstr "Добавить фильтр"
 
@@ -316,7 +316,7 @@ msgstr "Добавить строку"
 msgid "Add Section"
 msgstr "Добавить секцию"
 
-#: frontend/src/components/SortBy.vue:148
+#: frontend/src/components/SortBy.vue:142
 msgid "Add Sort"
 msgstr "Добавить сортировку"
 
@@ -398,9 +398,9 @@ msgstr "Адресная строка 1 обязательна"
 #: frontend/src/components/Settings/InviteUserPage.vue:179
 #: frontend/src/components/Settings/Users.vue:86
 #: frontend/src/components/Settings/Users.vue:126
-#: frontend/src/components/Settings/Users.vue:184
-#: frontend/src/components/Settings/Users.vue:244
-#: frontend/src/components/Settings/Users.vue:247
+#: frontend/src/components/Settings/Users.vue:192
+#: frontend/src/components/Settings/Users.vue:242
+#: frontend/src/components/Settings/Users.vue:245
 msgid "Admin"
 msgstr "Админ"
 
@@ -466,7 +466,7 @@ msgstr "Файл иконки с расширением .ico. Размер до�
 msgid "An image with 1:1 & 2:1 ratio is preferred"
 msgstr "Предпочтительнее изображения с соотношением 1:1 и 2:1"
 
-#: frontend/src/components/Filter.vue:44 frontend/src/components/Filter.vue:82
+#: frontend/src/components/Filter.vue:43 frontend/src/components/Filter.vue:81
 msgid "And"
 msgstr "И"
 
@@ -479,21 +479,25 @@ msgstr "И"
 msgid "Annual Revenue"
 msgstr "Годовой доход"
 
-#: frontend/src/components/Modals/DealModal.vue:201
-#: frontend/src/components/Modals/LeadModal.vue:142
+#: frontend/src/components/Modals/DealModal.vue:200
+#: frontend/src/components/Modals/LeadModal.vue:141
 msgid "Annual Revenue should be a number"
 msgstr "Годовой доход должен быть числом"
 
-#: frontend/src/components/Settings/General/BrandSettings.vue:69
+#: frontend/src/components/Settings/LeadSyncing/FailureLogs.vue:39
+msgid "Any failed lead syncs will show up here"
+msgstr "Здесь будут отображаться все неудачные попытки синхронизации лидов"
+
+#: frontend/src/components/Settings/BrandSettings.vue:55
 msgid "Appears in the left sidebar. Recommended size is 32x32 px in PNG or SVG"
 msgstr "Отображается в левой боковой панели. Рекомендуемый размер - 32x32 px в формате PNG или SVG"
 
-#: frontend/src/components/Settings/General/BrandSettings.vue:103
+#: frontend/src/components/Settings/BrandSettings.vue:90
 msgid "Appears next to the title in your browser tab. Recommended size is 32x32 px in PNG or ICO"
 msgstr "Появляется рядом с заголовком во вкладке Вашего браузера. Рекомендуемый размер - 32x32 px в PNG или ICO"
 
-#: frontend/src/components/Kanban/KanbanSettings.vue:107
-#: frontend/src/components/Kanban/KanbanView.vue:45
+#: frontend/src/components/Kanban/KanbanSettings.vue:101
+#: frontend/src/components/Kanban/KanbanView.vue:46
 msgid "Apply"
 msgstr "Применить"
 
@@ -506,6 +510,10 @@ msgstr "Применить для"
 #: crm/fcrm/doctype/crm_form_script/crm_form_script.json
 msgid "Apply To"
 msgstr "Применить к"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:125
+msgid "Apply on"
+msgstr "Применить для"
 
 #: frontend/src/components/Apps.vue:19
 msgid "Apps"
@@ -576,7 +584,16 @@ msgstr "Попросите Вашего менеджера настроить п
 msgid "Assign To"
 msgstr "Назначить на"
 
-#: frontend/src/components/AssignTo.vue:9
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:435
+msgid "Assign condition is required"
+msgstr "Присвоить условие обязательно"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:438
+msgid "Assign conditions are invalid"
+msgstr "Назначенные условия недопустимы"
+
+#: frontend/src/components/AssignTo.vue:11
+#: frontend/src/components/AssignToBody.vue:5
 msgid "Assign to"
 msgstr "Назначить"
 
@@ -604,12 +621,41 @@ msgstr "Назначение успешно очищено"
 msgid "Assignment rule"
 msgstr "Правило назначения"
 
-#: frontend/src/components/Controls/GridFieldsEditorModal.vue:176
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:667
+msgid "Assignment rule created"
+msgstr "Создано правило назначения"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:119
+msgid "Assignment rule deleted"
+msgstr "Правило назначения удалено"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:164
+msgid "Assignment rule duplicated"
+msgstr "Правило назначения дублируется"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:749
+msgid "Assignment rule updated"
+msgstr "Обновлено правило назначения"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:196
+msgid "Assignment rule {0} updated"
+msgstr "Правило назначения {0} обновлено"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRules.vue:7
+#: frontend/src/components/Settings/Settings.vue:164
+msgid "Assignment rules"
+msgstr "Правила назначения"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRules.vue:11
+msgid "Assignment rules automatically assign lead/deal to the right sales user based on predefined conditions"
+msgstr "Правила назначения автоматически распределяют потенциальных клиентов/сделки между нужными сотрудниками отдела продаж в соответствии с заданными условиями"
+
+#: frontend/src/components/Controls/GridFieldsEditorModal.vue:173
 msgid "At least one field is required"
 msgstr "Хотя бы одно поле является обязательным"
 
 #: frontend/src/components/FilesUploader/FilesUploader.vue:5
-#: frontend/src/components/FilesUploader/FilesUploader.vue:76
+#: frontend/src/components/FilesUploader/FilesUploader.vue:73
 msgid "Attach"
 msgstr "Прикрепить"
 
@@ -630,15 +676,44 @@ msgstr "Вложения"
 msgid "Auth Token"
 msgstr "Токен авторизации"
 
-#: crm/api/dashboard.py:238
+#. Label of the auto_update_expected_deal_value (Check) field in DocType 'FCRM
+#. Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+msgid "Auto Update Expected Deal Value"
+msgstr "Автоматическое обновление ожидаемой стоимости сделки"
+
+#: frontend/src/components/Settings/ForecastingSettings.vue:42
+msgid "Auto update expected deal value"
+msgstr "Автоматическое обновление ожидаемой стоимости сделки"
+
+#: frontend/src/components/Settings/ForecastingSettings.vue:88
+msgid "Auto update of expected deal value disabled"
+msgstr "Автоматическое обновление ожидаемой стоимости сделки отключено"
+
+#: frontend/src/components/Settings/ForecastingSettings.vue:87
+msgid "Auto update of expected deal value enabled"
+msgstr "Автоматическое обновление ожидаемой стоимости сделки включено"
+
+#. Description of the 'Auto Update Expected Deal Value' (Check) field in
+#. DocType 'FCRM Settings'
+#: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
+#: frontend/src/components/Settings/ForecastingSettings.vue:46
+msgid "Automatically update \"Expected Deal Value\" based on the total value of associated products in a deal"
+msgstr "Автоматически обновляйте \"Ожидаемую стоимость сделки\" на основе общей стоимости связанных товаров в сделке"
+
+#: frontend/src/components/Settings/Settings.vue:161
+msgid "Automation & Rules"
+msgstr "Автоматизация и правила"
+
+#: crm/api/dashboard.py:250
 msgid "Average deal value of non won/lost deals"
 msgstr "Средняя стоимость сделок, не выигранных/проигранных"
 
-#: crm/api/dashboard.py:411
+#: crm/api/dashboard.py:429
 msgid "Average deal value of ongoing & won deals"
 msgstr "Средняя стоимость текущих и выигранных сделок"
 
-#: crm/api/dashboard.py:354
+#: crm/api/dashboard.py:370
 msgid "Average deal value of won deals"
 msgstr "Средняя стоимость выигранных сделок"
 
@@ -662,11 +737,11 @@ msgstr "Среднее количество касаний (Сообщения +
 msgid "Average time (seconds) spent in this specific stage before moving to the next, calculated based on logs with duration within the period end. Note: Calculation might be approximate."
 msgstr "Среднее время, проведенное на данном конкретном этапе перед переходом к следующему, рассчитывается на основе журналов с продолжительностью в пределах конца периода. Примечание: Расчеты могут быть приблизительными."
 
-#: crm/api/dashboard.py:518
+#: crm/api/dashboard.py:534
 msgid "Average time taken from deal creation to deal closure"
 msgstr "Среднее время, прошедшее с момента заключения сделки до ее завершения"
 
-#: crm/api/dashboard.py:464
+#: crm/api/dashboard.py:481
 msgid "Average time taken from lead creation to deal closure"
 msgstr "Среднее время, прошедшее с момента создания лида до завершения сделки"
 
@@ -715,23 +790,23 @@ msgstr "Ср. касаний (конв. лиды)"
 msgid "Avg. Touches (Lead)"
 msgstr "Ср. касаний"
 
-#: crm/api/dashboard.py:410
+#: crm/api/dashboard.py:428
 msgid "Avg. deal value"
 msgstr "Средняя стоимость сделки"
 
-#: crm/api/dashboard.py:237
+#: crm/api/dashboard.py:249
 msgid "Avg. ongoing deal value"
 msgstr "Средняя стоимость текущей сделки"
 
-#: crm/api/dashboard.py:517
+#: crm/api/dashboard.py:533
 msgid "Avg. time to close a deal"
 msgstr "Среднее время заключения сделки"
 
-#: crm/api/dashboard.py:463
+#: crm/api/dashboard.py:480
 msgid "Avg. time to close a lead"
 msgstr "Среднее время закрытия лида"
 
-#: crm/api/dashboard.py:353
+#: crm/api/dashboard.py:369
 msgid "Avg. won deal value"
 msgstr "Средняя стоимость выигранной сделки"
 
@@ -851,7 +926,7 @@ msgstr "CRM Контакты"
 
 #. Name of a DocType
 #: crm/fcrm/doctype/crm_dashboard/crm_dashboard.json
-#: frontend/src/pages/Dashboard.vue:318
+#: frontend/src/pages/Dashboard.vue:304
 msgid "CRM Dashboard"
 msgstr "CRM Панель управления"
 
@@ -1074,7 +1149,7 @@ msgid "Calling Medium"
 msgstr "Средство вызова"
 
 #: frontend/src/components/Telephony/TwilioCallUI.vue:40
-#: frontend/src/components/Telephony/TwilioCallUI.vue:148
+#: frontend/src/components/Telephony/TwilioCallUI.vue:140
 msgid "Calling..."
 msgstr "Звонок…"
 
@@ -1140,7 +1215,11 @@ msgstr "Невозможно удалить стандартные элемен�
 msgid "Cannot determine portal path for this document type."
 msgstr "Невозможно определить путь к порталу для этого типа документа."
 
-#: frontend/src/components/FilesUploader/FilesUploader.vue:94
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:179
+msgid "Cannot enable rule without adding users in it"
+msgstr "Невозможно включить правило без добавления в него пользователей"
+
+#: frontend/src/components/FilesUploader/FilesUploader.vue:91
 msgid "Capture"
 msgstr "Захватить"
 
@@ -1172,14 +1251,18 @@ msgid "Change deal status"
 msgstr "Измените статус сделки"
 
 #: frontend/src/components/Settings/ProfileSettings.vue:26
-#: frontend/src/pages/Contact.vue:41 frontend/src/pages/Lead.vue:103
+#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:92
 #: frontend/src/pages/MobileContact.vue:37
 #: frontend/src/pages/MobileOrganization.vue:37
-#: frontend/src/pages/Organization.vue:41
+#: frontend/src/pages/Organization.vue:47
 msgid "Change image"
 msgstr "Изменить изображение"
 
-#: frontend/src/pages/Dashboard.vue:28
+#: frontend/src/components/Activities/TaskArea.vue:45
+msgid "Change status"
+msgstr "Изменить статус"
+
+#: frontend/src/pages/Dashboard.vue:22
 msgid "Chart"
 msgstr "Диаграмма"
 
@@ -1205,11 +1288,11 @@ msgstr "Проверка готовности системы..."
 msgid "Choose Existing"
 msgstr "Выбрать существующий"
 
-#: frontend/src/components/Modals/DealModal.vue:45
+#: frontend/src/components/Modals/DealModal.vue:44
 msgid "Choose Existing Contact"
 msgstr "Выбрать существующий контакт"
 
-#: frontend/src/components/Modals/DealModal.vue:38
+#: frontend/src/components/Modals/DealModal.vue:37
 msgid "Choose Existing Organization"
 msgstr "Выбрать существующую организацию"
 
@@ -1226,7 +1309,11 @@ msgstr "Выберите поставщика услуг электронной 
 msgid "Churn (Prev Displayed)"
 msgstr "Отвал (от пред.)"
 
-#: frontend/src/components/Controls/Link.vue:62
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:229
+msgid "Choose which {0} are affected by this un-assignment rule."
+msgstr "Выберите, на какие {0} будет распространяться это правило отмены назначения."
+
+#: frontend/src/components/Controls/Link.vue:59
 msgid "Clear"
 msgstr "Очистить"
 
@@ -1236,7 +1323,7 @@ msgstr "Очистить"
 msgid "Clear Assignment"
 msgstr "Очистить назначения"
 
-#: frontend/src/components/SortBy.vue:160
+#: frontend/src/components/SortBy.vue:153
 msgid "Clear Sort"
 msgstr "Очистить сортировку"
 
@@ -1245,7 +1332,7 @@ msgstr "Очистить сортировку"
 msgid "Clear Table"
 msgstr "Очистить таблицу"
 
-#: frontend/src/components/Filter.vue:18 frontend/src/components/Filter.vue:150
+#: frontend/src/components/Filter.vue:21 frontend/src/components/Filter.vue:146
 msgid "Clear all Filter"
 msgstr "Очистить весь фильтр"
 
@@ -1253,7 +1340,12 @@ msgstr "Очистить весь фильтр"
 msgid "Click or drag to upload image"
 msgstr "Нажмите или перетащите, чтобы загрузить изображение"
 
-#: frontend/src/components/Notifications.vue:28
+#: crm/templates/emails/helpdesk_invitation.html:7
+msgid "Click on the link below to complete your registration and set a new password"
+msgstr "Нажмите на ссылку ниже, чтобы завершить регистрацию и установить новый пароль"
+
+#: frontend/src/components/Notifications.vue:26
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:62
 msgid "Close"
 msgstr "Закрыть"
 
@@ -1292,7 +1384,7 @@ msgstr "Колонка"
 
 #. Label of the column_field (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
-#: frontend/src/components/Kanban/KanbanSettings.vue:15
+#: frontend/src/components/Kanban/KanbanSettings.vue:12
 msgid "Column Field"
 msgstr "Поле колонки"
 
@@ -1392,8 +1484,9 @@ msgstr "Настройте название Вашего бренда, лого�
 msgid "Confirm"
 msgstr "Подтвердить"
 
-#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:250
-#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:253
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:147
+#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:239
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:209
 msgid "Confirm Delete"
 msgstr "Подтвердить удаление"
 
@@ -1401,7 +1494,6 @@ msgstr "Подтвердить удаление"
 msgid "Confirm Password"
 msgstr "Подтвердить пароль"
 
-#: frontend/src/components/Settings/Users.vue:225
 #: frontend/src/components/Settings/Users.vue:228
 msgid "Confirm Remove"
 msgstr "Подтвердить удаление"
@@ -1503,15 +1595,15 @@ msgstr "Контакты"
 msgid "Content"
 msgstr "Содержание"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:81
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:81
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:78
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:78
 msgid "Content Type"
 msgstr "Тип контента"
 
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:159
 #: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:163
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:167
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:165
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:169
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:162
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:166
 msgid "Content is required"
 msgstr "Содержание обязательно"
 
@@ -1791,10 +1883,10 @@ msgstr "Обнаружен тупик при отмене назначений, 
 #: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:54
 #: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:62
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:78
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:54
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:62
-#: frontend/src/components/Telephony/ExotelCallUI.vue:205
-#: frontend/src/pages/Tasks.vue:129
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:51
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:59
+#: frontend/src/components/Telephony/ExotelCallUI.vue:200
+#: frontend/src/pages/Tasks.vue:132
 msgid "Deal"
 msgstr "Сделка"
 
@@ -1882,8 +1974,8 @@ msgstr "Сделки по этапам"
 msgid "Deals by territory"
 msgstr "Сделки по региону"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:115
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:115
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:112
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:112
 msgid "Dear {{ lead_name }}, \\n\\nThis is a reminder for the payment of {{ grand_total }}. \\n\\nThanks, \\nFrappé"
 msgstr "Уважаемый {{имя_клиента }}, \\n\\nЭто напоминание о выплате {{ сумма_итого }}. \\n\\nСпасибо, \\nПодпись"
 
@@ -1927,7 +2019,7 @@ msgstr "Отправка по умолчанию"
 msgid "Default Sending and Inbox"
 msgstr "По умолчанию Отправка и Входящие"
 
-#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.py:33
+#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.py:61
 msgid "Default Service Level Agreement already exists for {0}"
 msgstr "Соглашение об уровне обслуживания по умолчанию уже существует для {0}"
 
@@ -1964,7 +2056,7 @@ msgstr "Статусы по умолчанию, пользовательские
 msgid "Defaults"
 msgstr "По умолчанию"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:135
+#: frontend/src/components/Activities/AttachmentArea.vue:131
 #: frontend/src/components/Activities/NoteArea.vue:12
 #: frontend/src/components/Activities/TaskArea.vue:55
 #: frontend/src/components/Activities/TaskArea.vue:63
@@ -2010,8 +2102,8 @@ msgstr "Удалиить представление"
 msgid "Delete all"
 msgstr "Удалить все"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:60
-#: frontend/src/components/Activities/AttachmentArea.vue:131
+#: frontend/src/components/Activities/AttachmentArea.vue:58
+#: frontend/src/components/Activities/AttachmentArea.vue:127
 msgid "Delete attachment"
 msgstr "Удалить вложение"
 
@@ -2097,6 +2189,10 @@ msgstr "Отключено"
 #: frontend/src/components/EmailEditor.vue:159
 msgid "Discard"
 msgstr "Отменить"
+
+#: frontend/src/components/Calendar/CalendarEventPanel.vue:614
+msgid "Discard unsaved changes?"
+msgstr "Сбросить несохраненные изменения?"
 
 #. Label of the discount_percentage (Percent) field in DocType 'CRM Products'
 #: crm/fcrm/doctype/crm_products/crm_products.json
@@ -2305,7 +2401,7 @@ msgstr "Изменить заметку"
 msgid "Edit Quick Entry Layout"
 msgstr "Редактирование макета"
 
-#: frontend/src/components/Modals/TaskModal.vue:18
+#: frontend/src/components/Modals/TaskModal.vue:6
 msgid "Edit Task"
 msgstr "Редактировать задачу"
 
@@ -2403,11 +2499,11 @@ msgstr "Письма"
 msgid "Empty"
 msgstr "Пусто"
 
-#: frontend/src/components/Filter.vue:124
+#: frontend/src/components/Filter.vue:123
 msgid "Empty - Choose a field to filter by"
 msgstr "Пусто - Выберите поле для фильтрации"
 
-#: frontend/src/components/SortBy.vue:134
+#: frontend/src/components/SortBy.vue:130
 msgid "Empty - Choose a field to sort by"
 msgstr "Пусто - Выберите поле для сортировки"
 
@@ -2428,7 +2524,7 @@ msgstr "Включить входящие"
 msgid "Enable Outgoing"
 msgstr "Включить исходящие"
 
-#: frontend/src/components/Settings/General/GeneralSettings.vue:19
+#: frontend/src/components/Settings/ForecastingSettings.vue:20
 msgid "Enable forecasting"
 msgstr "Включить прогнозирование"
 
@@ -2446,9 +2542,16 @@ msgstr "Включить прогнозирование"
 #: crm/fcrm/doctype/twilio_settings/twilio_settings.json
 #: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:33
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:85
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:33
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:20
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSourceForm.vue:14
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:61
 msgid "Enabled"
 msgstr "Включено"
+
+#. Label of the enabled (Check) field in DocType 'Lead Sync Source'
+#: crm/lead_syncing/doctype/lead_sync_source/lead_sync_source.json
+msgid "Enabled?"
+msgstr "Р’РєР»СЋС‡РµРЅРѕ?"
 
 #. Label of the end_date (Date) field in DocType 'CRM Service Level Agreement'
 #: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
@@ -2459,6 +2562,8 @@ msgstr "Дата окончания"
 #. Label of the end_time (Time) field in DocType 'CRM Service Day'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_service_day/crm_service_day.json
+#: frontend/src/components/Calendar/CalendarEventPanel.vue:242
+#: frontend/src/components/Modals/EventModal.vue:112
 msgid "End Time"
 msgstr "Время окончания"
 
@@ -2499,7 +2604,7 @@ msgstr "Ошибка при назначении на {0}: {1}"
 msgid "Error converting to deal"
 msgstr "Ошибка при конвертации в сделку"
 
-#: frontend/src/components/Modals/ConvertToDealModal.vue:185
+#: frontend/src/components/Modals/ConvertToDealModal.vue:176
 msgid "Error converting to deal: {0}"
 msgstr "Ошибка преобразования в сделку: {0}"
 
@@ -2694,6 +2799,8 @@ msgstr "Настройки FCRM"
 #. Option for the 'Status' (Select) field in DocType 'CRM Call Log'
 #. Option for the 'SLA Status' (Select) field in DocType 'CRM Deal'
 #. Option for the 'SLA Status' (Select) field in DocType 'CRM Lead'
+#. Option for the 'Status' (Select) field in DocType 'CRM Rolling Response
+#. Time'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json frontend/src/utils/callLog.js:83
@@ -2730,11 +2837,15 @@ msgstr "Не удалось получить запись Twilio"
 msgid "Failed to create email account, Invalid credentials"
 msgstr "Не удалось создать учетную запись электронной почты, неверные учетные данные"
 
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:182
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:179
 msgid "Failed to create template"
 msgstr "Не удалось создать шаблон"
 
-#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:217
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:186
+msgid "Failed to delete Lead Sync Source"
+msgstr "Не удалось удалить источник синхронизации лида"
+
+#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:216
 msgid "Failed to delete template"
 msgstr "Не удалось удалить шаблон"
 
@@ -2746,7 +2857,7 @@ msgstr "Не удалось получить курс обмена с {0} на {
 msgid "Failed to load form controller: {0}"
 msgstr "Не удалось загрузить контроллер формы: {0}"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:246
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:242
 msgid "Failed to rename template"
 msgstr "Не удалось переименовать шаблон"
 
@@ -2782,23 +2893,28 @@ msgstr "Не удалось обновить пароль"
 msgid "Failed to update profile"
 msgstr "Не удалось обновить профиль"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:212
-#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:202
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:171
+msgid "Failed to update source"
+msgstr "Не удалось обновить источник"
+
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:208
+#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:201
 msgid "Failed to update template"
 msgstr "Не удалось обновить шаблон"
 
 #. Label of the favicon (Attach) field in DocType 'FCRM Settings'
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
-#: frontend/src/components/Settings/General/BrandSettings.vue:81
+#: frontend/src/components/Settings/BrandSettings.vue:87
 msgid "Favicon"
 msgstr "Фавикон"
 
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:38
 #: frontend/src/components/Modals/EditValueModal.vue:5
 msgid "Field"
 msgstr "Поле"
 
 #: frontend/src/components/Controls/GridFieldsEditorModal.vue:19
-#: frontend/src/components/Kanban/KanbanSettings.vue:51
+#: frontend/src/components/Kanban/KanbanSettings.vue:48
 msgid "Fields Order"
 msgstr "Упорядочить"
 
@@ -2840,7 +2956,7 @@ msgstr "Завершили здесь"
 msgid "First Name"
 msgstr "Имя"
 
-#: frontend/src/components/Modals/LeadModal.vue:135
+#: frontend/src/components/Modals/LeadModal.vue:134
 msgid "First Name is mandatory"
 msgstr "Имя обязательно"
 
@@ -2871,14 +2987,14 @@ msgstr "Время первого ответа"
 msgid "First Response Time"
 msgstr "Время первого отклика"
 
-#: frontend/src/components/Filter.vue:131
+#: frontend/src/components/Filter.vue:130
 #: frontend/src/components/Settings/ProfileSettings.vue:78
 msgid "First name"
 msgstr "Имя"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:51
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:48
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:84
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:51
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:48
 msgid "For"
 msgstr "Для"
 
@@ -2965,8 +3081,11 @@ msgstr "От пользователя"
 
 #. Option for the 'SLA Status' (Select) field in DocType 'CRM Deal'
 #. Option for the 'SLA Status' (Select) field in DocType 'CRM Lead'
+#. Option for the 'Status' (Select) field in DocType 'CRM Rolling Response
+#. Time'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
+#: crm/fcrm/doctype/crm_rolling_response_time/crm_rolling_response_time.json
 msgid "Fulfilled"
 msgstr "Выполнен"
 
@@ -3051,6 +3170,14 @@ msgstr "Группировка по полю"
 msgid "Group By: "
 msgstr "Группировать по: "
 
+#: frontend/src/components/Telephony/TwilioCallUI.vue:63
+msgid "Hang up"
+msgstr "Положить трубку"
+
+#: crm/templates/emails/helpdesk_invitation.html:2
+msgid "Hello"
+msgstr "Привет"
+
 #: frontend/src/components/Layouts/AppSidebar.vue:93
 msgid "Help"
 msgstr "Справка"
@@ -3063,7 +3190,44 @@ msgstr "Центр помощи"
 msgid "Help centre"
 msgstr "Центр помощи"
 
-#: frontend/src/components/CommunicationArea.vue:62
+#: frontend/src/components/Settings/Settings.vue:203
+msgid "Helpdesk"
+msgstr "Служба поддержки"
+
+#. Name of a DocType
+#: crm/fcrm/doctype/helpdesk_crm_settings/helpdesk_crm_settings.json
+msgid "Helpdesk CRM Settings"
+msgstr "Настройки CRM-системы службы поддержки"
+
+#. Label of the helpdesk_site_apis_section (Section Break) field in DocType
+#. 'Helpdesk CRM Settings'
+#: crm/fcrm/doctype/helpdesk_crm_settings/helpdesk_crm_settings.json
+msgid "Helpdesk Site API's"
+msgstr "API сайта службы поддержки"
+
+#. Label of the helpdesk_site_url (Data) field in DocType 'Helpdesk CRM
+#. Settings'
+#: crm/fcrm/doctype/helpdesk_crm_settings/helpdesk_crm_settings.json
+msgid "Helpdesk Site URL"
+msgstr "URL сайта службы поддержки"
+
+#: crm/fcrm/doctype/helpdesk_crm_settings/helpdesk_crm_settings.py:18
+msgid "Helpdesk is not installed in the current site"
+msgstr "Helpdesk не установлен на текущем сайте"
+
+#: crm/fcrm/doctype/helpdesk_crm_settings/helpdesk_crm_settings.py:40
+msgid "Helpdesk is not integrated with the CRM"
+msgstr "Helpdesk не интегрирован с CRM"
+
+#: frontend/src/components/Settings/HelpdeskSettings.vue:4
+msgid "Helpdesk settings"
+msgstr "Настройки службы поддержки"
+
+#: frontend/src/components/Settings/HelpdeskSettings.vue:5
+msgid "Helpdesk settings updated"
+msgstr "Настройки службы поддержки обновлены"
+
+#: frontend/src/components/CommunicationArea.vue:57
 msgid "Hi John, \\n\\nCan you please provide more details on this..."
 msgstr "Здравствуйте. Можете предоставить более подробную информацию об этом..."
 
@@ -3077,7 +3241,7 @@ msgstr "Скрыто"
 msgid "Hide"
 msgstr "Скрыть"
 
-#: frontend/src/components/Activities/CallArea.vue:74
+#: frontend/src/components/Activities/CallArea.vue:75
 msgid "Hide Recording"
 msgstr "Скрыть запись"
 
@@ -3132,7 +3296,14 @@ msgid "Home actions"
 msgstr "Главные действия"
 
 #. Label of the id (Data) field in DocType 'CRM Call Log'
+#. Label of the id (Data) field in DocType 'Facebook Lead Form'
+#. Label of the id (Data) field in DocType 'Facebook Lead Form Question'
+#. Label of the id (Data) field in DocType 'Facebook Page'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
+#: crm/lead_syncing/doctype/facebook_lead_form/facebook_lead_form.json
+#: crm/lead_syncing/doctype/facebook_lead_form_question/facebook_lead_form_question.json
+#: crm/lead_syncing/doctype/facebook_page/facebook_page.json
+#: frontend/src/components/Settings/LeadSyncing/FailureLogs.vue:77
 msgid "ID"
 msgstr "Название"
 
@@ -3202,11 +3373,11 @@ msgctxt "Task status - items currently being worked on"
 msgid "In Progress"
 msgstr "В процессе"
 
-#: frontend/src/components/SLASection.vue:75
+#: frontend/src/components/SLASection.vue:68
 msgid "In less than a minute"
 msgstr "Менее чем за минуту"
 
-#: frontend/src/components/Activities/CallArea.vue:35
+#: frontend/src/components/Activities/CallArea.vue:36
 msgid "Inbound Call"
 msgstr "Входящий звонок"
 
@@ -3277,8 +3448,8 @@ msgstr "Введение"
 msgid "Invalid Account SID or Auth Token."
 msgstr "Неверный SID учетной записи или Auth Token."
 
-#: frontend/src/components/Modals/DealModal.vue:213
-#: frontend/src/components/Modals/LeadModal.vue:154
+#: frontend/src/components/Modals/DealModal.vue:212
+#: frontend/src/components/Modals/LeadModal.vue:153
 msgid "Invalid Email"
 msgstr "Неверный адрес электронной почты"
 
@@ -3286,7 +3457,11 @@ msgstr "Неверный адрес электронной почты"
 msgid "Invalid Exotel Number"
 msgstr "Неверный номер Exotel"
 
-#: crm/api/dashboard.py:73
+#: crm/lead_syncing/doctype/lead_sync_source/facebook.py:147
+msgid "Invalid access token provided for Facebook."
+msgstr "Предоставлен недействительный токен доступа Facebook."
+
+#: crm/api/dashboard.py:77
 msgid "Invalid chart name"
 msgstr "Недопустимое имя графика"
 
@@ -3310,7 +3485,12 @@ msgstr "Пригласить нового пользователя"
 msgid "Invite User"
 msgstr "Пригласить пользователя"
 
-#: frontend/src/components/Settings/InviteUserPage.vue:56
+#: frontend/src/components/Settings/AssignmentRules/AssigneeSearch.vue:78
+#: frontend/src/components/Settings/AssignmentRules/AssigneeSearch.vue:149
+msgid "Invite agent"
+msgstr "Пригласить агента"
+
+#: frontend/src/components/Settings/InviteUserPage.vue:51
 msgid "Invite as"
 msgstr "Пригласить в качестве"
 
@@ -3446,7 +3626,7 @@ msgid "Kanban Fields"
 msgstr "Поля Канбан"
 
 #: frontend/src/components/Kanban/KanbanSettings.vue:3
-#: frontend/src/components/Kanban/KanbanSettings.vue:11
+#: frontend/src/components/Kanban/KanbanSettings.vue:8
 msgid "Kanban Settings"
 msgstr "Настройки"
 
@@ -3459,12 +3639,15 @@ msgid "Kanban realtime updates enabled successfully"
 msgstr "Обновления канбан в реальном времени успешно включены"
 
 #. Label of the key (Data) field in DocType 'CRM Invitation'
+#. Label of the key (Data) field in DocType 'Facebook Lead Form Question'
 #: crm/fcrm/doctype/crm_invitation/crm_invitation.json
+#: crm/lead_syncing/doctype/facebook_lead_form_question/facebook_lead_form_question.json
 msgid "Key"
 msgstr "Ключ"
 
 #. Label of the label (Data) field in DocType 'CRM Dropdown Item'
 #. Label of the label (Data) field in DocType 'CRM View Settings'
+#. Label of the label (Data) field in DocType 'Facebook Lead Form Question'
 #: crm/fcrm/doctype/crm_dropdown_item/crm_dropdown_item.json
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 #: frontend/src/components/ColumnSettings.vue:105
@@ -3551,9 +3734,9 @@ msgstr "Раскладка"
 #: frontend/src/components/Modals/CallLogDetailModal.vue:261
 #: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:58
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:77
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:58
-#: frontend/src/components/Telephony/ExotelCallUI.vue:205
-#: frontend/src/pages/Tasks.vue:130
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:55
+#: frontend/src/components/Telephony/ExotelCallUI.vue:200
+#: frontend/src/pages/Tasks.vue:133
 msgid "Lead"
 msgstr "Лид"
 
@@ -3648,6 +3831,7 @@ msgstr "Библиотека"
 msgid "Like"
 msgstr "Похоже"
 
+#: frontend/src/components/Calendar/CalendarEventPanel.vue:252
 #: frontend/src/components/FilesUploader/FilesUploaderArea.vue:47
 msgid "Link"
 msgstr "Ссылка"
@@ -3672,7 +3856,7 @@ msgstr "Ссылки"
 msgid "List"
 msgstr "Список"
 
-#: frontend/src/components/Activities/CallArea.vue:74
+#: frontend/src/components/Activities/CallArea.vue:75
 msgid "Listen"
 msgstr "Слушать"
 
@@ -3684,6 +3868,7 @@ msgstr "Загрузка колонок по умолчанию"
 
 #: frontend/src/components/Kanban/KanbanView.vue:153
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:142
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:120
 #: frontend/src/components/Settings/Users.vue:155
 #: frontend/src/components/custom-ui/ListFooter.vue:14
 msgid "Load More"
@@ -3739,7 +3924,6 @@ msgstr "Войти в Frappe Cloud?"
 
 #. Label of the brand_logo (Attach) field in DocType 'FCRM Settings'
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
-#: frontend/src/components/Settings/General/BrandSettings.vue:47
 msgid "Logo"
 msgstr "Логотип"
 
@@ -3818,7 +4002,7 @@ msgstr "Позвонить"
 msgid "Make a call"
 msgstr "Позвонить"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:102
+#: frontend/src/components/Activities/AttachmentArea.vue:98
 msgid "Make attachment {0}"
 msgstr "Сделайте вложение {0}"
 
@@ -3834,7 +4018,7 @@ msgstr "Сделать приватным"
 msgid "Make public"
 msgstr "Сделать публичным"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:111
+#: frontend/src/components/Activities/AttachmentArea.vue:107
 msgid "Make {0}"
 msgstr "Сделайте {0}"
 
@@ -3858,9 +4042,9 @@ msgstr "Управляйте своими учетными записями эл
 #: frontend/src/components/Settings/InviteUserPage.vue:171
 #: frontend/src/components/Settings/InviteUserPage.vue:178
 #: frontend/src/components/Settings/Users.vue:87
-#: frontend/src/components/Settings/Users.vue:185
+#: frontend/src/components/Settings/Users.vue:193
+#: frontend/src/components/Settings/Users.vue:253
 #: frontend/src/components/Settings/Users.vue:256
-#: frontend/src/components/Settings/Users.vue:259
 msgid "Manager"
 msgstr "Менеджер"
 
@@ -3873,9 +4057,15 @@ msgstr "Ошибка обязательного поля: {0}"
 msgid "Manual"
 msgstr "Вручную"
 
-#: frontend/src/components/Notifications.vue:19
-#: frontend/src/pages/MobileNotification.vue:11
-#: frontend/src/pages/MobileNotification.vue:14
+#. Label of the mapped_to_crm_field (Autocomplete) field in DocType 'Facebook
+#. Lead Form Question'
+#: crm/lead_syncing/doctype/facebook_lead_form_question/facebook_lead_form_question.json
+msgid "Mapped to CRM Field"
+msgstr "Сопоставлено с полем CRM"
+
+#: frontend/src/components/Notifications.vue:20
+#: frontend/src/pages/MobileNotification.vue:12
+#: frontend/src/pages/MobileNotification.vue:13
 msgid "Mark all as read"
 msgstr "Отметить все как прочитанное"
 
@@ -3927,8 +4117,8 @@ msgstr "Пропущенный"
 msgid "Mobile No"
 msgstr "Мобильный"
 
-#: frontend/src/components/Modals/DealModal.vue:209
-#: frontend/src/components/Modals/LeadModal.vue:150
+#: frontend/src/components/Modals/DealModal.vue:208
+#: frontend/src/components/Modals/LeadModal.vue:149
 msgid "Mobile No should be a number"
 msgstr "Мобильный номер должен быть номером"
 
@@ -3982,7 +4172,7 @@ msgstr "Переход к предыдущему разделу"
 msgid "Move to previous tab"
 msgstr "Переход к предыдущей вкладке"
 
-#: frontend/src/components/Modals/ViewModal.vue:40
+#: frontend/src/components/Modals/ViewModal.vue:29
 msgid "My Open Deals"
 msgstr "Мои открытые сделки"
 
@@ -4004,8 +4194,9 @@ msgstr "Н/Д"
 msgid "Name"
 msgstr "Название"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:155
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:157
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:417
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:151
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:154
 msgid "Name is required"
 msgstr "Имя обязательно"
 
@@ -4019,6 +4210,10 @@ msgstr "Именованные серии"
 #: frontend/src/utils/dealStatusTranslations.js:9
 msgid "Negotiation"
 msgstr "Переговоры"
+
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:99
+msgid "Nested conditions"
+msgstr "Вложенные условия"
 
 #. Label of the net_amount (Currency) field in DocType 'CRM Products'
 #: crm/fcrm/doctype/crm_products/crm_products.json
@@ -4038,6 +4233,7 @@ msgstr "Ошибка сетевого подключения"
 
 #: frontend/src/components/Activities/ActivityHeader.vue:85
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:19
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:20
 #: frontend/src/components/Settings/Users.vue:30
 #: frontend/src/utils/leadStatusTranslations.js:7
 msgid "New"
@@ -4294,6 +4490,7 @@ msgstr "Результатов не найдено"
 msgid "No templates found"
 msgstr "Шаблоны не найдены"
 
+#: frontend/src/components/Modals/AddExistingUserModal.vue:39
 #: frontend/src/components/Settings/Users.vue:57
 msgid "No users found"
 msgstr "Пользователи не найдены"
@@ -4423,7 +4620,7 @@ msgctxt "Sidebar"
 msgid "Notes"
 msgstr "Заметки"
 
-#: frontend/src/pages/Notes.vue:20
+#: frontend/src/pages/Notes.vue:23
 msgid "Notes View"
 msgstr "Просмотр"
 
@@ -4497,7 +4694,7 @@ msgstr "В ожидании"
 msgid "Ongoing"
 msgstr "В процессе"
 
-#: crm/api/dashboard.py:181
+#: crm/api/dashboard.py:190
 #: frontend/src/components/Dashboard/AddChartModal.vue:77
 msgid "Ongoing deals"
 msgstr "Текущие сделки"
@@ -4630,7 +4827,7 @@ msgstr "Другие возможности"
 msgid "Others"
 msgstr "Другое"
 
-#: frontend/src/components/Activities/CallArea.vue:36
+#: frontend/src/components/Activities/CallArea.vue:37
 msgid "Outbound Call"
 msgstr "Исходящий звонок"
 
@@ -4690,13 +4887,13 @@ msgid "Passwords match"
 msgstr "Пароли совпадают"
 
 #: frontend/src/components/Modals/EmailTemplateSelectorModal.vue:13
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:41
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:41
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:38
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:38
 msgid "Payment Reminder"
 msgstr "Напоминание о платеже"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:72
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:72
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:69
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:69
 msgid "Payment Reminder from Frappé - (#{{ name }})"
 msgstr "Напоминание о платеже от Frappé - (#{{ имя }})"
 
@@ -4705,7 +4902,7 @@ msgstr "Напоминание о платеже от Frappé - (#{{ имя }})"
 msgid "Pending"
 msgstr "В ожидании"
 
-#: frontend/src/components/Settings/InviteUserPage.vue:66
+#: frontend/src/components/Settings/InviteUserPage.vue:61
 msgid "Pending Invites"
 msgstr "Приглашения в ожидании"
 
@@ -4713,7 +4910,7 @@ msgstr "Приглашения в ожидании"
 msgid "Percentage of relevant leads that were converted into relevant deals. (Relevant Leads Converted / Total Relevant Leads) * 100%."
 msgstr "Процент релевантных лидов, которые были преобразованы в релевантные сделки. (Конвертированные релевантные лиды / Общее количество релевантных лидов) * 100%."
 
-#: frontend/src/pages/Dashboard.vue:79
+#: frontend/src/pages/Dashboard.vue:66
 msgid "Period"
 msgstr "Период"
 
@@ -4788,13 +4985,17 @@ msgstr "Пожалуйста, добавьте учетную запись эл�
 msgid "Please enable twilio settings before making a call."
 msgstr "Пожалуйста, включите настройки twilio перед совершением звонка."
 
-#: frontend/src/components/FilesUploader/FilesUploader.vue:168
+#: frontend/src/components/FilesUploader/FilesUploader.vue:165
 msgid "Please enter a valid URL"
 msgstr "Пожалуйста, введите корректный URL"
 
 #: frontend/src/components/Settings/General/CurrencySettings.vue:159
 msgid "Please enter the Exchangerate Host access key."
 msgstr "Пожалуйста, введите ключ доступа Exchangerate Host."
+
+#: frontend/src/components/Settings/CurrencySettings.vue:150
+msgid "Please enter the Exchangerate Host access key."
+msgstr "Введите ключ доступа Exchangerate Host."
 
 #: frontend/src/components/Modals/LostReasonModal.vue:9
 msgid "Please provide a reason for marking this deal as lost"
@@ -4870,6 +5071,8 @@ msgstr "Приоритеты"
 #. Label of the priority (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_service_level_priority/crm_service_level_priority.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:64
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRulesList.vue:20
 msgid "Priority"
 msgstr "Приоритет"
 
@@ -5075,7 +5278,7 @@ msgstr "Имя ссылки"
 msgid "Refresh"
 msgstr "Обновить"
 
-#: frontend/src/components/Telephony/TwilioCallUI.vue:104
+#: frontend/src/components/Telephony/TwilioCallUI.vue:97
 msgid "Reject"
 msgstr "Отклонить"
 
@@ -5099,11 +5302,15 @@ msgstr "Удаление и перемещение полей в предыду�
 msgid "Remove column"
 msgstr "Удалить колонку"
 
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:200
+msgid "Remove group"
+msgstr "Удалить группу"
+
 #: frontend/src/components/Settings/ProfileSettings.vue:32
-#: frontend/src/pages/Contact.vue:47 frontend/src/pages/Lead.vue:109
+#: frontend/src/pages/Contact.vue:53 frontend/src/pages/Lead.vue:98
 #: frontend/src/pages/MobileContact.vue:43
 #: frontend/src/pages/MobileOrganization.vue:43
-#: frontend/src/pages/Organization.vue:47
+#: frontend/src/pages/Organization.vue:53
 msgid "Remove image"
 msgstr "Удалить изображение"
 
@@ -5115,12 +5322,12 @@ msgstr "Удалить раздел"
 msgid "Remove tab"
 msgstr "Удалить вкладку"
 
-#: frontend/src/components/Activities/EmailArea.vue:31
+#: frontend/src/components/Activities/EmailArea.vue:34
 #: frontend/src/components/CommunicationArea.vue:10
 msgid "Reply"
 msgstr "Ответить"
 
-#: frontend/src/components/Activities/EmailArea.vue:44
+#: frontend/src/components/Activities/EmailArea.vue:41
 msgid "Reply All"
 msgstr "Ответить всем"
 
@@ -5144,7 +5351,7 @@ msgstr "Обязательные данные"
 msgid "Required Fields"
 msgstr "Обязательные поля"
 
-#: frontend/src/components/Controls/GridFieldsEditorModal.vue:82
+#: frontend/src/components/Controls/GridFieldsEditorModal.vue:79
 #: frontend/src/components/Controls/GridRowFieldsModal.vue:30
 #: frontend/src/components/Modals/DataFieldsModal.vue:30
 #: frontend/src/components/Modals/QuickEntryModal.vue:30
@@ -5177,7 +5384,7 @@ msgstr "Сбросить шаги ознакомления"
 msgid "Reset to Default"
 msgstr "Восстановить значения по умолчанию"
 
-#: frontend/src/pages/Dashboard.vue:34
+#: frontend/src/pages/Dashboard.vue:28
 msgid "Reset to default"
 msgstr "Сброс настроек по умолчанию"
 
@@ -5224,7 +5431,7 @@ msgstr "Восстановить"
 msgid "Restore Defaults"
 msgstr "Восстановить значения по умолчанию"
 
-#: frontend/src/components/FilesUploader/FilesUploader.vue:54
+#: frontend/src/components/FilesUploader/FilesUploader.vue:51
 msgid "Retake"
 msgstr "Повторить"
 
@@ -5236,8 +5443,8 @@ msgstr "Повторить"
 msgid "Revenue"
 msgstr "Доход"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:84
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:84
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:81
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:81
 msgid "Rich Text"
 msgstr "Форматируемый текст"
 
@@ -5253,7 +5460,7 @@ msgid "Ringing"
 msgstr "Вызов"
 
 #: frontend/src/components/Telephony/TwilioCallUI.vue:38
-#: frontend/src/components/Telephony/TwilioCallUI.vue:148
+#: frontend/src/components/Telephony/TwilioCallUI.vue:140
 msgid "Ringing..."
 msgstr "Звонок..."
 
@@ -5262,6 +5469,23 @@ msgstr "Звонок..."
 #: frontend/src/components/Modals/AddExistingUserModal.vue:43
 msgid "Role"
 msgstr "Роль"
+
+#. Option for the 'SLA Status' (Select) field in DocType 'CRM Deal'
+#. Option for the 'SLA Status' (Select) field in DocType 'CRM Lead'
+#: crm/fcrm/doctype/crm_deal/crm_deal.json
+#: crm/fcrm/doctype/crm_lead/crm_lead.json
+msgid "Rolling Response Due"
+msgstr "Текущий ответ"
+
+#. Label of the rolling_responses (Table) field in DocType 'CRM Deal'
+#. Label of the rolling_responses (Table) field in DocType 'CRM Lead'
+#. Label of the rolling_responses (Check) field in DocType 'CRM Service Level
+#. Agreement'
+#: crm/fcrm/doctype/crm_deal/crm_deal.json
+#: crm/fcrm/doctype/crm_lead/crm_lead.json
+#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.json
+msgid "Rolling Responses"
+msgstr "Ответы в реальном времени"
 
 #. Option for the 'Type' (Select) field in DocType 'CRM Dropdown Item'
 #. Label of the route (Data) field in DocType 'CRM Dropdown Item'
@@ -5398,9 +5622,9 @@ msgstr "Менеджер по продажам"
 #: frontend/src/components/Settings/InviteUserPage.vue:170
 #: frontend/src/components/Settings/InviteUserPage.vue:177
 #: frontend/src/components/Settings/Users.vue:88
-#: frontend/src/components/Settings/Users.vue:186
-#: frontend/src/components/Settings/Users.vue:268
-#: frontend/src/components/Settings/Users.vue:271
+#: frontend/src/components/Settings/Users.vue:194
+#: frontend/src/components/Settings/Users.vue:264
+#: frontend/src/components/Settings/Users.vue:267
 msgid "Sales User"
 msgstr "Пользователь отдела продаж"
 
@@ -5409,7 +5633,7 @@ msgstr "Пользователь отдела продаж"
 msgid "Sales trend"
 msgstr "Тенденция продаж"
 
-#: frontend/src/pages/Dashboard.vue:106
+#: frontend/src/pages/Dashboard.vue:93
 msgid "Sales user"
 msgstr "Пользователь отдела продаж"
 
@@ -5506,7 +5730,11 @@ msgstr "Выберите"
 msgid "Select All"
 msgstr "Выбрать все"
 
-#: frontend/src/pages/Dashboard.vue:59
+#: frontend/src/components/Calendar/CalendarEventPanel.vue:130
+msgid "See all participants"
+msgstr "Посмотреть всех участников"
+
+#: frontend/src/pages/Dashboard.vue:50
 msgid "Select Range"
 msgstr "Выбрать диапазон"
 
@@ -5584,11 +5812,15 @@ msgstr "Установлен"
 msgid "Set As Primary"
 msgstr "Установить как основной"
 
-#: frontend/src/components/FilesUploader/FilesUploader.vue:69
+#: frontend/src/components/PrimaryDropdownItem.vue:27
+msgid "Set As Primary"
+msgstr "Установить как основной"
+
+#: frontend/src/components/FilesUploader/FilesUploader.vue:66
 msgid "Set all as private"
 msgstr "Установите все как личное"
 
-#: frontend/src/components/FilesUploader/FilesUploader.vue:62
+#: frontend/src/components/FilesUploader/FilesUploader.vue:59
 msgid "Set all as public"
 msgstr "Установите все как общедоступные"
 
@@ -5604,7 +5836,7 @@ msgstr "Установить по умолчанию"
 msgid "Set currency"
 msgstr "Установите валюту"
 
-#: frontend/src/pages/Lead.vue:130
+#: frontend/src/pages/Lead.vue:119
 msgid "Set first name"
 msgstr "Установите имя"
 
@@ -5737,24 +5969,55 @@ msgstr "Пропустить"
 msgid "Skip all"
 msgstr "Пропустить все"
 
-#: frontend/src/components/SortBy.vue:10 frontend/src/components/SortBy.vue:22
-#: frontend/src/components/SortBy.vue:240
+#: frontend/src/components/AssignTo.vue:83
+msgid "Since you removed {0} from the assignee, the {0} has also been removed."
+msgstr "Поскольку вы удалили {0} из списка назначенных, {0} также был удален."
+
+#: frontend/src/components/AssignTo.vue:76
+msgid "Since you removed {0} from the assignee, the {0} has been changed to the next available assignee {1}."
+msgstr "Поскольку вы удалили {0} из получателя, {0} был изменен на следующего доступного получателя {1}."
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:735
+msgid "Some error occurred while renaming assignment rule"
+msgstr "Произошла ошибка при переименовании правила назначения"
+
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:720
+msgid "Some error occurred while updating assignment rule"
+msgstr "Произошла ошибка при обновлении правила назначения"
+
+#: frontend/src/components/SortBy.vue:10 frontend/src/components/SortBy.vue:24
+#: frontend/src/components/SortBy.vue:232
 msgid "Sort"
 msgstr "Сортировка"
 
 #. Label of the source (Link) field in DocType 'CRM Deal'
 #. Label of the source (Link) field in DocType 'CRM Lead'
+#. Label of the source (Link) field in DocType 'Failed Lead Sync Log'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/report/sales_funnel_conversion/sales_funnel_conversion.js:37
 #: frontend/src/components/Modals/EditValueModal.vue:10
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:60
 msgid "Source"
 msgstr "Источник"
 
 #. Label of the source_name (Data) field in DocType 'CRM Lead Source'
 #: crm/fcrm/doctype/crm_lead_source/crm_lead_source.json
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSourceForm.vue:45
 msgid "Source Name"
 msgstr "Название источника"
+
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSourceForm.vue:33
+msgid "Source Type"
+msgstr "Исходный тип"
+
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:167
+msgid "Source disabled successfully"
+msgstr "Источник успешно отключен"
+
+#: frontend/src/components/Settings/LeadSyncing/LeadSyncSources.vue:166
+msgid "Source enabled successfully"
+msgstr "Источник успешно включен"
 
 #: frontend/src/components/Dashboard/AddChartModal.vue:68
 #: frontend/src/components/Dashboard/DashboardItem.vue:21
@@ -5791,6 +6054,8 @@ msgstr "Дата начала"
 #. Label of the start_time (Time) field in DocType 'CRM Service Day'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_service_day/crm_service_day.json
+#: frontend/src/components/Calendar/CalendarEventPanel.vue:234
+#: frontend/src/components/Modals/EventModal.vue:103
 msgid "Start Time"
 msgstr "Время начала"
 
@@ -5821,6 +6086,7 @@ msgstr "Запуск..."
 #. Label of the status (Select) field in DocType 'CRM Invitation'
 #. Label of the status (Link) field in DocType 'CRM Lead'
 #. Label of the lead_status (Data) field in DocType 'CRM Lead Status'
+#. Label of the status (Select) field in DocType 'CRM Rolling Response Time'
 #. Label of the status (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.py:36
@@ -5844,8 +6110,8 @@ msgstr "Статус"
 msgid "Status Change Log"
 msgstr "Журнал изменений состояния"
 
-#: frontend/src/components/Modals/DealModal.vue:217
-#: frontend/src/components/Modals/LeadModal.vue:158
+#: frontend/src/components/Modals/DealModal.vue:216
+#: frontend/src/components/Modals/LeadModal.vue:157
 msgid "Status is required"
 msgstr "Статус обязателен"
 
@@ -5861,13 +6127,13 @@ msgstr "Статус, который будет установлен, когда
 msgid "Subdomain"
 msgstr "Поддомен"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:71
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:71
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:68
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:68
 msgid "Subject"
 msgstr "Тема"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:159
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:161
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:155
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:158
 msgid "Subject is required"
 msgstr "Тема является обязательным"
 
@@ -5890,7 +6156,7 @@ msgstr "Поддержка / Продажи"
 msgid "Supported formats: PNG, JPG, GIF, SVG, BMP, WebP"
 msgstr "Поддерживаемые форматы: PNG, JPG, GIF, SVG, BMP, WebP"
 
-#: frontend/src/components/FilesUploader/FilesUploader.vue:49
+#: frontend/src/components/FilesUploader/FilesUploader.vue:46
 msgid "Switch camera"
 msgstr "Другая камера"
 
@@ -5926,7 +6192,7 @@ msgstr "Системный менеджер"
 msgid "TO"
 msgstr "КОМУ"
 
-#: frontend/src/components/Telephony/ExotelCallUI.vue:151
+#: frontend/src/components/Telephony/ExotelCallUI.vue:149
 msgid "Take a note..."
 msgstr "Сделайте заметку..."
 
@@ -5965,11 +6231,11 @@ msgstr "Средство телефонии"
 msgid "Telephony Settings"
 msgstr "Настройки телефонии"
 
-#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:178
+#: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:175
 msgid "Template created successfully"
 msgstr "Шаблон успешно создан"
 
-#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:214
+#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:213
 msgid "Template deleted successfully"
 msgstr "Шаблон успешно удален"
 
@@ -5978,6 +6244,10 @@ msgid "Template disabled successfully"
 msgstr "Шаблон успешно отключен"
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:197
+msgid "Template disabled successfully"
+msgstr "Шаблон успешно отключен"
+
+#: frontend/src/components/Settings/EmailTemplate/EmailTemplates.vue:196
 msgid "Template enabled successfully"
 msgstr "Шаблон успешно включен"
 
@@ -5985,11 +6255,11 @@ msgstr "Шаблон успешно включен"
 msgid "Template name"
 msgstr "Название шаблона"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:243
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:239
 msgid "Template renamed successfully"
 msgstr "Шаблон успешно переименован"
 
-#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:208
+#: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:204
 msgid "Template updated successfully"
 msgstr "Шаблон успешно обновлен"
 
@@ -6018,7 +6288,11 @@ msgstr "Территориальный менеджер"
 msgid "Territory Name"
 msgstr "Название территории"
 
-#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.py:46
+#: crm/templates/emails/helpdesk_invitation.html:16
+msgid "Thanks"
+msgstr "Спасибо"
+
+#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.py:71
 msgid "The Condition '{0}' is invalid: {1}"
 msgstr "Условие '{0}' недействительно: {1}"
 
@@ -6033,7 +6307,7 @@ msgstr "Курс, используемый для конвертации вал�
 msgid "The rate used to convert the organization’s currency to your crm's base currency (set in CRM Settings). It is set once when the currency is first added and doesn't change automatically."
 msgstr "Курс, используемый для конвертации валюты организации в базовую валюту Вашей crm (устанавливается в Настройках CRM). Он устанавливается один раз при первом добавлении валюты и не меняется автоматически."
 
-#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.js:14
+#: crm/fcrm/doctype/crm_service_level_agreement/crm_service_level_agreement.js:29
 msgid "There can only be one default priority in Priorities table"
 msgstr "В таблице приоритетов может быть только один приоритет по умолчанию"
 
@@ -6101,7 +6375,7 @@ msgstr "Заголовок"
 
 #. Label of the title_field (Data) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
-#: frontend/src/components/Kanban/KanbanSettings.vue:32
+#: frontend/src/components/Kanban/KanbanSettings.vue:29
 msgid "Title Field"
 msgstr "Поле заголовка"
 
@@ -6112,7 +6386,7 @@ msgstr "Название обязательно"
 
 #. Label of the to (Data) field in DocType 'CRM Status Change Log'
 #: crm/fcrm/doctype/crm_status_change_log/crm_status_change_log.json
-#: frontend/src/components/Activities/EmailArea.vue:63
+#: frontend/src/components/Activities/EmailArea.vue:53
 msgid "To"
 msgstr "Кому"
 
@@ -6202,20 +6476,20 @@ msgstr "Всего касаний"
 msgid "Total after discount"
 msgstr "с учетом скидки"
 
-#: crm/api/dashboard.py:123
+#: crm/api/dashboard.py:129
 #: frontend/src/components/Dashboard/AddChartModal.vue:76
 msgid "Total leads"
 msgstr "Всего лидов"
 
-#: crm/api/dashboard.py:124
+#: crm/api/dashboard.py:130
 msgid "Total number of leads"
 msgstr "Общее количество лидов"
 
-#: crm/api/dashboard.py:182
+#: crm/api/dashboard.py:191
 msgid "Total number of non won/lost deals"
 msgstr "Общее количество невыигранных/проигранных сделок"
 
-#: crm/api/dashboard.py:297
+#: crm/api/dashboard.py:311
 msgid "Total number of won deals based on its closure date"
 msgstr "Общее количество выигранных сделок на дату их закрытия"
 
@@ -6229,6 +6503,10 @@ msgstr "Переводы"
 #: crm/fcrm/doctype/crm_service_day/crm_service_day.json
 msgid "Tuesday"
 msgstr "Вторник"
+
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:173
+msgid "Turn into a group"
+msgstr "Преобразовать в группу"
 
 #. Label of the twiml_sid (Data) field in DocType 'CRM Twilio Settings'
 #. Label of the twiml_sid (Data) field in DocType 'Twilio Settings'
@@ -6288,6 +6566,9 @@ msgstr "Настройки Twilio успешно обновлены"
 #. Label of the type (Select) field in DocType 'CRM Global Settings'
 #. Label of the type (Select) field in DocType 'CRM Notification'
 #. Label of the type (Select) field in DocType 'CRM View Settings'
+#. Label of the type (Data) field in DocType 'Facebook Lead Form Question'
+#. Label of the type (Select) field in DocType 'Failed Lead Sync Log'
+#. Label of the type (Select) field in DocType 'Lead Sync Source'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.py:30
 #: crm/fcrm/doctype/crm_deal_status/crm_deal_status.json
@@ -6296,6 +6577,10 @@ msgstr "Настройки Twilio успешно обновлены"
 #: crm/fcrm/doctype/crm_global_settings/crm_global_settings.json
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
+#: crm/lead_syncing/doctype/facebook_lead_form_question/facebook_lead_form_question.json
+#: crm/lead_syncing/doctype/failed_lead_sync_log/failed_lead_sync_log.json
+#: crm/lead_syncing/doctype/lead_sync_source/lead_sync_source.json
+#: frontend/src/components/Settings/LeadSyncing/FailureLogs.vue:81
 msgid "Type"
 msgstr "Тип"
 
@@ -6326,7 +6611,7 @@ msgid "Unique Entries"
 msgstr "Уникальных записей"
 
 #: frontend/src/components/Telephony/TwilioCallUI.vue:24
-#: frontend/src/components/Telephony/TwilioCallUI.vue:130
+#: frontend/src/components/Telephony/TwilioCallUI.vue:123
 msgid "Unknown"
 msgstr "Неизвестный"
 
@@ -6443,10 +6728,10 @@ msgid "Upload finished but failed to get file URL."
 msgstr "Загрузка завершена, но не удалось получить URL-адрес файла."
 
 #: frontend/src/components/Settings/ProfileSettings.vue:27
-#: frontend/src/pages/Contact.vue:42 frontend/src/pages/Lead.vue:104
+#: frontend/src/pages/Contact.vue:48 frontend/src/pages/Lead.vue:93
 #: frontend/src/pages/MobileContact.vue:38
 #: frontend/src/pages/MobileOrganization.vue:38
-#: frontend/src/pages/Organization.vue:42
+#: frontend/src/pages/Organization.vue:48
 msgid "Upload image"
 msgstr "Загрузить изображение"
 
@@ -6474,7 +6759,7 @@ msgstr "Пользователь"
 msgid "User Name"
 msgstr "Имя пользователя"
 
-#: frontend/src/components/Settings/Users.vue:301
+#: frontend/src/components/Settings/Users.vue:296
 msgid "User {0} has been removed"
 msgstr "Пользователь {0} был удален"
 
@@ -6507,7 +6792,7 @@ msgstr "Информация о версии недоступна"
 msgid "View"
 msgstr "Просмотр"
 
-#: frontend/src/components/Modals/ViewModal.vue:25
+#: frontend/src/components/Modals/ViewModal.vue:14
 msgid "View Name"
 msgstr "Название представления"
 
@@ -6597,7 +6882,8 @@ msgstr "Если эта функция включена, она отключае
 msgid "When enabled, disables realtime updates in kanban boards only. Notifications and other real-time features will continue to work. This can improve performance on slow networks or with large datasets."
 msgstr "Если эта функция включена, она отключает обновления в реальном времени только на досках канбан. Уведомления и другие функции реального времени будут продолжать работать. Это может повысить производительность в медленных сетях или при работе с большими наборами данных."
 
-#: frontend/src/components/Filter.vue:44 frontend/src/components/Filter.vue:82
+#: frontend/src/components/ConditionsFilter/CFCondition.vue:20
+#: frontend/src/components/Filter.vue:43 frontend/src/components/Filter.vue:81
 msgid "Where"
 msgstr "Где"
 
@@ -6619,7 +6905,7 @@ msgstr "Победа"
 msgid "Won Deals"
 msgstr "Выигранные сделки"
 
-#: crm/api/dashboard.py:296
+#: crm/api/dashboard.py:310
 #: frontend/src/components/Dashboard/AddChartModal.vue:79
 msgid "Won deals"
 msgstr "Выигранные сделки"
@@ -6939,6 +7225,11 @@ msgstr "канбан"
 msgid "label"
 msgstr "название"
 
+#: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:130
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:379
+msgid "leads"
+msgstr "лиды"
+
 #. Option for the 'Type' (Select) field in DocType 'CRM View Settings'
 #: crm/fcrm/doctype/crm_view_settings/crm_view_settings.json
 msgid "list"
@@ -6992,11 +7283,11 @@ msgstr "розовый"
 msgid "previous"
 msgstr "назад"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:101
+#: frontend/src/components/Activities/AttachmentArea.vue:97
 msgid "private"
 msgstr "личное"
 
-#: frontend/src/components/Activities/AttachmentArea.vue:101
+#: frontend/src/components/Activities/AttachmentArea.vue:97
 msgid "public"
 msgstr "публичное"
 
@@ -7077,7 +7368,7 @@ msgstr "{0} дней назад"
 msgid "{0} h"
 msgstr "{0} ч"
 
-#: frontend/src/components/Settings/Users.vue:291
+#: frontend/src/components/Settings/Users.vue:286
 msgid "{0} has been granted {1} access"
 msgstr "{0} был предоставлен доступ {1}"
 
@@ -7102,7 +7393,7 @@ msgstr "{0} - недопустимое значение"
 msgid "{0} is an invalid email address"
 msgstr "{0} - недопустимый адрес электронной почты"
 
-#: frontend/src/components/Modals/ConvertToDealModal.vue:181
+#: frontend/src/components/Modals/ConvertToDealModal.vue:172
 msgid "{0} is required"
 msgstr "требуется {0}"
 

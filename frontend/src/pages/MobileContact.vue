@@ -68,6 +68,7 @@
                 <span>{{ contact.doc.full_name }}</span>
               </div>
               <div class="flex items-center gap-1.5">
+<<<<<<< HEAD
                 <div class="flex gap-1.5">
                   <Button
                     v-if="contact.data.actual_mobile_no && ipTelephonyEnabled"
@@ -106,7 +107,17 @@
                   </Button>
                 </div>
 
+=======
                 <Button
+                  v-if="callEnabled && contact.doc.mobile_no"
+                  :label="__('Make Call')"
+                  size="sm"
+                  :iconLeft="PhoneIcon"
+                  @click="callEnabled && makeCall(contact.doc.mobile_no)"
+                />
+>>>>>>> frappe/main
+                <Button
+                  v-if="canDelete"
                   :label="__('Delete')"
                   variant="ghost"
                   theme="red"
@@ -129,10 +140,20 @@
         </div>
       </template>
     </FileUploader>
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
-      <TabList class="!px-4" v-slot="{ tab, selected }">
+    <Tabs
+      as="div"
+      v-model="tabIndex"
+      :tabs="tabs"
+      class="flex flex-1 overflow-auto flex-col [&_[role='tablist']]:gap-3 [&_[role='tablist']]:px-4 [&_[role='tabpanel']:not([hidden])]:flex [&_[role='tabpanel']:not([hidden])]:grow"
+    >
+      <template #tab-item="{ tab, selected }">
         <button
+<<<<<<< HEAD
           class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
+=======
+          v-if="tab.name == 'Deals'"
+          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:text-ink-gray-9 !px-4"
+>>>>>>> frappe/main
           :class="{ 'text-ink-gray-9': selected }"
         >
           <component v-if="tab.icon" :is="tab.icon" class="h-5" />
@@ -148,9 +169,15 @@
             {{ tab.count }}
           </Badge>
         </button>
+<<<<<<< HEAD
       </TabList>
       <TabPanel v-slot="{ tab }">
         <div v-if="tab.name === 'Details'">
+=======
+      </template>
+      <template #tab-panel="{ tab }">
+        <div v-if="tab.name == 'Details'">
+>>>>>>> frappe/main
           <div
             v-if="sections.data"
             class="flex flex-1 flex-col justify-between overflow-hidden"
@@ -180,8 +207,13 @@
               <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
             </div>
           </div>
+<<<<<<< HEAD
         </template>
       </TabPanel>
+=======
+        </div>
+      </template>
+>>>>>>> frappe/main
     </Tabs>
   </div>
 </template>
@@ -217,8 +249,6 @@ import {
   Avatar,
   FileUploader,
   Tabs,
-  TabList,
-  TabPanel,
   call,
   createResource,
   usePageMeta,
@@ -246,7 +276,12 @@ const props = defineProps({
 const route = useRoute()
 const router = useRouter()
 
-const { document: contact } = useDocument('Contact', props.contactId)
+const { document: contact, permissions } = useDocument(
+  'Contact',
+  props.contactId,
+)
+
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Contacts'), route: { name: 'Contacts' } }]
@@ -532,7 +567,7 @@ function getDealRowObject(deal) {
     },
     modified: {
       label: formatDate(deal.modified),
-      timeAgo: __(timeAgo(deal.modified)),
+      timeAgo: timeAgo(deal.modified),
     },
   }
 }

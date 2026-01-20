@@ -89,12 +89,9 @@
         v-if="data[field.fieldname] && field.edit"
         class="shrink-0"
         :label="__('Edit')"
+        :iconLeft="EditIcon"
         @click="field.edit(data[field.fieldname])"
-      >
-        <template #prefix>
-          <EditIcon class="h-4 w-4" />
-        </template>
-      </Button>
+      />
     </div>
 
     <TableMultiselectInput
@@ -133,6 +130,14 @@
         </Tooltip>
       </template>
     </Link>
+    <Combobox
+      v-else-if="field.fieldtype === 'Autocomplete'"
+      v-model="data[field.fieldname]"
+      @update:modelValue="(v) => fieldChange(v, field)"
+      :options="getOptions(field.options)"
+      :placeholder="getPlaceholder(field)"
+      :disabled="Boolean(field.read_only)"
+    />
     <input
       v-else-if="field.fieldtype === 'Datetime'"
       type="datetime-local"
@@ -238,10 +243,9 @@ import { flt } from '@/utils/numberFormat.js'
 import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { useDocument } from '@/data/document'
-import { Tooltip, DatePicker, DateTimePicker } from 'frappe-ui'
+import { Combobox, Tooltip } from 'frappe-ui'
 import { computed, provide, inject, ref } from 'vue'
 import SingleImageUploader from '@/components/Controls/SingleImageUploader.vue'
-
 
 const props = defineProps({
   field: Object,
@@ -323,6 +327,14 @@ const field = computed(() => {
 
 function isFieldVisible(field) {
   if (preview.value) return true
+
+  const hideEmptyReadOnly = Number(
+    window.sysdefaults?.hide_empty_read_only_fields ?? 1,
+  )
+
+  const shouldShowReadOnly =
+    field.read_only && (data.value[field.fieldname] || !hideEmptyReadOnly)
+
   return (
     (field.fieldtype == 'Check' ||
       (field.read_only && (data.value[field.fieldname] !== undefined || ['Currency', 'Float', 'Int', 'Percent'].includes(field.fieldtype))) ||
@@ -392,11 +404,24 @@ const translatedOptions = computed(() => {
    return processedOptions.filter(opt => typeof opt === 'object' && opt !== null && 'label' in opt && 'value' in opt);
 });
 
+const getOptions = (options) => {
+  if (Array.isArray(options)) {
+    return options
+  } else if (typeof options === 'string') {
+    return options.split('\n').map((option) => {
+      return { label: option, value: option }
+    })
+  } else {
+    return []
+  }
+}
+
 async function fieldChange(value, df) {
+  value = typeof value === 'object' && value !== null ? value.value : value
   data.value[df.fieldname] = value
 
   if (isGridRow) {
-    triggerOnChange(df.fieldname, data.value)
+    triggerOnChange(df.fieldname, value, data.value)
   } else {
     // Pass both fieldname and value to ensure proper change tracking
     await triggerOnChange(df.fieldname, value)

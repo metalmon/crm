@@ -9,23 +9,17 @@
     <Button
       v-if="title == 'Emails'"
       variant="solid"
+      :label="__('New Email')"
+      iconLeft="plus"
       @click="emailBox.show = true"
-    >
-      <template #prefix>
-        <FeatherIcon name="plus" class="h-4 w-4" />
-      </template>
-      <span>{{ __('New Email') }}</span>
-    </Button>
+    />
     <Button
       v-else-if="title == __('Comments')"
       variant="solid"
+      :label="__('New Comment')"
+      iconLeft="plus"
       @click="emailBox.showComment = true"
-    >
-      <template #prefix>
-        <FeatherIcon name="plus" class="h-4 w-4" />
-      </template>
-      <span>{{ __('New Comment') }}</span>
-    </Button>
+    />
     <MultiActionButton
       v-else-if="title == 'Calls'"
       variant="solid"
@@ -34,62 +28,45 @@
     <Button
       v-else-if="title == __('Notes')"
       variant="solid"
-      class="shrink-0"
+      :label="__('New Note')"
+      iconLeft="plus"
       @click="modalRef.showNote()"
-    >
-      <template #prefix>
-        <FeatherIcon name="plus" class="h-4 w-4" />
-      </template>
-      <span>{{ __('New Note') }}</span>
-    </Button>
+    />
     <Button
       v-else-if="title == __('Tasks')"
       variant="solid"
-      class="shrink-0"
+      :label="__('New Task')"
+      iconLeft="plus"
       @click="modalRef.showTask()"
-    >
-      <template #prefix>
-        <FeatherIcon name="plus" class="h-4 w-4" />
-      </template>
-      <span>{{ __('New Task') }}</span>
-    </Button>
+    />
     <Button
       v-else-if="title == __('Attachments')"
       variant="solid"
-      class="shrink-0"
+      :label="__('Upload Attachment')"
+      iconLeft="plus"
       @click="showFilesUploader = true"
-    >
-      <template #prefix>
-        <FeatherIcon name="plus" class="h-4 w-4" />
-      </template>
-      <span>{{ __('Upload Attachment') }}</span>
-    </Button>
-    <div class="flex gap-2 shrink-0" v-else-if="title == __('WhatsApp')">
+    />
+    <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
       <Button
         :label="__('Send Template')"
         @click="showWhatsappTemplates = true"
       />
-      <Button variant="solid" @click="whatsappBox.show()">
-        <template #prefix>
-          <FeatherIcon name="plus" class="h-4 w-4" />
-        </template>
-        <span>{{ __('New Message') }}</span>
-      </Button>
+      <Button
+        variant="solid"
+        :label="__('New Message')"
+        iconLeft="plus"
+        @click="whatsappBox.show()"
+      />
     </div>
     <Dropdown v-else :options="defaultActions" @click.stop>
       <template v-slot="{ open }">
-        <Button variant="solid" class="flex items-center gap-1">
-          <template #prefix>
-            <FeatherIcon name="plus" class="h-4 w-4" />
-          </template>
-          <span>{{ __('New') }}</span>
-          <template #suffix>
-            <FeatherIcon
-              :name="open ? 'chevron-up' : 'chevron-down'"
-              class="h-4 w-4"
-            />
-          </template>
-        </Button>
+        <Button
+          variant="solid"
+          class="flex items-center gap-1"
+          :label="__('New')"
+          iconLeft="plus"
+          :iconRight="open ? 'chevron-up' : 'chevron-down'"
+        />
       </template>
     </Dropdown>
   </div>
@@ -203,7 +180,7 @@ const callActions = computed(() => {
     {
       label: __('Make a Call'),
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
-      onClick: () => makeCall(props.doc.data.mobile_no),
+      onClick: () => makeCall(props.doc.mobile_no),
       condition: () => callEnabled.value,
     },
   ]

@@ -249,11 +249,46 @@ export function taskPriorityOptions(action, data) {
   })
 }
 
-export function openWebsite(url) {
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = 'https://' + url
+export function getSafeWebsiteUrl(rawUrl) {
+  const allowedProtocols = new Set(['http:', 'https:'])
+
+  if (!rawUrl) {
+    return null
   }
-  window.open(url, '_blank')
+
+  const trimmedUrl = rawUrl.trim()
+
+  if (!trimmedUrl) {
+    return null
+  }
+
+  const urlToParse = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmedUrl)
+    ? trimmedUrl
+    : `https://${trimmedUrl}`
+
+  try {
+    const parsedUrl = new URL(urlToParse)
+
+    if (!allowedProtocols.has(parsedUrl.protocol)) {
+      return null
+    }
+
+    return parsedUrl.href
+  } catch (_error) {
+    return null
+  }
+}
+
+export function openWebsite(url) {
+  const safeUrl = getSafeWebsiteUrl(url)
+
+  if (!safeUrl) {
+    toast.error(__('Invalid website URL'))
+    return false
+  }
+
+  window.open(safeUrl, '_blank', 'noopener')
+  return true
 }
 
 export function website(url) {
@@ -292,25 +327,18 @@ async function getFormScript(script, obj) {
   return formScript || {}
 }
 
-export async function setupCustomizations(doc, obj) {
-  if (!doc.data?._form_script) return []
+export async function setupCustomizations(scripts, obj) {
+  if (!scripts) return []
 
   let statuses = []
   let actions = []
-  if (Array.isArray(doc.data._form_script)) {
-    for (let script of doc.data._form_script) {
-      let _script = await getFormScript(script, obj)
+  if (Array.isArray(scripts)) {
+    for (let s of scripts) {
+      let _script = await getFormScript(s.script, obj)
       actions = actions.concat(_script?.actions || [])
       statuses = statuses.concat(_script?.statuses || [])
     }
-  } else {
-    let _script = await getFormScript(doc.data._form_script, obj)
-    actions = _script?.actions || []
-    statuses = _script?.statuses || []
   }
-
-  doc.data._customStatuses = statuses
-  doc.data._customActions = actions
   return { statuses, actions }
 }
 
@@ -442,6 +470,36 @@ export function evaluateDependsOnValue(expression, doc) {
   return out
 }
 
+export function evaluateExpression(expression, doc, parent) {
+  if (!expression) return false
+  if (!doc) return false
+
+  let out = null
+  if (typeof expression === 'boolean') {
+    out = expression
+  } else if (typeof expression === 'function') {
+    out = expression(doc)
+  } else if (expression.substr(0, 5) == 'eval:') {
+    try {
+      out = _eval(expression.substr(5), { doc, parent })
+      if (parent && parent.istable && expression.includes('is_submittable')) {
+        out = true
+      }
+    } catch (e) {
+      out = true
+    }
+  } else {
+    let value = doc[expression]
+    if (Array.isArray(value)) {
+      out = !!value.length
+    } else {
+      out = !!value
+    }
+  }
+
+  return out
+}
+
 export function convertSize(size) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
   let unitIndex = 0
@@ -483,23 +541,13 @@ export function runSequentially(functions) {
   }, Promise.resolve())
 }
 
-export function DropdownOption({
-  active,
-  option,
-  theme,
-  icon,
-  onClick,
-  selected,
-}) {
+export function DropdownOption({ option, icon, selected, onClick }) {
   return h(
     'button',
     {
-      class: [
-        active ? 'bg-surface-gray-2' : 'text-ink-gray-8',
-        'group flex w-full justify-between items-center rounded-md px-2 py-2 text-sm',
-        theme == 'danger' ? 'text-ink-red-3 hover:bg-ink-red-1' : '',
-      ],
-      onClick: !selected ? onClick : null,
+      class:
+        'group flex w-full text-ink-gray-8 justify-between items-center rounded-md px-2 py-2 text-sm hover:bg-surface-gray-2',
+      onClick,
     },
     [
       h('div', { class: 'flex gap-2' }, [
@@ -522,31 +570,193 @@ export function DropdownOption({
   )
 }
 
-export function TemplateOption({ active, option, theme, icon, onClick }) {
-  return h(
-    'button',
-    {
-      class: [
-        active ? 'bg-surface-gray-2 text-ink-gray-8' : 'text-ink-gray-7',
-        'group flex w-full gap-2 items-center rounded-md px-2 py-2 text-sm',
-        theme == 'danger' ? 'text-ink-red-3 hover:bg-ink-red-1' : '',
-      ],
-      onClick: onClick,
-    },
-    [
-      icon
-        ? h(FeatherIcon, {
-            name: icon,
-            class: ['h-4 w-4 shrink-0'],
-            'aria-hidden': true,
-          })
-        : null,
-      h('span', { class: 'whitespace-nowrap' }, option),
-    ],
-  )
+export function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  if (obj instanceof Date) {
+    return new Date(obj.getTime())
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => deepClone(item))
+  }
+
+  if (typeof obj === 'object') {
+    const cloned = {}
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key])
+      }
+    }
+    return cloned
+  }
+
+  return obj
 }
 
 export function copy(obj) {
   if (!obj) return obj
   return JSON.parse(JSON.stringify(obj))
+}
+
+export const convertToConditions = ({ conditions, fieldPrefix }) => {
+  if (!conditions || conditions.length === 0) {
+    return ''
+  }
+
+  const processCondition = (condition) => {
+    if (typeof condition === 'string') {
+      return condition.toLowerCase()
+    }
+
+    if (Array.isArray(condition)) {
+      // Nested condition group
+      if (Array.isArray(condition[0])) {
+        const nestedStr = convertToConditions({
+          conditions: condition,
+          fieldPrefix,
+        })
+        return `(${nestedStr})`
+      }
+
+      // Simple condition: [fieldname, operator, value]
+      const [field, operator, value] = condition
+      const fieldAccess = fieldPrefix ? `${fieldPrefix}.${field}` : field
+
+      const operatorMap = {
+        equals: '==',
+        '=': '==',
+        '==': '==',
+        '!=': '!=',
+        'not equals': '!=',
+        '<': '<',
+        '<=': '<=',
+        '>': '>',
+        '>=': '>=',
+        in: 'in',
+        'not in': 'not in',
+        like: 'like',
+        'not like': 'not like',
+        is: 'is',
+        'is not': 'is not',
+        between: 'between',
+      }
+
+      let op = operatorMap[operator.toLowerCase()] || operator
+
+      if (
+        (op === '==' || op === '!=') &&
+        (String(value).toLowerCase() === 'yes' ||
+          String(value).toLowerCase() === 'no')
+      ) {
+        let checkVal = String(value).toLowerCase() === 'yes'
+        if (op === '!=') {
+          checkVal = !checkVal
+        }
+        return checkVal ? fieldAccess : `not ${fieldAccess}`
+      }
+
+      if (op === 'is' && String(value).toLowerCase() === 'set') {
+        return fieldAccess
+      }
+      if (
+        (op === 'is' && String(value).toLowerCase() === 'not set') ||
+        (op === 'is not' && String(value).toLowerCase() === 'set')
+      ) {
+        return `not ${fieldAccess}`
+      }
+
+      if (op === 'like') {
+        return `(${fieldAccess} and "${value}" in ${fieldAccess})`
+      }
+      if (op === 'not like') {
+        return `(${fieldAccess} and "${value}" not in ${fieldAccess})`
+      }
+
+      if (
+        op === 'between' &&
+        typeof value === 'string' &&
+        value.includes(',')
+      ) {
+        const [start, end] = value.split(',').map((v) => v.trim())
+        return `(${fieldAccess} >= "${start}" and ${fieldAccess} <= "${end}")`
+      }
+
+      let valueStr = ''
+      if (op === 'in' || op === 'not in') {
+        let items
+        if (Array.isArray(value)) {
+          items = value.map((v) => `"${String(v).trim()}"`)
+        } else if (typeof value === 'string') {
+          items = value.split(',').map((v) => `"${v.trim()}"`)
+        } else {
+          items = [`"${String(value).trim()}"`]
+        }
+        valueStr = `[${items.join(', ')}]`
+        return `(${fieldAccess} and ${fieldAccess} ${op} ${valueStr})`
+      }
+
+      if (typeof value === 'string') {
+        valueStr = `"${value.replace(/"/g, '\\"')}"`
+      } else if (typeof value === 'number' || typeof value === 'boolean') {
+        valueStr = String(value)
+      } else if (value === null || value === undefined) {
+        return op === '==' || op === 'is' ? `not ${fieldAccess}` : fieldAccess
+      } else {
+        valueStr = `"${String(value).replace(/"/g, '\\"')}"`
+      }
+
+      return `${fieldAccess} ${op} ${valueStr}`
+    }
+
+    return ''
+  }
+
+  const parts = conditions.map(processCondition)
+  return parts.join(' ')
+}
+
+export function validateConditions(conditions) {
+  if (!Array.isArray(conditions)) return false
+
+  // Handle simple condition [field, operator, value]
+  if (
+    conditions.length === 3 &&
+    typeof conditions[0] === 'string' &&
+    typeof conditions[1] === 'string'
+  ) {
+    return conditions[0] !== '' && conditions[1] !== '' && conditions[2] !== ''
+  }
+
+  // Iterate through conditions and logical operators
+  for (let i = 0; i < conditions.length; i++) {
+    const item = conditions[i]
+
+    // Skip logical operators (they will be validated by their position)
+    if (item === 'and' || item === 'or') {
+      // Ensure logical operators are not at start/end and not consecutive
+      if (
+        i === 0 ||
+        i === conditions.length - 1 ||
+        conditions[i - 1] === 'and' ||
+        conditions[i - 1] === 'or'
+      ) {
+        return false
+      }
+      continue
+    }
+
+    // Handle nested conditions (arrays)
+    if (Array.isArray(item)) {
+      if (!validateConditions(item)) {
+        return false
+      }
+    } else if (item !== undefined && item !== null) {
+      return false
+    }
+  }
+
+  return conditions.length > 0
 }

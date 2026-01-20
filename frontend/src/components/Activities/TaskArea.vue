@@ -41,13 +41,14 @@
             :options="taskStatusOptions(modalRef?.updateTaskStatus, task)"
             @click.stop
           >
-            <Tooltip :text="__('Change Status')">
-              <div>
-                <Button variant="ghosted" class="hover:bg-surface-gray-4">
-                  <TaskStatusIcon :status="task.status" />
-                </Button>
-              </div>
-            </Tooltip>
+            <Button
+              :tooltip="__('Change status')"
+              variant="ghosted"
+              class="hover:bg-surface-gray-4"
+              @click.stop.prevent
+            >
+              <TaskStatusIcon :status="task.status" />
+            </Button>
           </Dropdown>
           <Dropdown
             :options="[
@@ -73,12 +74,12 @@
                 },
               },
             ]"
-            @click.stop
           >
             <Button
               icon="more-horizontal"
               variant="ghosted"
               class="hover:bg-surface-gray-4 text-ink-gray-9"
+              @click.stop.prevent
             />
           </Dropdown>
         </div>

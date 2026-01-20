@@ -76,17 +76,18 @@
                   {{ __('Open website') }}
                 </Button>
                 <Button
+                  v-if="canDelete"
                   :label="__('Delete')"
                   variant="ghost"
                   theme="red"
                   size="sm"
+<<<<<<< HEAD
                   class="dark:text-red-400 dark:hover:bg-gray-700"
+=======
+                  iconLeft="trash-2"
+>>>>>>> frappe/main
                   @click="deleteOrganization"
-                >
-                  <template #prefix>
-                    <FeatherIcon name="trash-2" class="h-4 w-4" />
-                  </template>
-                </Button>
+                />
               </div>
               <ErrorMessage :message="__(error)" />
             </div>
@@ -94,11 +95,16 @@
         </div>
       </template>
     </FileUploader>
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto">
-      <TabList class="!px-4" v-slot="{ tab, selected }">
+    <Tabs
+      as="div"
+      v-model="tabIndex"
+      :tabs="tabs"
+      class="flex flex-1 overflow-auto flex-col [&_[role='tablist']]:gap-7.5 [&_[role='tablist']]:px-4 [&_[role='tabpanel']:not([hidden])]:flex [&_[role='tabpanel']:not([hidden])]:grow"
+    >
+      <template #tab-item="{ tab, selected }">
         <button
           v-if="tab.name !== 'Details'"
-          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
+          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:text-ink-gray-9"
           :class="{ 'text-ink-gray-9': selected }"
         >
           <component v-if="tab.icon" :is="tab.icon" class="h-5" />
@@ -113,8 +119,8 @@
             {{ tab.count }}
           </Badge>
         </button>
-      </TabList>
-      <TabPanel v-slot="{ tab }">
+      </template>
+      <template #tab-panel="{ tab }">
         <div v-if="tab.name == 'Details'">
           <div
             v-if="sections.data"
@@ -151,7 +157,7 @@
             <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
           </div>
         </div>
-      </TabPanel>
+      </template>
     </Tabs>
   </div>
 </template>
@@ -174,15 +180,18 @@ import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { getView } from '@/utils/view'
-import { formatDate, timeAgo, validateIsImageFile } from '@/utils'
+import {
+  formatDate,
+  timeAgo,
+  validateIsImageFile,
+  openWebsite as openExternalWebsite,
+} from '@/utils'
 import {
   Breadcrumbs,
   Avatar,
   FileUploader,
   Dropdown,
   Tabs,
-  TabList,
-  TabPanel,
   call,
   createListResource,
   usePageMeta,
@@ -208,10 +217,12 @@ const { doctypeMeta } = getMeta('CRM Organization')
 const route = useRoute()
 const router = useRouter()
 
-const { document: organization } = useDocument(
+const { document: organization, permissions } = useDocument(
   'CRM Organization',
   props.organizationId,
 )
+
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Organizations'), route: { name: 'Organizations' } }]
@@ -290,8 +301,12 @@ async function deleteOrganization() {
 }
 
 function openWebsite() {
-  if (!organization.doc.website) toast.error(__('No website found'))
-  else window.open(organization.doc.website, '_blank')
+  if (!organization.doc.website) {
+    toast.error(__('No website found'))
+    return
+  }
+
+  openExternalWebsite(organization.doc.website)
 }
 
 const sections = createResource({
@@ -427,7 +442,7 @@ function getDealRowObject(deal) {
     },
     modified: {
       label: formatDate(deal.modified),
-      timeAgo: __(timeAgo(deal.modified)),
+      timeAgo: timeAgo(deal.modified),
     },
   }
 }
@@ -448,7 +463,7 @@ function getContactRowObject(contact) {
     },
     modified: {
       label: formatDate(contact.modified),
-      timeAgo: __(timeAgo(contact.modified)),
+      timeAgo: timeAgo(contact.modified),
     },
   }
 }

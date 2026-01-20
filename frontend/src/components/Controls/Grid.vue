@@ -52,14 +52,14 @@
             >
           </div>
         </div>
-        <div class="w-12">
+        <div class="flex items-center justify-center w-12">
           <Button
-            class="flex w-full items-center justify-center rounded !bg-surface-gray-2 border-0"
+            :tooltip="__('Edit grid fields')"
+            class="rounded !bg-surface-gray-2 border-0 !text-ink-gray-5"
             variant="outline"
+            icon="settings"
             @click="showGridFieldsEditorModal = true"
-          >
-            <FeatherIcon name="settings" class="h-4 w-4 text-ink-gray-7" />
-          </Button>
+          />
         </div>
       </div>
       <!-- Rows -->
@@ -70,6 +70,7 @@
           :delay="isTouchScreenDevice() ? 200 : 0"
           group="rows"
           item-key="name"
+          @end="reorder"
         >
           <template #item="{ element: row, index }">
             <div
@@ -260,6 +261,16 @@
                     :disabled="Boolean(field.read_only)"
                     @change="fieldChange(flt($event.target.value), field, row)"
                   />
+                  <Combobox
+                    v-else-if="field.fieldtype === 'Autocomplete'"
+                    class="combobox"
+                    v-model="row[field.fieldname]"
+                    variant="outline"
+                    @update:modelValue="(v) => fieldChange(v, field, row)"
+                    :options="getOptions(field.options)"
+                    :placeholder="field.placeholder"
+                    :disabled="Boolean(field.read_only)"
+                  />
                   <FormControl
                     v-else
                     class="text-sm text-ink-gray-8"
@@ -271,14 +282,14 @@
                   />
                 </div>
               </div>
-              <div class="edit-row w-12">
+              <div class="edit-row flex items-center justify-center w-12">
                 <Button
-                  class="flex w-full items-center justify-center rounded border-0"
+                  :tooltip="__('Edit row')"
+                  class="rounded border-0 !text-ink-gray-7"
                   variant="outline"
+                  :icon="EditIcon"
                   @click="showRowList[index] = true"
-                >
-                  <EditIcon class="h-4 w-4 text-ink-gray-7" />
-                </Button>
+                />
               </div>
               <GridRowModal
                 v-if="showRowList[index]"
@@ -342,13 +353,13 @@ import { usersStore } from '@/stores/users'
 import { getMeta } from '@/stores/meta'
 import { createDocument } from '@/composables/document'
 import {
-  FeatherIcon,
   FormControl,
   Checkbox,
   DateTimePicker,
   DatePicker,
   Tooltip,
   dayjs,
+  Combobox,
 } from 'frappe-ui'
 import Draggable from 'vuedraggable'
 import { ref, reactive, computed, inject, provide } from 'vue'
@@ -370,6 +381,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  overrides: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 
 const triggerOnChange = inject('triggerOnChange')
@@ -386,6 +401,7 @@ const {
 } = getMeta(props.doctype)
 getMeta(props.parentDoctype)
 const { getUser } = usersStore()
+const users = usersStore()
 
 const rows = defineModel()
 const parentDoc = defineModel('parent')
@@ -430,10 +446,23 @@ function getFieldObj(field) {
     }
   }
 
-  return {
+  if (field.fieldtype === 'Link' && field.options === 'User') {
+    field.fieldtype = 'User'
+    field.link_filters = JSON.stringify({
+      ...(field.link_filters ? JSON.parse(field.link_filters) : {}),
+      name: ['in', users.data.crmUsers?.map((user) => user.name)],
+    })
+  }
+
+  const fieldObjWithFilters = {
     ...field,
     filters: field.link_filters && JSON.parse(field.link_filters),
     placeholder: field.placeholder || field.label,
+  }
+
+  return {
+    ...fieldObjWithFilters,
+    ...props.overrides.fields?.find((f) => f.fieldname === field.fieldname),
   }
 }
 
@@ -504,7 +533,14 @@ const deleteRows = () => {
   selectedRows.clear()
 }
 
+const reorder = () => {
+  rows.value.forEach((row, index) => {
+    row.idx = index + 1
+  })
+}
+
 function fieldChange(value, field, row) {
+  value = typeof value === 'object' && value !== null ? value.value : value
   row[field.fieldname] = value
   triggerOnChange(field.fieldname, value, row)
 }
@@ -539,6 +575,18 @@ function getDefaultValue(defaultValue, fieldtype) {
 
   return defaultValue
 }
+
+const getOptions = (options) => {
+  if (Array.isArray(options)) {
+    return options
+  } else if (typeof options === 'string') {
+    return options.split('\n').map((option) => {
+      return { label: option, value: option }
+    })
+  } else {
+    return []
+  }
+}
 </script>
 
 <style scoped>
@@ -568,8 +616,9 @@ function getDefaultValue(defaultValue, fieldtype) {
   height: 38px;
 }
 
-/* For Autocomplete */
-:deep(.grid-row button) {
+/* For Autocomplete, Link */
+:deep(.grid-row button),
+:deep(.grid-row .combobox > div > div) {
   border: none;
   border-radius: 0;
   background-color: var(--surface-white);

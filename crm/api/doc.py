@@ -12,7 +12,13 @@ from pypika import Criterion
 from crm.api.views import get_views
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
 from .performance import track_performance
-from crm.utils import get_dynamic_linked_docs, get_linked_docs
+from crm.utils import get_dynamic_linked_docs, get_linked_docs, is_frappe_version
+
+COUNT_NAME = (
+	{"COUNT": "name", "as": "total_count"}
+	if is_frappe_version("16", above=True)
+	else "count(name) as total_count"
+)
 
 
 @frappe.whitelist()
@@ -299,10 +305,10 @@ def get_data(
 	page_length_count=20,
 	column_field=None,
 	title_field=None,
-	columns=[],
-	rows=[],
-	kanban_columns=[],
-	kanban_fields=[],
+	columns=None,
+	rows=None,
+	kanban_columns=None,
+	kanban_fields=None,
 	view=None,
 	default_filters=None,
 ):
@@ -476,7 +482,7 @@ def get_data(
 				all_count = frappe.get_list(
 					doctype,
 					filters=convert_filter_to_tuple(doctype, new_filters),
-					fields="count(*) as total_count",
+					fields=[COUNT_NAME],
 				)[0].total_count
 
 				kc["all_count"] = all_count
@@ -579,9 +585,7 @@ def get_data(
 		"page_length_count": page_length_count,
 		"is_default": is_default,
 		"views": get_views(doctype),
-		"total_count": frappe.get_list(
-			doctype, filters=filters, fields="count(*) as total_count"
-		)[0].total_count,
+		"total_count": frappe.get_list(doctype, filters=filters, fields=[COUNT_NAME])[0].total_count,
 		"row_count": len(data),
 		"form_script": get_form_script(doctype),
 		"list_script": get_form_script(doctype, "List"),
@@ -688,7 +692,7 @@ def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False, only_re
 
 @frappe.whitelist()
 def remove_assignments(doctype, name, assignees, ignore_permissions=False, retry_count=3):
-	assignees = json.loads(assignees)
+	assignees = frappe.parse_json(assignees)
 
 	if not assignees:
 		return
@@ -855,7 +859,11 @@ def on_doc_update(doc, method=None):
 	)
 @frappe.whitelist()
 def get_linked_docs_of_document(doctype, docname):
-	doc = frappe.get_doc(doctype, docname)
+	try:
+		doc = frappe.get_doc(doctype, docname)
+	except frappe.DoesNotExistError:
+		return []
+
 	linked_docs = get_linked_docs(doc)
 	dynamic_linked_docs = get_dynamic_linked_docs(doc)
 
@@ -864,13 +872,23 @@ def get_linked_docs_of_document(doctype, docname):
 
 	docs_data = []
 	for doc in linked_docs:
-		data = frappe.get_doc(doc["reference_doctype"], doc["reference_docname"])
+		if not doc.get("reference_doctype") or not doc.get("reference_docname"):
+			continue
+
+		try:
+			data = frappe.get_doc(doc["reference_doctype"], doc["reference_docname"])
+		except (frappe.DoesNotExistError, frappe.ValidationError):
+			continue
+
 		title = data.get("title")
 		if data.doctype == "CRM Call Log":
 			title = f"Call from {data.get('from')} to {data.get('to')}"
 
 		if data.doctype == "CRM Deal":
 			title = data.get("organization")
+
+		if data.doctype == "CRM Notification":
+			title = data.get("message")
 
 		docs_data.append(
 			{
@@ -884,25 +902,51 @@ def get_linked_docs_of_document(doctype, docname):
 
 
 def remove_doc_link(doctype, docname):
-	linked_doc_data = frappe.get_doc(doctype, docname)
-	linked_doc_data.update(
-		{
-			"reference_doctype": None,
-			"reference_docname": None,
-		}
-	)
-	linked_doc_data.save(ignore_permissions=True)
+	if not doctype or not docname:
+		return
+
+	try:
+		linked_doc_data = frappe.get_doc(doctype, docname)
+		if doctype == "CRM Notification":
+			delete_notification_type = {
+				"notification_type_doctype": "",
+				"notification_type_doc": "",
+			}
+			delete_references = {
+				"reference_doctype": "",
+				"reference_name": "",
+			}
+			if linked_doc_data.get("notification_type_doctype") == linked_doc_data.get("reference_doctype"):
+				delete_references.update(delete_notification_type)
+
+			linked_doc_data.update(delete_references)
+		else:
+			linked_doc_data.update(
+				{
+					"reference_doctype": "",
+					"reference_docname": "",
+				}
+			)
+		linked_doc_data.save(ignore_permissions=True)
+	except (frappe.DoesNotExistError, frappe.ValidationError):
+		pass
 
 
 def remove_contact_link(doctype, docname):
-	linked_doc_data = frappe.get_doc(doctype, docname)
-	linked_doc_data.update(
-		{
-			"contact": None,
-			"contacts": [],
-		}
-	)
-	linked_doc_data.save(ignore_permissions=True)
+	if not doctype or not docname:
+		return
+
+	try:
+		linked_doc_data = frappe.get_doc(doctype, docname)
+		linked_doc_data.update(
+			{
+				"contact": None,
+				"contacts": [],
+			}
+		)
+		linked_doc_data.save(ignore_permissions=True)
+	except (frappe.DoesNotExistError, frappe.ValidationError):
+		pass
 
 
 @frappe.whitelist()
@@ -911,13 +955,19 @@ def remove_linked_doc_reference(items, remove_contact=None, delete=False):
 		items = frappe.parse_json(items)
 
 	for item in items:
-		if remove_contact:
-			remove_contact_link(item["doctype"], item["docname"])
-		else:
-			universal_remove_doc_link(item["doctype"], item["docname"])
+		if not item.get("doctype") or not item.get("docname"):
+			continue
 
-		if delete:
-			frappe.delete_doc(item["doctype"], item["docname"])
+		try:
+			if remove_contact:
+				remove_contact_link(item["doctype"], item["docname"])
+			else:
+				universal_remove_doc_link(item["doctype"], item["docname"])
+			if delete:
+				frappe.delete_doc(item["doctype"], item["docname"])
+		except (frappe.DoesNotExistError, frappe.ValidationError):
+			# Skip if document doesn't exist or has validation errors
+			continue
 
 	return "success"
 
@@ -927,15 +977,30 @@ def delete_bulk_docs(doctype, items, delete_linked=False):
 	from frappe.desk.reportview import delete_bulk
 
 	try:
+		if not doctype:
+			frappe.throw("Doctype is required")
+
+		if not items:
+			frappe.throw("Items are required")
+
 		items = frappe.parse_json(items)
+		if not isinstance(items, list):
+			frappe.throw("Items must be a list")
 		
 		# Process linked documents for each item
 		for doc in items:
 			try:
+				if not frappe.db.exists(doctype, doc):
+					frappe.log_error(f"Document {doctype} {doc} does not exist", "Bulk Delete Error")
+					continue
+
 				linked_docs = get_linked_docs_of_document(doctype, doc)
 				
 				# If there are linked documents, handle them according to delete_linked flag
 				for linked_doc in linked_docs:
+					if not linked_doc.get("reference_doctype") or not linked_doc.get("reference_docname"):
+						continue
+
 					try:
 						remove_linked_doc_reference(
 							[

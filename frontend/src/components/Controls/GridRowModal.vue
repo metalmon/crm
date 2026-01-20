@@ -11,15 +11,18 @@
           <div class="flex items-center gap-1">
             <Button
               v-if="isManager()"
+              :tooltip="__('Edit fields layout')"
               variant="ghost"
               class="w-7"
+              :icon="EditIcon"
               @click="openGridRowFieldsModal"
-            >
-              <EditIcon class="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" class="w-7" @click="show = false">
-              <FeatherIcon name="x" class="h-4 w-4" />
-            </Button>
+            />
+            <Button
+              icon="x"
+              variant="ghost"
+              class="w-7"
+              @click="show = false"
+            />
           </div>
         </div>
         <div>

@@ -1,5 +1,5 @@
 <template>
-  <LayoutHeader v-if="lead.data">
+  <LayoutHeader>
     <header
       class="relative flex h-10.5 items-center justify-between gap-2 py-2.5 pl-2"
     >
@@ -10,29 +10,25 @@
       </Breadcrumbs>
       <div class="absolute right-0">
         <Dropdown
-          v-if="document.doc"
+          v-if="doc"
           :options="
             statusOptions(
               'lead',
               document.statuses?.length
                 ? document.statuses
-                : lead.data._customStatuses,
+                : document._statuses,
               triggerStatusChange,
             )
           "
         >
           <template #default="{ open }">
-            <Button :label="getLeadStatus(document.doc.status).label">
+            <Button
+              v-if="doc.status"
+              :label="getLeadStatus(doc.status).label"
+              :iconRight="open ? 'chevron-up' : 'chevron-down'"
+            >
               <template #prefix>
-                <IndicatorIcon
-                  :class="getLeadStatus(document.doc.status).color"
-                />
-              </template>
-              <template #suffix>
-                <FeatherIcon
-                  :name="open ? 'chevron-up' : 'chevron-down'"
-                  class="h-4"
-                />
+                <IndicatorIcon :class="getLeadStatus(doc.status).color" />
               </template>
             </Button>
           </template>
@@ -41,18 +37,14 @@
     </header>
   </LayoutHeader>
   <div
-    v-if="lead.data"
+    v-if="doc.name"
     class="flex h-12 items-center justify-between gap-2 border-b px-3 py-2.5"
   >
-    <AssignTo
-      v-model="assignees.data"
-      :data="document.doc"
-      doctype="CRM Lead"
-    />
+    <AssignTo v-model="assignees.data" doctype="CRM Lead" :docname="leadId" />
     <div class="flex items-center gap-2">
       <CustomActions
-        v-if="lead.data._customActions?.length"
-        :actions="lead.data._customActions"
+        v-if="document._actions?.length"
+        :actions="document._actions"
       />
       <CustomActions
         v-if="document.actions?.length"
@@ -65,14 +57,18 @@
       />
     </div>
   </div>
-  <div v-if="lead?.data" class="flex h-full overflow-hidden">
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs" class="overflow-auto pb-20">
-      <TabList class="!px-3" />
-      <TabPanel v-slot="{ tab }">
+  <div v-if="doc.name" class="flex h-full overflow-hidden">
+    <Tabs
+      as="div"
+      v-model="tabIndex"
+      :tabs="tabs"
+      class="flex flex-1 overflow-auto flex-col [&_[role='tab']]:px-0 [&_[role='tablist']]:px-3 [&_[role='tablist']]:gap-7.5 [&_[role='tabpanel']:not([hidden])]:flex [&_[role='tabpanel']:not([hidden])]:grow"
+    >
+      <template #tab-panel="{ tab }">
         <div v-if="tab.name == 'Details'">
           <SLASection
-            v-if="lead.data.sla_status"
-            v-model="lead.data"
+            v-if="doc.sla_status"
+            v-model="doc"
             @updateField="updateField"
           />
           <div
@@ -82,7 +78,7 @@
             <SidePanelLayout
               :sections="sections.data"
               doctype="CRM Lead"
-              :docname="lead.data.name"
+              :docname="leadId"
               @reload="sections.reload"
               @afterFieldChange="reloadAssignees"
             />
@@ -92,20 +88,20 @@
           v-else
           ref="activities"
           doctype="CRM Lead"
+          :docname="leadId"
           :tabs="tabs"
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
-          v-model="lead"
           @beforeSave="saveChanges"
           @afterSave="reloadAssignees"
         />
-      </TabPanel>
+      </template>
     </Tabs>
   </div>
-  <div class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
+  <div v-if="doc.name" class="fixed bottom-0 left-0 right-0 flex justify-center gap-2 border-t bg-white dark:bg-gray-900 dark:border-gray-700 p-3">
     <div class="flex gap-2 overflow-x-auto scrollbar-hide">
       <Button
-        v-if="lead.data?.mobile_no && ipTelephonyEnabled"
+        v-if="doc.mobile_no && ipTelephonyEnabled"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
         @click="triggerCall"
@@ -114,7 +110,7 @@
       </Button>
 
       <Button
-        v-if="lead.data?.mobile_no && !ipTelephonyEnabled"
+        v-if="doc.mobile_no && !ipTelephonyEnabled"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
         @click="trackPhoneActivities('phone')"
@@ -123,7 +119,7 @@
       </Button>
       
       <Button
-        v-if="lead.data?.mobile_no"
+        v-if="doc.mobile_no"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
         @click="trackPhoneActivities('whatsapp')"
@@ -132,7 +128,7 @@
       </Button>
 
       <Button
-        v-if="lead.data?.mobile_no"
+        v-if="doc.mobile_no"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
         @click="showEmailTemplateSelectorModal = true"
@@ -141,15 +137,20 @@
       </Button>
 
       <Button
-        v-if="lead.data?.website"
+        v-if="doc.website"
         size="lg"
         class="dark:text-white dark:hover:bg-gray-700 !h-10 !w-10 !p-0 flex items-center justify-center"
-        @click="openWebsite(lead.data.website)"
+        @click="openWebsite(doc.website)"
       >
         <LinkIcon class="h-5 w-5" />
       </Button>
     </div>
   </div>
+  <ErrorPage
+    v-else-if="errorTitle"
+    :errorTitle="errorTitle"
+    :errorMessage="errorMessage"
+  />
   <Dialog
     v-model="showConvertToDealModal"
     :options="{
@@ -228,11 +229,20 @@
   </Dialog>
   <EmailTemplateSelectorModal
     v-model="showEmailTemplateSelectorModal"
-    :doctype="doctype"
+    :doctype="'CRM Lead'"
     @apply="applyMessageTemplate"
+  />
+  <DeleteLinkedDocModal
+    v-if="showDeleteLinkedDocModal"
+    v-model="showDeleteLinkedDocModal"
+    :doctype="'CRM Lead'"
+    :docname="leadId"
+    name="Leads"
   />
 </template>
 <script setup>
+import DeleteLinkedDocModal from '@/components/DeleteLinkedDocModal.vue'
+import ErrorPage from '@/components/ErrorPage.vue'
 import Icon from '@/components/Icon.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
 import ActivityIcon from '@/components/Icons/ActivityIcon.vue'
@@ -275,15 +285,13 @@ import {
   createResource,
   Dropdown,
   Tabs,
-  TabList,
-  TabPanel,
   Switch,
   Breadcrumbs,
   call,
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch, onUnmounted, reactive } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { trackCommunication } from '@/utils/communicationUtils'
 import { translateLeadStatus } from '@/utils/leadStatusTranslations'
@@ -308,72 +316,54 @@ const props = defineProps({
 
 const deal = reactive({})
 
-const lead = createResource({
-  url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
-  params: { name: props.leadId },
-  cache: ['lead', props.leadId],
-  auto: true,
-  onSuccess: (data) => {
-    setupCustomizations(lead, {
-      doc: data,
-      $dialog,
-      $socket,
-      router,
-      toast,
-      updateField,
-      createToast: toast.create,
-      deleteDoc: deleteLead,
-      resource: {
-        lead,
-        sections,
-      },
-      call,
-    })
-  },
-})
-
+const errorTitle = ref('')
+const errorMessage = ref('')
+const showDeleteLinkedDocModal = ref(false)
 const reload = ref(false)
 const activities = ref(null)
 
-onMounted(() => {
-  if (lead.data) return
-  lead.fetch()
+const { triggerOnChange, assignees, document, scripts, error } = useDocument(
+  'CRM Lead',
+  props.leadId,
+)
+
+const doc = computed(() => document.doc || {})
+
+watch(error, (err) => {
+  if (err) {
+    errorTitle.value = __(
+      err.exc_type == 'DoesNotExistError'
+        ? 'Document not found'
+        : 'Error occurred',
+    )
+    errorMessage.value = __(err.messages?.[0] || 'An error occurred')
+  } else {
+    errorTitle.value = ''
+    errorMessage.value = ''
+  }
 })
 
-function updateLead(fieldname, value, callback) {
-  value = Array.isArray(fieldname) ? '' : value
-
-  if (!Array.isArray(fieldname) && validateRequired(fieldname, value)) return
-
-  createResource({
-    url: 'frappe.client.set_value',
-    params: {
-      doctype: 'CRM Lead',
-      name: props.leadId,
-      fieldname,
-      value,
-    },
-    auto: true,
-    onSuccess: () => {
-      lead.reload()
-      reload.value = true
-      toast.success(__('Lead updated successfully'))
-      callback?.()
-    },
-    onError: (err) => {
-      toast.error(__(err.messages?.[0] || 'Error updating lead'))
-    },
-  })
-}
-
-function validateRequired(fieldname, value) {
-  let meta = lead.data.fields_meta || {}
-  if (meta[fieldname]?.reqd && !value) {
-    toast.error(__('{0} is a required field', [meta[fieldname].label]))
-    return true
-  }
-  return false
-}
+watch(
+  () => document.doc,
+  async (_doc) => {
+    if (scripts.data?.length) {
+      let s = await setupCustomizations(scripts.data, {
+        doc: _doc,
+        $dialog,
+        $socket,
+        router,
+        toast,
+        updateField,
+        createToast: toast.create,
+        deleteDoc: deleteLead,
+        call,
+      })
+      document._actions = s.actions || []
+      document._statuses = s.statuses || []
+    }
+  },
+  { once: true },
+)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Leads'), route: { name: 'Leads' } }]
@@ -395,14 +385,14 @@ const breadcrumbs = computed(() => {
 
   items.push({
     label: title.value,
-    route: { name: 'Lead', params: { leadId: lead.data.name } },
+    route: { name: 'Lead', params: { leadId: props.leadId } },
   })
   return items
 })
 
 const title = computed(() => {
   let t = doctypeMeta['CRM Lead']?.title_field || 'name'
-  return lead.data?.[t] || props.leadId
+  return doc.value?.[t] || props.leadId
 })
 
 usePageMeta(() => {
@@ -444,7 +434,6 @@ const tabs = computed(() => {
       name: 'Calls',
       label: __('Calls'),
       icon: PhoneIcon,
-      condition: () => callEnabled.value,
     },
     {
       name: 'Tasks',
@@ -476,18 +465,8 @@ const tabs = computed(() => {
   ]
   return tabOptions.filter((tab) => (tab.condition ? tab.condition() : true))
 })
-const { tabIndex } = useActiveTabManager(tabs, 'lastLeadTab')
 
-watch(tabs, (value) => {
-  if (value && route.params.tabName) {
-    let index = value.findIndex(
-      (tab) => tab.name.toLowerCase() === route.params.tabName.toLowerCase(),
-    )
-    if (index !== -1) {
-      tabIndex.value = index
-    }
-  }
-})
+const { tabIndex } = useActiveTabManager(tabs, 'lastLeadTab')
 
 const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
@@ -496,19 +475,31 @@ const sections = createResource({
   auto: true,
 })
 
-function updateField(name, value, callback) {
-  updateLead(name, value, () => {
-    lead.data[name] = value
-    callback?.()
+function updateField(name, value) {
+  value = Array.isArray(name) ? '' : value
+  let oldValues = Array.isArray(name) ? {} : doc.value[name]
+
+  if (Array.isArray(name)) {
+    name.forEach((field) => (doc.value[field] = value))
+  } else {
+    doc.value[name] = value
+  }
+
+  document.save.submit(null, {
+    onSuccess: () => (reload.value = true),
+    onError: (err) => {
+      if (Array.isArray(name)) {
+        name.forEach((field) => (doc.value[field] = oldValues[field]))
+      } else {
+        doc.value[name] = oldValues
+      }
+      toast.error(err.messages?.[0] || __('Error updating field'))
+    },
   })
 }
 
-async function deleteLead(name) {
-  await call('frappe.client.delete', {
-    doctype: 'CRM Lead',
-    name,
-  })
-  router.push({ name: 'Leads' })
+function deleteLead() {
+  showDeleteLinkedDocModal.value = true
 }
 
 // Convert to Deal
@@ -566,8 +557,8 @@ const dealTabs = createResource({
 
 // Watch for the modal opening
 watch(showConvertToDealModal, async (newValue) => {
-  if (newValue && lead.data?.email) { // Check when modal opens & email exists
-    const contactName = await findContactByEmail(lead.data.email);
+  if (newValue && doc.value?.email) { // Check when modal opens & email exists
+    const contactName = await findContactByEmail(doc.value.email);
     if (contactName) {
       existingContact.value = contactName;
       existingContactChecked.value = true;
@@ -603,8 +594,8 @@ async function convertToDeal() {
   }
 
   let _deal = await call('crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal', {
-    lead: lead.data.name,
-    deal,
+    lead: props.leadId,
+    deal: {},
     existing_contact: existingContact.value,
     existing_organization: existingOrganization.value,
   })
@@ -624,7 +615,7 @@ async function convertToDeal() {
 }
 
 function trackPhoneActivities(type) {
-  if (!lead.data?.mobile_no) {
+  if (!doc.value?.mobile_no) {
     toast.error(__('No phone number set'))
     return
   }
@@ -632,15 +623,11 @@ function trackPhoneActivities(type) {
   trackCommunication({
     type,
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: props.leadId,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
   })
-}
-
-function errorMessage(message) {
-  toast.error(message)
 }
 
 function openWebsite(url) {
@@ -653,26 +640,28 @@ function openWebsite(url) {
 const showMessageTemplateModal = ref(false)
 
 function applyMessageTemplate(template) {
-  if (!lead.data.lead_name) return errorMessage(__('Contact name not set'))
+  if (!doc.value.lead_name) return toast.error(__('Contact name not set'))
   
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: props.leadId,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
     message: template,
-    modelValue: lead.data
+    modelValue: doc.value
   })
   showEmailTemplateSelectorModal.value = false
 }
 
 function triggerCall() {
-  makeCall(lead.data.mobile_no)
+  if (!doc.value?.mobile_no) {
+    toast.error(__('No phone number set'))
+    return
+  }
+  makeCall(doc.value.mobile_no)
 }
-
-const { assignees, document, triggerOnChange } = useDocument('CRM Lead', props.leadId)
 
 async function triggerStatusChange(value) {
   await triggerOnChange('status', value)

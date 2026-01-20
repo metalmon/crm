@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { userResource } from '@/stores/user'
+import { usersStore } from '@/stores/users'
 import { sessionStore } from '@/stores/session'
 import { viewsStore } from '@/stores/views'
 
@@ -108,6 +108,23 @@ const routes = [
     meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
+    path: '/data-import',
+    name: 'DataImportList',
+    component: () => import('@/pages/DataImport.vue'),
+  },
+  {
+    path: '/data-import/doctype/:doctype',
+    name: 'NewDataImport',
+    component: () => import('@/pages/DataImport.vue'),
+    props: true,
+  },
+  {
+    path: '/data-import/:importName',
+    name: 'DataImport',
+    component: () => import('@/pages/DataImport.vue'),
+    props: true,
+  },
+  {
     path: '/welcome',
     name: 'Welcome',
     component: () => import('@/pages/Welcome.vue'),
@@ -116,6 +133,11 @@ const routes = [
     path: '/:invalidpath',
     name: 'Invalid Page',
     component: () => import('@/pages/InvalidPage.vue'),
+  },
+  {
+    path: '/not-permitted',
+    name: 'Not Permitted',
+    component: () => import('@/pages/NotPermitted.vue'),
   },
 ]
 
@@ -150,8 +172,15 @@ let router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const { isLoggedIn } = sessionStore()
+  const { users, isWebsiteUser } = usersStore()
 
-  isLoggedIn && (await userResource.promise)
+  if (isLoggedIn && !users.fetched) {
+    try {
+      await users.promise
+    } catch (error) {
+      console.error('Error loading users', error)
+    }
+  }
 
   if (from.meta?.scrollPos) {
     from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop
@@ -177,7 +206,9 @@ router.beforeEach(async (to, from, next) => {
     return isEmptyViewType || isBaseRoute
   }
 
-  if (to.name === 'Home' && isLoggedIn) {
+  if (isLoggedIn && to.name !== 'Not Permitted' && isWebsiteUser()) {
+    next({ name: 'Not Permitted' })
+  } else if (to.name === 'Home' && isLoggedIn) {
     const { views, getDefaultView } = viewsStore()
     await views.promise
 
@@ -191,7 +222,11 @@ router.beforeEach(async (to, from, next) => {
     route_name = route_name || 'Leads'
 
     if (name && !is_standard) {
-      next({ name: route_name, params: { viewType: type }, query: { view: name } })
+      next({
+        name: route_name,
+        params: { viewType: type },
+        query: { view: name },
+      })
     } else {
       // For standard views without explicit type, use our default
       next({ name: route_name, params: { viewType: type || getDefaultViewType(route_name) } })

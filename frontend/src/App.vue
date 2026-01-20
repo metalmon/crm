@@ -1,6 +1,7 @@
 <template>
   <FrappeUIProvider>
-    <div class="app-container">
+    <NotPermitted v-if="$route.name === 'Not Permitted'" />
+    <div v-else class="app-container">
       <!-- Loading overlay for Redis warmup, network errors, or translations loading -->
       <LoadingView 
         v-if="redisWarmup.isWarmingUp || hasNetworkErrors || translationsLoading"
@@ -16,7 +17,7 @@
       
       <!-- Main app content - only shown when everything is loaded -->
       <div v-show="!redisWarmup.isWarmingUp && !hasNetworkErrors && !translationsLoading" class="app-content">
-        <Layout v-if="session().isLoggedIn">
+        <Layout v-if="session().isLoggedIn" class="isolate">
           <router-view :key="translationKey" />
         </Layout>
         <Dialogs />
@@ -26,6 +27,7 @@
 </template>
 
 <script setup>
+import NotPermitted from '@/pages/NotPermitted.vue'
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
 import { setTheme } from '@/stores/theme'

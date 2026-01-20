@@ -13,17 +13,16 @@
               v-if="isManager() && !isMobileView"
               variant="ghost"
               class="w-7"
+              :tooltip="__('Edit fields layout')"
+              :icon="EditIcon"
               @click="openQuickEntryModal"
-            >
-              <template #icon>
-                <EditIcon />
-              </template>
-            </Button>
-            <Button variant="ghost" class="w-7" @click="show = false">
-              <template #icon>
-                <FeatherIcon name="x" class="size-4" />
-              </template>
-            </Button>
+            />
+            <Button
+              variant="ghost"
+              class="w-7"
+              @click="show = false"
+              icon="x"
+            />
           </div>
         </div>
         <FieldLayout
@@ -62,7 +61,7 @@ import {
 } from '@/composables/modals'
 import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
-import { call, FeatherIcon, createResource } from 'frappe-ui'
+import { call, createResource } from 'frappe-ui'
 import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -107,9 +106,8 @@ async function createOrganization() {
     },
     {
       onError: (err) => {
-        if (err.error.exc_type == 'ValidationError') {
-          error.value = err.error?.messages?.[0]
-        }
+        error.value = err.error?.messages?.[0]
+        loading.value = false
       },
     },
   )
@@ -175,6 +173,5 @@ function openAddressModal(_address) {
     doctype: 'Address',
     address: _address,
   }
-  nextTick(() => (show.value = false))
 }
 </script>

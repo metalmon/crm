@@ -4,10 +4,11 @@
   >
     <div class="space-y-2">
       <div>{{ __('Invalid page or not permitted to access') }}</div>
-      <Button :route="{ name: 'Leads' }">
-        <template #prefix><LeadsIcon class="w-4" /></template>
-        {{ __('Leads') }}
-      </Button>
+      <Button
+        :route="{ name: 'Leads' }"
+        :label="__('Leads')"
+        :iconLeft="LeadsIcon"
+      />
     </div>
   </div>
 </template>

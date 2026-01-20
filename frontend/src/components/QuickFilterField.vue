@@ -25,7 +25,7 @@
     v-model="filter.value"
     :options="filter.options"
     :placeholder="filter.label"
-    @change.stop="updateFilter(filter, $event.target.value)"
+    @update:modelValue="updateFilter(filter, $event)"
   >
     <template #item-label="{ option }">
       {{ option.label || option.value }}

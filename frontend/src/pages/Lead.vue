@@ -1,5 +1,5 @@
 <template>
-  <LayoutHeader v-if="lead.data">
+  <LayoutHeader>
     <template #left-header>
       <Breadcrumbs :items="breadcrumbs">
         <template #prefix="{ item }">
@@ -7,44 +7,29 @@
         </template>
       </Breadcrumbs>
     </template>
-    <template #right-header>
+    <template v-if="!errorTitle" #right-header>
       <CustomActions
-        v-if="lead.data._customActions?.length"
-        :actions="lead.data._customActions"
+        v-if="document._actions?.length"
+        :actions="document._actions"
       />
       <CustomActions
         v-if="document.actions?.length"
         :actions="document.actions"
       />
-      <AssignTo
-        v-model="assignees.data"
-        :data="document.doc"
-        doctype="CRM Lead"
-      />
+      <AssignTo v-model="assignees.data" doctype="CRM Lead" :docname="leadId" />
       <Dropdown
-        v-if="document.doc"
-        :options="
-          statusOptions(
-            'lead',
-            document.statuses?.length
-              ? document.statuses
-              : lead.data._customStatuses,
-            triggerStatusChange,
-          )
-        "
+        v-if="doc && document.statuses"
+        :options="statuses"
+        placement="right"
       >
         <template #default="{ open }">
-          <Button :label="getLeadStatus(document.doc.status).label">
+          <Button
+            v-if="doc.status"
+            :label="getLeadStatus(doc.status).label"
+            :iconRight="open ? 'chevron-up' : 'chevron-down'"
+          >
             <template #prefix>
-              <IndicatorIcon
-                :class="getLeadStatus(document.doc.status).color"
-              />
-            </template>
-            <template #suffix>
-              <FeatherIcon
-                :name="open ? 'chevron-up' : 'chevron-down'"
-                class="h-4"
-              />
+              <IndicatorIcon :class="getLeadStatus(doc.status).color" />
             </template>
           </Button>
         </template>
@@ -56,16 +41,20 @@
       />
     </template>
   </LayoutHeader>
-  <div v-if="lead?.data" class="flex h-full overflow-hidden">
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+  <div v-if="doc.name" class="flex h-full overflow-hidden">
+    <Tabs
+      v-model="tabIndex"
+      :tabs="tabs"
+      class="flex flex-1 overflow-hidden flex-col [&_[role='tab']]:px-0 [&_[role='tablist']]:px-5 [&_[role='tablist']]:gap-7.5 [&_[role='tabpanel']:not([hidden])]:flex [&_[role='tabpanel']:not([hidden])]:grow"
+    >
       <template #tab-panel>
         <Activities
           ref="activities"
           doctype="CRM Lead"
+          :docname="leadId"
           :tabs="tabs"
           v-model:reload="reload"
           v-model:tabIndex="tabIndex"
-          v-model="lead"
           @beforeSave="saveChanges"
           @afterSave="reloadAssignees"
         />
@@ -73,10 +62,10 @@
     </Tabs>
     <Resizer class="flex flex-col justify-between border-l" side="right">
       <div
-        class="flex h-10.5 cursor-copy items-center border-b px-5 py-2.5 text-lg font-medium text-ink-gray-9"
-        @click="copyToClipboard(lead.data.name)"
+        class="flex h-[45px] cursor-copy items-center border-b px-5 py-2.5 text-lg font-medium text-ink-gray-9"
+        @click="copyToClipboard(leadId)"
       >
-        {{ __(lead.data.name) }}
+        {{ __(leadId) }}
       </div>
       <FileUploader
         @success="(file) => updateField('image', file.file_url)"
@@ -89,17 +78,17 @@
                 size="3xl"
                 class="size-12"
                 :label="title"
-                :image="lead.data.image"
+                :image="doc.image"
               />
               <component
-                :is="lead.data.image ? Dropdown : 'div'"
+                :is="doc.image ? Dropdown : 'div'"
                 v-bind="
-                  lead.data.image
+                  doc.image
                     ? {
                         options: [
                           {
                             icon: 'upload',
-                            label: lead.data.image
+                            label: doc.image
                               ? __('Change image')
                               : __('Upload image'),
                             onClick: openFileSelector,
@@ -127,92 +116,80 @@
               </component>
             </div>
             <div class="flex flex-col gap-2.5 truncate">
-              <Tooltip :text="lead.data.lead_name || __('Set first name')">
+              <Tooltip :text="doc.lead_name || __('Set first name')">
                 <div class="truncate text-2xl font-medium text-ink-gray-9">
                   {{ title }}
                 </div>
               </Tooltip>
               <div class="flex gap-1.5">
-                <Tooltip v-if="ipTelephonyEnabled" :text="__('Make a call')">
-                  <div>
-                    <Button
-                      @click="
-                        () =>
-                          lead.data.mobile_no
-                            ? makeCall(lead.data.mobile_no)
-                            : toast.error(__('No phone number set'))
-                      "
-                    >
-                      <PhoneIcon class="h-4 w-4" />
-                    </Button>
-                  </div>
-                </Tooltip>
-                <Tooltip :text="__('Call via phone app')">
-                  <Button
-                    v-if="lead.data.mobile_no && !ipTelephonyEnabled"
-                    size="sm"
-                    @click="trackPhoneActivities('phone')"
-                  >
-                    <PhoneIcon class="h-4 w-4" />
-                  </Button>
-                </Tooltip>
-                <Tooltip :text="__('Open WhatsApp')">
-                  <Button
-                    v-if="lead.data.mobile_no"
-                    size="sm"
-                    @click="trackPhoneActivities('whatsapp')"
-                  >
-                    <WhatsAppIcon class="h-4 w-4" />
-                  </Button>
-                </Tooltip>
-                <Tooltip :text="__('Send WhatsApp Template')">
-                  <Button
-                    v-if="lead.data.mobile_no"
-                    size="sm"
-                    @click="showEmailTemplateSelectorModal = true"
-                  >
-                    <CommentIcon class="h-4 w-4" />
-                  </Button>
-                </Tooltip>
-                <Tooltip :text="__('Send an email')">
-                  <div>
-                    <Button
-                      @click="
-                        lead.data.email
-                          ? openEmailBox()
-                          : toast.error(__('No email set'))
-                      "
-                    >
-                      <template #icon>
-                        <Email2Icon />
-                      </template>
-                    </Button>
-                  </div>
-                </Tooltip>
-                <Tooltip :text="__('Go to website')">
-                  <div>
-                    <Button
-                      @click="
-                        lead.data.website
-                          ? openWebsite(lead.data.website)
-                          : toast.error(__('No website set'))
-                      "
-                    >
-                      <template #icon>
-                        <LinkIcon />
-                      </template>
-                    </Button>
-                  </div>
-                </Tooltip>
-                <Tooltip :text="__('Attach a file')">
-                  <div>
-                    <Button @click="showFilesUploader = true">
-                      <template #icon>
-                        <AttachmentIcon />
-                      </template>
-                    </Button>
-                  </div>
-                </Tooltip>
+                <Button
+                  v-if="ipTelephonyEnabled"
+                  :tooltip="__('Make a call')"
+                  :icon="PhoneIcon"
+                  @click="
+                    () =>
+                      doc.mobile_no
+                        ? makeCall(doc.mobile_no)
+                        : toast.error(__('No phone number set'))
+                  "
+                />
+
+                <Button
+                  v-if="doc.mobile_no && !ipTelephonyEnabled"
+                  :tooltip="__('Call via phone app')"
+                  size="sm"
+                  :icon="PhoneIcon"
+                  @click="trackPhoneActivities('phone')"
+                />
+
+                <Button
+                  v-if="doc.mobile_no"
+                  :tooltip="__('Open WhatsApp')"
+                  size="sm"
+                  :icon="WhatsAppIcon"
+                  @click="trackPhoneActivities('whatsapp')"
+                />
+
+                <Button
+                  v-if="doc.mobile_no"
+                  :tooltip="__('Send WhatsApp Template')"
+                  size="sm"
+                  :icon="CommentIcon"
+                  @click="showEmailTemplateSelectorModal = true"
+                />
+
+                <Button
+                  :tooltip="__('Send an email')"
+                  :icon="Email2Icon"
+                  @click="
+                    doc.email ? openEmailBox() : toast.error(__('No email set'))
+                  "
+                />
+
+                <Button
+                  :tooltip="__('Go to website')"
+                  :icon="LinkIcon"
+                  @click="
+                    doc.website
+                      ? openWebsite(doc.website)
+                      : toast.error(__('No website set'))
+                  "
+                />
+
+                <Button
+                  :tooltip="__('Attach a file')"
+                  :icon="AttachmentIcon"
+                  @click="showFilesUploader = true"
+                />
+
+                <Button
+                  v-if="canDelete"
+                  :tooltip="__('Delete')"
+                  variant="subtle"
+                  theme="red"
+                  icon="trash-2"
+                  @click="deleteLead"
+                />
               </div>
               <ErrorMessage :message="__(error)" />
             </div>
@@ -220,8 +197,8 @@
         </template>
       </FileUploader>
       <SLASection
-        v-if="lead.data.sla_status"
-        v-model="lead.data"
+        v-if="doc.sla_status"
+        v-model="doc"
         @updateField="updateField"
       />
       <div
@@ -231,7 +208,7 @@
         <SidePanelLayout
           :sections="sections.data"
           doctype="CRM Lead"
-          :docname="lead.data.name"
+          :docname="leadId"
           @reload="sections.reload"
           @afterFieldChange="reloadAssignees"
         />
@@ -246,13 +223,12 @@
   <ConvertToDealModal
     v-if="showConvertToDealModal"
     v-model="showConvertToDealModal"
-    :lead="lead.data"
+    :lead="doc"
   />
   <FilesUploader
-    v-if="lead.data?.name"
     v-model="showFilesUploader"
     doctype="CRM Lead"
-    :docname="lead.data.name"
+    :docname="leadId"
     @after="
       () => {
         activities?.all_activities?.reload()
@@ -264,7 +240,7 @@
     v-if="showDeleteLinkedDocModal"
     v-model="showDeleteLinkedDocModal"
     :doctype="'CRM Lead'"
-    :docname="props.leadId"
+    :docname="leadId"
     name="Leads"
   />
   <EmailTemplateSelectorModal
@@ -274,6 +250,7 @@
   />
 </template>
 <script setup>
+import DeleteLinkedDocModal from '@/components/DeleteLinkedDocModal.vue'
 import ErrorPage from '@/components/ErrorPage.vue'
 import Icon from '@/components/Icon.vue'
 import Resizer from '@/components/Resizer.vue'
@@ -329,7 +306,7 @@ import {
   usePageMeta,
   toast,
 } from 'frappe-ui'
-import { ref, computed, onMounted, watch, nextTick, getCurrentInstance } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import { trackCommunication } from '@/utils/communicationUtils'
@@ -353,96 +330,58 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['beforeSave', 'afterSave'])
-
-const instance = getCurrentInstance()
-const attrs = instance?.vnode?.props ?? {}
-
+const reload = ref(false)
+const activities = ref(null)
 const errorTitle = ref('')
 const errorMessage = ref('')
 const showDeleteLinkedDocModal = ref(false)
 const showConvertToDealModal = ref(false)
 const showEmailTemplateSelectorModal = ref(false)
-
-const { triggerOnChange, assignees, document } = useDocument(
-  'CRM Lead',
-  props.leadId,
-)
-
-async function triggerStatusChange(value) {
-  await triggerOnChange('status', value)
-  document.save.submit()
-}
-
-const lead = createResource({
-  url: 'crm.fcrm.doctype.crm_lead.api.get_lead',
-  params: { name: props.leadId },
-  cache: ['lead', props.leadId],
-  auto: true,
-  onSuccess: (data) => {
-    errorTitle.value = ''
-    errorMessage.value = ''
-    setupCustomizations(lead, {
-      doc: data,
-      $dialog,
-      $socket,
-      router,
-      toast,
-      updateField,
-      createToast: toast.create,
-      deleteDoc: deleteLead,
-      resource: { lead, sections },
-      call,
-    })
-  },
-  onError: (err) => {
-    if (err.messages?.[0]) {
-      errorTitle.value = __('Not permitted')
-      errorMessage.value = __(err.messages?.[0])
-    } else {
-      router.push({ name: 'Leads' })
-    }
-  },
-})
-
-const reload = ref(false)
 const showFilesUploader = ref(false)
 const showMessageTemplateModal = ref(false)
 
-function updateLead(fieldname, value, callback) {
-  value = Array.isArray(fieldname) ? '' : value
+const { triggerOnChange, assignees, permissions, document, scripts, error } =
+  useDocument('CRM Lead', props.leadId)
 
-  if (!Array.isArray(fieldname) && validateRequired(fieldname, value)) return
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 
-  createResource({
-    url: 'frappe.client.set_value',
-    params: {
-      doctype: 'CRM Lead',
-      name: props.leadId,
-      fieldname,
-      value,
-    },
-    auto: true,
-    onSuccess: () => {
-      lead.reload()
-      reload.value = true
-      toast.success(__('Lead updated successfully'))
-      callback?.()
-    },
-    onError: (err) => {
-      toast.error(err.messages?.[0] || __('Error updating lead'))
-    },
-  })
-}
+const doc = computed(() => document.doc || {})
 
-function validateRequired(fieldname, value) {
-  let meta = lead.data.fields_meta || {}
-  if (meta[fieldname]?.reqd && !value) {
-    toast.error(__('{0} is a required field', [meta[fieldname].label]))
-    return true
+watch(error, (err) => {
+  if (err) {
+    errorTitle.value = __(
+      err.exc_type == 'DoesNotExistError'
+        ? 'Document not found'
+        : 'Error occurred',
+    )
+    errorMessage.value = __(err.messages?.[0] || 'An error occurred')
+  } else {
+    errorTitle.value = ''
+    errorMessage.value = ''
   }
-  return false
-}
+})
+
+watch(
+  () => document.doc,
+  async (_doc) => {
+    if (scripts.data?.length) {
+      let s = await setupCustomizations(scripts.data, {
+        doc: _doc,
+        $dialog,
+        $socket,
+        router,
+        toast,
+        updateField,
+        createToast: toast.create,
+        deleteDoc: deleteLead,
+        call,
+      })
+      document._actions = s.actions || []
+      document._statuses = s.statuses || []
+    }
+  },
+  { once: true },
+)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Leads'), route: { name: 'Leads' } }]
@@ -464,21 +403,25 @@ const breadcrumbs = computed(() => {
 
   items.push({
     label: title.value,
-    route: { name: 'Lead', params: { leadId: lead.data.name } },
+    route: { name: 'Lead', params: { leadId: props.leadId } },
   })
   return items
 })
 
 const title = computed(() => {
   let t = doctypeMeta['CRM Lead']?.title_field || 'name'
-  return lead.data?.[t] || props.leadId
+  return doc.value?.[t] || props.leadId
+})
+
+const statuses = computed(() => {
+  let customStatuses = document.statuses?.length
+    ? document.statuses
+    : document._statuses || []
+  return statusOptions('lead', customStatuses, triggerStatusChange)
 })
 
 usePageMeta(() => {
-  return {
-    title: title.value,
-    icon: brand.favicon,
-  }
+  return { title: title.value, icon: brand.favicon }
 })
 
 const tabs = computed(() => {
@@ -541,17 +484,6 @@ const tabs = computed(() => {
 
 const { tabIndex, changeTabTo } = useActiveTabManager(tabs, 'lastLeadTab')
 
-watch(tabs, (value) => {
-  if (value && route.params.tabName) {
-    let index = value.findIndex(
-      (tab) => tab.name.toLowerCase() === route.params.tabName.toLowerCase(),
-    )
-    if (index !== -1) {
-      tabIndex.value = index
-    }
-  }
-})
-
 const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
   cache: ['sidePanelSections', 'CRM Lead'],
@@ -559,29 +491,40 @@ const sections = createResource({
   auto: true,
 })
 
-function updateField(name, value, callback) {
-  updateLead(name, value, () => {
-    lead.data[name] = value
-    callback?.()
+async function triggerStatusChange(value) {
+  await triggerOnChange('status', value)
+  document.save.submit()
+}
+
+function updateField(name, value) {
+  value = Array.isArray(name) ? '' : value
+  let oldValues = Array.isArray(name) ? {} : doc.value[name]
+
+  if (Array.isArray(name)) {
+    name.forEach((field) => (doc.value[field] = value))
+  } else {
+    doc.value[name] = value
+  }
+
+  document.save.submit(null, {
+    onSuccess: () => (reload.value = true),
+    onError: (err) => {
+      if (Array.isArray(name)) {
+        name.forEach((field) => (doc.value[field] = oldValues[field]))
+      } else {
+        doc.value[name] = oldValues
+      }
+      toast.error(err.messages?.[0] || __('Error updating field'))
+    },
   })
 }
 
-async function deleteLead(name) {
-  await call('frappe.client.delete', {
-    doctype: 'CRM Lead',
-    name,
-  })
-  router.push({ name: 'Leads' })
-}
-
-async function deleteLeadWithModal(name) {
+function deleteLead() {
   showDeleteLinkedDocModal.value = true
 }
 
-const activities = ref(null)
-
 function trackPhoneActivities(type = 'phone') {
-  if (!lead.data?.mobile_no) {
+  if (!doc.value?.mobile_no) {
     toast.error(__('No phone number set'))
     return
   }
@@ -589,10 +532,10 @@ function trackPhoneActivities(type = 'phone') {
   trackCommunication({
     type,
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: props.leadId,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
   })
 }
 
@@ -617,17 +560,17 @@ function reloadAssignees(data) {
 }
 
 function applyMessageTemplate(template) {
-  if (!lead.data.lead_name) return toast.error(__('Contact name not set'))
+  if (!doc.value.lead_name) return toast.error(__('Contact name not set'))
   
   trackCommunication({
     type: 'whatsapp',
     doctype: 'CRM Lead',
-    docname: lead.data.name,
-    phoneNumber: lead.data.mobile_no,
+    docname: props.leadId,
+    phoneNumber: doc.value.mobile_no,
     activities: activities.value,
-    contactName: lead.data.lead_name,
+    contactName: doc.value.lead_name,
     message: template,
-    modelValue: lead.data
+    modelValue: doc.value
   })
   showEmailTemplateSelectorModal.value = false
 }

@@ -13,13 +13,16 @@
               v-if="isManager() && !isMobileView"
               variant="ghost"
               class="w-7"
+              :tooltip="__('Edit fields layout')"
+              :icon="EditIcon"
               @click="openQuickEntryModal"
-            >
-              <EditIcon class="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" class="w-7" @click="show = false">
-              <FeatherIcon name="x" class="h-4 w-4" />
-            </Button>
+            />
+            <Button
+              variant="ghost"
+              class="w-7"
+              icon="x"
+              @click="show = false"
+            />
           </div>
         </div>
         <div v-if="tabs.data">
@@ -50,7 +53,7 @@ import { usersStore } from '@/stores/users'
 import { useDocument } from '@/data/document'
 import { isMobileView } from '@/composables/settings'
 import { showQuickEntryModal, quickEntryProps } from '@/composables/modals'
-import { FeatherIcon, createResource, ErrorMessage, call } from 'frappe-ui'
+import { createResource, ErrorMessage, call } from 'frappe-ui'
 import { ref, nextTick, watch, computed } from 'vue'
 
 const props = defineProps({
