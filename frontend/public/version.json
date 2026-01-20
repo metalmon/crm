@@ -1,7 +1,7 @@
 {
-  "commit": "1dc87389",
+  "commit": "fd28d415",
   "branch": "main",
-  "commit_message": "fix: update notification indicator color in AppSidebar component\n\n- Changed the notification indicator color from surface-gray to red to enhance visibility and alert users of unread notifications.",
-  "commit_date": "2025-08-01",
-  "tag": "v1.52.1"
+  "commit_message": "Merge frappe/main into main - resolved conflicts\n\n- Resolved all merge conflicts from frappe/main\n- Preserved custom features: realtime Kanban, telephony, translations\n- Kept custom UI components (FadedScrollableDiv, SmartFilterField)\n- Preserved custom onboarding implementation\n- Added frappe-ui submodule\n- Kept apply-tiptap-patch.sh for old mobile browser support\n- Preserved PWA configuration with injectManifest strategy",
+  "commit_date": "2026-01-20",
+  "tag": "v1.57.11"
 }
