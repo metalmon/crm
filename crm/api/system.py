@@ -512,20 +512,13 @@ def get_redis_cache_status():
         }
 
 def check_background_workers():
-    """Check if background workers are running and processing jobs"""
+    """Check if background workers are running and available to process jobs"""
     try:
         # Check if RQ workers are running
-        workers_count = cint(frappe.db.get_single_value("System Settings", "background_workers") or 1)
         active_workers = len(frappe.utils.background_jobs.get_workers())
         
-        # Check queue status
-        queues = ["default", "long", "short"]
-        total_jobs = 0
-        
-        for queue in queues:
-            total_jobs += frappe.utils.background_jobs.get_queue(queue).count
-            
-        return active_workers >= workers_count and total_jobs == 0
+        # At least one worker must be running for the system to process background jobs
+        return active_workers >= 1
         
     except Exception as e:
         frappe.log_error(f"Error checking workers status: {str(e)}")
