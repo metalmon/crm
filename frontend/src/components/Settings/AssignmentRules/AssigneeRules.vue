@@ -48,12 +48,12 @@
           </template>
           <template #body="{ togglePopover }">
             <div
-              class="p-1 text-ink-gray-7 mt-1 w-48 bg-white shadow-xl rounded"
+              class="p-1 text-ink-gray-7 mt-1 w-48 bg-surface-modal shadow-xl rounded"
             >
               <div
                 v-for="option in documentRoutingOptions"
                 :key="option.value"
-                class="p-2 cursor-pointer hover:bg-gray-50 text-sm flex items-center justify-between rounded"
+                class="p-2 cursor-pointer hover:bg-surface-gray-3 text-sm flex items-center justify-between rounded"
                 @click="
                   () => {
                     assignmentRuleData.rule = option.value
@@ -133,11 +133,11 @@ const documentType = computed(() =>
 
 const documentRoutingOptions = [
   {
-    label: 'Auto-rotate',
+    label: __('Auto-rotate'),
     value: 'Round Robin',
   },
   {
-    label: 'Assign by workload',
+    label: __('Assign by workload'),
     value: 'Load Balancing',
   },
 ]

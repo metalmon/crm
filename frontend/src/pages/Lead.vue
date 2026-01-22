@@ -165,7 +165,6 @@
                     doc.email ? openEmailBox() : toast.error(__('No email set'))
                   "
                 />
-
                 <Button
                   :tooltip="__('Go to website')"
                   :icon="LinkIcon"
@@ -259,6 +258,7 @@ import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
+import EventIcon from '@/components/Icons/EventIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
@@ -447,6 +447,11 @@ const tabs = computed(() => {
       icon: DetailsIcon,
     },
     {
+      name: 'Events',
+      label: __('Events'),
+      icon: EventIcon,
+    },
+    {
       name: 'Calls',
       label: __('Calls'),
       icon: PhoneIcon,
@@ -541,7 +546,7 @@ function trackPhoneActivities(type = 'phone') {
 
 function openEmailBox() {
   let currentTab = tabs.value[tabIndex.value]
-  if (!['Emails', 'Comments', 'Activity'].includes(currentTab.name)) {
+  if (!['Emails', 'Comments', 'Activities'].includes(currentTab.name)) {
     activities.value.changeTabTo('emails')
   }
   nextTick(() => (activities.value.emailBox.show = true))

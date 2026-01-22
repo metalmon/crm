@@ -26,7 +26,7 @@ def notify_mentions(doc):
 		doctype = doc.reference_doctype
 		if doctype.startswith("CRM "):
 			doctype = doctype[4:].lower()
-			
+		
 		if doctype == "lead":
 			name = reference_doc.lead_name or doc.reference_name
 			# Extract translation string separately for better extraction

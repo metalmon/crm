@@ -7,7 +7,7 @@
           class="w-full section-border h-px border-t"
         />
         <div class="p-1 sm:p-3">
-          <Section
+          <CollapsibleSection
             labelClass="px-2 font-semibold"
             headerClass="h-8"
             :label="section.label"
@@ -40,18 +40,21 @@
                   >
                     <Tooltip :text="__(field.label)" :hoverDelay="1">
                       <div
-                        class="w-[35%] min-w-20 shrink-0 truncate text-sm text-ink-gray-5"
+                        class="w-[35%] min-w-20 shrink-0 flex items-center gap-0.5"
                       >
-                        {{ __(field.label) }}
-                        <span
+                        <div class="truncate text-sm text-ink-gray-5">
+                          {{ __(field.label) }}
+                        </div>
+                        <div
                           v-if="
                             field.reqd ||
                             (field.mandatory_depends_on &&
                               field.mandatory_via_depends_on)
                           "
                           class="text-ink-red-2"
-                          >*</span
                         >
+                          *
+                        </div>
                       </div>
                     </Tooltip>
                     <div class="flex items-center justify-between w-[65%]">
@@ -170,6 +173,17 @@
                           @change="(v) => fieldChange(v, field)"
                           :onCreate="field.create"
                         />
+                        <div
+                          v-else-if="field.fieldtype === 'Time'"
+                          class="form-control"
+                        >
+                          <TimePicker
+                            :value="doc[field.fieldname]"
+                            :format="getFormat('', '', false, true, false)"
+                            :placeholder="field.placeholder"
+                            @change="(v) => fieldChange(v, field)"
+                          />
+                        </div>
                         <div
                           v-else-if="field.fieldtype === 'Datetime'"
                           class="form-control"
@@ -292,7 +306,7 @@
                 </template>
               </FadedScrollableDiv>
             </slot>
-          </Section>
+          </CollapsibleSection>
         </div>
       </div>
     </template>
@@ -308,7 +322,7 @@
 <script setup>
 import Password from '@/components/Controls/Password.vue'
 import FormattedInput from '@/components/Controls/FormattedInput.vue'
-import Section from '@/components/Section.vue'
+import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import PrimaryDropdown from '@/components/PrimaryDropdown.vue'
 import FadedScrollableDiv from '@/components/FadedScrollableDiv.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'

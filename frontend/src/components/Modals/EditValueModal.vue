@@ -84,7 +84,7 @@ const fields = createResource({
         ...f,
         label: __(f.label)
       }))
-  }
+  },
 })
 
 onMounted(() => {

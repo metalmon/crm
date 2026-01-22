@@ -15,24 +15,13 @@ export const usersStore = defineStore('crm-users', () => {
     cache: 'crm-users',
     initialData: [],
     auto: true,
-    transform(users) {
-      // Проверяем, что users является массивом
-      if (!Array.isArray(users)) {
-        console.error('Users data is not an array:', users)
-        return { allUsers: [], crmUsers: [] }
-      }
-      
-      for (let user of users) {
+    transform([allUsers, crmUsers]) {
+      for (let user of allUsers) {
         usersByName[user.name] = user
         if (user.name === 'Administrator') {
           usersByName[user.email] = user
         }
       }
-      
-      // Разделяем всех пользователей и CRM пользователей
-      const crmUsers = users.filter(user => user.enabled && user.user_type !== 'Website User')
-      const allUsers = users
-      
       return { allUsers, crmUsers }
     },
     onError(error) {

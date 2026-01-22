@@ -21,6 +21,7 @@
           <router-view :key="translationKey" />
         </Layout>
         <Dialogs />
+        <EventNotificationPopup />
       </div>
     </div>
   </FrappeUIProvider>
@@ -28,9 +29,9 @@
 
 <script setup>
 import NotPermitted from '@/pages/NotPermitted.vue'
+import EventNotificationPopup from '@/components/EventNotificationPopup.vue'
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
-import { setTheme } from '@/stores/theme'
 import { setConfig, createResource, FrappeUIProvider } from 'frappe-ui'
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import LoadingView from './components/common/LoadingView.vue'
@@ -246,7 +247,6 @@ function handleRetry() {
 const translationKey = computed(() => lastTranslationUpdate.value)
 
 onMounted(() => {
-  setTheme()
   window.addEventListener('error', handleResourceError, true)
   window.addEventListener('unhandledrejection', handleResourceError, true)
   
@@ -265,7 +265,6 @@ onUnmounted(() => {
   // Clear all timers
   if (networkErrorTimer) clearTimeout(networkErrorTimer)
 })
-
 setConfig('systemTimezone', window.timezone?.system || null)
 setConfig('localTimezone', window.timezone?.user || null)
 </script>
@@ -284,10 +283,5 @@ setConfig('localTimezone', window.timezone?.user || null)
   width: 100%;
   height: 100%;
   z-index: 9999;
-}
-
-.app-content {
-  position: relative;
-  z-index: 1;
 }
 </style>

@@ -1,7 +1,7 @@
 {
-  "commit": "fd28d415",
-  "branch": "main",
-  "commit_message": "Merge frappe/main into main - resolved conflicts\n\n- Resolved all merge conflicts from frappe/main\n- Preserved custom features: realtime Kanban, telephony, translations\n- Kept custom UI components (FadedScrollableDiv, SmartFilterField)\n- Preserved custom onboarding implementation\n- Added frappe-ui submodule\n- Kept apply-tiptap-patch.sh for old mobile browser support\n- Preserved PWA configuration with injectManifest strategy",
+  "commit": "128f8fd6",
+  "branch": "develop",
+  "commit_message": "fix: resolve post-merge issues\n\n- Fix doc.value.data.name -> doc.value.name in Activities.vue\n- Fix template structure in MobileContact.vue\n- Fix merge conflicts in MobileOrganization.vue",
   "commit_date": "2026-01-20",
   "tag": "v1.57.11"
 }

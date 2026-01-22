@@ -211,7 +211,7 @@
                 :key="contact.name"
               >
                 <div class="px-2 pb-2.5" :class="[i == 0 ? 'pt-5' : 'pt-2.5']">
-                  <Section :opened="contact.opened">
+                  <CollapsibleSection :opened="contact.opened">
                     <template #header="{ opened, toggle }">
                       <div
                         class="flex cursor-pointer items-center justify-between gap-2 pr-1 text-base leading-5 text-ink-gray-7"
@@ -287,7 +287,7 @@
                         {{ __('No details added') }}
                       </div>
                     </div>
-                  </Section>
+                  </CollapsibleSection>
                 </div>
                 <div
                   v-if="i != dealContacts.data.length - 1"
@@ -378,6 +378,7 @@ import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
+import EventIcon from '@/components/Icons/EventIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
@@ -396,7 +397,7 @@ import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
 import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import Link from '@/components/Controls/Link.vue'
-import Section from '@/components/Section.vue'
+import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
@@ -618,6 +619,11 @@ const tabs = computed(() => {
       icon: DetailsIcon,
     },
     {
+      name: 'Events',
+      label: __('Events'),
+      icon: EventIcon,
+    },
+    {
       name: 'Calls',
       label: __('Calls'),
       icon: PhoneIcon,
@@ -827,7 +833,7 @@ const showEmailTemplateSelectorModal = ref(false)
 
 function openEmailBox() {
   let currentTab = tabs.value[tabIndex.value]
-  if (!['Emails', 'Comments', 'Activity'].includes(currentTab.name)) {
+  if (!['Emails', 'Comments', 'Activities'].includes(currentTab.name)) {
     activities.value.changeTabTo('emails')
   }
   nextTick(() => (activities.value.emailBox.show = true))

@@ -5,18 +5,19 @@
     class="absolute z-20 h-screen bg-surface-white transition-all duration-300 ease-in-out"
     :style="{
       'box-shadow': '8px 0px 8px rgba(0, 0, 0, 0.1)',
-      'max-width': '350px',
-      'min-width': '350px',
+      'max-width': '400px',
+      'min-width': '400px',
       left: 'calc(100% + 1px)',
     }"
   >
     <div class="flex h-screen flex-col text-ink-gray-9">
-      <div
-        class="z-20 flex items-center justify-between border-b bg-surface-white px-5 py-2.5"
-      >
-        <div class="text-base font-medium">{{ __('Notifications') }}</div>
-        <div class="flex gap-1">
+      <div class="flex justify-between items-center">
+        <div class="text-lg font-medium text-ink-gray-8 px-4 pt-[15px] pb-3">
+          {{ __('Notifications') }}
+        </div>
+        <div class="flex gap-1 mr-3">
           <Button
+            v-if="activeTab == 'all' && notifications.data?.data?.length"
             :tooltip="__('Mark all as read')"
             :icon="MarkAsDoneIcon"
             variant="ghost"
@@ -30,122 +31,103 @@
           />
         </div>
       </div>
-      <div
-        v-if="notifications.data?.data?.length"
-        class="divide-y divide-outline-gray-modals overflow-auto dark-scrollbar text-base"
-        ref="scrollContainer"
-        @scroll="handleScroll"
-      >
-        <template v-for="n in notifications.data.data" :key="n.comment">
-          <div
-            v-if="getRoute(n)"
-            class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
-            @click="navigateToRoute(n)"
-          >
-            <div class="mt-1 flex items-center gap-2.5">
-              <div
-                class="size-[5px] rounded-full"
-                :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-7']"
-              />
-              <WhatsAppIcon v-if="n.type == 'WhatsApp'" class="size-7" />
-              <UserAvatar v-else :user="n.from_user.name" />
-            </div>
-            <div>
-              <div v-if="n.notification_text" v-html="n.notification_text" />
-              <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
-                <span class="font-medium text-ink-gray-9">
-                  {{ n.from_user.full_name }}
-                </span>
-                <span>
-                  {{ __('mentioned you in {0}', [n.reference_doctype]) }}
-                </span>
-                <span class="font-medium text-ink-gray-9">
-                  {{ n.reference_name }}
-                </span>
+      <TabButtons
+        :buttons="tabs"
+        class="flex px-4 py-0.5 [&_button]:w-full [&_div]:w-full"
+        v-model="activeTab"
+      />
+      <div v-if="activeTab == 'all'" class="flex h-full flex-col">
+        <div
+          v-if="notifications.data?.data?.length"
+          class="divide-y divide-outline-gray-modals overflow-auto dark-scrollbar text-base"
+          ref="scrollContainer"
+          @scroll="handleScroll"
+        >
+          <template v-for="n in notifications.data.data" :key="n.comment">
+            <div
+              v-if="getRoute(n)"
+              class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
+              @click="navigateToRoute(n)"
+            >
+              <div class="mt-1 flex items-center gap-2.5">
+                <div
+                  class="size-[5px] rounded-full"
+                  :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-7']"
+                />
+                <WhatsAppIcon v-if="n.type == 'WhatsApp'" class="size-7" />
+                <UserAvatar v-else :user="n.from_user.name" size="lg" />
               </div>
-              <div class="text-sm text-ink-gray-5">
-                {{ timeAgo(n.creation) }}
+              <div>
+                <div v-if="n.notification_text" v-html="n.notification_text" />
+                <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
+                  <span class="font-medium text-ink-gray-9">
+                    {{ n.from_user.full_name }}
+                  </span>
+                  <span>
+                    {{ __('mentioned you in {0}', [n.reference_doctype]) }}
+                  </span>
+                  <span class="font-medium text-ink-gray-9">
+                    {{ n.reference_name }}
+                  </span>
+                </div>
+                <div class="text-sm text-ink-gray-5">
+                  {{ timeAgo(n.creation) }}
+                </div>
               </div>
             </div>
+            <div
+              v-else-if="n.notification_type_doctype === 'CRM Task' && n.notification_type_doc"
+              class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
+              @click="handleTaskClick(n)"
+            >
+              <div class="mt-1 flex items-center gap-2.5">
+                <div
+                  class="size-[5px] rounded-full"
+                  :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-7']"
+                />
+                <UserAvatar :user="n.from_user.name" size="lg" />
+              </div>
+              <div>
+                <div v-if="n.notification_text" v-html="n.notification_text" />
+                <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
+                  <span class="font-medium text-ink-gray-9">
+                    {{ n.from_user.full_name }}
+                  </span>
+                  <span>
+                    {{ __('mentioned you in {0}', [n.reference_doctype]) }}
+                  </span>
+                  <span class="font-medium text-ink-gray-9">
+                    {{ n.reference_name }}
+                  </span>
+                </div>
+                <div class="text-sm text-ink-gray-5">
+                  {{ timeAgo(n.creation) }}
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div
+          v-if="isLoadingMore"
+          class="flex items-center justify-center py-4"
+        >
+          <LoadingIndicator class="h-6 w-6" />
+          <span class="ml-2 text-ink-gray-4">{{ __('Loading more...') }}</span>
+        </div>
+        <div
+          v-else-if="!notifications.data?.data?.length"
+          class="flex flex-1 flex-col items-center justify-center gap-2"
+        >
+          <NotificationsIcon class="h-20 w-20 text-ink-gray-2" />
+          <div class="text-lg font-medium text-ink-gray-4">
+            {{ __('No new notifications') }}
           </div>
-          <div
-            v-else-if="n.notification_type_doctype === 'CRM Task' && n.notification_type_doc"
-            class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
-            @click="handleTaskClick(n)"
-          >
-            <div class="mt-1 flex items-center gap-2.5">
-              <div
-                class="size-[5px] rounded-full"
-                :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-7']"
-              />
-              <UserAvatar :user="n.from_user.name" size="lg" />
-            </div>
-            <div>
-              <div v-if="n.notification_text" v-html="n.notification_text" />
-              <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
-                <span class="font-medium text-ink-gray-9">
-                  {{ n.from_user.full_name }}
-                </span>
-                <span>
-                  {{ __('mentioned you in {0}', [n.reference_doctype]) }}
-                </span>
-                <span class="font-medium text-ink-gray-9">
-                  {{ n.reference_name }}
-                </span>
-              </div>
-              <div class="text-sm text-ink-gray-5">
-                {{ timeAgo(n.creation) }}
-              </div>
-            </div>
-          </div>
-          <div
-            v-else
-            class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5"
-          >
-            <div class="mt-1 flex items-center gap-2.5">
-              <div
-                class="size-[5px] rounded-full"
-                :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-7']"
-              />
-              <WhatsAppIcon v-if="n.type == 'WhatsApp'" class="size-7" />
-              <UserAvatar v-else :user="n.from_user.name" size="lg" />
-            </div>
-            <div>
-              <div v-if="n.notification_text" v-html="n.notification_text" />
-              <div v-else class="mb-2 space-x-1 leading-5 text-ink-gray-5">
-                <span class="font-medium text-ink-gray-9">
-                  {{ n.from_user.full_name }}
-                </span>
-                <span>
-                  {{ __('mentioned you in {0}', [n.reference_doctype]) }}
-                </span>
-                <span class="font-medium text-ink-gray-9">
-                  {{ n.reference_name }}
-                </span>
-              </div>
-              <div class="text-sm text-ink-gray-5">
-                {{ timeAgo(n.creation) }}
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
-      <div
-        v-if="isLoadingMore"
-        class="flex items-center justify-center py-4"
-      >
-        <LoadingIndicator class="h-6 w-6" />
-        <span class="ml-2 text-ink-gray-4">{{ __('Loading more...') }}</span>
-      </div>
-      <div
-        v-else-if="!notifications.data?.data?.length"
-        class="flex flex-1 flex-col items-center justify-center gap-2"
-      >
-        <NotificationsIcon class="h-20 w-20 text-ink-gray-2" />
-        <div class="text-lg font-medium text-ink-gray-4">
-          {{ __('No new notifications') }}
         </div>
       </div>
+      <div v-else-if="activeTab == 'events'" class="flex h-full">
+        <EventNotificationsArea />
+      </div>
+      <div v-else class="flex h-full"></div>
     </div>
   </div>
   <TaskModal
@@ -160,23 +142,33 @@ import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import MarkAsDoneIcon from '@/components/Icons/MarkAsDoneIcon.vue'
 import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
+import EventNotificationsArea from '@/components/EventNotificationsArea.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import {
   visible,
   notifications,
   notificationsStore,
 } from '@/stores/notifications'
+import { useEventNotificationAlert } from '@/data/notifications'
 import { globalStore } from '@/stores/global'
 import { timeAgo } from '@/utils'
 import { onClickOutside } from '@vueuse/core'
 import { capture } from '@/telemetry'
-import { call } from 'frappe-ui'
+import { call, TabButtons } from 'frappe-ui'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import TaskModal from '@/components/Modals/TaskModal.vue'
 
 const { $socket } = globalStore()
 const { mark_as_read, toggle, mark_doc_as_read, loadMore } = notificationsStore()
+const { handleEventNotification } = useEventNotificationAlert()
+
+const activeTab = ref('all')
+const tabs = [
+  { label: __('All'), value: 'all' },
+  { label: __('Events'), value: 'events' },
+  // { label: __('Mentions'), value: 'mentions' },
+]
 
 const target = ref(null)
 const scrollContainer = ref(null)
@@ -260,12 +252,12 @@ async function handleScroll(e) {
 
 onBeforeUnmount(() => {
   $socket.off('crm_notification')
+  $socket.off('event_notification')
 })
 
 onMounted(() => {
-  $socket.on('crm_notification', () => {
-    notifications.reload()
-  })
+  $socket.on('crm_notification', () => notifications.reload())
+  $socket.on('event_notification', (data) => handleEventNotification(data))
 })
 
 function showTask(taskId) {

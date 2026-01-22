@@ -34,7 +34,7 @@
           v-if="!view.hideLabel && isSidebarCollapsed && view.views?.length"
           class="mx-2 my-2 h-1 border-b"
         />
-        <Section
+        <CollapsibleSection
           :label="view.name"
           :hideLabel="view.hideLabel"
           :opened="view.opened"
@@ -68,7 +68,7 @@
               class="mx-2 my-0.5"
             />
           </nav>
-        </Section>
+        </CollapsibleSection>
       </div>
     </div>
     <div class="m-2 flex flex-col gap-1">
@@ -147,7 +147,7 @@ import ConvertIcon from '@/components/Icons/ConvertIcon.vue'
 import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import StepsIcon from '@/components/Icons/StepsIcon.vue'
-import Section from '@/components/Section.vue'
+import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import PinIcon from '@/components/Icons/PinIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import SquareAsterisk from '@/components/Icons/SquareAsterisk.vue'
@@ -157,6 +157,7 @@ import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
+import CalendarIcon from '@/components/Icons/CalendarIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
@@ -172,6 +173,7 @@ import {
 import { usersStore } from '@/stores/users'
 import { sessionStore } from '@/stores/session'
 import { showSettings, activeSettingsPage } from '@/composables/settings'
+import { showChangePasswordModal } from '@/composables/modals'
 import { FeatherIcon, call } from 'frappe-ui'
 import {
   SignupBanner,
@@ -233,6 +235,11 @@ const navigationLinks = [
     label: __('Tasks', null, 'Sidebar'),
     icon: TaskIcon,
     to: 'Tasks',
+  },
+  {
+    label: __('Calendar', null, 'Sidebar'),
+    icon: CalendarIcon,
+    to: 'Calendar',
   },
   {
     label: __('Call Logs', null, 'Sidebar'),
@@ -306,6 +313,8 @@ function getIcon(routeName, icon) {
       return OrganizationsIcon
     case 'Notes':
       return NoteIcon
+    case 'Calendar':
+      return CalendarIcon
     case 'Call Logs':
       return PhoneIcon
     default:
@@ -363,7 +372,7 @@ const steps = reactive([
     onClick: () => {
       minimize.value = true
       showSettings.value = true
-      activeSettingsPage.value = 'Invite Members'
+      activeSettingsPage.value = 'Invite User'
     },
     condition: () => isManager(),
   },
@@ -541,7 +550,7 @@ const articles = ref([
       { name: 'profile', title: __('Profile') },
       { name: 'custom-branding', title: __('Custom branding') },
       { name: 'home-actions', title: __('Home actions') },
-      { name: 'invite-members', title: __('Invite members') },
+      { name: 'invite-users', title: __('Invite users') },
     ],
   },
   {

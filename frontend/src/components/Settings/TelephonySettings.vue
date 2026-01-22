@@ -1,16 +1,31 @@
 <template>
-  <div class="flex h-full flex-col gap-8 p-8">
-    <h2
-      class="flex items-baseline gap-2 text-xl font-semibold leading-none h-5 text-ink-gray-9"
-    >
-      <div class="mr-2">{{ __('Telephony Settings') }}</div>
-      <Badge
-        v-if="twilio.isDirty || exotel.isDirty || beeline.isDirty || mediumChanged"
-        :label="__('Not Saved')"
-        variant="subtle"
-        theme="orange"
-      />
-    </h2>
+  <div class="flex h-full flex-col gap-6 p-8">
+    <div class="flex justify-between">
+      <div class="flex flex-col gap-1 w-9/12">
+        <h2
+          class="flex gap-2 text-xl font-semibold leading-none h-5 text-ink-gray-8"
+        >
+          {{ __('Telephony settings') }}
+          <Badge
+            v-if="twilio.isDirty || exotel.isDirty || beeline.isDirty || mediumChanged"
+            :label="__('Not Saved')"
+            variant="subtle"
+            theme="orange"
+          />
+        </h2>
+        <p class="text-p-base text-ink-gray-6">
+          {{ __('Configure telephony settings for your CRM') }}
+        </p>
+      </div>
+      <div class="flex item-center space-x-2 w-3/12 justify-end">
+        <Button
+          :loading="twilio.save.loading || exotel.save.loading || beeline.save.loading"
+          :label="__('Update')"
+          variant="solid"
+          @click="update"
+        />
+      </div>
+    </div>
     <div
       v-if="!twilio.get.loading || !exotel.get.loading || !beeline.get.loading"
       class="flex-1 flex flex-col gap-8 overflow-y-auto dark-scrollbar"
@@ -21,13 +36,14 @@
         v-model="defaultCallingMedium"
         :label="__('Default medium')"
         :options="callingMediumOptions"
+        :placeholder="__('Select telephony type')"
         class="w-1/2"
         :description="__('Default calling medium for logged in user')"
       />
 
       <!-- Twilio -->
       <div v-if="isManager()" class="flex flex-col justify-between gap-4">
-        <span class="text-base font-semibold text-ink-gray-9">
+        <span class="text-base font-semibold text-ink-gray-8">
           {{ __('Twilio') }}
         </span>
         <FieldLayout
@@ -40,7 +56,7 @@
 
       <!-- Exotel -->
       <div v-if="isManager()" class="flex flex-col justify-between gap-4">
-        <span class="text-base font-semibold text-ink-gray-9">
+        <span class="text-base font-semibold text-ink-gray-8">
           {{ __('Exotel') }}
         </span>
         <FieldLayout
@@ -67,20 +83,7 @@
     <div v-else class="flex flex-1 items-center justify-center">
       <Spinner class="size-8" />
     </div>
-    <div class="flex justify-between gap-2">
-      <div>
-        <ErrorMessage
-          class="mt-2"
-          :message="twilio.save.error || exotel.save.error || beeline.save.error || error"
-        />
-      </div>
-      <Button
-        :loading="twilio.save.loading || exotel.save.loading || beeline.save.loading"
-        :label="__('Update')"
-        variant="solid"
-        @click="update"
-      />
-    </div>
+    <ErrorMessage class="mt-2" :message="twilio.save.error || exotel.save.error || beeline.save.error || error" />
   </div>
 </template>
 <script setup>
@@ -115,7 +118,7 @@ const isBeelineInstalled = computed(() => beelineInstalledResource.data === true
 // Computed property for calling medium options
 const callingMediumOptions = computed(() => {
   const options = [
-    { label: __(''), value: '' },
+    { label: '', value: '' },
     { label: __('Twilio'), value: 'Twilio' },
     { label: __('Exotel'), value: 'Exotel' },
   ];

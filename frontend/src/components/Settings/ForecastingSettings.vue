@@ -14,12 +14,12 @@
     </div>
 
     <div class="flex-1 flex flex-col overflow-y-auto">
-      <div class="flex items-center justify-between py-3 px-2">
+      <div class="flex items-center justify-between gap-8 py-3 px-2">
         <div class="flex flex-col">
           <div class="text-p-base font-medium text-ink-gray-7 truncate">
             {{ __('Enable forecasting') }}
           </div>
-          <div class="text-p-sm text-ink-gray-5 truncate">
+          <div class="text-p-sm text-ink-gray-5">
             {{
               __(
                 'Makes "Expected Closure Date" and "Expected Deal Value" mandatory for deal value forecasting',
@@ -27,7 +27,7 @@
             }}
           </div>
         </div>
-        <div>
+        <div class="flex items-center gap-2">
           <Switch
             size="sm"
             v-model="settings.doc.enable_forecasting"
@@ -36,12 +36,12 @@
         </div>
       </div>
       <div class="h-px border-t mx-2 border-outline-gray-modals" />
-      <div class="flex items-center justify-between py-3 px-2">
+      <div class="flex items-center justify-between gap-8 py-3 px-2">
         <div class="flex flex-col">
           <div class="text-p-base font-medium text-ink-gray-7 truncate">
             {{ __('Auto update expected deal value') }}
           </div>
-          <div class="text-p-sm text-ink-gray-5 truncate">
+          <div class="text-p-sm text-ink-gray-5">
             {{
               __(
                 'Automatically update "Expected Deal Value" based on the total value of associated products in a deal',
@@ -49,7 +49,7 @@
             }}
           </div>
         </div>
-        <div>
+        <div class="flex items-center gap-2">
           <Switch
             size="sm"
             v-model="settings.doc.auto_update_expected_deal_value"

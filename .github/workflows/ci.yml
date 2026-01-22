@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -39,12 +40,12 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.14'
 
       - name: Check for valid Python & Merge Conflicts
         run: |
@@ -55,9 +56,9 @@ jobs:
           fi
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 24
           check-latest: true
 
       - name: Install Yarn
@@ -98,14 +99,6 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Setup
-        run: |
-          pip install frappe-bench
-          rm -rf ~/frappe-bench
-          bench init --skip-redis-config-generation --skip-assets --python "$(which python)" --frappe-path https://github.com/metalmon/frappe.git ~/frappe-bench
-          mysql --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
-          mysql --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
       - name: Install
         run: |

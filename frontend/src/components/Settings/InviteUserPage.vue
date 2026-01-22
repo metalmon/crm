@@ -27,7 +27,7 @@
       <div>
         <FormControl
           type="textarea"
-          label="Invite by email"
+          :label="__('Invite by email')"
           placeholder="user1@example.com, user2@example.com, ..."
           @input="updateInvitees($event.target.value)"
           :debounce="100"

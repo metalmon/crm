@@ -108,6 +108,11 @@ const routes = [
     meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
+    path: '/calendar',
+    name: 'Calendar',
+    component: () => import('@/pages/Calendar.vue'),
+  },
+  {
     path: '/data-import',
     name: 'DataImportList',
     component: () => import('@/pages/DataImport.vue'),

@@ -602,6 +602,7 @@ function trackPhoneActivities(type = 'phone') {
     contactName: contact.doc.full_name,
   })
 }
+
 function openAddressModal(_address) {
   showAddressModal.value = true
   addressProps.value = {

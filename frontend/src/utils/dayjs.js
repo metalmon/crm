@@ -5,6 +5,9 @@ import utc from 'dayjs/plugin/utc'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import updateLocale from 'dayjs/plugin/updateLocale'
+import localeData from 'dayjs/plugin/localeData'
+import weekOfYear from 'dayjs/plugin/weekOfYear'
+import weekYear from 'dayjs/plugin/weekYear'
 
 // Import common locales
 import 'dayjs/locale/en'
@@ -27,6 +30,9 @@ dayjs.extend(utc)
 dayjs.extend(localizedFormat)
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
+dayjs.extend(localeData)
+dayjs.extend(weekOfYear)
+dayjs.extend(weekYear)
 
 // Function to set dayjs locale
 export async function setDayjsLocale(locale = null) {

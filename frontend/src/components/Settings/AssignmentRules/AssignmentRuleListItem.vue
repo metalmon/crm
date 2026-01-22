@@ -12,20 +12,15 @@
       </div>
     </div>
     <div class="w-3/12">
-      <select
-        class="w-full h-7 text-base hover:bg-surface-gray-3 rounded-md p-0 pl-2 pr-5 bg-transparent -ml-2 border-0 text-ink-gray-8 focus-visible:!ring-0 bg-none truncate"
+      <FormControl
+        type="select"
+        class="w-full -ml-2"
+        size="sm"
+        variant="outline"
         v-model="data.priority"
-        @update:modelValue="onPriorityChange"
+        :options="priorityOptions"
         @change="onPriorityChange"
-      >
-        <option
-          v-for="option in priorityOptions"
-          :key="option.value"
-          :value="option.value"
-        >
-          {{ option.label }}
-        </option>
-      </select>
+      />
     </div>
     <div class="flex justify-between items-center w-2/12">
       <Switch
@@ -92,11 +87,11 @@ const props = defineProps({
 })
 
 const priorityOptions = [
-  { label: 'Low', value: '0' },
-  { label: 'Low-Medium', value: '1' },
-  { label: 'Medium', value: '2' },
-  { label: 'Medium-High', value: '3' },
-  { label: 'High', value: '4' },
+  { label: __('Low'), value: '0' },
+  { label: __('Low-Medium'), value: '1' },
+  { label: __('Medium'), value: '2' },
+  { label: __('Medium-High'), value: '3' },
+  { label: __('High'), value: '4' },
 ]
 
 const duplicateDialog = ref({

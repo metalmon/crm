@@ -14,6 +14,7 @@
         :conjunction="getConjunction()"
         @turnIntoGroup="turnIntoGroup(condition)"
         :disableAddCondition="props.disableAddCondition"
+        :doctype="props.doctype"
       />
     </template>
     <div v-if="props.isChild" class="flex">

@@ -55,7 +55,7 @@ const errorMessage = ref('')
 function updateSettings() {
   document.save.submit(null, {
     onSuccess: () => {
-      // Settings saved successfully, modal stays open
+      showSettings.value = false
     },
   })
 }

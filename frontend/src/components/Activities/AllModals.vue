@@ -24,21 +24,36 @@
     :showTaskModal="showTaskModal"
     :showNoteModal="showNoteModal"
   />
+  <EventModal
+    v-if="showEventModal"
+    v-model="showEventModal"
+    :event="activeEvent"
+    :doctype="doctype"
+    :docname="doc?.name"
+  />
 </template>
 <script setup>
 import TaskModal from '@/components/Modals/TaskModal.vue'
 import NoteModal from '@/components/Modals/NoteModal.vue'
 import CallLogModal from '@/components/Modals/CallLogModal.vue'
+import EventModal from '@/components/Modals/EventModal.vue'
+import { showEventModal, activeEvent } from '@/composables/event'
 import { call } from 'frappe-ui'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   doctype: String,
+  doc: Object,
 })
 
 const activities = defineModel()
-const doc = defineModel('doc')
+
+// Event
+function showEvent(e) {
+  showEventModal.value = true
+  activeEvent.value = e
+}
 
 // Tasks
 const showTaskModal = ref(false)
@@ -93,7 +108,6 @@ const callLog = ref({})
 const referenceDoc = ref({})
 
 function createCallLog() {
-  console.log('createCallLog called in AllModals.vue')
   let doctype = props.doctype
   let docname = props.doc?.name
   referenceDoc.value = { ...props.doc }
@@ -102,7 +116,6 @@ function createCallLog() {
     reference_docname: docname,
   }
   showCallLogModal.value = true
-  console.log('showCallLogModal set to:', showCallLogModal.value)
 }
 
 // common
@@ -119,6 +132,7 @@ function redirect(tabName) {
 }
 
 defineExpose({
+  showEvent,
   showTask,
   deleteTask,
   updateTaskStatus,

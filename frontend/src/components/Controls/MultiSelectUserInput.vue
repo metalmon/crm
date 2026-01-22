@@ -126,7 +126,7 @@
     ComboboxOption,
   } from '@headlessui/vue'
   import UserAvatar from '@/components/UserAvatar.vue'
-  import Popover from '@/components/frappe-ui/Popover.vue'
+  import { Popover } from 'frappe-ui'
   import { usersStore } from '@/stores/users'
   import { ref, computed, nextTick } from 'vue'
   

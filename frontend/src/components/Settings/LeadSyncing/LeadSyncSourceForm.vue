@@ -26,7 +26,7 @@
 
 		<Tabs as="div" v-model="tabIndex" :tabs="tabs" class="mt-2">
 			<template #tab-panel="{ tab }">
-				<div v-if="tab.label == 'Details'" class="overflow-hidden flex h-full flex-col gap-6 mt-4">
+				<div v-if="tab.label == __('Details')" class="overflow-hidden flex h-full flex-col gap-6 mt-4">
 					<!-- Form -->
 					<div class="grid grid-cols-2 gap-4">
 						<FormControl type="autocomplete" required="true" v-model="syncSource.type"
@@ -46,7 +46,7 @@
 
 
 						<FormControl v-if="fieldsMap.background_sync_frequency" type="select" required="true"
-							:options="fieldsMap.background_sync_frequency.options"
+							:options="frequencyOptions"
 							v-model="syncSource.background_sync_frequency" :label="__('Background Sync Frequency')" />
 
 						<FormControl type="password" required="true" v-model="syncSource.access_token"
@@ -62,10 +62,10 @@
 						<FormControl v-if="!isLocal && sourceDoc && sourceDoc.last_synced_at"
 							:modelValue="formatDate(sourceDoc.last_synced_at)" disabled type="datetime" :label="__('Last Synced At')" />
 
-						<Link v-if="!isLocal" label="Facebook Page" v-model="syncSource.facebook_page"
+						<Link v-if="!isLocal" :label="__('Facebook Page')" v-model="syncSource.facebook_page"
 							doctype="Facebook Page" />
 
-						<Link v-if="!isLocal && syncSource.facebook_page" label="Lead Form"
+						<Link v-if="!isLocal && syncSource.facebook_page" :label="__('Lead Form')"
 							v-model="syncSource.facebook_lead_form" doctype="Facebook Lead Form" :filters="{
 								'page': syncSource.facebook_page
 							}" />
@@ -84,7 +84,7 @@
 					</div>
 				</div>
 
-				<div class="mt-4" v-if="tab.label == 'Failure Logs'">
+				<div class="mt-4" v-if="tab.label == __('Failure Logs')">
 					<FailureLogs :source="syncSource.name" />
 				</div>
 			</template>
@@ -171,6 +171,23 @@ const fieldsMap = computed(() => {
 		map[field.fieldname] = field;
 	}
 	return map;
+});
+
+const frequencyOptions = computed(() => {
+	const options = fieldsMap.value.background_sync_frequency?.options || [];
+	if (typeof options === 'string') {
+		return options.split('\n').filter(opt => opt.trim()).map(opt => ({
+			label: __(opt.trim()),
+			value: opt.trim()
+		}));
+	}
+	return options.map(opt => {
+		if (typeof opt === 'string') {
+			return { label: __(opt), value: opt };
+		}
+		// Already {label, value} object
+		return { label: __(opt.label || opt.value), value: opt.value };
+	});
 });
 
 const sources = inject("sources");

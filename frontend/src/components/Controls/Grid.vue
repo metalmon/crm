@@ -355,6 +355,7 @@ import { createDocument } from '@/composables/document'
 import {
   FormControl,
   Checkbox,
+  TimePicker,
   DateTimePicker,
   DatePicker,
   Tooltip,
@@ -400,8 +401,7 @@ const {
   getGridSettings,
 } = getMeta(props.doctype)
 getMeta(props.parentDoctype)
-const { getUser } = usersStore()
-const users = usersStore()
+const { getUser, users } = usersStore()
 
 const rows = defineModel()
 const parentDoc = defineModel('parent')

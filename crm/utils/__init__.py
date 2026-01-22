@@ -2,7 +2,6 @@ import functools
 
 import frappe
 import phonenumbers
-import requests
 from frappe import _
 from frappe.model.docstatus import DocStatus
 from frappe.model.dynamic_links import get_dynamic_link_map

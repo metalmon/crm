@@ -80,12 +80,12 @@
             </template>
             <template #body="{ togglePopover }">
               <div
-                class="p-1 text-ink-gray-6 top-1 absolute bg-white shadow-2xl rounded w-[--reka-popper-anchor-width]"
+                class="p-1 text-ink-gray-6 top-1 absolute bg-surface-modal shadow-2xl rounded w-[--reka-popper-anchor-width]"
               >
                 <div
                   v-for="option in priorityOptions"
                   :key="option.value"
-                  class="p-2 cursor-pointer hover:bg-gray-50 text-base flex items-center justify-between rounded"
+                  class="p-2 cursor-pointer hover:bg-surface-gray-3 text-base flex items-center justify-between rounded"
                   @click="
                     () => {
                       assignmentRuleData.priority = option.value
@@ -126,11 +126,11 @@
           <Select
             :options="[
               {
-                label: 'Lead',
+                label: __('Lead'),
                 value: 'CRM Lead',
               },
               {
-                label: 'Deal',
+                label: __('Deal'),
                 value: 'CRM Deal',
               },
             ]"
@@ -675,11 +675,11 @@ const createAssignmentRule = () => {
 }
 
 const priorityOptions = [
-  { label: 'Low', value: '0' },
-  { label: 'Low-Medium', value: '1' },
-  { label: 'Medium', value: '2' },
-  { label: 'Medium-High', value: '3' },
-  { label: 'High', value: '4' },
+  { label: __('Low'), value: '0' },
+  { label: __('Low-Medium'), value: '1' },
+  { label: __('Medium'), value: '2' },
+  { label: __('Medium-High'), value: '3' },
+  { label: __('High'), value: '4' },
 ]
 
 const updateAssignmentRule = async () => {

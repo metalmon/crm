@@ -100,7 +100,7 @@ export const statusesStore = defineStore('crm-statuses', () => {
     for (const statusName in statusesByName) {
       const statusObject = statusesByName[statusName]
       options.push({
-        label: statusObject?.label || statusObject?.name,
+        label: __(statusObject?.label || statusObject?.name),
         value: statusObject?.name,
         icon: () => h(IndicatorIcon, { class: statusObject?.color }),
         onClick: async () => {

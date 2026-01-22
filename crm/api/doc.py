@@ -452,16 +452,23 @@ def get_data(
 				rows.append(field)
 
 		for kc in kanban_columns:
-			column_filters = {column_field: kc.get("name")}
+			# Start with base filters
+			column_filters = []
+
+			# Convert and add the main filters first
+			if filters:
+				base_filters = convert_filter_to_tuple(doctype, filters)
+				column_filters.extend(base_filters)
+
+			# Add the column-specific filter
+			if column_field and kc.get("name"):
+				column_filters.append([doctype, column_field, "=", kc.get("name")])
+
 			order = kc.get("order")
-			if (column_field in filters and filters.get(column_field) != kc.get("name")) or kc.get("delete"):
+			if kc.get("delete"):
 				column_data = []
 			else:
-				column_filters.update(filters.copy())
-				page_length = 20
-
-				if kc.get("page_length"):
-					page_length = kc.get("page_length")
+				page_length = kc.get("page_length", 20)
 
 				if order:
 					column_data = get_records_based_on_order(
@@ -471,25 +478,19 @@ def get_data(
 					column_data = frappe.get_list(
 						doctype,
 						fields=rows,
-						filters=convert_filter_to_tuple(doctype, column_filters),
+						filters=column_filters,
 						order_by=order_by,
 						page_length=page_length,
 					)
 
-				new_filters = filters.copy()
-				new_filters.update({column_field: kc.get("name")})
-
 				all_count = frappe.get_list(
 					doctype,
-					filters=convert_filter_to_tuple(doctype, new_filters),
+					filters=column_filters,
 					fields=[COUNT_NAME],
 				)[0].total_count
 
 				kc["all_count"] = all_count
 				kc["count"] = len(column_data)
-
-				for d in column_data:
-					getCounts(d, doctype)
 
 			if order:
 				column_data = sorted(
@@ -721,7 +722,6 @@ def remove_assignments(doctype, name, assignees, ignore_permissions=False, retry
 					frappe.throw(_("Error while unassigning: {0}").format(error_message))
 		else:
 			frappe.throw(_("Failed to unassign after multiple attempts"))
-
 
 
 @frappe.whitelist()
@@ -1039,25 +1039,25 @@ def delete_bulk_docs(doctype, items, delete_linked=False):
 
 # --- UNIVERSAL UNLINK FUNCTION FOR FORK SUPPORT ---
 def universal_remove_doc_link(doctype, docname):
-    """
-    Universally unlinks a document from its parent for any DocType
-    that uses reference_doctype/reference_name or reference_docname fields.
-    Clears all Link fields to DocType and all Dynamic Link fields that use them as options.
-    """
-    doc = frappe.get_doc(doctype, docname)
-    meta = frappe.get_meta(doctype)
-    # Find all Link fields to DocType
-    link_fields = [f.fieldname for f in meta.fields if f.fieldtype == "Link" and f.options == "DocType"]
-    # Find all Dynamic Link fields that use these Link fields as options
-    dynlink_fields = [
-        f.fieldname
-        for f in meta.fields
-        if f.fieldtype == "Dynamic Link" and f.options in link_fields
-    ]
-    # Clear all found fields
-    for lf in link_fields:
-        doc.set(lf, None)
-    for dlf in dynlink_fields:
-        doc.set(dlf, None)
-    doc.save(ignore_permissions=True)
+	"""
+	Universally unlinks a document from its parent for any DocType
+	that uses reference_doctype/reference_name or reference_docname fields.
+	Clears all Link fields to DocType and all Dynamic Link fields that use them as options.
+	"""
+	doc = frappe.get_doc(doctype, docname)
+	meta = frappe.get_meta(doctype)
+	# Find all Link fields to DocType
+	link_fields = [f.fieldname for f in meta.fields if f.fieldtype == "Link" and f.options == "DocType"]
+	# Find all Dynamic Link fields that use these Link fields as options
+	dynlink_fields = [
+		f.fieldname
+		for f in meta.fields
+		if f.fieldtype == "Dynamic Link" and f.options in link_fields
+	]
+	# Clear all found fields
+	for lf in link_fields:
+		doc.set(lf, None)
+	for dlf in dynlink_fields:
+		doc.set(dlf, None)
+	doc.save(ignore_permissions=True)
 # --- END UNIVERSAL UNLINK FUNCTION ---

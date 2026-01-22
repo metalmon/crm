@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model="dialogShow" :options="dialogOptions">
+  <Dialog v-model="show" :options="dialogOptions">
     <template #body>
       <div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
         <div class="mb-5 flex items-center justify-between">
@@ -77,11 +77,9 @@ const props = defineProps({
 const { isManager } = usersStore()
 
 const show = defineModel()
-const dialogShow = ref(false)
 const loading = ref(false)
 const error = ref(null)
 const editMode = ref(false)
-
 
 const countryCodeMap = {
   'RU': 'Russian Federation',
@@ -123,6 +121,7 @@ const countryMap = createResource({
   },
   auto: true
 })
+
 const { document: _address, triggerOnBeforeCreate } = useDocument(
   'Address',
   props.address || '',
@@ -299,40 +298,45 @@ function handleAddressUpdate(doc) {
   props.options.afterInsert && props.options.afterInsert(doc)
 }
 
+async function initializeAddress() {
+  editMode.value = !!props.address
+  
+  // Wait for both resources to load if needed
+  if (!defaultCountry.data) {
+    await defaultCountry.reload()
+  }
+  if (!countryMap.data) {
+    await countryMap.reload()
+  }
+
+  // Initialize address document
+  _address.doc = {
+    address_type: 'Billing',
+    ...(props.address ? {} : {
+      // For new address, set default country
+      country: __(countryMap.data?.[defaultCountry.data] || defaultCountry.data || 'Russian Federation')
+    }),
+    ...props.address
+  }
+}
+
 watch(
   () => show.value,
   async (value) => {
-    if (value === dialogShow.value) return
     if (value) {
-      editMode.value = !!props.address
-      
-      // Wait for both resources to load
-      if (!defaultCountry.data) {
-        await defaultCountry.reload()
-      }
-      if (!countryMap.data) {
-        await countryMap.reload()
-      }
-
-      // Initialize address document
-      _address.doc = {
-        address_type: 'Billing',
-        ...(props.address ? {} : {
-          // For new address, set default country
-          country: __(countryMap.data?.[defaultCountry.data] || defaultCountry.data || 'Russian Federation')
-        }),
-        ...props.address
-      }
-
-      dialogShow.value = true
+      await initializeAddress()
     } else {
       // Reset address document when the modal closes
       _address.doc = {}
-      dialogShow.value = false
     }
-  },
-  { immediate: true }
+  }
 )
+
+onMounted(() => {
+  if (show.value) {
+    initializeAddress()
+  }
+})
 
 function openQuickEntryModal() {
   showQuickEntryModal.value = true

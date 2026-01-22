@@ -127,6 +127,7 @@
 import { ErrorMessage, FormControl, toast } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { globalStore } from '@/stores/global'
+import { showSettings } from '@/composables/settings'
 import { ref } from 'vue'
 
 const { _settings: settings } = getSettings()
@@ -153,7 +154,7 @@ function updateSettings() {
       }
     },
     onSuccess: () => {
-      // Settings saved successfully, modal stays open
+      showSettings.value = false
     },
   })
 }
