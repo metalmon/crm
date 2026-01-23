@@ -478,9 +478,9 @@ def get_average_time_to_close_a_lead(from_date, to_date, user=""):
 		"title": _("Avg. time to close a lead"),
 		"tooltip": _("Average time taken from lead creation to deal closure"),
 		"value": current_avg_lead,
-		"suffix": _(" days"),
+		"suffix": _(" days", context="Dashboard"),
 		"delta": delta_lead,
-		"deltaSuffix": _("days"),
+		"deltaSuffix": _(" days", context="Dashboard"),
 		"negativeIsBetter": True,
 	}
 
@@ -531,9 +531,9 @@ def get_average_time_to_close_a_deal(from_date, to_date, user=""):
 		"title": _("Avg. time to close a deal"),
 		"tooltip": _("Average time taken from deal creation to deal closure"),
 		"value": current_avg_deal,
-		"suffix": _("days"),
+		"suffix": _(" days", context="Dashboard"),
 		"delta": delta_deal,
-		"deltaSuffix": _("days"),
+		"deltaSuffix": _(" days", context="Dashboard"),
 		"negativeIsBetter": True,
 	}
 
@@ -787,12 +787,13 @@ def get_funnel_conversion(from_date="", to_date="", user=""):
 
 	# Pre-translate labels
 	count_label = _("Count")
+	stage_label = _("Stage")
 	
-	# Transform data to use translated keys
+	# Transform data to use translated keys and translate stage values
 	translated_result = []
 	for row in result:
 		translated_row = {
-			"stage": row["stage"],
+			stage_label: _(row["stage"]) if row["stage"] else _("Empty"),
 			count_label: row["count"]
 		}
 		translated_result.append(translated_row)
@@ -803,7 +804,7 @@ def get_funnel_conversion(from_date="", to_date="", user=""):
 		"subtitle": _("Lead to deal conversion pipeline"),
 		"xAxis": {
 			"title": _("Stage"),
-			"key": "stage",
+			"key": stage_label,
 			"type": "category",
 		},
 		"yAxis": {
@@ -862,12 +863,13 @@ def get_deals_by_stage_axis(from_date="", to_date="", user=""):
 
 	# Pre-translate labels
 	count_label = _("Count")
+	stage_label = _("Stage")
 	
-	# Transform data to use translated keys
+	# Transform data to use translated keys and translate stage values
 	translated_result = []
 	for row in result:
 		translated_row = {
-			"stage": row["stage"],
+			stage_label: _(row["stage"]) if row["stage"] else _("Empty"),
 			count_label: row["count"]
 		}
 		translated_result.append(translated_row)
@@ -877,7 +879,7 @@ def get_deals_by_stage_axis(from_date="", to_date="", user=""):
 		"title": _("Deals by ongoing & won stage"),
 		"xAxis": {
 			"title": _("Stage"),
-			"key": "stage",
+			"key": stage_label,
 			"type": "category",
 		},
 		"yAxis": {"title": _("Count")},
@@ -925,11 +927,23 @@ def get_deals_by_stage_donut(from_date="", to_date="", user=""):
 		as_dict=True,
 	)
 
+	# Pre-translate labels
+	stage_label = _("Stage")
+	
+	# Transform data to use translated keys and translate stage values
+	translated_result = []
+	for row in result:
+		translated_row = {
+			stage_label: _(row["stage"]) if row["stage"] else _("Empty"),
+			"count": row["count"]
+		}
+		translated_result.append(translated_row)
+
 	return {
-		"data": result or [],
+		"data": translated_result or [],
 		"title": _("Deals by stage"),
 		"subtitle": _("Current pipeline distribution"),
-		"categoryColumn": "stage",
+		"categoryColumn": stage_label,
 		"valueColumn": "count",
 	}
 
@@ -1041,12 +1055,13 @@ def get_leads_by_source(from_date="", to_date="", user=""):
 
 	# Pre-translate labels
 	count_label = _("Count")
+	source_label = _("Source")
 	
-	# Transform data to use translated keys
+	# Transform data to use translated keys and translate source values
 	translated_result = []
 	for row in result:
 		translated_row = {
-			"source": row["source"],
+			source_label: _(row["source"]) if row["source"] and row["source"] != _("Empty") else _("Empty"),
 			count_label: row["count"]
 		}
 		translated_result.append(translated_row)
@@ -1055,7 +1070,7 @@ def get_leads_by_source(from_date="", to_date="", user=""):
 		"data": translated_result or [],
 		"title": _("Leads by source"),
 		"subtitle": _("Lead generation channel analysis"),
-		"categoryColumn": "source",
+		"categoryColumn": source_label,
 		"valueColumn": count_label,
 	}
 
@@ -1098,12 +1113,13 @@ def get_deals_by_source(from_date="", to_date="", user=""):
 
 	# Pre-translate labels
 	count_label = _("Count")
+	source_label = _("Source")
 	
-	# Transform data to use translated keys
+	# Transform data to use translated keys and translate source values
 	translated_result = []
 	for row in result:
 		translated_row = {
-			"source": row["source"],
+			source_label: _(row["source"]) if row["source"] and row["source"] != _("Empty") else _("Empty"),
 			count_label: row["count"]
 		}
 		translated_result.append(translated_row)
@@ -1112,7 +1128,7 @@ def get_deals_by_source(from_date="", to_date="", user=""):
 		"data": translated_result or [],
 		"title": _("Deals by source"),
 		"subtitle": _("Deal generation channel analysis"),
-		"categoryColumn": "source",
+		"categoryColumn": source_label,
 		"valueColumn": count_label,
 	}
 
