@@ -21,8 +21,6 @@
     :data="callLog"
     :referenceDoc="referenceDoc"
     :options="{ afterInsert: () => activities.reload() }"
-    :showTaskModal="showTaskModal"
-    :showNoteModal="showNoteModal"
   />
   <EventModal
     v-if="showEventModal"

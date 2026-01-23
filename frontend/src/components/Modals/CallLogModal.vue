@@ -21,7 +21,7 @@
             <Button
               variant="ghost"
               class="w-7"
-              @click="() => { if (!props.showTaskModal && !props.showNoteModal) show = false }"
+              @click="show = false"
               icon="x"
             />
           </div>
@@ -85,14 +85,6 @@ const props = defineProps({
       afterInsert: () => {},
     },
   },
-  showTaskModal: {
-    type: Boolean,
-    default: false
-  },
-  showNoteModal: {
-    type: Boolean,
-    default: false
-  }
 })
 
 const { isManager } = usersStore()
@@ -184,9 +176,7 @@ const _createCallLog = createResource({
 
 function handleCallLogUpdate(doc) {
   if (!props.options.afterInsert || typeof props.options.afterInsert !== 'function') {
-    if (!props.showTaskModal && !props.showNoteModal) {
-      show.value = false
-    }
+    show.value = false
   }
   props.options.afterInsert && props.options.afterInsert(doc)
 }
