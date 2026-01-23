@@ -108,7 +108,7 @@ const addValue = (value) => {
   error.value = null
 
   if (values.value.some((row) => row[linkField.value.fieldname] === value)) {
-    error.value = 'Value already exists'
+    error.value = __('Value already exists')
     return
   }
 

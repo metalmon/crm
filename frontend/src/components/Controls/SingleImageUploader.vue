@@ -220,7 +220,7 @@ function handleFile(fileObj) {
   uploader.value.on('error', (error) => {
     uploading.value = false
     uploadProgress.value = 0
-    errorMessage.value = error || 'Error Uploading File'
+    errorMessage.value = error || __('Error Uploading File')
      toast.error(errorMessage.value)
   })
   uploader.value.on('finish', (uploadedFile) => {
@@ -249,7 +249,7 @@ function handleFile(fileObj) {
       uploading.value = false
       uploadProgress.value = 0
       if (!errorMessage.value) {
-          errorMessage.value = 'Error Uploading File';
+          errorMessage.value = __('Error Uploading File');
       }
       console.error("Upload failed:", error)
     })

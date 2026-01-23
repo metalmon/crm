@@ -17,6 +17,7 @@ reminders even if users don't configure them individually.
 from datetime import datetime, timedelta
 
 import frappe
+from frappe import _
 from frappe.utils import add_to_date, now_datetime
 
 
@@ -302,7 +303,7 @@ def _send_email_notification(notification, event_start, before_value, interval):
 
 	try:
 		recipients = set()
-		subject = f"Event Reminder: {notification.subject}"
+		subject = _("Event Reminder: {0}").format(notification.subject)
 
 		if notification.owner and notification.owner != "Administrator":
 			recipients.add(notification.owner)
@@ -325,15 +326,15 @@ def _send_email_notification(notification, event_start, before_value, interval):
 
 		message = f"""
 		<div style="font-family: Arial, sans-serif; max-width: 600px;">
-			<h2 style="color: #333;">Event Reminder</h2>
-			<p>This is a reminder for your upcoming event:</p>
+			<h2 style="color: #333;">{_("Event Reminder")}</h2>
+			<p>{_("This is a reminder for your upcoming event:")}</p>
 			<div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0;">
 				<h3 style="margin: 0; color: #007bff;">{notification.subject}</h3>
 				{f'<p style="margin: 10px 0; color: #666;">{notification.description}</p>' if notification.description else ""}
-				<p style="margin: 5px 0;"><strong>Start Time:</strong> {event_start.strftime("%Y-%m-%d %H:%M:%S")}</p>
-				<p style="margin: 5px 0;"><strong>Time Remaining:</strong> {time_remaining_text}</p>
+				<p style="margin: 5px 0;"><strong>{_("Start Time")}:</strong> {event_start.strftime("%Y-%m-%d %H:%M:%S")}</p>
+				<p style="margin: 5px 0;"><strong>{_("Time Remaining")}:</strong> {time_remaining_text}</p>
 			</div>
-			<p style="color: #666; font-size: 12px;">This is an automated reminder from your calendar system.</p>
+			<p style="color: #666; font-size: 12px;">{_("This is an automated reminder from your calendar system.")}</p>
 		</div>
 		"""
 
@@ -361,9 +362,14 @@ def _format_time_remaining(before_value, interval):
 	Returns:
 		str: Formatted time remaining message
 	"""
-	interval_labels = {"minutes": "minute(s)", "hours": "hour(s)", "days": "day(s)", "weeks": "week(s)"}
+	interval_labels = {
+		"minutes": _("minute(s)"),
+		"hours": _("hour(s)"),
+		"days": _("day(s)"),
+		"weeks": _("week(s)")
+	}
 
-	interval_label = interval_labels.get(interval, "unit(s)")
+	interval_label = interval_labels.get(interval, _("unit(s)"))
 	return f"{before_value} {interval_label}"
 
 
