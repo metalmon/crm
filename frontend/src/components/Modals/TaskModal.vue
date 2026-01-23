@@ -19,16 +19,11 @@
       </div>
     </template>
     <template #body-content>
-      <div :class="[
-        'flex flex-col gap-4 w-full',
-        isMobileView && 'space-y-2'
-      ]">
+      <div class="flex flex-col gap-4">
         <div>
-          <div class="mb-1.5 text-xs text-ink-gray-5">
-            {{ __('Title') }}
-          </div>
-          <TextInput
+          <FormControl
             ref="title"
+            :label="__('Title')"
             v-model="_task.title"
             :placeholder="__('Call with John Doe')"
             required
@@ -44,91 +39,93 @@
             editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors"
             :bubbleMenu="true"
             :content="_task.description"
-            @change="(val) => (_task.value.description = val)"
+            @change="(val) => (_task.description = val)"
             :placeholder="
               __('Took a call with John Doe and discussed the new project.')
             "
           />
         </div>
-        <div :class="[
-          'w-full',
-          isMobileView 
-            ? 'grid grid-cols-12 grid-rows-2 gap-2' 
-            : 'flex flex-wrap items-center gap-2'
-        ]">
-          <Dropdown 
-            :options="taskStatusOptions(updateTaskStatus)" 
+        <div
+          :class="[
+            'gap-2',
+            isMobileView
+              ? 'grid grid-cols-2'
+              : 'flex flex-wrap items-center'
+          ]"
+        >
+          <div
             :class="[
-              'min-w-0',
-              isMobileView 
-                ? 'col-span-5 row-start-1' 
-                : 'flex'
+              isMobileView && 'justify-self-start',
             ]"
           >
-            <Button :label="extractLabel(_task.status, translateTaskStatus)" class="w-full justify-between">
+            <Dropdown :options="taskStatusOptions(updateTaskStatus)">
+              <Button :label="translateTaskStatus(extractValue(_task.status))">
+                <template #prefix>
+                  <TaskStatusIcon :status="extractValue(_task.status)" />
+                </template>
+              </Button>
+            </Dropdown>
+          </div>
+          <div
+            :class="[
+              !isMobileView && 'flex-1 min-w-0',
+              isMobileView && 'justify-self-end flex justify-end',
+            ]"
+          >
+            <Link
+              class="form-control"
+              :class="isMobileView && 'w-fit'"
+              :value="getUser(_task.assigned_to).full_name"
+              doctype="User"
+              @change="(option) => (_task.assigned_to = option)"
+              :placeholder="__('John Doe')"
+              :filters="{
+                name: ['in', users.data.crmUsers?.map((user) => user.name)],
+              }"
+              :hideMe="true"
+            >
               <template #prefix>
-                <TaskStatusIcon :status="extractValue(_task.status)" class="flex-shrink-0" />
+                <UserAvatar class="mr-2 !h-4 !w-4" :user="_task.assigned_to" />
               </template>
-              <span class="truncate">{{ extractLabel(_task.status, translateTaskStatus) }}</span>
-            </Button>
-          </Dropdown>
-          <Link
-            class="form-control min-w-0"
+              <template #item-prefix="{ option }">
+                <UserAvatar class="mr-2" :user="option.value" size="sm" />
+              </template>
+              <template #item-label="{ option }">
+                <Tooltip :text="option.value">
+                  <div class="cursor-pointer">
+                    {{ getUser(option.value).full_name }}
+                  </div>
+                </Tooltip>
+              </template>
+            </Link>
+          </div>
+          <div
             :class="[
-              isMobileView 
-                ? 'col-span-7 row-start-1 w-full' 
-                : 'flex max-w-[200px] min-w-0'
-            ]"
-            :value="getUser(_task.assigned_to).full_name"
-            doctype="User"
-            @change="(option) => (_task.value.assigned_to = option)"
-            :placeholder="__('John Doe')"
-            :filters="{
-              name: ['in', users.data.crmUsers?.map((user) => user.name)],
-            }"
-            :hideMe="true"
-          >
-            <template #prefix>
-              <UserAvatar class="mr-2 !h-4 !w-4 flex-shrink-0" :user="_task.assigned_to" />
-            </template>
-            <template #item-prefix="{ option }">
-              <UserAvatar class="mr-2" :user="option.value" size="sm" />
-            </template>
-            <template #item-label="{ option }">
-              <Tooltip :text="option.value">
-                <div class="cursor-pointer text-ink-gray-9 truncate">
-                  {{ getUser(option.value).full_name }}
-                </div>
-              </Tooltip>
-            </template>
-          </Link>
-          <Dropdown 
-            :options="taskPriorityOptions(updateTaskPriority)" 
-            :class="[
-              'min-w-0',
-              isMobileView 
-                ? 'col-span-4 row-start-2' 
-                : 'flex'
+              isMobileView && 'justify-self-start',
             ]"
           >
-            <Button :label="extractLabel(_task.priority, translateTaskPriority)" class="w-full justify-between">
-              <template #prefix>
-                <TaskPriorityIcon :priority="extractValue(_task.priority)" class="flex-shrink-0" />
-              </template>
-              <span class="truncate">{{ extractLabel(_task.priority, translateTaskPriority) }}</span>
-            </Button>
-          </Dropdown>
-          <input
-            type="datetime-local"
-            v-model="_task.due_date"
+            <Dropdown :options="taskPriorityOptions(updateTaskPriority)">
+              <Button :label="translateTaskPriority(extractValue(_task.priority))">
+                <template #prefix>
+                  <TaskPriorityIcon :priority="extractValue(_task.priority)" />
+                </template>
+              </Button>
+            </Dropdown>
+          </div>
+          <div
             :class="[
-              'min-w-0',
-              isMobileView 
-                ? 'col-span-8 row-start-2 w-full' 
-                : 'w-44'
+              !isMobileView && 'w-36',
+              isMobileView && 'justify-self-end flex justify-end',
             ]"
-            @click.stop
-          />
+          >
+            <input
+              type="date"
+              class="border border-[--surface-gray-2] bg-surface-gray-2 rounded px-2 py-1.5 text-ink-gray-8 focus:border-outline-gray-4 focus:ring-0"
+              :class="isMobileView ? 'w-fit' : 'w-full'"
+              v-model="_task.due_date"
+              @click.stop
+            />
+          </div>
         </div>
         <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
       </div>
@@ -151,7 +148,7 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
-import { taskStatusOptions, taskPriorityOptions, extractValue, extractLabel } from '@/utils'
+import { taskStatusOptions, taskPriorityOptions, extractValue } from '@/utils'
 import { translateTaskStatus } from '@/utils/taskStatusTranslations'
 import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 import { usersStore } from '@/stores/users'
@@ -161,6 +158,7 @@ import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { isMobileView } from '@/composables/settings'
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+
 const props = defineProps({
   task: {
     type: Object,
@@ -222,20 +220,10 @@ async function updateTask() {
     _task.value.assigned_to = getUser().name
   }
   if (_task.value.name) {
-    // Extract values for select fields to ensure we send only the value, not the full object
-    const updateData = {
-      title: _task.value.title,
-      description: _task.value.description,
-      assigned_to: _task.value.assigned_to,
-      due_date: _task.value.due_date,
-      status: extractValue(_task.value.status),
-      priority: extractValue(_task.value.priority),
-    }
-    
     let d = await call('frappe.client.set_value', {
       doctype: 'CRM Task',
       name: _task.value.name,
-      fieldname: updateData,
+      fieldname: _task.value,
     })
     if (d.name) {
       tasks.value?.reload()
@@ -247,8 +235,10 @@ async function updateTask() {
       {
         doc: {
           doctype: 'CRM Task',
-          reference_doctype: props.doctype,
-          reference_docname: props.doc || null,
+          ...(props.doc ? {
+            reference_doctype: props.doctype,
+            reference_docname: props.doc,
+          } : {}),
           ..._task.value,
         },
       },
@@ -272,14 +262,9 @@ async function updateTask() {
 
 function render() {
   editMode.value = false
-  setTimeout(() => title.value?.el?.focus?.(), 100)
   nextTick(() => {
-    // Copy task data and ensure select fields have proper values
-    _task.value = { 
-      ...props.task,
-      status: extractValue(props.task.status),
-      priority: extractValue(props.task.priority)
-    }
+    title.value?.el?.focus?.()
+    _task.value = { ...props.task }
     if (_task.value.title) {
       editMode.value = true
     }
