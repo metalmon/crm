@@ -60,6 +60,7 @@ import { useDocument } from '@/data/document'
 import { capture } from '@/telemetry'
 import { FeatherIcon, createResource, ErrorMessage } from 'frappe-ui'
 import { ref, nextTick, computed, onMounted, watch } from 'vue'
+import { handleDuplicateEntry } from '@/utils/handleDuplicateEntry'
 
 const props = defineProps({
   address: {
@@ -284,12 +285,33 @@ const _createAddress = createResource({
     }
   },
   async onError(err) {
-    // Try to handle duplicate entry error
-    const handled = await handleDuplicateEntry(err, 'Address', () => createAddress.submit())
-    if (!handled) {
-      loading.value = false
-      error.value = err
+    // Try to handle duplicate entry error (for series conflicts)
+    const handled = await handleDuplicateEntry(err, 'Address', async () => {
+      await _createAddress.submit({
+        doc: {
+          doctype: 'Address',
+          ..._address.doc,
+        },
+      })
+    })
+    if (handled) {
+      return
     }
+    
+    loading.value = false
+    if (err.exc_type == 'MandatoryError') {
+      const errorMessage = err.messages
+        ? err.messages
+            .map((msg) => {
+              let arr = msg.split(': ')
+              return arr[arr.length - 1].trim()
+            })
+            .join(', ')
+        : err.message || __('Required fields are missing')
+      error.value = __('These fields are required: {0}', [errorMessage])
+      return
+    }
+    error.value = err
   },
 })
 
