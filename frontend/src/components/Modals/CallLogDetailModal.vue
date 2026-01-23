@@ -154,26 +154,16 @@
       </div>
     </template>
   </Dialog>
-  <Teleport to="body">
-    <NoteModal 
-      v-if="showNoteModal"
-      v-model="showNoteModal" 
-      :note="note" 
-      doctype="CRM Call Log"
-      :doc="callLog?.data?.name"
-      :autoClose="true"
-      @after="(note, insert_mode) => addNoteToCallLog(note, insert_mode)"
-    />
+  <NoteModal 
+    v-model="showNoteModal" 
+    :note="note" 
+    @after="addNoteToCallLog"
+  />
     <TaskModal 
-      v-if="showTaskModal"
       v-model="showTaskModal" 
       :task="task" 
-      doctype="CRM Call Log"
-      :doc="callLog?.data?.name"
-      :autoClose="true"
-      @after="(task, insert_mode) => addTaskToCallLog(task, insert_mode)"
+      @after="addTaskToCallLog"
     />
-  </Teleport>
 </template>
 
 <script setup>
@@ -196,7 +186,6 @@ import { useDocument } from '@/data/document'
 import { FeatherIcon, Dropdown, Avatar, Tooltip, call } from 'frappe-ui'
 import { ref, computed, h, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Teleport } from 'vue'
 import dayjs from '@/utils/dayjs'
 
 const router = useRouter()
@@ -379,8 +368,6 @@ async function addNoteToCallLog(_note, insert_mode = false) {
       call_sid: callLog.value?.data?.id,
       note: _note,
     })
-    await props.reload()
-    showNoteModal.value = false
   }
 }
 
@@ -391,8 +378,6 @@ async function addTaskToCallLog(_task, insert_mode = false) {
       call_sid: callLog.value?.data?.id,
       task: _task,
     })
-    await props.reload()
-    showTaskModal.value = false
   }
 }
 
