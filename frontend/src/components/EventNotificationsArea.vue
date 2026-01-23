@@ -15,7 +15,7 @@
                   :class="{ 'rotate-90': opened }"
                 />
                 <span>
-                  {{ __(event.type) }}
+                  {{ event.type }}
                 </span>
                 <Badge :label="event.count" variant="ghost" size="sm" />
               </div>
@@ -165,19 +165,19 @@ const computedEvents = computed(() => {
 
   return [
     {
-      type: 'Starting now',
+      type: __('Starting now'),
       collapsed: false,
       count: startingNowEvents.length,
       items: startingNowEvents,
     },
     {
-      type: 'Ongoing events',
+      type: __('Ongoing events'),
       collapsed: false,
       count: ongoingEvents.length,
       items: ongoingEvents,
     },
     {
-      type: 'Upcoming events',
+      type: __('Upcoming events'),
       collapsed: false,
       count: upcomingEvents.length,
       items: upcomingEvents,
