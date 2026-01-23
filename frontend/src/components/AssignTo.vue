@@ -73,26 +73,17 @@ async function saveAssignees(
 
     if (nextAssignee) {
       toast.info(
-        __(
-          'Since you removed {0} from the assignee, the {0} has been changed to the next available assignee {1}.',
-          [owner, nextAssignee.label || nextAssignee.name],
-        ),
+        __('Since you removed {0} from the assignee, the {0} has been changed to the next available assignee {1}.', [owner, nextAssignee.label || nextAssignee.name]),
       )
     } else {
       toast.info(
-        __(
-          'Since you removed {0} from the assignee, the {0} has also been removed.',
-          [owner],
-        ),
+        __('Since you removed {0} from the assignee, the {0} has also been removed.', [owner]),
       )
     }
   } else if (!document.doc[ownerField.value] && nextAssignee) {
     document.doc[ownerField.value] = nextAssignee ? nextAssignee.name : ''
     toast.info(
-      __('Since you added a new assignee, the {0} has been set to {1}.', [
-        owner,
-        nextAssignee.label || nextAssignee.name,
-      ]),
+      __('Since you added a new assignee, the {0} has been set to {1}.', [owner, nextAssignee.label || nextAssignee.name]),
     )
   }
 }

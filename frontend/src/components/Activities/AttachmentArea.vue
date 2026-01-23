@@ -96,9 +96,7 @@ function openFile(attachment) {
 function togglePrivate(fileName, isPrivate) {
   let changeTo = isPrivate ? __('public') : __('private')
   let title = __('Make attachment {0}', [changeTo])
-  let message = __('Are you sure you want to make this attachment {0}?', [
-    changeTo,
-  ])
+  let message = __('Are you sure you want to make this attachment {0}?', [changeTo])
   $dialog({
     title,
     message,

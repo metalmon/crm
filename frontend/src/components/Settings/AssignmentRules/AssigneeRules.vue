@@ -14,18 +14,12 @@
       <div>
         <div class="text-base font-medium text-ink-gray-8">
           {{
-            __('{0} Routing', [
-              assignmentRuleData.documentType == 'CRM Lead'
-                ? __('Lead')
-                : __('Deal'),
-            ])
+            __('{0} Routing', [assignmentRuleData.documentType == 'CRM Lead' ? __('Lead') : __('Deal')])
           }}
         </div>
         <div class="text-p-sm text-ink-gray-6 mt-1">
           {{
-            __('Choose how {0} are assigned among the selected assignees.', [
-              documentType,
-            ])
+            __('Choose how {0} are assigned among the selected assignees.', [documentType])
           }}
         </div>
       </div>

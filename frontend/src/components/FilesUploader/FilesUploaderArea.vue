@@ -336,10 +336,7 @@ function checkRestrictions(file) {
   if (!validFileSize) {
     console.warn('File skipped because of invalid file size', file.size, file)
     toast.warning(
-      __('File "{0}" was skipped because size exceeds {1} MB', [
-        file.name,
-        maxFileSize / (1024 * 1024),
-      ]),
+      __('File "{0}" was skipped because size exceeds {1} MB', [file.name, maxFileSize / (1024 * 1024)]),
     )
   }
 

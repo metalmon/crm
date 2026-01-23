@@ -185,10 +185,7 @@ export function getScript(doctype, view = 'Form') {
 
         if (!row) {
           console.warn(
-            __('⚠️ No row found for idx: {0} in parent field: {1}', [
-              idx,
-              parentField,
-            ]),
+            __('⚠️ No row found for idx: {0} in parent field: {1}', [idx, parentField]),
           )
           return null
         }

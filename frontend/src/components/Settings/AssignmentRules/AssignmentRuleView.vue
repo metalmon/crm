@@ -147,9 +147,7 @@
           <div class="flex items-center justify-between gap-6">
             <span class="text-p-sm text-ink-gray-6">
               {{
-                __('Choose which {0} are affected by this assignment rule.', [
-                  documentType,
-                ])
+                __('Choose which {0} are affected by this assignment rule.', [documentType])
               }}
               <a
                 class="font-medium underline"
@@ -226,10 +224,7 @@
           <div class="flex items-center justify-between gap-6">
             <span class="text-p-sm text-ink-gray-6">
               {{
-                __(
-                  'Choose which {0} are affected by this un-assignment rule.',
-                  [documentType],
-                )
+                __('Choose which {0} are affected by this un-assignment rule.', [documentType])
               }}
               <a
                 class="font-medium underline"

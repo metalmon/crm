@@ -49,10 +49,7 @@
           </div>
           <div v-if="linkedDocs?.length == 0" class="text-ink-gray-5 text-base">
             {{
-              __('Are you sure you want to delete {0} - {1}?', [
-                props.doctype,
-                props.docname,
-              ])
+              __('Are you sure you want to delete {0} - {1}?', [props.doctype, props.docname])
             }}
           </div>
         </div>

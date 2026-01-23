@@ -368,9 +368,7 @@ function getSectionOptions(i, section, tab) {
           condition: () => section.editable !== false,
         },
         {
-          label: __('Remove and move columns to {0} section', [
-            i == 0 ? __('next') : __('previous'),
-          ]),
+          label: __('Remove and move columns to {0} section', [i == 0 ? __('next') : __('previous')]),
           icon: 'trash-2',
           onClick: () => {
             let targetSection = tab.sections[i == 0 ? i + 1 : i - 1]

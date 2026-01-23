@@ -119,9 +119,7 @@ const userExistMessage = computed(() => {
   const existingInvitees = new Set([...inviteesSet].filter(x => existingUsersSet.has(x)))
   if (existingInvitees.size === 0) return null
 
-  return __('User with email {0} already exists', [
-    Array.from(existingInvitees).join(', '),
-  ])
+  return __('User with email {0} already exists', [Array.from(existingInvitees).join(', ')])
 })
 
 const inviteeExistMessage = computed(() => {
@@ -135,9 +133,7 @@ const inviteeExistMessage = computed(() => {
   const existingInvitees = new Set([...inviteesSet].filter(x => existingUsersSet.has(x)))
   if (existingInvitees.size === 0) return null
 
-  return __('User with email {0} already invited', [
-    Array.from(existingInvitees).join(', '),
-  ])
+  return __('User with email {0} already invited', [Array.from(existingInvitees).join(', ')])
 })
 
 const description = computed(() => {
@@ -175,9 +171,7 @@ const inviteByEmail = createResource({
   },
   onSuccess(data) {
     if (data?.existing_invites?.length) {
-      error.value = __('User with email {0} already exists', [
-        data.existing_invites.join(', '),
-      ])
+      error.value = __('User with email {0} already exists', [data.existing_invites.join(', ')])
     } else {
       role.value = 'Sales User'
       error.value = null

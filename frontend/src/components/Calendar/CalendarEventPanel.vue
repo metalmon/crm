@@ -86,13 +86,7 @@
           <div class="flex flex-col gap-1.5">
             <div v-for="notification in notifications" :key="notification.name">
               {{
-                __(`{0} {1} before{2}`, [
-                  notification.before,
-                  notification.before == 1
-                    ? notification.interval.slice(0, -1)
-                    : notification.interval,
-                  notification.type == 'Email' ? ', as email' : '',
-                ])
+                __(`{0} {1} before{2}`, [notification.before, notification.before == 1 ? notification.interval.slice(0, -1) : notification.interval, notification.type == 'Email' ? ', as email' : ''])
               }}
             </div>
           </div>
