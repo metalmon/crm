@@ -10,7 +10,7 @@
       <p class="text-ink-gray-4 text-p-base">
         {{
           __(
-            'You do not have enough permissions to access Frappe CRM. Please contact your administrator if you believe this is an error.',
+            'You do not have enough permissions to access EXP CRM. Please contact your administrator if you believe this is an error.',
           )
         }}
       </p>

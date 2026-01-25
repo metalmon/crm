@@ -52,6 +52,8 @@ const props = defineProps({
 })
 
 function openArticle(name) {
-  window.open(`${props.docsLink}/${name}`, '_blank')
+  if (props.docsLink) {
+    window.open(`${props.docsLink}/${name}`, '_blank')
+  }
 }
 </script> 

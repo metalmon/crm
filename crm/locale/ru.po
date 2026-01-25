@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Frappe CRM VERSION\n"
 "Report-Msgid-Bugs-To: shariq@frappe.io\n"
-"POT-Creation-Date: 2026-01-25 12:46+0000\n"
-"PO-Revision-Date: 2026-01-25 16:59+0400\n"
+"POT-Creation-Date: 2026-01-25 13:14+0000\n"
+"PO-Revision-Date: 2026-01-25 17:15+0400\n"
 "Last-Translator: AlexKuzin <dev@olimpicfresh.ru>\n"
 "Language-Team: shariq@frappe.io\n"
 "Language: ru\n"
@@ -162,12 +162,12 @@ msgstr "501-1000"
 msgid "51-200"
 msgstr "51-200"
 
-#. Paragraph text in the Frappe CRM Workspace
+#. Paragraph text in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "<b>МЕТА</b>"
 msgstr "<b>МЕТА</b>"
 
-#. Paragraph text in the Frappe CRM Workspace
+#. Paragraph text in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "<b>ЯРЛЫКИ</b>"
 msgstr "<b>ЯРЛЫКИ</b>"
@@ -177,7 +177,7 @@ msgstr "<b>ЯРЛЫКИ</b>"
 msgid "<p>Dear {{ lead_name }},</p>\\n\\n<p>This is a reminder for the payment of {{ grand_total }}.</p>\\n\\n<p>Thanks,</p>\\n<p>Frappé</p>"
 msgstr "<p>Уважаемый {{имя_клиента}},</p>\\n\\nЭто<p>напоминание о выплате {{сумма_итого}}.</p>\\n\\nСпасибо<p>,</p>\\n<p>Подпись</p>"
 
-#. Header text in the Frappe CRM Workspace
+#. Header text in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "<span class=\"h5\"><b>ПОРТАЛ</b></span>"
 msgstr "<span class=\"h5\"><b>ПОРТАЛ</b></span>"
@@ -505,7 +505,7 @@ msgstr "Установить временные ориентиры около в
 msgid "Add to holidays"
 msgstr "Добавить к выходным"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:432
+#: frontend/src/components/Layouts/AppSidebar.vue:431
 msgid "Add your first comment"
 msgstr "Добавьте свой первый комментарий"
 
@@ -714,7 +714,7 @@ msgstr "Вы уверены, что хотите удалить {0} связан
 msgid "Are you sure you want to discard unsaved changes to this event?"
 msgstr "Вы уверены, что хотите откатить несохраненные изменения по этому событию?"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:571
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:559
 #: frontend/src/components/Settings/Sla/SlaPolicyView.vue:347
 msgid "Are you sure you want to go back? Unsaved changes will be lost."
 msgstr "Вы уверены, что хотите вернуться? Несохраненные изменения будут потеряны."
@@ -747,11 +747,11 @@ msgstr "Вы уверены, что хотите отсоединить {0} св
 msgid "Ask your manager to set up the Exchange Rate Provider, as default provider does not support currency conversion for {0} to {1}."
 msgstr "Попросите Вашего менеджера настроить провайдера обменных курсов, поскольку провайдер по умолчанию не поддерживает конвертацию валюты из {0} в {1}."
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:430
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:418
 msgid "Assign condition is required"
 msgstr "Присвоить условие обязательно"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:433
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:421
 msgid "Assign conditions are invalid"
 msgstr "Назначенные условия недопустимы"
 
@@ -788,7 +788,7 @@ msgstr "Назначенные"
 msgid "Assignment"
 msgstr "Назначение"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Assignment Rule"
 msgstr "Правило назначения"
@@ -809,16 +809,16 @@ msgstr "Условия назначения"
 msgid "Assignment conditions are invalid or corrupt, recreate the conditions."
 msgstr "Условие назначения некорректно или повреждено; создайте условие заново."
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:466
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:454
 msgid "Assignment days are required"
 msgstr "Дни назначения обязательны"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:575
+#: frontend/src/components/Layouts/AppSidebar.vue:574
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRulesList.vue:16
 msgid "Assignment rule"
 msgstr "Правило назначения"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:662
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:650
 msgid "Assignment rule created"
 msgstr "Создано правило назначения"
 
@@ -830,7 +830,7 @@ msgstr "Правило назначения удалено"
 msgid "Assignment rule duplicated"
 msgstr "Правило назначения дублируется"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:744
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:732
 msgid "Assignment rule updated"
 msgstr "Обновлено правило назначения"
 
@@ -847,7 +847,7 @@ msgstr "Правила назначения"
 msgid "Assignment rules automatically assign lead/deal to the right sales user based on predefined conditions"
 msgstr "Правила назначения автоматически распределяют потенциальных клиентов/сделки между нужными сотрудниками отдела продаж в соответствии с заданными условиями"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:297
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:285
 msgid "Assignment schedule"
 msgstr "Расписание назначения"
 
@@ -1276,7 +1276,7 @@ msgstr "CRM Уведомление"
 msgid "CRM Organization"
 msgstr "CRM Организация"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "CRM Portal Page"
 msgstr "CRM Страница портала"
@@ -1360,7 +1360,7 @@ msgstr "CSV"
 msgid "Calendar"
 msgstr "Календарь"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:231
+#: frontend/src/components/Layouts/AppSidebar.vue:230
 msgctxt "menu item"
 msgid "Calendar"
 msgstr "Календарь"
@@ -1373,7 +1373,7 @@ msgstr "Настройки календаря"
 msgid "Call Logs"
 msgstr "Журналы вызовов"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:236
+#: frontend/src/components/Layouts/AppSidebar.vue:235
 msgctxt "menu item"
 msgid "Call Logs"
 msgstr "Звонки"
@@ -1387,7 +1387,7 @@ msgstr "Детали звонка"
 msgid "Call duration in seconds"
 msgstr "Продолжительность звонка в секундах"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:549
+#: frontend/src/components/Layouts/AppSidebar.vue:548
 msgid "Call log"
 msgstr "Журнал вызовов"
 
@@ -1502,7 +1502,7 @@ msgstr "Невозможно включить правило без добавл
 msgid "Capture"
 msgstr "Захватить"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:554
+#: frontend/src/components/Layouts/AppSidebar.vue:553
 msgid "Capturing leads"
 msgstr "Получение лидов"
 
@@ -1512,7 +1512,7 @@ msgid "Category"
 msgstr "Категория"
 
 #: frontend/src/components/Controls/ImageUploader.vue:19
-#: frontend/src/components/Layouts/AppSidebar.vue:483
+#: frontend/src/components/Layouts/AppSidebar.vue:482
 msgid "Change"
 msgstr "Изменить"
 
@@ -1520,8 +1520,8 @@ msgstr "Изменить"
 msgid "Change Image"
 msgstr "Заменить изображение"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:474
-#: frontend/src/components/Layouts/AppSidebar.vue:482
+#: frontend/src/components/Layouts/AppSidebar.vue:473
+#: frontend/src/components/Layouts/AppSidebar.vue:481
 msgid "Change deal status"
 msgstr "Измените статус сделки"
 
@@ -1577,14 +1577,14 @@ msgid "Choose how long this SLA policy will be active."
 msgstr "Выберите, на какой срок будет действовать эта политика SLA."
 
 #: frontend/src/pages/Welcome.vue:9
-msgid "Choose how you want to start with Frappe CRM"
-msgstr "Выберите, как Вы хотите начать работу с Frappe CRM"
+msgid "Choose how you want to start with EXP CRM"
+msgstr "Выберите, как вы хотите начать с EXP CRM"
 
 #: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:9
 msgid "Choose how {0} are assigned among salespeople."
 msgstr "Укажите способ распределения {0} среди сотрудников по продаже."
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:301
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:289
 msgid "Choose the days of the week when this rule should be active."
 msgstr "Укажите дни недели, когда это правило должно работать."
 
@@ -1600,7 +1600,7 @@ msgstr "Выберите, какие тикеты затрагиваются д�
 msgid "Choose which {0} are affected by this assignment rule."
 msgstr "Выберите, какие {0} затронуты этим правилом назначения."
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:227
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:221
 msgid "Choose which {0} are affected by this un-assignment rule."
 msgstr "Выберите, на какие {0} будет распространяться это правило отмены назначения."
 
@@ -1703,7 +1703,7 @@ msgstr "Колонки"
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
 #: frontend/src/components/CommentBox.vue:78
 #: frontend/src/components/CommunicationArea.vue:16
-#: frontend/src/components/Layouts/AppSidebar.vue:572
+#: frontend/src/components/Layouts/AppSidebar.vue:571
 msgid "Comment"
 msgstr "Комментарий"
 
@@ -1717,7 +1717,7 @@ msgstr "Комментарии"
 msgid "Common reasons for losing deals"
 msgstr "Распространенные причины потери сделок"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Communication Statuses"
 msgstr "Статусы общения"
@@ -1758,8 +1758,8 @@ msgstr "Компьютер"
 msgid "Condition"
 msgstr "Условие"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:186
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:267
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:180
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:255
 msgid "Conditions for this rule were created from"
 msgstr "Условия для этого правила были созданы из"
 
@@ -1838,7 +1838,7 @@ msgstr "Подтвердить"
 msgid "Confirm delete"
 msgstr "Подтвердить удаление"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:604
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:592
 #: frontend/src/components/Settings/Sla/SlaPolicyView.vue:400
 msgid "Confirm overwrite"
 msgstr "Подтвердить перезапись"
@@ -1867,7 +1867,7 @@ msgstr "Подключение к системе обмена сообщения
 #. Label of the contact (Link) field in DocType 'CRM Deal'
 #: crm/fcrm/doctype/crm_contacts/crm_contacts.json
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
-#: frontend/src/components/Layouts/AppSidebar.vue:545
+#: frontend/src/components/Layouts/AppSidebar.vue:544
 #: frontend/src/components/Modals/ConvertToDealModal.vue:51
 #: frontend/src/pages/MobileLead.vue:149
 msgid "Contact"
@@ -1901,7 +1901,7 @@ msgstr "Имя контакта не установлено"
 msgid "Contact removed"
 msgstr "Контакт удален"
 
-#: frontend/src/components/Modals/AboutModal.vue:99
+#: frontend/src/components/Modals/AboutModal.vue:74
 msgid "Contact support"
 msgstr "Обратиться в службу поддержки"
 
@@ -1924,7 +1924,7 @@ msgstr "Связались"
 
 #. Label of the contacts_tab (Tab Break) field in DocType 'CRM Deal'
 #. Label of the contacts (Table) field in DocType 'CRM Deal'
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/components/Mobile/MobileSidebar.vue:137
@@ -1933,7 +1933,7 @@ msgstr "Связались"
 msgid "Contacts"
 msgstr "Контакты"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:211
+#: frontend/src/components/Layouts/AppSidebar.vue:210
 msgctxt "menu item"
 msgid "Contacts"
 msgstr "Контакты"
@@ -1987,15 +1987,15 @@ msgstr "Настройки конвертации в сделку"
 msgid "Conversion settings updated successfully"
 msgstr "Настройки конвертации успешно обновлены"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:373
+#: frontend/src/components/Layouts/AppSidebar.vue:372
 #: frontend/src/components/ListBulkActions.vue:88
 #: frontend/src/components/Modals/ConvertToDealModal.vue:83
 #: frontend/src/pages/MobileLead.vue:54 frontend/src/pages/MobileLead.vue:112
 msgid "Convert"
 msgstr "Конвертировать"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:364
-#: frontend/src/components/Layouts/AppSidebar.vue:372
+#: frontend/src/components/Layouts/AppSidebar.vue:363
+#: frontend/src/components/Layouts/AppSidebar.vue:371
 msgid "Convert lead to deal"
 msgstr "Конвертируйте лид в сделку"
 
@@ -2121,15 +2121,15 @@ msgstr "Создать задачу"
 msgid "Create view"
 msgstr "Создать представление"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:342
+#: frontend/src/components/Layouts/AppSidebar.vue:341
 msgid "Create your first lead"
 msgstr "Создайте своего первого лида"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:412
+#: frontend/src/components/Layouts/AppSidebar.vue:411
 msgid "Create your first note"
 msgstr "Создайте свою первую заметку"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:392
+#: frontend/src/components/Layouts/AppSidebar.vue:391
 msgid "Create your first task"
 msgstr "Создайте свою первую задачу"
 
@@ -2179,23 +2179,23 @@ msgstr "Текущие процессы:"
 msgid "Custom Range"
 msgstr "Специальный диапазон"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:584
+#: frontend/src/components/Layouts/AppSidebar.vue:583
 msgid "Custom actions"
 msgstr "Пользовательские действия"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:534
+#: frontend/src/components/Layouts/AppSidebar.vue:533
 msgid "Custom branding"
 msgstr "Индивидуальный брендинг"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:583
+#: frontend/src/components/Layouts/AppSidebar.vue:582
 msgid "Custom fields"
 msgstr "Настраиваемые поля"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:586
+#: frontend/src/components/Layouts/AppSidebar.vue:585
 msgid "Custom list actions"
 msgstr "Пользовательские действия со списком"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:585
+#: frontend/src/components/Layouts/AppSidebar.vue:584
 msgid "Custom statuses"
 msgstr "Пользовательские статусы"
 
@@ -2203,7 +2203,7 @@ msgstr "Пользовательские статусы"
 msgid "Customer created successfully"
 msgstr "Клиент создан успешно"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:580
+#: frontend/src/components/Layouts/AppSidebar.vue:579
 #: frontend/src/components/Settings/Settings.vue:190
 msgid "Customization"
 msgstr "Общие настройки"
@@ -2235,13 +2235,13 @@ msgctxt "Sidebar"
 msgid "Dashboard"
 msgstr "Аналитика"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:196
+#: frontend/src/components/Layouts/AppSidebar.vue:195
 msgctxt "menu item"
 msgid "Dashboard"
 msgstr "Аналитика"
 
 #: frontend/src/components/Activities/DataFields.vue:7
-#: frontend/src/components/Layouts/AppSidebar.vue:573
+#: frontend/src/components/Layouts/AppSidebar.vue:572
 #: frontend/src/pages/Deal.vue:618 frontend/src/pages/Lead.vue:446
 #: frontend/src/pages/MobileDeal.vue:546 frontend/src/pages/MobileLead.vue:356
 msgid "Data"
@@ -2291,7 +2291,7 @@ msgstr "Обнаружен тупик при отмене назначений, 
 #: crm/fcrm/doctype/sales_funnel_report_document/sales_funnel_report_document.js:21
 #: crm/fcrm/doctype/sales_funnel_report_document/sales_funnel_report_document_list.js:83
 #: frontend/src/components/Calendar/CalendarEventPanel.vue:405
-#: frontend/src/components/Layouts/AppSidebar.vue:544
+#: frontend/src/components/Layouts/AppSidebar.vue:543
 #: frontend/src/components/Modals/CallLogDetailModal.vue:253
 #: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:20
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:133
@@ -2312,7 +2312,7 @@ msgstr "Сделка"
 msgid "Deal Owner"
 msgstr "Владелец сделки"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Deal Statuses"
 msgstr "Статусы сделок"
@@ -2340,7 +2340,7 @@ msgstr "Статус сделки"
 msgid "Deal value"
 msgstr "Стоимость сделки"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/api/dashboard.py:615 crm/api/dashboard.py:1174 crm/api/dashboard.py:1248
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/components/Mobile/MobileSidebar.vue:122
@@ -2350,7 +2350,7 @@ msgstr "Стоимость сделки"
 msgid "Deals"
 msgstr "Сделки"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:206
+#: frontend/src/components/Layouts/AppSidebar.vue:205
 msgctxt "menu item"
 msgid "Deals"
 msgstr "Сделки"
@@ -2586,7 +2586,7 @@ msgstr "Демо"
 msgid "Description"
 msgstr "Описание"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:421
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:409
 msgid "Description is required"
 msgstr "Требуется описание"
 
@@ -2699,10 +2699,6 @@ msgstr "Тип документа"
 msgid "Document updated successfully"
 msgstr "Документ успешно обновлен"
 
-#: frontend/src/components/Modals/AboutModal.vue:84
-msgid "Documentation"
-msgstr "Документация"
-
 #. Option for the 'Status' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 msgid "Done"
@@ -2802,7 +2798,7 @@ msgstr "Обнаружен дубликат рабочего дня: {0}. Раб
 msgid "Duration"
 msgstr "Продолжительность"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:597
+#: frontend/src/components/Layouts/AppSidebar.vue:596
 #: frontend/src/components/Settings/Settings.vue:232
 msgid "ERPNext"
 msgstr "ERP"
@@ -2839,6 +2835,19 @@ msgstr "API сайта с ЕРП"
 #: crm/fcrm/doctype/erpnext_crm_settings/erpnext_crm_settings.json
 msgid "ERPNext site URL"
 msgstr "Адрес сайта ЕРП"
+
+#. Name of a Workspace
+#: crm/fcrm/workspace/frappe_crm/frappe_crm.json crm/hooks.py:3
+msgid "EXP CRM"
+msgstr "EXP CRM"
+
+#: frontend/src/components/Layouts/AppSidebar.vue:600
+msgid "EXP CRM mobile"
+msgstr "CRM EXP мобильная версия"
+
+#: crm/hooks.py:4
+msgid "EXP Omniverse"
+msgstr "EXP Omniverse"
 
 #: frontend/src/components/FieldLayout/Field.vue:91
 #: frontend/src/components/FieldLayoutEditor.vue:317
@@ -2982,7 +2991,7 @@ msgstr "Учетная запись электронной почты успеш
 msgid "Email accounts"
 msgstr "Почтовые аккаунты"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:571
+#: frontend/src/components/Layouts/AppSidebar.vue:570
 msgid "Email communication"
 msgstr "Общение по электронной почте"
 
@@ -3003,7 +3012,7 @@ msgstr "Письмо отправлено в"
 msgid "Email settings"
 msgstr "Электронная почта"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:550
+#: frontend/src/components/Layouts/AppSidebar.vue:549
 msgid "Email template"
 msgstr "Шаблон письма"
 
@@ -3368,7 +3377,7 @@ msgstr "Исключите потерянные/неиспользованные
 #. Agent'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_telephony_agent/crm_telephony_agent.json
-#: frontend/src/components/Layouts/AppSidebar.vue:595
+#: frontend/src/components/Layouts/AppSidebar.vue:594
 #: frontend/src/components/Settings/Telephony/TelephonySettings.vue:50
 #: frontend/src/components/Settings/Telephony/TelephonySettings.vue:99
 msgid "Exotel"
@@ -3770,19 +3779,6 @@ msgstr "Имя формы"
 msgid "Framework"
 msgstr "Фреймворк"
 
-#. Name of a Workspace
-#: crm/fcrm/workspace/frappe_crm/frappe_crm.json crm/hooks.py:3
-msgid "Frappe CRM"
-msgstr "CRM"
-
-#: frontend/src/components/Layouts/AppSidebar.vue:601
-msgid "Frappe CRM mobile"
-msgstr "Мобильная система Frappe CRM"
-
-#: crm/hooks.py:4
-msgid "Frappe Technologies Pvt. Ltd."
-msgstr "Frappe Technologies Pvt. Ltd."
-
 #: frontend/src/components/Settings/emailConfig.js:74
 msgid "Frappe mail site"
 msgstr "Страница почты Frappe"
@@ -3901,11 +3897,7 @@ msgstr "Загрузите 10 тестовых лидов, чтобы изучи
 msgid "Getting started"
 msgstr "Начало работы"
 
-#: frontend/src/components/Modals/AboutModal.vue:79
-msgid "GitHub repository"
-msgstr "Репозиторий GitHub"
-
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:577
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:565
 msgid "Go back"
 msgstr "Назад"
 
@@ -4039,7 +4031,7 @@ msgstr "Скрыть запись"
 #. Option for the 'Priority' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:93
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:677
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:665
 msgid "High"
 msgstr "Высокий"
 
@@ -4066,7 +4058,7 @@ msgstr "Название списка выходных"
 msgid "Holidays"
 msgstr "Выходные"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:535
+#: frontend/src/components/Layouts/AppSidebar.vue:534
 #: frontend/src/components/Settings/General/GeneralSettings.vue:118
 #: frontend/src/components/Settings/HomeActions.vue:7
 #: frontend/src/components/Settings/Settings.vue:193
@@ -4083,8 +4075,8 @@ msgstr "Ежечасно"
 msgid "Hrs"
 msgstr "Часы"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:197
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:278
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:191
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:266
 #: frontend/src/components/Settings/Sla/SlaPolicyView.vue:151
 msgid "I understand, add conditions"
 msgstr "Я понимаю, добавить условия"
@@ -4198,7 +4190,7 @@ msgstr "Входящий"
 msgid "Incoming call..."
 msgstr "Входящий звонок..."
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Industries"
 msgstr "Отрасли"
@@ -4238,7 +4230,7 @@ msgstr "Вставить шаблон письма"
 msgid "Insert emoji"
 msgstr "Вставить эмодзи"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:591
+#: frontend/src/components/Layouts/AppSidebar.vue:590
 msgid "Integration"
 msgstr "Интеграция"
 
@@ -4251,8 +4243,8 @@ msgctxt "FCRM"
 msgid "Integrations"
 msgstr "Интеграции"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:522
-#: frontend/src/components/Layouts/AppSidebar.vue:525
+#: frontend/src/components/Layouts/AppSidebar.vue:521
+#: frontend/src/components/Layouts/AppSidebar.vue:524
 msgid "Introduction"
 msgstr "Введение"
 
@@ -4286,7 +4278,7 @@ msgstr "Недействительный ID электронной почты"
 msgid "Invalid email address"
 msgstr "Неверный адрес электронной почты"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:596
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:584
 #: frontend/src/components/Settings/Sla/SlaPolicyView.vue:391
 msgid "Invalid fields, check if all are filled in and values are correct."
 msgstr "Неверные поля, проверьте, заполнены ли все они и правильны ли значения."
@@ -4320,7 +4312,7 @@ msgstr "Пригласить нового пользователя"
 msgid "Invite user"
 msgstr "Пригласить пользователя"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:536
+#: frontend/src/components/Layouts/AppSidebar.vue:535
 msgid "Invite users"
 msgstr "Пригласить пользователей"
 
@@ -4328,7 +4320,7 @@ msgstr "Пригласить пользователей"
 msgid "Invite users to access CRM. Specify their roles to control access and permissions"
 msgstr "Пригласите пользователей получить доступ к CRM. Укажите их роли для контроля доступа и разрешений"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:352
+#: frontend/src/components/Layouts/AppSidebar.vue:351
 msgid "Invite your team"
 msgstr "Пригласите свою команду"
 
@@ -4619,7 +4611,7 @@ msgstr "Раскладка"
 #: crm/fcrm/doctype/sales_funnel_report_document/sales_funnel_report_document.js:18
 #: crm/fcrm/doctype/sales_funnel_report_document/sales_funnel_report_document_list.js:81
 #: frontend/src/components/Calendar/CalendarEventPanel.vue:401
-#: frontend/src/components/Layouts/AppSidebar.vue:543
+#: frontend/src/components/Layouts/AppSidebar.vue:542
 #: frontend/src/components/Modals/CallLogDetailModal.vue:253
 #: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:19
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:129
@@ -4647,12 +4639,12 @@ msgstr "Владелец лида"
 msgid "Lead Owner cannot be same as the Lead Email Address"
 msgstr "Владелец лида не может совпадать с адресом электронной почты лида"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Lead Sources"
 msgstr "Источники лидов"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Lead Statuses"
 msgstr "Статусы лидов"
@@ -4711,7 +4703,7 @@ msgstr "Синхронизация лидов"
 msgid "Lead to deal conversion pipeline"
 msgstr "Воронки конверсии лидов в сделки"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/api/dashboard.py:614 crm/api/dashboard.py:784
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/components/Mobile/MobileSidebar.vue:117
@@ -4720,7 +4712,7 @@ msgstr "Воронки конверсии лидов в сделки"
 msgid "Leads"
 msgstr "Лиды"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:201
+#: frontend/src/components/Layouts/AppSidebar.vue:200
 msgctxt "menu item"
 msgid "Leads"
 msgstr "Лиды"
@@ -4729,11 +4721,6 @@ msgstr "Лиды"
 #: frontend/src/components/Dashboard/AddChartModal.vue:106
 msgid "Leads by source"
 msgstr "Лиды по источникам"
-
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:156
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:233
-msgid "Learn about conditions"
-msgstr "Узнайте больше о условиях"
 
 #. Label of the lft (Int) field in DocType 'CRM Territory'
 #: crm/fcrm/doctype/crm_territory/crm_territory.json
@@ -4917,7 +4904,7 @@ msgstr "Требуется причина потери"
 #. Option for the 'Priority' (Select) field in DocType 'CRM Task'
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:89
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:673
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:661
 msgid "Low"
 msgstr "Низкий"
 
@@ -4927,7 +4914,7 @@ msgid "Low"
 msgstr "Низкий"
 
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:90
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:674
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:662
 msgid "Low-Medium"
 msgstr "Низко-средний"
 
@@ -5033,7 +5020,7 @@ msgstr "Отметить все как прочитанное"
 msgid "Master"
 msgstr "Мастер"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:540
+#: frontend/src/components/Layouts/AppSidebar.vue:539
 msgid "Masters"
 msgstr "Макеты"
 
@@ -5046,7 +5033,7 @@ msgstr "Возможно"
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_task/crm_task.json
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:91
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:675
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:663
 msgid "Medium"
 msgstr "Средний"
 
@@ -5056,7 +5043,7 @@ msgid "Medium"
 msgstr "Средний"
 
 #: frontend/src/components/Settings/AssignmentRules/AssignmentRuleListItem.vue:92
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:676
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:664
 msgid "Medium-High"
 msgstr "Средне-высокий"
 
@@ -5099,7 +5086,7 @@ msgstr "Пропущенный"
 msgid "Mobile Number Missing"
 msgstr "Номер мобильного телефона отсутствует"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:604
+#: frontend/src/components/Layouts/AppSidebar.vue:603
 msgid "Mobile app installation"
 msgstr "Установка мобильного приложения"
 
@@ -5209,7 +5196,7 @@ msgstr "Н/Д"
 msgid "Name"
 msgstr "Название"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:412
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:400
 #: frontend/src/components/Settings/EmailTemplate/EditEmailTemplate.vue:151
 #: frontend/src/components/Settings/EmailTemplate/NewEmailTemplate.vue:154
 msgid "Name is required"
@@ -5731,7 +5718,7 @@ msgstr "Не синхронизировано"
 
 #. Label of the note (Link) field in DocType 'CRM Call Log'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
-#: frontend/src/components/Layouts/AppSidebar.vue:547
+#: frontend/src/components/Layouts/AppSidebar.vue:546
 msgid "Note"
 msgstr "Заметка"
 
@@ -5742,7 +5729,7 @@ msgstr "Заметка"
 msgid "Notes"
 msgstr "Заметки"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:221
+#: frontend/src/components/Layouts/AppSidebar.vue:220
 msgctxt "menu item"
 msgid "Notes"
 msgstr "Заметки"
@@ -5762,7 +5749,7 @@ msgstr "На данный момент нет действий. Начните �
 #: frontend/src/components/Activities/EmailArea.vue:15
 #: frontend/src/components/Calendar/EventNotifications.vue:21
 #: frontend/src/components/Calendar/EventNotifications.vue:90
-#: frontend/src/components/Layouts/AppSidebar.vue:576
+#: frontend/src/components/Layouts/AppSidebar.vue:575
 #: frontend/src/components/Settings/CalendarSettings.vue:83
 #: frontend/src/components/Settings/CalendarSettings.vue:92
 #: frontend/src/components/Settings/CalendarSettings.vue:164
@@ -5825,8 +5812,8 @@ msgstr "Взращивание"
 msgid "Old Conditions"
 msgstr "Старые условия"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:165
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:246
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:159
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:234
 msgid "Old condition"
 msgstr "Старое условие"
 
@@ -5930,7 +5917,7 @@ msgstr "Сортировка по"
 #. Label of the organization (Data) field in DocType 'CRM Lead'
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
-#: frontend/src/components/Layouts/AppSidebar.vue:546
+#: frontend/src/components/Layouts/AppSidebar.vue:545
 #: frontend/src/components/Modals/ConvertToDealModal.vue:25
 #: frontend/src/pages/Contact.vue:519 frontend/src/pages/MobileContact.vue:511
 #: frontend/src/pages/MobileLead.vue:122
@@ -5961,7 +5948,7 @@ msgstr "Логотип организации"
 msgid "Organization name"
 msgstr "Название"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 #: frontend/src/components/Mobile/MobileSidebar.vue:142
 #: frontend/src/pages/MobileOrganization.vue:225
@@ -5969,7 +5956,7 @@ msgstr "Название"
 msgid "Organizations"
 msgstr "Организации"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:216
+#: frontend/src/components/Layouts/AppSidebar.vue:215
 msgctxt "menu item"
 msgid "Organizations"
 msgstr "Организации"
@@ -5982,7 +5969,7 @@ msgstr "Организатор"
 msgid "Original Doc Missing"
 msgstr "Оригинальный док отсутствует"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:568
+#: frontend/src/components/Layouts/AppSidebar.vue:567
 msgid "Other features"
 msgstr "Другие возможности"
 
@@ -6135,7 +6122,7 @@ msgstr "Закрепить представление"
 msgid "Pinned"
 msgstr "Закреплено"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:564
+#: frontend/src/components/Layouts/AppSidebar.vue:563
 msgid "Pinned view"
 msgstr "Личные закрепы"
 
@@ -6327,7 +6314,7 @@ msgstr "Наименование продукта"
 msgid "Products"
 msgstr "Продукты"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:533
+#: frontend/src/components/Layouts/AppSidebar.vue:532
 #: frontend/src/components/Settings/Settings.vue:103
 msgid "Profile"
 msgstr "Профиль"
@@ -6351,7 +6338,7 @@ msgstr "КП/Заявка"
 msgid "Public"
 msgstr "Публичное"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:563
+#: frontend/src/components/Layouts/AppSidebar.vue:562
 msgid "Public view"
 msgstr "Общие закрепы"
 
@@ -6394,7 +6381,7 @@ msgstr "Быстрый ввод"
 msgid "Quick Filters"
 msgstr "Быстрые фильтры"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:587
+#: frontend/src/components/Layouts/AppSidebar.vue:586
 msgid "Quick entry layout"
 msgstr "Схема быстрого ввода"
 
@@ -6572,10 +6559,6 @@ msgstr "Ответить всем"
 #: crm/fcrm/doctype/sales_funnel_report_document/sales_funnel_report_document.json
 msgid "Report Context"
 msgstr "Контекст отчета"
-
-#: frontend/src/components/Modals/AboutModal.vue:94
-msgid "Report an issue"
-msgstr "Сообщить об ошибке"
 
 #: frontend/src/components/common/LoadingView.vue:61
 msgid "Required Data"
@@ -6775,7 +6758,7 @@ msgstr "Строки"
 #. Label of the sla (Link) field in DocType 'CRM Deal'
 #. Label of the sla_tab (Tab Break) field in DocType 'CRM Lead'
 #. Label of the sla (Link) field in DocType 'CRM Lead'
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
@@ -6850,7 +6833,7 @@ msgid "Sales Funnel"
 msgstr "Воронка продаж"
 
 #. Name of a report
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/report/sales_funnel_conversion/sales_funnel_conversion.json
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Sales Funnel Conversion"
@@ -6861,7 +6844,7 @@ msgstr "Конверсия воронки продаж"
 msgid "Sales Funnel Report Document"
 msgstr "Документы отчета о воронке продаж"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Sales Funnels"
 msgstr "Воронки продаж"
@@ -6988,7 +6971,7 @@ msgstr "Сохранить"
 msgid "Save changes"
 msgstr "Сохранить изменения"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:562
+#: frontend/src/components/Layouts/AppSidebar.vue:561
 msgid "Saved view"
 msgstr "Сохраненный вид"
 
@@ -7136,7 +7119,7 @@ msgstr "Шаблон для отправки WhatsApp"
 msgid "Send an email"
 msgstr "Отправить письмо"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:453
+#: frontend/src/components/Layouts/AppSidebar.vue:452
 msgid "Send email"
 msgstr "Отправить письмо"
 
@@ -7162,7 +7145,7 @@ msgstr "Разделитель"
 msgid "Series"
 msgstr "Серии"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:574
+#: frontend/src/components/Layouts/AppSidebar.vue:573
 msgid "Service level agreement"
 msgstr "Соглашение об уровне обслуживания"
 
@@ -7215,7 +7198,7 @@ msgstr "Установите имя"
 msgid "Set working days, hours, and holidays by selecting a predefined schedule or creating a new one"
 msgstr "Установите рабочие дни, часы и праздничные дни, выбрав предустановленный график или создав новый."
 
-#: frontend/src/components/Layouts/AppSidebar.vue:526
+#: frontend/src/components/Layouts/AppSidebar.vue:525
 msgid "Setting up"
 msgstr "Настройка"
 
@@ -7249,7 +7232,7 @@ msgstr "Для настройки Yandex необходимо включить �
 
 #. Label of the defaults_tab (Tab Break) field in DocType 'FCRM Settings'
 #: crm/fcrm/doctype/fcrm_settings/fcrm_settings.json
-#: frontend/src/components/Layouts/AppSidebar.vue:530
+#: frontend/src/components/Layouts/AppSidebar.vue:529
 msgid "Settings"
 msgstr "Настройки"
 
@@ -7261,7 +7244,7 @@ msgstr "Настройка почты"
 msgid "Setup the Exchange Rate Provider as 'Exchangerate Host' in settings, as default provider does not support currency conversion for {0} to {1}."
 msgstr "Установите в настройках поставщика обменных курсов как 'Exchangerate Host', поскольку поставщик по умолчанию не поддерживает конвертацию валюты из {0} в {1}."
 
-#: frontend/src/components/Layouts/AppSidebar.vue:332
+#: frontend/src/components/Layouts/AppSidebar.vue:331
 msgid "Setup your password"
 msgstr "Установите свой пароль"
 
@@ -7348,7 +7331,7 @@ msgstr "Произошла ошибка при создании политики
 msgid "Some error occurred while renaming SLA policy"
 msgstr "Произошла ошибка при переименовании политики SLA"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:730
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:718
 msgid "Some error occurred while renaming assignment rule"
 msgstr "Произошла ошибка при переименовании правила назначения"
 
@@ -7356,7 +7339,7 @@ msgstr "Произошла ошибка при переименовании пр
 msgid "Some error occurred while updating SLA policy"
 msgstr "Произошла ошибка при обновлении политики SLA"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:715
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:703
 msgid "Some error occurred while updating assignment rule"
 msgstr "Произошла ошибка при обновлении правила назначения"
 
@@ -7663,7 +7646,7 @@ msgstr "Сделайте заметку..."
 
 #. Option for the 'Type' (Select) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
-#: frontend/src/components/Layouts/AppSidebar.vue:548
+#: frontend/src/components/Layouts/AppSidebar.vue:547
 msgid "Task"
 msgstr "Задача"
 
@@ -7674,14 +7657,10 @@ msgstr "Задача"
 msgid "Tasks"
 msgstr "Задачи"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:226
+#: frontend/src/components/Layouts/AppSidebar.vue:225
 msgctxt "menu item"
 msgid "Tasks"
 msgstr "Задачи"
-
-#: frontend/src/components/Modals/AboutModal.vue:89
-msgid "Telegram channel"
-msgstr "Телеграм канал"
 
 #: frontend/src/components/Settings/Settings.vue:214
 msgid "Telephony"
@@ -7724,7 +7703,7 @@ msgstr "Шаблон успешно переименован"
 msgid "Template updated successfully"
 msgstr "Шаблон успешно обновлен"
 
-#. Label of a shortcut in the Frappe CRM Workspace
+#. Label of a shortcut in the EXP CRM Workspace
 #: crm/fcrm/workspace/frappe_crm/frappe_crm.json
 msgid "Territories"
 msgstr "Территории"
@@ -8057,7 +8036,7 @@ msgstr "TwiML SID"
 #. Agent'
 #: crm/fcrm/doctype/crm_call_log/crm_call_log.json
 #: crm/fcrm/doctype/crm_telephony_agent/crm_telephony_agent.json
-#: frontend/src/components/Layouts/AppSidebar.vue:594
+#: frontend/src/components/Layouts/AppSidebar.vue:593
 #: frontend/src/components/Settings/Telephony/TelephonySettings.vue:49
 #: frontend/src/components/Settings/Telephony/TelephonySettings.vue:76
 msgid "Twilio"
@@ -8145,11 +8124,11 @@ msgstr "Введите адрес электронной почты для пр�
 msgid "Type your message here..."
 msgstr "Напишите ваше сообщение здесь..."
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:449
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:437
 msgid "Unassign conditions are invalid"
 msgstr "Условия отвода недействительны"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:222
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:216
 msgid "Unassignment condition"
 msgstr "Критерии отмены назначения"
 
@@ -8217,7 +8196,7 @@ msgstr "Не сохранено"
 msgid "Unsaved Changes"
 msgstr "Несохраненные изменения"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:570
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:558
 #: frontend/src/components/Settings/Sla/SlaPolicyView.vue:346
 msgid "Unsaved changes"
 msgstr "Несохраненные изменения"
@@ -8365,7 +8344,7 @@ msgstr "Пользователи"
 msgid "Users added successfully"
 msgstr "Пользователи успешно добавлены"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:460
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:448
 msgid "Users are required"
 msgstr "Пользователи обязательны"
 
@@ -8420,7 +8399,7 @@ msgstr "Просмотр на портале"
 msgid "View {0} on Portal"
 msgstr "Просмотр {0} на портале"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:559
+#: frontend/src/components/Layouts/AppSidebar.vue:558
 msgid "Views"
 msgstr "Закрепы"
 
@@ -8428,7 +8407,7 @@ msgstr "Закрепы"
 msgid "Visibility"
 msgstr "Видимость"
 
-#: frontend/src/components/Layouts/AppSidebar.vue:556
+#: frontend/src/components/Layouts/AppSidebar.vue:555
 msgid "Web form"
 msgstr "Веб-форма"
 
@@ -8444,7 +8423,6 @@ msgstr "Токен верификации вебхука"
 #: crm/fcrm/doctype/crm_deal/crm_deal.json
 #: crm/fcrm/doctype/crm_lead/crm_lead.json
 #: crm/fcrm/doctype/crm_organization/crm_organization.json
-#: frontend/src/components/Modals/AboutModal.vue:74
 msgid "Website"
 msgstr "Сайт"
 
@@ -8498,7 +8476,7 @@ msgstr "Добро пожаловать {0}, давайте добавим ва�
 
 #. Option for the 'Type' (Select) field in DocType 'CRM Notification'
 #: crm/fcrm/doctype/crm_notification/crm_notification.json
-#: frontend/src/components/Layouts/AppSidebar.vue:596
+#: frontend/src/components/Layouts/AppSidebar.vue:595
 #: frontend/src/components/Settings/Settings.vue:220
 #: frontend/src/pages/Deal.vue:648 frontend/src/pages/Lead.vue:476
 #: frontend/src/pages/MobileDeal.vue:572 frontend/src/pages/MobileLead.vue:381
@@ -8624,8 +8602,8 @@ msgid "You do not have Exotel Number set in your Telephony Agent"
 msgstr "У Вас не установлен номер Exotel в Агенте телефонии"
 
 #: frontend/src/pages/NotPermitted.vue:12
-msgid "You do not have enough permissions to access Frappe CRM. Please contact your administrator if you believe this is an error."
-msgstr "У вас недостаточно прав для доступа к CRM. Пожалуйста, обратитесь к администратору, если вы считаете, что это ошибка."
+msgid "You do not have enough permissions to access EXP CRM. Please contact your administrator if you believe this is an error."
+msgstr "У вас недостаточно прав для доступа к CRM EXP. Пожалуйста, свяжитесь с администратором, если вы считаете, что это ошибка."
 
 #: crm/integrations/exotel/handler.py:93
 msgid "You do not have mobile number set in your Telephony Agent"
@@ -8699,7 +8677,7 @@ msgstr "Ваше назначение на {0} {1} было удалено {2}"
 msgid "Your login id is"
 msgstr "Ваш логин"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:605
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:593
 msgid "Your old condition will be overwritten. Are you sure you want to save?"
 msgstr "Ваше старое условие будет перезаписано. Вы уверены, что хотите сохранить?"
 
@@ -8827,12 +8805,12 @@ msgid "days before"
 msgstr "дней до"
 
 #: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:131
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:375
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:363
 msgid "deals"
 msgstr "сделки"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:188
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:269
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:182
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:257
 msgid "desk"
 msgstr "стол"
 
@@ -9006,7 +8984,7 @@ msgid "label"
 msgstr "название"
 
 #: frontend/src/components/Settings/AssignmentRules/AssigneeRules.vue:130
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:374
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:362
 msgid "leads"
 msgstr "лиды"
 
@@ -9207,8 +9185,8 @@ msgctxt "plural many: 5-20, 25-30..."
 msgid "weeks before"
 msgstr "недель до"
 
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:191
-#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:272
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:185
+#: frontend/src/components/Settings/AssignmentRules/AssignmentRuleView.vue:260
 msgid "which are not compatible with this UI, you will need to recreate the conditions here if you want to manage and add new conditions from this UI."
 msgstr "которые не совместимы с этим интерфейсом, вам потребуется воссоздать условия здесь, если вы хотите управлять и добавлять новые условия из этого интерфейса."
 

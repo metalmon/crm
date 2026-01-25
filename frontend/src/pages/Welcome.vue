@@ -6,7 +6,7 @@
         {{ __('Welcome {0}, lets add your first lead', [name]) }}
       </div>
       <div class="text-ink-gray-6 text-lg">
-        {{ __('Choose how you want to start with Frappe CRM') }}
+        {{ __('Choose how you want to start with EXP CRM') }}
       </div>
     </div>
 

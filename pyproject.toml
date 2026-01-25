@@ -1,7 +1,7 @@
 [project]
 name = "crm"
 authors = [
-    { name = "Frappe Technologies Pvt. Ltd.", email = "shariq@frappe.io"}
+    { name = "EXP Omniverse", email = ""}
 ]
 description = "Kick-ass Open Source CRM"
 requires-python = ">=3.10"

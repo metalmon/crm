@@ -149,12 +149,6 @@
               {{
                 __('Choose which {0} are affected by this assignment rule.', [documentType])
               }}
-              <a
-                class="font-medium underline"
-                href="https://docs.frappe.io/crm/assignment-rule"
-                target="_blank"
-                >{{ __('Learn about conditions') }}</a
-              >
             </span>
             <div v-if="isOldSla && step.data">
               <Popover trigger="hover" :hoverDelay="0.25" placement="top-end">
@@ -226,12 +220,6 @@
               {{
                 __('Choose which {0} are affected by this un-assignment rule.', [documentType])
               }}
-              <a
-                class="font-medium underline"
-                href="https://docs.frappe.io/crm/assignment-rule"
-                target="_blank"
-                >{{ __('Learn about conditions') }}</a
-              >
             </span>
             <div
               v-if="

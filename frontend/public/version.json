@@ -1,7 +1,7 @@
 {
-  "commit": "44bc886a",
-  "branch": "develop",
-  "commit_message": "chore: update translation files",
-  "commit_date": "2026-01-23",
+  "commit": "b35dcd54",
+  "branch": "exp",
+  "commit_message": "feat: restore realtime updates, add settings pages, fix UI issues\n\n- Restore on_doc_update function for realtime Kanban updates\n- Add clear_quick_filters_cache function from upstream\n- Add RealtimeSettings and ConversionSettings pages in Customization section\n- Fix Kanban card click propagation issue\n- Add translation context for Dashboard menu items and calendar view periods\n- Unify empty state styles in notifications tabs\n- Add clear button for conversion settings select field",
+  "commit_date": "2026-01-25",
   "tag": "v1.57.11"
 }

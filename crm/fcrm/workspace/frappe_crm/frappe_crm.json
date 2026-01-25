@@ -12,12 +12,12 @@
  "idx": 0,
  "indicator_color": "",
  "is_hidden": 0,
- "label": "Frappe CRM",
+ "label": "EXP CRM",
  "links": [],
  "modified": "2025-04-08 23:22:06.594915",
  "modified_by": "Administrator",
  "module": "FCRM",
- "name": "Frappe CRM",
+ "name": "EXP CRM",
  "number_cards": [],
  "owner": "shariq@frappe.io",
  "parent_page": "",
@@ -146,6 +146,6 @@
    "type": "DocType"
   }
  ],
- "title": "Frappe CRM",
+ "title": "EXP CRM",
  "type": "Workspace"
 }

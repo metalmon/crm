@@ -5,7 +5,7 @@
         <div class="flex justify-center">
           <div class="flex flex-col items-center">
             <CRMLogo class="mb-3 size-12" />
-            <h3 class="font-semibold text-xl text-ink-gray-9">Frappe CRM</h3>
+            <h3 class="font-semibold text-xl text-ink-gray-9">EXP CRM</h3>
             <div class="flex items-center mt-1">
               <div class="text-base text-ink-gray-6">
                 <template v-if="appVersion && typeof appVersion === 'object'">
@@ -51,7 +51,7 @@
         </div>
         <hr class="border-t my-3 mx-2" />
         <p class="text-sm text-ink-gray-6 px-2 mt-2">
-          © Frappe Technologies Pvt. Ltd. and contributors
+          © EXP Omniverse
         </p>
       </div>
     </template>
@@ -71,35 +71,10 @@ let show = defineModel()
 
 let links = [
   {
-    label: __('Website'),
-    url: 'https://frappe.io/crm',
-    icon: LucideGlobe,
-  },
-  {
-    label: __('GitHub repository'),
-    url: 'https://github.com/metalmon/crm',
-    icon: LucideGitHub,
-  },
-  {
-    label: __('Documentation'),
-    url: 'https://docs.frappe.io/crm',
-    icon: LucideBookOpen,
-  },
-  {
-    label: __('Telegram channel'),
-    url: 'https://t.me/frappecrm',
-    icon: TelegramIcon,
-  },
-  {
-    label: __('Report an issue'),
-    url: 'https://github.com/metalmon/crm/issues',
-    icon: LucideBug,
-  },
-  {
     label: __('Contact support'),
     url: 'https://t.me/metalmonkey',
     icon: LucideHeadset,
-  },
+  }
 ]
 
 let appVersion = window.app_version

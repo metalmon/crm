@@ -1,9 +1,9 @@
 from frappe import _
 app_name = "crm"
-app_title = _("Frappe CRM")
-app_publisher = _("Frappe Technologies Pvt. Ltd.")
+app_title = _("EXP CRM")
+app_publisher = _("EXP Omniverse")
 app_description = _("Kick-ass Open Source CRM")
-app_email = "shariq@frappe.io"
+app_email = ""
 app_license = "AGPLv3"
 app_icon_url = "/assets/crm/images/logo.svg"
 app_icon_title = _("CRM")
@@ -295,13 +295,6 @@ standard_dropdown_items = [
 		"label": "Settings",
 		"type": "Route",
 		"icon": "settings",
-		"route": "#",
-		"is_standard": 1,
-	},
-	{
-		"name1": "login_to_fc",
-		"label": "Login to Frappe Cloud",
-		"type": "Route",
 		"route": "#",
 		"is_standard": 1,
 	},

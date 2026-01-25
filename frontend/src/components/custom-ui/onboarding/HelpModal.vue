@@ -77,7 +77,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Frappe CRM',
+    default: 'EXP CRM',
   },
   logo: {
     type: Object,
@@ -101,7 +101,7 @@ const props = defineProps({
   },
   docsLink: {
     type: String,
-    default: 'https://docs.frappe.io/crm',
+    default: '',
   },
 })
 
