@@ -4,35 +4,18 @@
       <ViewBreadcrumbs v-model="viewControls" routeName="Leads" />
     </template>
     <template #right-header>
-      <div class="flex items-center gap-4">
-        <SmartFilterField
-          v-if="!isMobileView"
-          ref="desktopSmartFilter"
-          doctype="CRM Lead"
-          @update:filters="handleSmartFilter"
-          class="w-80"
-        />
-        <CustomActions
-          v-if="leadsListView?.customListActions"
-          :actions="leadsListView.customListActions"
-        />
-        <Button
-          variant="solid"
-          :label="__('Create')"
-          iconLeft="plus"
-          @click="showLeadModal = true"
-        />
-      </div>
+      <CustomActions
+        v-if="leadsListView?.customListActions"
+        :actions="leadsListView.customListActions"
+      />
+      <Button
+        variant="solid"
+        :label="__('Create')"
+        iconLeft="plus"
+        @click="showLeadModal = true"
+      />
     </template>
   </LayoutHeader>
-  <div v-if="isMobileView" class="px-3 py-2 border-b">
-    <SmartFilterField
-      ref="mobileSmartFilter"
-      doctype="CRM Lead"
-      @update:filters="handleSmartFilter"
-      class="w-full"
-    />
-  </div>
   <ViewControls
     ref="viewControls"
     v-model="leads"
@@ -44,18 +27,7 @@
     :options="{
       allowedViews: ['list', 'group_by', 'kanban'],
     }"
-  >
-    <template #filter-section>
-      <div v-if="isMobileView" class="w-full px-3 py-2 border-b">
-        <SmartFilterField
-          ref="mobileSmartFilter"
-          doctype="CRM Lead"
-          @update:filters="handleSmartFilter"
-          class="w-full"
-        />
-      </div>
-    </template>
-  </ViewControls>
+  />
   <KanbanView
     v-if="route.params.viewType == 'kanban'"
     v-model="leads"
@@ -146,7 +118,7 @@
         >
           {{ getRow(itemName, titleField).label }}
         </div>
-        <div class="text-ink-gray-4" v-else>{{ __('No Title') }}</div>
+        <div class="text-ink-gray-4" v-else>{{ __('No title') }}</div>
       </div>
     </template>
     <template #fields="{ fieldName, itemName }">
@@ -263,7 +235,7 @@
     v-model="leads.data.page_length_count"
     v-model:list="leads"
     :rows="rows"
-    :columns="leads.data.columns"
+    :columns="columns"
     :options="{
       showTooltip: false,
       resizeColumn: true,
@@ -280,19 +252,11 @@
       (selections) => viewControls.updateSelections(selections)
     "
   />
-  <div v-else-if="leads.data" class="flex h-full items-center justify-center">
-    <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <LeadsIcon class="h-10 w-10" />
-      <span>{{ __('No Leads Found') }}</span>
-      <Button
-        :label="__('Create')"
-        iconLeft="plus"
-        @click="showLeadModal = true"
-      />
-    </div>
-  </div>
+  <EmptyState
+    v-else-if="leads.data && !rows.length"
+    name="leads"
+    :icon="LeadsIcon"
+  />
   <LeadModal
     v-if="showLeadModal"
     v-model="showLeadModal"
@@ -318,7 +282,6 @@
 import ViewBreadcrumbs from '@/components/ViewBreadcrumbs.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import CustomActions from '@/components/CustomActions.vue'
-import SmartFilterField from '@/components/SmartFilterField.vue'
 import EmailAtIcon from '@/components/Icons/EmailAtIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
@@ -328,6 +291,7 @@ import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import LeadsListView from '@/components/ListViews/LeadsListView.vue'
+import EmptyState from '@/components/ListViews/EmptyState.vue'
 import KanbanView from '@/components/Kanban/KanbanView.vue'
 import LeadModal from '@/components/Modals/LeadModal.vue'
 import NoteModal from '@/components/Modals/NoteModal.vue'
@@ -337,11 +301,11 @@ import { getMeta } from '@/stores/meta'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
-import { callEnabled, isMobileView } from '@/composables/settings'
+import { callEnabled } from '@/composables/settings'
 import { formatDate, timeAgo, website, formatTime } from '@/utils'
 import { Avatar, Tooltip, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
-import { ref, computed, reactive, h, watch } from 'vue'
+import { ref, computed, reactive, h } from 'vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Lead')
@@ -362,24 +326,6 @@ const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
 const viewControls = ref(null)
-
-const desktopSmartFilter = ref(null)
-const mobileSmartFilter = ref(null)
-const isResettingFilters = ref(false)
-
-// Watch for filter changes in the list
-watch(() => leads.value?.params?.filters, (newFilters) => {
-  // Skip if we're already resetting filters
-  if (isResettingFilters.value) return;
-  
-  // If filters are empty, clear the smart filter fields
-  if (!newFilters || Object.keys(newFilters).length === 0) {
-    isResettingFilters.value = true;
-    desktopSmartFilter.value?.clearSearch();
-    mobileSmartFilter.value?.clearSearch();
-    isResettingFilters.value = false;
-  }
-}, { deep: true })
 
 function getRow(name, field) {
   function getValue(value) {
@@ -406,6 +352,22 @@ const rows = computed(() => {
   } else {
     return parseRows(leads.value?.data.data, leads.value.data.columns)
   }
+})
+
+const columns = computed(() => {
+  let _columns = leads.value?.data?.columns || []
+
+  // Set align right for last column
+  if (_columns.length) {
+    _columns = _columns.map((col, index) => {
+      if (index === _columns.length - 1) {
+        return { ...col, align: 'right' }
+      }
+      return col
+    })
+  }
+
+  return _columns
 })
 
 function getGroupedByRows(listRows, groupByField, columns) {
@@ -496,8 +458,7 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(lead.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: getLeadStatus(lead.status).label,
-          value: lead.status,
+          label: lead.status,
           color: getLeadStatus(lead.status)?.color,
         }
       } else if (row == 'sla_status') {
@@ -510,7 +471,7 @@ function parseRows(rows, columns = []) {
               ? 'green'
               : 'orange'
         if (value == 'First Response Due' || value == 'Rolling Response Due') {
-          value = timeAgo(lead.response_by)
+          value = __(timeAgo(lead.response_by))
           tooltipText = formatDate(lead.response_by)
           if (new Date(lead.response_by) < new Date()) {
             color = 'red'
@@ -536,7 +497,7 @@ function parseRows(rows, columns = []) {
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(lead[row]),
-          timeAgo: timeAgo(lead[row]),
+          timeAgo: __(timeAgo(lead[row])),
         }
       } else if (
         ['first_response_time', 'first_responded_on', 'response_by'].includes(
@@ -549,7 +510,7 @@ function parseRows(rows, columns = []) {
           timeAgo: lead[row]
             ? row == 'first_response_time'
               ? formatTime(lead[row])
-              : timeAgo(lead[row])
+              : __(timeAgo(lead[row]))
             : '',
         }
       }
@@ -577,18 +538,18 @@ function actions(itemName) {
   let actions = [
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
-      label: __('Make a Call'),
+      label: __('Make a call'),
       onClick: () => makeCall(mobile_no),
       condition: () => mobile_no && callEnabled.value,
     },
     {
       icon: h(NoteIcon, { class: 'h-4 w-4' }),
-      label: __('New Note'),
+      label: __('New note'),
       onClick: () => showNote(itemName),
     },
     {
       icon: h(TaskIcon, { class: 'h-4 w-4' }),
-      label: __('New Task'),
+      label: __('New task'),
       onClick: () => showTask(itemName),
     },
   ]
@@ -622,26 +583,5 @@ const task = ref({
 function showTask(name) {
   docname.value = name
   showTaskModal.value = true
-}
-
-function handleSmartFilter(filters) {
-  if (!viewControls.value || !filters) return;
-  if (isResettingFilters.value) return;
-  if (!leads.value || !leads.value.params) return;
-
-  const currentFilters = leads.value.params.filters || {};
-  const standardFilters = {};
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    if (!['mobile_no', 'email', 'lead_name'].includes(key)) {
-      standardFilters[key] = value;
-    }
-  });
-
-  leads.value.params.filters = {
-    ...standardFilters,
-    ...filters
-  };
-  
-  leads.value.reload();
 }
 </script>

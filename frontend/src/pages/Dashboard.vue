@@ -47,7 +47,7 @@
         :options="options"
         class="form-control"
         v-model="preset"
-        :placeholder="__('Select Range')"
+        :placeholder="__('Select range')"
         :button="{
           label: __(preset),
           class:

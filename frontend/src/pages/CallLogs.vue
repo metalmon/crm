@@ -30,7 +30,7 @@
     v-model="callLogs.data.page_length_count"
     v-model:list="callLogs"
     :rows="rows"
-    :columns="callLogs.data.columns"
+    :columns="columns"
     :options="{
       showTooltip: false,
       resizeColumn: true,
@@ -48,32 +48,21 @@
       (selections) => viewControls.updateSelections(selections)
     "
   />
-  <div
-    v-else-if="callLogs.data"
-    class="flex h-full items-center justify-center"
-  >
-    <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <PhoneIcon class="h-10 w-10" />
-      <span>{{ __('No Logs Found') }}</span>
-    </div>
-  </div>
+  <EmptyState
+    v-else-if="callLogs.data && !rows.length"
+    name="call logs"
+    :icon="PhoneIcon"
+  />
   <CallLogDetailModal
     v-model="showCallLogDetailModal"
     v-model:callLogModal="showCallLogModal"
     v-model:callLog="callLog"
-    v-model:showTaskModal="showTaskModal"
-    v-model:showNoteModal="showNoteModal"
-    :reload="() => callLogs.reload()"
   />
   <CallLogModal
     v-if="showCallLogModal"
     v-model="showCallLogModal"
     :data="callLog.data"
     :options="{ afterInsert: () => callLogs.reload() }"
-    :showTaskModal="showTaskModal"
-    :showNoteModal="showNoteModal"
   />
 </template>
 
@@ -84,6 +73,7 @@ import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import CallLogsListView from '@/components/ListViews/CallLogsListView.vue'
+import EmptyState from '@/components/ListViews/EmptyState.vue'
 import CallLogDetailModal from '@/components/Modals/CallLogDetailModal.vue'
 import CallLogModal from '@/components/Modals/CallLogModal.vue'
 import { getCallLogDetail } from '@/utils/callLog'
@@ -115,12 +105,24 @@ const rows = computed(() => {
   })
 })
 
+const columns = computed(() => {
+  let _columns = callLogs.value?.data?.columns || []
+
+  // Set align right for last column
+  if (_columns.length) {
+    _columns = _columns.map((col, index) => {
+      if (index === _columns.length - 1) {
+        return { ...col, align: 'right' }
+      }
+      return col
+    })
+  }
+
+  return _columns
+})
+
 const showCallLogDetailModal = ref(false)
 const callLog = ref({})
-
-// Add refs for child modals
-const showTaskModal = ref(false)
-const showNoteModal = ref(false)
 
 function showCallLog(name) {
   showCallLogDetailModal.value = true

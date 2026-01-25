@@ -2,12 +2,12 @@
   <Dialog v-model="show">
     <template #body-title>
       <h3
-        class="flex items-baseline gap-2 text-2xl font-semibold leading-6 text-ink-gray-9"
+        class="flex items-center gap-2 text-2xl font-semibold leading-6 text-ink-gray-9"
       >
-        <div class="mr-2">{{ __('Edit Grid Fields Layout') }}</div>
+        <div>{{ __('Edit grid fields layout') }}</div>
         <Badge
           v-if="dirty"
-          :label="__('Not Saved')"
+          :label="__('Not saved')"
           variant="subtle"
           theme="orange"
         />
@@ -16,7 +16,7 @@
     <template #body-content>
       <div class="mt-4">
         <div class="text-base text-ink-gray-8 mb-2">
-          {{ __('Fields Order') }}
+          {{ __('Fields order') }}
         </div>
         <Draggable
           v-if="oldFields?.length"
@@ -31,7 +31,7 @@
             >
               <div class="flex items-center gap-2">
                 <DragVerticalIcon class="h-3.5 cursor-grab" />
-                <div>{{ __(field.label) }}</div>
+                <div>{{ field.label }}</div>
               </div>
               <div class="flex items-center gap-2">
                 <TextInput
@@ -54,16 +54,16 @@
           <template #target="{ togglePopover }">
             <Button
               class="w-full mt-2"
-              :label="__('Add Field')"
+              :label="__('Add field')"
               iconLeft="plus"
               @click="togglePopover()"
             />
           </template>
           <template #item-label="{ option }">
             <div class="flex flex-col gap-1 text-ink-gray-9">
-              <div>{{ __(option.label) }}</div>
+              <div>{{ option.label }}</div>
               <div class="text-ink-gray-4 text-sm">
-                {{ `${option.fieldname} - ${__(option.fieldtype)}` }}
+                {{ `${option.fieldname} - ${option.fieldtype}` }}
               </div>
             </div>
           </template>

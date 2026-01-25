@@ -2,12 +2,12 @@
   <Dialog v-model="show" :options="{ size: '3xl' }">
     <template #body-title>
       <h3
-        class="flex items-baseline gap-2 text-2xl font-semibold leading-6 text-ink-gray-9"
+        class="flex items-center gap-2 text-2xl font-semibold leading-6 text-ink-gray-9"
       >
-        <div class="mr-2">{{ __('Edit Field Layout') }}</div>
+        <div>{{ __('Edit field layout') }}</div>
         <Badge
           v-if="dirty"
-          :label="__('Not Saved')"
+          :label="__('Not saved')"
           variant="subtle"
           theme="orange"
         />

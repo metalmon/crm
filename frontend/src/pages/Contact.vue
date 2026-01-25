@@ -96,30 +96,15 @@
               </div>
               <div class="flex gap-1.5">
                 <Button
-                  v-if="contact.doc.mobile_no && ipTelephonyEnabled"
-                  :label="__('Make Call')"
+                  v-if="callEnabled && contact.doc.mobile_no"
+                  :label="__('Make call')"
                   size="sm"
                   :iconLeft="PhoneIcon"
-                  @click="makeCall(contact.doc.mobile_no)"
-                />
-                <Button
-                  v-if="contact.doc.mobile_no && !ipTelephonyEnabled"
-                  :label="__('Make Call')"
-                  size="sm"
-                  :iconLeft="PhoneIcon"
-                  @click="trackPhoneActivities('phone')"
-                />
-                <Button
-                  v-if="contact.doc.mobile_no"
-                  :label="__('Chat')"
-                  size="sm"
-                  :iconLeft="WhatsAppIcon"
-                  @click="trackPhoneActivities('whatsapp')"
+                  @click="callEnabled && makeCall(contact.doc.mobile_no)"
                 />
                 <Button
                   v-if="canDelete"
                   :label="__('Delete')"
-                  variant="ghost"
                   theme="red"
                   size="sm"
                   iconLeft="trash-2"
@@ -180,7 +165,7 @@
         >
           <div class="flex flex-col items-center justify-center space-y-3">
             <component :is="tab.icon" class="!h-10 !w-10" />
-            <div>{{ __('No Deals Found') }}</div>
+            <div>{{ __('No {0} found', [__(tab.label.toLowerCase())]) }}</div>
           </div>
         </div>
       </template>
@@ -209,7 +194,6 @@ import LayoutHeader from '@/components/LayoutHeader.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
-import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import {
@@ -226,11 +210,8 @@ import { globalStore } from '@/stores/global.js'
 import { usersStore } from '@/stores/users.js'
 import { organizationsStore } from '@/stores/organizations.js'
 import { statusesStore } from '@/stores/statuses'
-import { ipTelephonyEnabled } from '@/composables/settings'
 import { showAddressModal, addressProps } from '@/composables/modals'
 import { callEnabled } from '@/composables/settings'
-import { trackCommunication } from '@/utils/communicationUtils'
-import Activities from '@/components/Activities/Activities.vue'
 import {
   Breadcrumbs,
   Avatar,
@@ -528,7 +509,7 @@ function getDealRowObject(deal) {
     },
     modified: {
       label: formatDate(deal.modified),
-      timeAgo: timeAgo(deal.modified),
+      timeAgo: __(timeAgo(deal.modified)),
     },
   }
 }
@@ -571,21 +552,6 @@ const dealColumns = [
     width: '8rem',
   },
 ]
-
-function trackPhoneActivities(type = 'phone') {
-  if (!contact.doc || !contact.doc.mobile_no) {
-    toast.error(__('No phone number set'))
-    return
-  }
-
-  trackCommunication({
-    type,
-    doctype: 'Contact',
-    docname: contact.doc.name,
-    phoneNumber: contact.doc.mobile_no,
-    contactName: contact.doc.full_name,
-  })
-}
 
 function openAddressModal(_address) {
   showAddressModal.value = true

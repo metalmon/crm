@@ -38,12 +38,12 @@
       v-slot="{ idx, column, item }"
       doctype="CRM Task"
     >
-      <div v-if="column.key === 'due_date'">
-        <div v-if="item" class="flex items-center gap-2">
+      <div v-if="column.key === 'due_date' && item">
+        <div class="flex items-center gap-2">
           <CalendarIcon />
-          <Tooltip :text="item && formatTaskDate(item, 'ddd, MMM D, YYYY | hh:mm a')">
+          <Tooltip :text="formatTaskDate(item, 'ddd, MMM D, YYYY')">
             <div>
-              {{ formatTaskDate(item, 'D/MM, hh:mm') }}
+              {{ formatTaskDate(item, 'D/MM') }}
             </div>
           </Tooltip>
         </div>
@@ -111,7 +111,7 @@
             </Button>
           </div>
           <div
-            v-else
+            v-else-if="label"
             class="truncate text-base"
             @click="
               (event) =>

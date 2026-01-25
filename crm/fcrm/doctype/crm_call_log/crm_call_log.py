@@ -9,55 +9,92 @@ from crm.utils import seconds_to_duration
 
 
 class CRMCallLog(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.core.doctype.dynamic_link.dynamic_link import DynamicLink
+		from frappe.types import DF
+
+		caller: DF.Link | None
+		duration: DF.Duration | None
+		end_time: DF.Datetime | None
+		id: DF.Data | None
+		links: DF.Table[DynamicLink]
+		medium: DF.Data | None
+		note: DF.Link | None
+		receiver: DF.Link | None
+		recording_url: DF.Data | None
+		reference_docname: DF.DynamicLink | None
+		reference_doctype: DF.Link | None
+		start_time: DF.Datetime | None
+		status: DF.Literal[
+			"Initiated",
+			"Ringing",
+			"In Progress",
+			"Completed",
+			"Failed",
+			"Busy",
+			"No Answer",
+			"Queued",
+			"Canceled",
+		]
+		telephony_medium: DF.Literal["", "Manual", "Twilio", "Exotel"]
+		to: DF.Data
+		type: DF.Literal["Incoming", "Outgoing"]
+	# end: auto-generated types
+
 	@staticmethod
 	def default_list_data():
 		columns = [
 			{
-				"label": frappe._("Caller"),
+				"label": "Caller",
 				"type": "Link",
 				"key": "caller",
 				"options": "User",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Receiver"),
+				"label": "Receiver",
 				"type": "Link",
 				"key": "receiver",
 				"options": "User",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Type"),
+				"label": "Type",
 				"type": "Select",
 				"key": "type",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Status"),
+				"label": "Status",
 				"type": "Select",
 				"key": "status",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Duration"),
+				"label": "Duration",
 				"type": "Duration",
 				"key": "duration",
 				"width": "6rem",
 			},
 			{
-				"label": frappe._("From (number)"),
+				"label": "From (number)",
 				"type": "Data",
 				"key": "from",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("To (number)"),
+				"label": "To (number)",
 				"type": "Data",
 				"key": "to",
 				"width": "9rem",
 			},
 			{
-				"label": frappe._("Created On"),
+				"label": "Created on",
 				"type": "Datetime",
 				"key": "creation",
 				"width": "8rem",

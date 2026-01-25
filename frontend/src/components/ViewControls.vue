@@ -55,7 +55,7 @@
         class="flex flex-row-reverse items-center gap-2 border-r pr-2"
       >
         <Button :label="__('Cancel')" @click="cancelChanges" />
-        <Button :label="__('Save Changes')" @click="saveView" />
+        <Button :label="__('Save changes')" @click="saveView" />
       </div>
     </div>
   </div>
@@ -65,12 +65,8 @@
   >
     <div class="flex flex-1 items-center overflow-hidden pl-1 gap-2">
       <FadedScrollableDiv
-        class="flex items-center gap-2 overflow-x-auto -ml-1 scroll-smooth"
+        class="flex overflow-x-auto -ml-1"
         orientation="horizontal"
-        @wheel.prevent="(e) => {
-          const container = e.currentTarget
-          container.scrollLeft += e.deltaY
-        }"
       >
         <Draggable
           class="flex w-full gap-2 items-center"
@@ -133,14 +129,10 @@
       <Button icon="x" @click="customizeQuickFilter = false" />
     </div>
   </div>
-  <div v-else class="flex items-start justify-between gap-2 px-5 py-4">
+  <div v-else class="flex items-center justify-between gap-2 px-5 py-4">
     <FadedScrollableDiv
-      class="flex flex-1 items-center overflow-x-auto -ml-1 -mt-1 scroll-smooth"
+      class="flex flex-1 items-center overflow-x-auto -ml-1 h-9"
       orientation="horizontal"
-      @wheel.prevent="(e) => {
-        const container = e.currentTarget
-        container.scrollLeft += e.deltaY
-      }"
     >
       <div
         v-for="filter in quickFilterList"
@@ -154,13 +146,13 @@
       </div>
     </FadedScrollableDiv>
     <div class="-ml-2 h-[70%] border-l" />
-    <div class="flex items-start gap-2 flex-shrink-0">
+    <div class="flex items-center gap-2">
       <div
         v-if="viewUpdated && route.query.view && (!view.public || isManager())"
         class="flex items-center gap-2 border-r pr-2"
       >
         <Button :label="__('Cancel')" @click="cancelChanges" />
-        <Button :label="__('Save Changes')" @click="saveView" />
+        <Button :label="__('Save changes')" @click="saveView" />
       </div>
       <div class="flex items-center gap-2">
         <Button
@@ -223,35 +215,22 @@
                   label: __('Export'),
                   icon: () => h(ExportIcon, { class: 'h-4 w-4' }),
                   onClick: () => (showExportDialog = true),
-                },
-                {
                   condition: () =>
                     !options.hideColumnsButton &&
                     route.params.viewType !== 'kanban',
                 },
                 {
-                  label: __('Export'),
-                  icon: () => h(ExportIcon, { class: 'h-4 w-4' }),
-                  onClick: () => (showExportDialog = true),
-                  condition: () => !options.hideColumnsButton,
-                },
-                {
                   label: __('Customize quick filters'),
                   icon: () => h(QuickFilterIcon, { class: 'h-4 w-4' }),
                   onClick: () => showCustomizeQuickFilter(),
-                },
-                {
-                  label: __('Reset column settings'),
-                  icon: () => h(RefreshIcon, { class: 'h-4 w-4' }),
-                  onClick: () => resetColumnSettings(),
-                  condition: () => route.params.viewType === 'kanban',
+                  condition: () => isManager(),
                 },
               ],
             },
           ]"
         >
           <template #default>
-            <Button :tooltip="__('More Options')" icon="more-horizontal" />
+            <Button :tooltip="__('More options')" icon="more-horizontal" />
           </template>
         </Dropdown>
       </div>
@@ -294,7 +273,7 @@
     <template #body-content>
       <FormControl
         variant="outline"
-        :label="__('Export Type')"
+        :label="__('Export type')"
         type="select"
         :options="[
           {
@@ -312,9 +291,8 @@
       <div class="mt-3">
         <FormControl
           type="checkbox"
-          :label="__('Export All {0} Record(s)', [list.data.total_count])"
+          :label="__('Export all {0} record(s)', [list.data.total_count])"
           v-model="export_all"
-          :disabled="route.params.viewType === 'kanban'"
         />
       </div>
     </template>
@@ -362,8 +340,6 @@ import { useDebounceFn } from '@vueuse/core'
 import { isMobileView } from '@/composables/settings'
 import Draggable from 'vuedraggable'
 import _ from 'lodash'
-import { timespanOptions } from '@/utils/timeOptions'
-import { statusesStore } from '@/stores/statuses'
 import ImportIcon from '~icons/lucide/import'
 
 const props = defineProps({
@@ -413,7 +389,7 @@ function getViewType() {
     },
     group_by: {
       name: 'group_by',
-      label: __('Group By'),
+      label: __('Group by'),
       icon: markRaw(GroupByIcon),
     },
     kanban: {
@@ -441,8 +417,7 @@ usePageMeta(() => {
   let label = currentView.value.label
   if (currentView.value.is_standard) {
     let routeName = route.name
-    let translatedRouteName = __(routeName)
-    label = `${translatedRouteName} - ${label}`
+    label = `${routeName} - ${label}`
   }
   return {
     title: label,
@@ -469,25 +444,8 @@ const view = ref({
   public: false,
 })
 
-const pageLength = computed(() => {
-  if (list.value?.params?.page_length) {
-    return list.value.params.page_length
-  }
-  if (route.query.page_length) {
-    return parseInt(route.query.page_length)
-  }
-  return 20
-})
-
-const pageLengthCount = computed(() => {
-  if (list.value?.params?.page_length_count) {
-    return list.value.params.page_length_count
-  }
-  if (route.query.page_length) {
-    return parseInt(route.query.page_length)
-  }
-  return 20
-})
+const pageLength = computed(() => list.value?.data?.page_length)
+const pageLengthCount = computed(() => list.value?.data?.page_length_count)
 
 watch(loadMore, (value) => {
   if (!value) return
@@ -607,44 +565,8 @@ function updateSelections(selections) {
   selectedRows.value = Array.from(selections)
 }
 
-watch(() => route.params.viewType, (newType) => {
-  export_all.value = newType === 'kanban'
-})
-
-onMounted(() => {
-  export_all.value = route.params.viewType === 'kanban'
-})
-
 async function exportRows() {
-  let fields = []
-  if (route.params.viewType === 'kanban') {
-    // Get fields from kanban_fields
-    let kanbanFields = list.value.data.kanban_fields
-    if (typeof kanbanFields === 'string') {
-      kanbanFields = JSON.parse(kanbanFields)
-    }
-    fields = kanbanFields || []
-
-    // Ensure we have the column field (status) if it's not already included
-    if (view.value.column_field && !fields.includes(view.value.column_field)) {
-      fields.push(view.value.column_field)
-    }
-
-    // Ensure we have the name field if it's not already included
-    if (!fields.includes('name')) {
-      fields.unshift('name')
-    }
-  } else {
-    // For list view, get fields from columns
-    fields = list.value.data.columns
-      .filter(f => f && f.key)
-      .map(f => f.key)
-  }
-
-  // Ensure we have at least one field
-  if (!fields.length) {
-    fields = ['name']
-  }
+  let fields = JSON.stringify(list.value.data.columns.map((f) => f.key))
 
   let filters = JSON.stringify({
     ...props.filters,
@@ -667,7 +589,7 @@ async function exportRows() {
   window.location.href = url
 
   showExportDialog.value = false
-  export_all.value = route.params.viewType === 'kanban'
+  export_all.value = false
   export_type.value = 'Excel'
 }
 
@@ -681,7 +603,10 @@ if (allowedViews.includes('list')) {
     icon: markRaw(ListIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'list' }, replace: true })
+      router.push({
+        name: route.name,
+        params: { viewType: 'list' },
+      })
     },
   })
 }
@@ -692,18 +617,18 @@ if (allowedViews.includes('kanban')) {
     icon: markRaw(KanbanIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'kanban' }, replace: true })
+      router.push({ name: route.name, params: { viewType: 'kanban' } })
     },
   })
 }
 if (allowedViews.includes('group_by')) {
   standardViews.push({
     name: 'group_by',
-    label: __(props.options?.defaultViewName) || __('Group By'),
+    label: __(props.options?.defaultViewName) || __('Group by'),
     icon: markRaw(GroupByIcon),
     onClick() {
       viewUpdated.value = false
-      router.push({ name: route.name, params: { viewType: 'group_by' }, replace: true })
+      router.push({ name: route.name, params: { viewType: 'group_by' } })
     },
   })
 }
@@ -722,7 +647,7 @@ function getIcon(icon, type) {
 const viewsDropdownOptions = computed(() => {
   let _views = [
     {
-      group: __('Standard Views'),
+      group: __('Standard views'),
       hideLabel: true,
       items: standardViews,
     },
@@ -755,17 +680,17 @@ const viewsDropdownOptions = computed(() => {
 
     savedViews.length &&
       _views.push({
-        group: __('Saved Views'),
+        group: __('Saved views'),
         items: savedViews,
       })
     publicViews.length &&
       _views.push({
-        group: __('Public Views'),
+        group: __('Public views'),
         items: publicViews,
       })
     pinnedViews.length &&
       _views.push({
-        group: __('Pinned Views'),
+        group: __('Pinned views'),
         items: pinnedViews,
       })
   }
@@ -775,7 +700,7 @@ const viewsDropdownOptions = computed(() => {
     hideLabel: true,
     items: [
       {
-        label: __('Create View'),
+        label: __('Create view'),
         icon: 'plus',
         onClick: () => createView(),
       },
@@ -786,7 +711,6 @@ const viewsDropdownOptions = computed(() => {
 })
 
 const { getFields } = getMeta(props.doctype)
-const { users } = usersStore()
 
 const customizeQuickFilter = ref(false)
 
@@ -799,26 +723,11 @@ const newQuickFilters = ref([])
 
 function addQuickFilter(f) {
   if (!newQuickFilters.value.some((filter) => filter.fieldname === f.value)) {
-    const newFilter = {
+    newQuickFilters.value.push({
       label: f.label,
       fieldname: f.value,
       fieldtype: f.fieldtype,
-    }
-    
-    // Add options for _assign field
-    if (f.value === '_assign' && users.data?.crmUsers) {
-      const crmUsers = users.data.crmUsers
-      newFilter.options = [
-        { label: '', value: '' },
-        ...crmUsers.map(user => ({
-          label: user.full_name || user.name,
-          value: user.name,
-          email: user.email
-        }))
-      ]
-    }
-    
-    newQuickFilters.value.push(newFilter)
+    })
   }
 }
 
@@ -835,7 +744,7 @@ const updateQuickFilters = createResource({
 
     quickFilters.update({ params: { doctype: props.doctype, cached: false } })
     quickFilters.reload()
-    toast.success(__('Quick Filters updated successfully'))
+    toast.success(__('Quick filters updated successfully'))
   },
 })
 
@@ -872,26 +781,14 @@ const quickFilterOptions = computed(() => {
     'Fold',
     'Heading',
   ]
-  // Add _assign field as available option if not already in quick filters
-  if (!existingQuickFilters.includes('_assign')) {
-    fields.push({
-      fieldname: '_assign',
-      fieldtype: 'Text',
-      label: __('Assigned To')
-    })
-  }
-
   let options = fields
     .filter((f) => f.label && !restrictedFieldtypes.includes(f.fieldtype))
     .filter((f) => !existingQuickFilters.includes(f.fieldname))
     .map((field) => ({
-      label: __(field.label),
+      label: field.label,
       value: field.fieldname,
       fieldtype: field.fieldtype,
     }))
-
-
-
 
   if (!options.some((f) => f.fieldname === 'name')) {
     options.push({
@@ -909,42 +806,17 @@ const quickFilterList = computed(() => {
 
   filters.forEach((filter) => {
     filter['value'] = filter.fieldtype == 'Check' ? false : ''
-    
-    // Load options for _assign field
-    if (filter.fieldname === '_assign' && !filter.options && users.data?.crmUsers) {
-      const crmUsers = users.data.crmUsers
-      filter.options = [
-        { label: '', value: '' },
-        ...crmUsers.map(user => ({
-          label: user.full_name || user.name,
-          value: user.name,
-          email: user.email
-        }))
-      ]
-    }
-    
     if (list.value.params?.filters[filter.fieldname]) {
       let value = list.value.params.filters[filter.fieldname]
-
       if (Array.isArray(value)) {
         if (
-          ((['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
+          (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
             filter.fieldtype,
           ) &&
             value[0]?.toLowerCase() == 'like') ||
-          value[0]?.toLowerCase() != 'like') &&
-          !(filter.fieldname === '_assign' && value[0] === 'assigned_user') &&
-          !(['Date', 'Datetime'].includes(filter.fieldtype) && value[0] === 'timespan')
+          value[0]?.toLowerCase() != 'like'
         )
           return
-        if (filter.fieldname === '_assign' && value[0] === 'assigned_user') {
-          filter['value'] = value[1]
-          return
-        }
-        if (['Date', 'Datetime'].includes(filter.fieldtype) && value[0] === 'timespan') {
-          filter['value'] = value[1]
-          return
-        }
         filter['value'] = value[1]?.replace(/%/g, '')
       } else if (typeof value == 'boolean') {
         filter['value'] = value
@@ -969,47 +841,21 @@ const quickFilters = createResource({
 if (!quickFilters.data) quickFilters.fetch()
 
 function setupNewQuickFilters(filters) {
-  newQuickFilters.value = filters.map((f) => {
-    const newFilter = {
-      label: f.label,
-      fieldname: f.fieldname,
-      fieldtype: f.fieldtype,
-      options: f.options,
-    }
-    
-    // Add options for _assign field if not already present
-    if (f.fieldname === '_assign' && !f.options && users.data?.crmUsers) {
-      const crmUsers = users.data.crmUsers
-      newFilter.options = [
-        { label: '', value: '' },
-        ...crmUsers.map(user => ({
-          label: user.full_name || user.name,
-          value: user.name,
-          email: user.email
-        }))
-      ]
-    }
-    
-    return newFilter
-  })
+  newQuickFilters.value = filters.map((f) => ({
+    label: f.label,
+    fieldname: f.fieldname,
+    fieldtype: f.fieldtype,
+  }))
 }
 
 function applyQuickFilter(filter, value) {
   let filters = { ...list.value.params.filters }
   let field = filter.fieldname
   if (value) {
-    if (['Check', 'Select', 'Link'].includes(filter.fieldtype)) {
+    if (
+      ['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.fieldtype)
+    ) {
       filters[field] = value
-    } else if (['Date', 'Datetime'].includes(filter.fieldtype)) {
-      // Handle timespan filters for date fields
-      if (timespanOptions.find(opt => opt.value === value)) {
-        filters[field] = ['timespan', value]
-      } else {
-        filters[field] = value
-      }
-    } else if (field === '_assign') {
-      // Handle assigned users filter
-      filters[field] = ['assigned_user', value]
     } else {
       filters[field] = ['LIKE', `%${value}%`]
     }
@@ -1100,108 +946,7 @@ function updateColumns(obj) {
   }
 }
 
-async function resetColumnSettings() {
-  if (!defaultParams.value) {
-    defaultParams.value = getParams()
-  }
-  
-  // Get the current column field
-  const columnField = list.value.params.column_field || defaultParams.value.column_field
-  
-  // Show a loading indicator
-  toast.success(__('Resetting columns...'))
-  
-  try {
-    // Reset the columns via API call
-    const newColumns = await call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
-      doctype: props.doctype,
-      column_field: columnField
-    })
-
-    // Clear local columns data and force reload
-    await updateKanbanSettings({
-      kanban_columns: '',
-      _force_reload: true,
-      column_field: columnField
-    })
-    
-    // Reload the statuses store
-    const store = statusesStore()
-    if (props.doctype === 'CRM Deal') {
-      await store.dealStatuses.reload()
-    } else if (props.doctype === 'CRM Lead') {
-      await store.leadStatuses.reload()
-    }
-    
-    // Show success message
-    toast.success(__('Column settings have been reset'))
-  } catch (error) {
-    // Show error message
-    toast.error(__('Failed to reset column settings: ') + (error.message || __('Unknown error')))
-  }
-}
-
-function applyFilter({ event, idx, column, item, firstColumn }) {
-  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
-  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
-  if (idx === 1 && firstColumn.key == '_liked_by') return
-
-  event.stopPropagation()
-  event.preventDefault()
-
-  let filters = { ...list.value.params.filters }
-
-  let value = item
-  // For status field, use the original value (name) instead of translated label
-  if (column.key === 'status' && typeof item === 'object') {
-    value = item.name || item.value || item
-  } else {
-    value = item.name || item.label || item
-  }
-
-  if (value) {
-    filters[column.key] = value
-  } else {
-    delete filters[column.key]
-  }
-
-  if (column.key == '_assign') {
-    if (item.length > 1) {
-      let target = event.target.closest('.user-avatar')
-      if (target) {
-        let name = target.getAttribute('data-name')
-        filters['_assign'] = ['LIKE', `%${name}%`]
-      }
-    } else {
-      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
-    }
-  }
-  updateFilter(filters)
-}
-
-function applyLikeFilter() {
-  let filters = { ...list.value.params.filters }
-  if (!filters._liked_by) {
-    filters['_liked_by'] = ['LIKE', '%@me%']
-  } else {
-    delete filters['_liked_by']
-  }
-  updateFilter(filters)
-}
-
-function likeDoc({ name, liked }) {
-  createResource({
-    url: 'frappe.desk.like.toggle_like',
-    params: { doctype: props.doctype, name: name, add: liked ? 'No' : 'Yes' },
-    auto: true,
-    onSuccess: () => reload(),
-  })
-}
-
 async function updateKanbanSettings(data) {
-  // Special handling for column reset requests
-  const isResetRequest = data._force_reload && data.kanban_columns === '';
-  
   if (data.item && data.to) {
     await call('frappe.client.set_value', {
       doctype: props.doctype,
@@ -1217,24 +962,10 @@ async function updateKanbanSettings(data) {
     defaultParams.value = getParams()
   }
   list.value.params = defaultParams.value
-  
-  if (isResetRequest) {
-    // For reset requests, explicitly clear columns and force a sync 
-    list.value.params.kanban_columns = ''
-    view.value.kanban_columns = ''
-    // Call backend to sync the default columns
-    await call('crm.fcrm.doctype.crm_view_settings.crm_view_settings.reset_kanban_columns', {
-      doctype: props.doctype,
-      column_field: data.column_field || view.value.column_field
-    })
-  } else {
-    // Normal updates
-    if (data.kanban_columns) {
-      list.value.params.kanban_columns = data.kanban_columns
-      view.value.kanban_columns = data.kanban_columns
-    }
+  if (data.kanban_columns) {
+    list.value.params.kanban_columns = data.kanban_columns
+    view.value.kanban_columns = data.kanban_columns
   }
-  
   if (data.kanban_fields) {
     list.value.params.kanban_fields = data.kanban_fields
     view.value.kanban_fields = data.kanban_fields
@@ -1254,40 +985,7 @@ async function updateKanbanSettings(data) {
 
   if (!route.query.view) {
     createOrUpdateStandardView()
-  } else if (!data.column_field && !isResetRequest) {
-    updateCustomView()
   }
-}
-
-function updateCustomView() {
-  viewUpdated.value = false
-  view.value = {
-    doctype: props.doctype,
-    label: view.value.label,
-    type: view.value.type || 'list',
-    icon: view.value.icon,
-    name: view.value.name,
-    filters: defaultParams.value.filters,
-    order_by: defaultParams.value.order_by,
-    group_by_field: defaultParams.value.view?.group_by_field,
-    column_field: defaultParams.value.column_field,
-    title_field: defaultParams.value.title_field,
-    kanban_columns: defaultParams.value.kanban_columns,
-    kanban_fields: defaultParams.value.kanban_fields,
-    columns: defaultParams.value.columns,
-    rows: defaultParams.value.rows,
-    route_name: route.name,
-    load_default_columns: view.value.load_default_columns,
-  }
-  call(
-    'crm.fcrm.doctype.crm_view_settings.crm_view_settings.update',
-    {
-      view: view.value,
-    },
-  ).then(() => {
-    reloadView()
-    list.value.reload()
-  })
 }
 
 function loadMoreKanban(columnName) {
@@ -1408,7 +1106,7 @@ const viewActions = (view, close) => {
 
     if (!_view.public) {
       actions[0].items.push({
-        label: _view.pinned ? __('Unpin View') : __('Pin View'),
+        label: _view.pinned ? __('Unpin view') : __('Pin view'),
         icon: () => h(_view.pinned ? UnpinIcon : PinIcon, { class: 'h-4 w-4' }),
         onClick: () => pinView(_view),
       })
@@ -1416,7 +1114,7 @@ const viewActions = (view, close) => {
 
     if (isManager()) {
       actions[0].items.push({
-        label: _view.public ? __('Make Private') : __('Make Public'),
+        label: _view.public ? __('Make private') : __('Make public'),
         icon: () =>
           h(FeatherIcon, {
             name: _view.public ? 'lock' : 'unlock',
@@ -1427,7 +1125,7 @@ const viewActions = (view, close) => {
     }
 
     actions.push({
-      group: __('Delete View'),
+      group: __('Delete view'),
       hideLabel: true,
       items: [
         {
@@ -1435,8 +1133,10 @@ const viewActions = (view, close) => {
           icon: 'trash-2',
           onClick: () =>
             $dialog({
-              title: __('Delete View'),
-              message: __('Are you sure you want to delete {0} view?', [_view.label]),
+              title: __('Delete view'),
+              message: __('Are you sure you want to delete "{0}" view?', [
+                _view.label,
+              ]),
               variant: 'danger',
               actions: [
                 {
@@ -1560,6 +1260,57 @@ function saveView() {
   showViewModal.value = true
 }
 
+function applyFilter({ event, idx, column, item, firstColumn }) {
+  let restrictedFieldtypes = ['Duration', 'Datetime', 'Time']
+  if (restrictedFieldtypes.includes(column.type) || idx === 0) return
+  if (idx === 1 && firstColumn.key == '_liked_by') return
+
+  event.stopPropagation()
+  event.preventDefault()
+
+  let filters = { ...list.value.params.filters }
+
+  let value = item.name || item.label || item
+
+  if (value) {
+    filters[column.key] = value
+  } else {
+    delete filters[column.key]
+  }
+
+  if (column.key == '_assign') {
+    if (item.length > 1) {
+      let target = event.target.closest('.user-avatar')
+      if (target) {
+        let name = target.getAttribute('data-name')
+        filters['_assign'] = ['LIKE', `%${name}%`]
+      }
+    } else {
+      filters['_assign'] = ['LIKE', `%${item[0].name}%`]
+    }
+  }
+  updateFilter(filters)
+}
+
+function applyLikeFilter() {
+  let filters = { ...list.value.params.filters }
+  if (!filters._liked_by) {
+    filters['_liked_by'] = ['LIKE', '%@me%']
+  } else {
+    delete filters['_liked_by']
+  }
+  updateFilter(filters)
+}
+
+function likeDoc({ name, liked }) {
+  createResource({
+    url: 'frappe.desk.like.toggle_like',
+    params: { doctype: props.doctype, name: name, add: liked ? 'No' : 'Yes' },
+    auto: true,
+    onSuccess: () => reload(),
+  })
+}
+
 defineExpose({
   applyFilter,
   applyLikeFilter,
@@ -1569,7 +1320,6 @@ defineExpose({
   viewActions,
   viewsDropdownOptions,
   currentView,
-  resetColumnSettings,
   updateSelections,
 })
 

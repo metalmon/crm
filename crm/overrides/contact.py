@@ -119,7 +119,7 @@ class CustomContact(Contact):
 				"width": "12rem",
 			},
 			{
-				"label": "Last Modified",
+				"label": "Last modified",
 				"type": "Datetime",
 				"key": "modified",
 				"width": "8rem",

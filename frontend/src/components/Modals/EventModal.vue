@@ -79,15 +79,15 @@
           </div>
           <div class="flex gap-2 w-9/12">
             <FormControl
-              :class="[_event.isFullDay ? 'w-full' : 'w-[158px]']"
+              class="w-full"
               type="date"
               variant="outline"
               :modelValue="_event.fromDate"
-              @update:modelValue="(date) => updateDate(date, true)"
+              @update:modelValue="(date) => updateDate(date)"
             />
             <FormControl
               v-if="!_event.isFullDay"
-              class="max-w-[112px]"
+              class="w-full"
               type="time"
               variant="outline"
               :modelValue="_event.fromTime"
@@ -95,7 +95,7 @@
             />
             <FormControl
               v-if="!_event.isFullDay"
-              class="max-w-[112px]"
+              class="w-full"
               type="time"
               variant="outline"
               :modelValue="_event.toTime"
@@ -223,16 +223,15 @@ import {
   TextEditor,
   ErrorMessage,
   Dialog,
-  FormControl,
-  dayjs,
   Dropdown,
+  FormControl,
 } from 'frappe-ui'
+import dayjs from '@/utils/dayjs'
 import { globalStore } from '@/stores/global'
 import { validateEmail } from '@/utils'
 import {
   useEvent,
   normalizeParticipants,
-  buildEndTimeOptions,
   computeAutoToTime,
   validateTimeRange,
 } from '@/composables/event'
@@ -480,8 +479,6 @@ function deleteEvent() {
     ],
   })
 }
-
-const toOptions = computed(() => buildEndTimeOptions(_event.value.fromTime))
 
 const colors = Object.keys(colorMap).map((c) => ({
   label: c.charAt(0).toUpperCase() + c.slice(1),

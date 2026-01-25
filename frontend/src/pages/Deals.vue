@@ -4,35 +4,18 @@
       <ViewBreadcrumbs v-model="viewControls" routeName="Deals" />
     </template>
     <template #right-header>
-      <div class="flex items-center gap-4">
-        <SmartFilterField
-          v-if="!isMobileView"
-          ref="desktopSmartFilter"
-          doctype="CRM Deal"
-          @update:filters="handleSmartFilter"
-          class="w-80"
-        />
-        <CustomActions
-          v-if="dealsListView?.customListActions"
-          :actions="dealsListView.customListActions"
-        />
-        <Button
-          variant="solid"
-          :label="__('Create')"
-          iconLeft="plus"
-          @click="showDealModal = true"
-        />
-      </div>
+      <CustomActions
+        v-if="dealsListView?.customListActions"
+        :actions="dealsListView.customListActions"
+      />
+      <Button
+        variant="solid"
+        :label="__('Create')"
+        iconLeft="plus"
+        @click="showDealModal = true"
+      />
     </template>
   </LayoutHeader>
-  <div v-if="isMobileView" class="px-3 py-2 border-b">
-    <SmartFilterField
-      ref="mobileSmartFilter"
-      doctype="CRM Deal"
-      @update:filters="handleSmartFilter"
-      class="w-full"
-    />
-  </div>
   <ViewControls
     ref="viewControls"
     v-model="deals"
@@ -119,7 +102,7 @@
         >
           {{ getRow(itemName, titleField).label }}
         </div>
-        <div class="text-ink-gray-4" v-else>{{ __('No Title') }}</div>
+        <div class="text-ink-gray-4" v-else>{{ __('No title') }}</div>
       </div>
     </template>
 
@@ -226,7 +209,7 @@
     v-model="deals.data.page_length_count"
     v-model:list="deals"
     :rows="rows"
-    :columns="deals.data.columns"
+    :columns="columns"
     :options="{
       showTooltip: false,
       resizeColumn: true,
@@ -243,19 +226,11 @@
       (selections) => viewControls.updateSelections(selections)
     "
   />
-  <div v-else-if="deals.data" class="flex h-full items-center justify-center">
-    <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <DealsIcon class="h-10 w-10" />
-      <span>{{ __('No Deals Found') }}</span>
-      <Button
-        :label="__('Create')"
-        iconLeft="plus"
-        @click="showDealModal = true"
-      />
-    </div>
-  </div>
+  <EmptyState
+    v-else-if="deals.data && !rows.length"
+    name="deals"
+    :icon="DealsIcon"
+  />
   <DealModal
     v-if="showDealModal"
     v-model="showDealModal"
@@ -275,11 +250,6 @@
     doctype="CRM Deal"
     :doc="docname"
   />
-  <QuickEntryModal
-   v-if="showQuickEntryModal"
-   v-model="showQuickEntryModal"
-   doctype="CRM Deal"
-   />
 </template>
 
 <script setup>
@@ -295,6 +265,7 @@ import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
+import EmptyState from '@/components/ListViews/EmptyState.vue'
 import KanbanView from '@/components/Kanban/KanbanView.vue'
 import DealModal from '@/components/Modals/DealModal.vue'
 import NoteModal from '@/components/Modals/NoteModal.vue'
@@ -305,12 +276,11 @@ import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { organizationsStore } from '@/stores/organizations'
 import { statusesStore } from '@/stores/statuses'
-import { callEnabled, isMobileView } from '@/composables/settings'
+import { callEnabled } from '@/composables/settings'
 import { formatDate, timeAgo, website, formatTime } from '@/utils'
 import { Tooltip, Avatar, Dropdown } from 'frappe-ui'
 import { useRoute } from 'vue-router'
-import { ref, reactive, computed, h, watch } from 'vue'
-import SmartFilterField from '@/components/SmartFilterField.vue'
+import { ref, reactive, computed, h } from 'vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Deal')
@@ -332,24 +302,6 @@ const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
 const viewControls = ref(null)
-
-const desktopSmartFilter = ref(null)
-const mobileSmartFilter = ref(null)
-const isResettingFilters = ref(false)
-
-// Watch for filter changes in the list
-watch(() => deals.value?.params?.filters, (newFilters) => {
-  // Skip if we're already resetting filters
-  if (isResettingFilters.value) return;
-  
-  // If filters are empty, clear the smart filter fields
-  if (!newFilters || Object.keys(newFilters).length === 0) {
-    isResettingFilters.value = true;
-    desktopSmartFilter.value?.clearSearch();
-    mobileSmartFilter.value?.clearSearch();
-    isResettingFilters.value = false;
-  }
-}, { deep: true })
 
 function getRow(name, field) {
   function getValue(value) {
@@ -376,6 +328,21 @@ const rows = computed(() => {
   } else {
     return parseRows(deals.value?.data.data, deals.value.data.columns)
   }
+})
+
+const columns = computed(() => {
+  let _columns = deals.value?.data?.columns || []
+
+  if (_columns.length) {
+    _columns = _columns.map((col, index) => {
+      if (index === _columns.length - 1) {
+        return { ...col, align: 'right' }
+      }
+      return col
+    })
+  }
+
+  return _columns
 })
 
 function getGroupedByRows(listRows, groupByField, columns) {
@@ -463,8 +430,7 @@ function parseRows(rows, columns = []) {
         _rows[row] = website(deal.website)
       } else if (row == 'status') {
         _rows[row] = {
-          label: getDealStatus(deal.status).label,
-          value: deal.status,
+          label: deal.status,
           color: getDealStatus(deal.status)?.color,
         }
       } else if (row == 'sla_status') {
@@ -477,7 +443,7 @@ function parseRows(rows, columns = []) {
               ? 'green'
               : 'orange'
         if (value == 'First Response Due' || value == 'Rolling Response Due') {
-          value = timeAgo(deal.response_by)
+          value = __(timeAgo(deal.response_by))
           tooltipText = formatDate(deal.response_by)
           if (new Date(deal.response_by) < new Date()) {
             color = 'red'
@@ -503,7 +469,7 @@ function parseRows(rows, columns = []) {
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(deal[row]),
-          timeAgo: timeAgo(deal[row]),
+          timeAgo: __(timeAgo(deal[row])),
         }
       } else if (
         ['first_response_time', 'first_responded_on', 'response_by'].includes(
@@ -516,7 +482,7 @@ function parseRows(rows, columns = []) {
           timeAgo: deal[row]
             ? row == 'first_response_time'
               ? formatTime(deal[row])
-              : timeAgo(deal[row])
+              : __(timeAgo(deal[row]))
             : '',
         }
       }
@@ -544,18 +510,18 @@ function actions(itemName) {
   let actions = [
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
-      label: __('Make a Call'),
+      label: __('Make a call'),
       onClick: () => makeCall(mobile_no),
       condition: () => mobile_no && callEnabled.value,
     },
     {
       icon: h(NoteIcon, { class: 'h-4 w-4' }),
-      label: __('New Note'),
+      label: __('New note'),
       onClick: () => showNote(itemName),
     },
     {
       icon: h(TaskIcon, { class: 'h-4 w-4' }),
-      label: __('New Task'),
+      label: __('New task'),
       onClick: () => showTask(itemName),
     },
   ]
@@ -589,25 +555,5 @@ const task = ref({
 function showTask(name) {
   docname.value = name
   showTaskModal.value = true
-}
-function handleSmartFilter(filters) {
-  if (!viewControls.value || !filters) return;
-  if (isResettingFilters.value) return;
-  if (!deals.value || !deals.value.params) return;
-
-  const currentFilters = deals.value.params.filters || {};
-  const standardFilters = {};
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    if (!['mobile_no', 'email', 'organization'].includes(key)) {
-      standardFilters[key] = value;
-    }
-  });
-
-  deals.value.params.filters = {
-    ...standardFilters,
-    ...filters
-  };
-  
-  deals.value.reload();
 }
 </script>

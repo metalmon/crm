@@ -45,9 +45,9 @@
             type="select"
             class="w-28"
             :options="[
-              { label: __('Daily'), value: 'Daily' },
-              { label: __('Weekly'), value: 'Weekly' },
-              { label: __('Monthly'), value: 'Monthly' },
+              { label: __('Daily', [], 'calendar view'), value: 'Daily' },
+              { label: __('Weekly', [], 'calendar view'), value: 'Weekly' },
+              { label: __('Monthly', [], 'calendar view'), value: 'Monthly' },
             ]"
             v-model="settings.doc.default_calendar_view"
             :placeholder="__('Select view')"
@@ -121,7 +121,7 @@
         </div>
         <Button
           class="w-fit"
-          :label="__('Add Notification')"
+          :label="__('Add notification')"
           iconLeft="plus"
           @click="
             notifications.push({
@@ -213,7 +213,7 @@
         </div>
         <Button
           class="w-fit"
-          :label="__('Add Notification')"
+          :label="__('Add notification')"
           iconLeft="plus"
           @click="
             allDayNotifications.push({

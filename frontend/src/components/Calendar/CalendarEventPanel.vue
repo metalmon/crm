@@ -125,7 +125,7 @@
           <PeopleIcon class="size-4" />
           <div class="flex flex-col">
             <div class="text-ink-gray-7">
-              {{ __('{0} Attendees', [peoples.length + 1]) }}
+              {{ __('{0} attendees', [peoples.length + 1]) }}
             </div>
             <div class="text-p-base">{{ attendees }}</div>
           </div>
@@ -559,7 +559,6 @@ import {
   TextEditor,
   ErrorMessage,
   Dropdown,
-  dayjs,
   CalendarColorMap as colorMap,
   CalendarActiveEvent as activeEvent,
   createDocumentResource,
@@ -567,6 +566,7 @@ import {
   toast,
   call,
 } from 'frappe-ui'
+import dayjs from '@/utils/dayjs'
 import { ref, computed, watch, h, inject } from 'vue'
 import { useRouter } from 'vue-router'
 

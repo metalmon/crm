@@ -397,39 +397,13 @@
         @afterSave="(data) => emit('afterSave', data)"
       />
     </div>
-    <div
+    <EmptyState
       v-else
-      class="flex flex-1 flex-col items-center justify-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <component :is="emptyTextIcon" class="h-10 w-10" />
-      <span>{{ __(emptyText) }}</span>
-      <MultiActionButton v-if="title == 'Calls'" :options="callActions" />
-      <Button
-        v-else-if="title == 'Notes'"
-        :label="__('Create Note')"
-        @click="modalRef.showNote()"
-      />
-      <Button
-        v-else-if="title == 'Emails'"
-        :label="__('New Email')"
-        @click="emailBox.show = true"
-      />
-      <Button
-        v-else-if="title == 'Comments'"
-        :label="__('New Comment')"
-        @click="emailBox.showComment = true"
-      />
-      <Button
-        v-else-if="title == 'Tasks'"
-        :label="__('Create Task')"
-        @click="modalRef.showTask()"
-      />
-      <Button
-        v-else-if="title == 'Attachments'"
-        :label="__('Upload Attachment')"
-        @click="showFilesUploader = true"
-      />
-    </div>
+      :title="emptyText"
+      :description="emptyTextDescription"
+      :icon="emptyTextIcon"
+      :top="top"
+    />
   </FadedScrollableDiv>
   <div>
     <CommunicationArea
@@ -494,7 +468,7 @@ import AttachmentArea from '@/components/Activities/AttachmentArea.vue'
 import DataFields from '@/components/Activities/DataFields.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ActivityIcon from '@/components/Icons/ActivityIcon.vue'
-import Email2Icon from '@/components/Icons/Email2Icon.vue'
+import EmailIcon from '@/components/Icons/EmailIcon.vue'
 import DetailsIcon from '@/components/Icons/DetailsIcon.vue'
 import CalendarIcon from '@/components/Icons/CalendarIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
@@ -509,7 +483,7 @@ import AvitoIcon from '@/components/Icons/AvitoIcon.vue'
 import AvitoArea from '@/components/Activities/AvitoArea.vue'
 import AvitoBox from '@/components/Activities/AvitoBox.vue'
 import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
-import MultiActionButton from '@/components/MultiActionButton.vue'
+import EmptyState from '@/components/ListViews/EmptyState.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import DotIcon from '@/components/Icons/DotIcon.vue'
@@ -852,6 +826,63 @@ const activities = computed(() => {
   return []
 })
 
+function sortByCreation(list) {
+  return list.sort((a, b) => new Date(a.creation) - new Date(b.creation))
+}
+
+const top = computed(() => {
+  if (['Activity', 'Emails', 'Comments'].includes(title.value)) {
+    return '32.3%'
+  }
+  return '30%'
+})
+
+const emptyTextDescription = computed(() => {
+  let description = __('There are no activities to display here. Go ahead and make some changes.')
+  if (title.value == 'Emails') {
+    description = __('No emails found in your inbox. new messages will appear here soon.')
+  } else if (title.value == 'Comments') {
+    description = __('No comments yet. Be the first to add one.')
+  } else if (title.value == 'Data') {
+    description = __('No data fields have been added yet.')
+  } else if (title.value == 'Calls') {
+    description = __('No recent calls to display. Log a call or call someone now!')
+  } else if (title.value == 'Notes') {
+    description = __('Nothing here for now. add a note to keep track of things.')
+  } else if (title.value == 'Tasks') {
+    description = __('Nothing to do at the moment. start organizing by adding one here.')
+  } else if (title.value == 'Attachments') {
+    description = __('No files have been attached yet. Upload files to see them here.')
+  } else if (title.value == 'WhatsApp') {
+    description = __('No WhatsApp messages yet. Start a conversation now!')
+  }
+  return description
+})
+
+const emptyTextIcon = computed(() => {
+  let icon = ActivityIcon
+  if (title.value == 'Emails') {
+    icon = EmailIcon
+  } else if (title.value == 'Comments') {
+    icon = CommentIcon
+  } else if (title.value == 'Data') {
+    icon = DetailsIcon
+  } else if (title.value == 'Calls') {
+    icon = PhoneIcon
+  } else if (title.value == 'Notes') {
+    icon = NoteIcon
+  } else if (title.value == 'Tasks') {
+    icon = TaskIcon
+  } else if (title.value == 'Attachments') {
+    icon = AttachmentIcon
+  } else if (title.value == 'WhatsApp') {
+    icon = WhatsAppIcon
+  } else if (title.value == 'Avito') {
+    icon = AvitoIcon
+  }
+  return h(icon, { class: 'text-ink-gray-4' })
+})
+
 function timelineIcon(activity_type, is_lead) {
   let icon
   switch (activity_type) {
@@ -942,29 +973,6 @@ const emptyText = computed(() => {
   return text
 })
 
-const emptyTextIcon = computed(() => {
-  let icon = ActivityIcon
-  if (title.value == 'Emails') {
-    icon = Email2Icon
-  } else if (title.value == 'Comments') {
-    icon = CommentIcon
-  } else if (title.value == 'Data') {
-    icon = DetailsIcon
-  } else if (title.value == 'Calls') {
-    icon = PhoneIcon
-  } else if (title.value == 'Notes') {
-    icon = NoteIcon
-  } else if (title.value == 'Tasks') {
-    icon = TaskIcon
-  } else if (title.value == 'Attachments') {
-    icon = AttachmentIcon
-  } else if (title.value == 'WhatsApp') {
-    icon = WhatsAppIcon
-  } else if (title.value == 'Avito') {
-    icon = AvitoIcon
-  }
-  return h(icon, { class: 'text-ink-gray-4' })
-})
 
 const emailBox = ref(null)
 const whatsappBox = ref(null)

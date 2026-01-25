@@ -41,7 +41,7 @@
    "fieldname": "from",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Caller",
+   "label": "From",
    "reqd": 1
   },
   {
@@ -54,13 +54,12 @@
   {
    "fieldname": "start_time",
    "fieldtype": "Datetime",
-   "label": "Start Time",
-   "reqd": 1
+   "label": "Start time"
   },
   {
    "fieldname": "medium",
    "fieldtype": "Data",
-   "label": "Communication Medium"
+   "label": "Medium"
   },
   {
    "fieldname": "column_break_ufnp",
@@ -79,7 +78,7 @@
    "fieldname": "to",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Callee",
+   "label": "To",
    "reqd": 1
   },
   {
@@ -97,7 +96,7 @@
   {
    "fieldname": "end_time",
    "fieldtype": "Datetime",
-   "label": "End Time"
+   "label": "End time"
   },
   {
    "fieldname": "note",
@@ -109,27 +108,27 @@
    "depends_on": "eval:doc.type == 'Incoming'",
    "fieldname": "receiver",
    "fieldtype": "Link",
-   "label": "Call Received By",
+   "label": "Call received by",
    "options": "User"
   },
   {
    "depends_on": "eval:doc.type == 'Outgoing'",
    "fieldname": "caller",
    "fieldtype": "Link",
-   "label": "User",
+   "label": "Caller",
    "options": "User"
   },
   {
    "default": "CRM Lead",
    "fieldname": "reference_doctype",
    "fieldtype": "Link",
-   "label": "Reference Document Type",
+   "label": "Reference document type",
    "options": "DocType"
   },
   {
    "fieldname": "reference_docname",
    "fieldtype": "Dynamic Link",
-   "label": "Reference Name",
+   "label": "Reference name",
    "options": "reference_doctype"
   },
   {
@@ -147,8 +146,8 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Telephony Medium",
-   "options": "\nManual\nTwilio\nExotel\nBeeline",
+   "label": "Telephony medium",
+   "options": "\nManual\nTwilio\nExotel",
    "read_only": 1
   },
   {
@@ -158,8 +157,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-13 00:25:37.876311",
- "modified_by": "Administrator",
+ "modified": "2026-01-22 14:12:46.553240",
+ "modified_by": "shariq@frappe.io",
  "module": "FCRM",
  "name": "CRM Call Log",
  "naming_rule": "By fieldname",

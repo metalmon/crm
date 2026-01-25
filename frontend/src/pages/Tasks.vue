@@ -40,10 +40,10 @@
     <template #title="{ titleField, itemName }">
       <div class="flex items-center gap-2">
         <div v-if="titleField === 'status'">
-          <TaskStatusIcon :status="getRow(itemName, titleField).value" />
+          <TaskStatusIcon :status="getRow(itemName, titleField).label" />
         </div>
         <div v-else-if="titleField === 'priority'">
-          <TaskPriorityIcon :priority="getRow(itemName, titleField).value" />
+          <TaskPriorityIcon :priority="getRow(itemName, titleField).label" />
         </div>
         <div v-else-if="titleField === 'assigned_to'">
           <Avatar
@@ -68,7 +68,7 @@
         >
           {{ getRow(itemName, titleField).label }}
         </div>
-        <div class="text-ink-gray-4" v-else>{{ __('No Title') }}</div>
+        <div class="text-ink-gray-4" v-else>{{ __('No title') }}</div>
       </div>
     </template>
     <template #fields="{ fieldName, itemName }">
@@ -79,11 +79,11 @@
         <div v-if="fieldName === 'status'">
           <TaskStatusIcon
             class="size-3"
-            :status="getRow(itemName, fieldName).value"
+            :status="getRow(itemName, fieldName).label"
           />
         </div>
         <div v-else-if="fieldName === 'priority'">
-          <TaskPriorityIcon :priority="getRow(itemName, fieldName).value" />
+          <TaskPriorityIcon :priority="getRow(itemName, fieldName).label" />
         </div>
         <div v-else-if="fieldName === 'assigned_to'">
           <Avatar
@@ -158,7 +158,7 @@
     v-model="tasks.data.page_length_count"
     v-model:list="tasks"
     :rows="rows"
-    :columns="tasks.data.columns"
+    :columns="columns"
     :options="{
       showTooltip: false,
       resizeColumn: true,
@@ -176,19 +176,11 @@
       (selections) => viewControls.updateSelections(selections)
     "
   />
-  <div v-else-if="tasks.data" class="flex h-full items-center justify-center">
-    <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <Email2Icon class="h-10 w-10" />
-      <span>{{ __('No Tasks Found') }}</span>
-      <Button
-        :label="__('Create')"
-        iconLeft="plus"
-        @click="showTaskModal = true"
-      />
-    </div>
-  </div>
+  <EmptyState
+    v-else-if="tasks.data && !rows.length"
+    name="tasks"
+    :icon="Email2Icon"
+  />
   <TaskModal
     v-if="showTaskModal"
     v-model="showTaskModal"
@@ -207,16 +199,15 @@ import Email2Icon from '@/components/Icons/Email2Icon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import TasksListView from '@/components/ListViews/TasksListView.vue'
+import EmptyState from '@/components/ListViews/EmptyState.vue'
 import KanbanView from '@/components/Kanban/KanbanView.vue'
 import TaskModal from '@/components/Modals/TaskModal.vue'
 import { getMeta } from '@/stores/meta'
 import { usersStore } from '@/stores/users'
 import { formatDate, timeAgo } from '@/utils'
 import { Tooltip, Avatar, TextEditor, Dropdown, call } from 'frappe-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { translateTaskStatus } from '@/utils/taskStatusTranslations'
-import { translateTaskPriority } from '@/utils/taskPriorityTranslations'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Task')
@@ -226,13 +217,12 @@ const router = useRouter()
 
 const tasksListView = ref(null)
 
-const viewControls = ref(null)
-
 // tasks data is loaded in the ViewControls component
 const tasks = ref({})
 const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
+const viewControls = ref(null)
 
 function getRow(name, field) {
   function getValue(value) {
@@ -253,6 +243,22 @@ const rows = computed(() => {
 
   openTaskFromURL()
   return parseRows(tasks.value?.data.data, tasks.value?.data.columns)
+})
+
+const columns = computed(() => {
+  let _columns = tasks.value?.data?.columns || []
+
+  // Set align right for last column
+  if (_columns.length) {
+    _columns = _columns.map((col, index) => {
+      if (index === _columns.length - 1) {
+        return { ...col, align: 'right' }
+      }
+      return col
+    })
+  }
+
+  return _columns
 })
 
 function getKanbanRows(data, columns) {
@@ -302,23 +308,12 @@ function parseRows(rows, columns = []) {
       if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(task[row]),
-          timeAgo: timeAgo(task[row]),
+          timeAgo: __(timeAgo(task[row])),
         }
       } else if (row == 'assigned_to') {
         _rows[row] = {
           label: task.assigned_to && getUser(task.assigned_to).full_name,
           ...(task.assigned_to && getUser(task.assigned_to)),
-        }
-
-      } else if (row === 'status') {
-        _rows[row] = {
-          label: translateTaskStatus(task[row]),
-          value: task[row]
-        }
-      } else if (row === 'priority') {
-        _rows[row] = {
-          label: translateTaskPriority(task[row]),
-          value: task[row]
         }
       }
     })
@@ -393,28 +388,10 @@ function actions(name) {
 }
 
 async function deletetask(name) {
-  try {
-    await call('frappe.client.delete', {
-      doctype: 'CRM Task',
-      name,
-    })
-    
-    // Dispatch a custom event to notify about the deletion
-    window.dispatchEvent(new CustomEvent('crm:doc_deleted', {
-      detail: {
-        doctype: 'CRM Task',
-        name: name
-      }
-    }))
-    
-    // Remove the task from the rows array
-    const index = rows.value.findIndex(row => row.name === name)
-    if (index !== -1) {
-      rows.value.splice(index, 1)
-    }
-  } catch (error) {
-    console.error('Error deleting task:', error)
-  }
+  await call('frappe.client.delete', {
+    doctype: 'CRM Task',
+    name,
+  })
 }
 
 function redirect(doctype, docname) {

@@ -2,7 +2,7 @@
   <div>
     <div class="flex flex-col gap-1">
       <span class="text-lg font-semibold text-ink-gray-8">{{
-        __('Assignee Rules')
+        __('Assignee rules')
       }}</span>
       <span class="text-p-sm text-ink-gray-6">
         {{
@@ -14,12 +14,18 @@
       <div>
         <div class="text-base font-medium text-ink-gray-8">
           {{
-            __('{0} Routing', [assignmentRuleData.documentType == 'CRM Lead' ? __('Lead') : __('Deal')])
+            __('{0} routing', [
+              assignmentRuleData.documentType == 'CRM Lead'
+                ? __('Lead')
+                : __('Deal'),
+            ])
           }}
         </div>
         <div class="text-p-sm text-ink-gray-6 mt-1">
           {{
-            __('Choose how {0} are assigned among the selected assignees.', [documentType])
+            __('Choose how {0} are assigned among the selected assignees.', [
+              documentType,
+            ])
           }}
         </div>
       </div>
@@ -42,12 +48,12 @@
           </template>
           <template #body="{ togglePopover }">
             <div
-              class="p-1 text-ink-gray-7 mt-1 w-48 bg-surface-modal shadow-xl rounded"
+              class="p-1 text-ink-gray-7 mt-1 w-48 bg-white shadow-xl rounded"
             >
               <div
                 v-for="option in documentRoutingOptions"
                 :key="option.value"
-                class="p-2 cursor-pointer hover:bg-surface-gray-3 text-sm flex items-center justify-between rounded"
+                class="p-2 cursor-pointer hover:bg-gray-50 text-sm flex items-center justify-between rounded"
                 @click="
                   () => {
                     assignmentRuleData.rule = option.value
@@ -127,11 +133,11 @@ const documentType = computed(() =>
 
 const documentRoutingOptions = [
   {
-    label: __('Auto-rotate'),
+    label: 'Auto-rotate',
     value: 'Round Robin',
   },
   {
-    label: __('Assign by workload'),
+    label: 'Assign by workload',
     value: 'Load Balancing',
   },
 ]

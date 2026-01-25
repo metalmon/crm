@@ -9,14 +9,14 @@
     <Button
       v-if="title == 'Emails'"
       variant="solid"
-      :label="__('New Email')"
+      :label="__('New email')"
       iconLeft="plus"
       @click="emailBox.show = true"
     />
     <Button
       v-else-if="title == __('Comments')"
       variant="solid"
-      :label="__('New Comment')"
+      :label="__('New comment')"
       iconLeft="plus"
       @click="emailBox.showComment = true"
     />
@@ -38,32 +38,32 @@
     <Button
       v-else-if="title == __('Notes')"
       variant="solid"
-      :label="__('New Note')"
+      :label="__('New note')"
       iconLeft="plus"
       @click="modalRef.showNote()"
     />
     <Button
       v-else-if="title == __('Tasks')"
       variant="solid"
-      :label="__('New Task')"
+      :label="__('New task')"
       iconLeft="plus"
       @click="modalRef.showTask()"
     />
     <Button
       v-else-if="title == __('Attachments')"
       variant="solid"
-      :label="__('Upload Attachment')"
+      :label="__('Upload attachment')"
       iconLeft="plus"
       @click="showFilesUploader = true"
     />
     <div class="flex gap-2 shrink-0" v-else-if="title == 'WhatsApp'">
       <Button
-        :label="__('Send Template')"
+        :label="__('Send template')"
         @click="showWhatsappTemplates = true"
       />
       <Button
         variant="solid"
-        :label="__('New Message')"
+        :label="__('New message')"
         iconLeft="plus"
         @click="whatsappBox.show()"
       />
@@ -117,12 +117,12 @@ const defaultActions = computed(() => {
   let actions = [
     {
       icon: h(Email2Icon, { class: 'h-4 w-4' }),
-      label: __('New Email'),
+      label: __('New email'),
       onClick: () => (props.emailBox.show = true),
     },
     {
       icon: h(CommentIcon, { class: 'h-4 w-4' }),
-      label: __('New Comment'),
+      label: __('New comment'),
       onClick: () => (props.emailBox.showComment = true),
     },
     {
@@ -132,33 +132,33 @@ const defaultActions = computed(() => {
     },
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
-      label: __('Log a Call'),
+      label: __('Log a call'),
       onClick: () => props.modalRef.createCallLog(),
     },
     {
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
-      label: __('Make a Call'),
+      label: __('Make a call'),
       onClick: () => makeCall(props.doc.mobile_no),
       condition: () => ipTelephonyEnabled.value,
     },
     {
       icon: h(NoteIcon, { class: 'h-4 w-4' }),
-      label: __('New Note'),
+      label: __('New note'),
       onClick: () => props.modalRef.showNote(),
     },
     {
       icon: h(TaskIcon, { class: 'h-4 w-4' }),
-      label: __('New Task'),
+      label: __('New task'),
       onClick: () => props.modalRef.showTask(),
     },
     {
       icon: h(AttachmentIcon, { class: 'h-4 w-4' }),
-      label: __('Upload Attachment'),
+      label: __('Upload attachment'),
       onClick: () => (showFilesUploader.value = true),
     },
     {
       icon: h(WhatsAppIcon, { class: 'h-4 w-4' }),
-      label: __('New WhatsApp Message'),
+      label: __('New WhatsApp message'),
       onClick: () => (tabIndex.value = getTabIndex('WhatsApp')),
       condition: () => whatsappEnabled.value,
     },
@@ -181,7 +181,7 @@ function getTabIndex(name) {
 const callActions = computed(() => {
   let actions = [
     {
-      label: __('Log a Call'),
+      label: __('Log a call'),
       icon: 'plus',
       onClick: () => {
         if (!props.modalRef || typeof props.modalRef.createCallLog !== 'function') {
@@ -191,7 +191,7 @@ const callActions = computed(() => {
       },
     },
     {
-      label: __('Make a Call'),
+      label: __('Make a call'),
       icon: h(PhoneIcon, { class: 'h-4 w-4' }),
       onClick: () => makeCall(props.doc.mobile_no),
       condition: () => callEnabled.value,

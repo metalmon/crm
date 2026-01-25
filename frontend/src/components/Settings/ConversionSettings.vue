@@ -1,69 +1,67 @@
 <template>
-  <div class="flex h-full flex-col gap-6 p-8 text-ink-gray-8">
-    <!-- Header -->
-    <div class="flex justify-between">
-      <div class="flex gap-1 -ml-4 w-9/12">
-        <Button
-          variant="ghost"
-          icon-left="chevron-left"
-          :label="__('Conversion settings')"
-          size="md"
-          @click="() => emit('updateStep', 'general-settings')"
-          class="text-xl !h-7 font-semibold hover:bg-transparent focus:bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:none active:bg-transparent active:outline-none active:ring-0 active:ring-offset-0 active:text-ink-gray-5"
-        />
-      </div>
-      <div class="flex item-center space-x-2 w-3/12 justify-end">
-        <Button
-          :label="__('Update')"
-          icon-left="plus"
-          variant="solid"
-          :disabled="!settings.isDirty"
-          :loading="settings.loading"
-          @click="updateSettings"
-        />
-      </div>
+  <div class="flex h-full flex-col gap-6 py-8 px-6 text-ink-gray-8">
+    <div class="flex flex-col gap-1 px-2">
+      <h2 class="flex gap-2 text-xl font-semibold leading-none h-5">
+        {{ __('Conversion Settings') }}
+      </h2>
+      <p class="text-p-base text-ink-gray-6">
+        {{
+          __(
+            'Configure settings for converting leads to deals',
+          )
+        }}
+      </p>
     </div>
 
-    <!-- Fields -->
-    <div class="flex flex-1 flex-col gap-4 overflow-y-auto dark-scrollbar">
-      <!-- Lead conversion status -->
-      <div class="flex flex-col justify-between gap-4">
-        <span class="text-base font-semibold text-ink-gray-9">
-          {{ __('Lead Conversion') }}
-        </span>
-        <div class="flex w-full">
+    <div class="flex-1 flex flex-col overflow-y-auto">
+      <div class="flex flex-col gap-4 py-3 px-2">
+        <div class="flex flex-col gap-1">
+          <div class="text-p-base font-medium text-ink-gray-7">
+            {{ __('Default Status for Converted Lead') }}
+          </div>
+          <div class="text-p-sm text-ink-gray-5">
+            {{ __('Status that will be set when lead is converted to deal. Leave empty to use first status by position.') }}
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
           <FormControl
             type="select"
             class="w-full max-w-md"
             v-model="settings.doc.default_converted_lead_status"
-            :label="__('Default Status for Converted Lead')"
-            :options="[{ label: '', value: '' }, ...statusOptions('deal')]"
-            :description="__('Status that will be set when lead is converted to deal. Leave empty to use first status by position.')"
+            :options="statusOptions('deal')"
+            :placeholder="__('Select status')"
+            @change="updateConversionSettings"
+          />
+          <Button
+            v-if="settings.doc.default_converted_lead_status"
+            icon="x"
+            variant="ghost"
+            :tooltip="__('Clear')"
+            @click="clearStatus"
           />
         </div>
       </div>
     </div>
-    <div v-if="errorMessage">
-      <ErrorMessage :message="__(errorMessage)" />
-    </div>
   </div>
 </template>
 <script setup>
-import { FormControl, ErrorMessage } from 'frappe-ui'
+import { FormControl, Button } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { statusesStore } from '@/stores/statuses'
-import { ref } from 'vue'
+import { toast } from 'frappe-ui'
 
 const { _settings: settings } = getSettings()
 const { statusOptions } = statusesStore()
 
-const emit = defineEmits(['updateStep'])
-const errorMessage = ref('')
+function clearStatus() {
+  settings.doc.default_converted_lead_status = ''
+  updateConversionSettings()
+}
 
-function updateSettings() {
+function updateConversionSettings() {
   settings.save.submit(null, {
     onSuccess: () => {
-      // Settings saved successfully, modal stays open
+      toast.success(__('Conversion settings updated successfully'))
     },
   })
 }

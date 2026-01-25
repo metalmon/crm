@@ -4,33 +4,18 @@
       <ViewBreadcrumbs v-model="viewControls" routeName="Organizations" />
     </template>
     <template #right-header>
-      <div class="flex items-center gap-4">
-        <SmartFilterField
-          v-if="!isMobileView"
-          ref="desktopSmartFilter"
-          doctype="CRM Organization"
-          @update:filters="handleSmartFilter"
-        />
-        <CustomActions
-          v-if="organizationsListView?.customListActions"
-          :actions="organizationsListView.customListActions"
-        />
-        <Button
-          variant="solid"
-          :label="__('Create')"
-          iconLeft="plus"
-          @click="showOrganizationModal = true"
-        />
-      </div>
+      <CustomActions
+        v-if="organizationsListView?.customListActions"
+        :actions="organizationsListView.customListActions"
+      />
+      <Button
+        variant="solid"
+        :label="__('Create')"
+        iconLeft="plus"
+        @click="showOrganizationModal = true"
+      />
     </template>
   </LayoutHeader>
-  <div v-if="isMobileView" class="px-3 py-2 border-b">
-    <SmartFilterField
-      ref="mobileSmartFilter"
-      doctype="CRM Organization"
-      @update:filters="handleSmartFilter"
-    />
-  </div>
   <ViewControls
     ref="viewControls"
     v-model="organizations"
@@ -45,7 +30,7 @@
     v-model="organizations.data.page_length_count"
     v-model:list="organizations"
     :rows="rows"
-    :columns="organizations.data.columns"
+    :columns="columns"
     :options="{
       showTooltip: false,
       resizeColumn: true,
@@ -62,22 +47,11 @@
       (selections) => viewControls.updateSelections(selections)
     "
   />
-  <div
-    v-else-if="organizations.data"
-    class="flex h-full items-center justify-center"
-  >
-    <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <OrganizationsIcon class="h-10 w-10" />
-      <span>{{ __('No Organizations Found') }}</span>
-      <Button
-        :label="__('Create')"
-        iconLeft="plus"
-        @click="showOrganizationModal = true"
-      />
-    </div>
-  </div>
+  <EmptyState
+    v-else-if="organizations.data && !rows.length"
+    name="organizations"
+    :icon="OrganizationsIcon"
+  />
   <OrganizationModal
     v-if="showOrganizationModal"
     v-model="showOrganizationModal"
@@ -94,9 +68,8 @@ import ViewControls from '@/components/ViewControls.vue'
 import { getMeta } from '@/stores/meta'
 import { formatDate, timeAgo, website } from '@/utils'
 import { call } from 'frappe-ui'
-import { ref, computed, watch } from 'vue'
-import { isMobileView } from '@/composables/settings'
-import SmartFilterField from '@/components/SmartFilterField.vue'
+import { ref, computed } from 'vue'
+import EmptyState from '../components/ListViews/EmptyState.vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Organization')
@@ -161,7 +134,7 @@ const rows = computed(() => {
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(organization[row]),
-          timeAgo: timeAgo(organization[row]),
+          timeAgo: __(timeAgo(organization[row])),
         }
       }
     })
@@ -169,50 +142,19 @@ const rows = computed(() => {
   })
 })
 
-const desktopSmartFilter = ref(null)
-const mobileSmartFilter = ref(null)
-const isResettingFilters = ref(false)
+const columns = computed(() => {
+  let _columns = organizations.value?.data?.columns || []
 
-watch(() => organizations.value?.params?.filters, (newFilters) => {
-  if (isResettingFilters.value) return;
-  
-  if (!newFilters || Object.keys(newFilters).length === 0) {
-    isResettingFilters.value = true;
-    desktopSmartFilter.value?.clearSearch();
-    mobileSmartFilter.value?.clearSearch();
-    isResettingFilters.value = false;
-  }
-}, { deep: true })
-
-function handleSmartFilter(filters) {
-  if (!viewControls.value || !filters) return;
-  if (isResettingFilters.value) return;
-  if (!organizations.value || !organizations.value.params) return;
-
-  const currentFilters = organizations.value.params.filters || {};
-  const standardFilters = {};
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    if (!['website', 'industry'].includes(key)) {
-      standardFilters[key] = value;
-    }
-  });
-
-  organizations.value.params.filters = {
-    ...standardFilters,
-    ...filters
-  };
-  organizations.value.reload();
-}
-  
-  
-async function openAddressModal(_address) {
-  if (_address) {
-    _address = await call('frappe.client.get', {
-      doctype: 'Address',
-      name: _address,
+  // Set align right for last column
+  if (_columns.length) {
+    _columns = _columns.map((col, index) => {
+      if (index === _columns.length - 1) {
+        return { ...col, align: 'right' }
+      }
+      return col
     })
   }
-  showAddressModal.value = true
-  address.value = _address || {}
-}
+
+  return _columns
+})
 </script>

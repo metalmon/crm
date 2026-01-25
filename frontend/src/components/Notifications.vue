@@ -116,10 +116,10 @@
         </div>
         <div
           v-else-if="!notifications.data?.data?.length"
-          class="flex flex-1 flex-col items-center justify-center gap-2"
+          class="flex flex-1 flex-col items-center justify-center gap-2 p-4"
         >
-          <NotificationsIcon class="h-20 w-20 text-ink-gray-2" />
-          <div class="text-lg font-medium text-ink-gray-4">
+          <NotificationsIcon class="h-16 w-16 text-ink-gray-3" />
+          <div class="text-base font-medium text-ink-gray-3 text-center">
             {{ __('No new notifications') }}
           </div>
         </div>

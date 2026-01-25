@@ -11,7 +11,6 @@ from pypika import Criterion
 
 from crm.api.views import get_views
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
-from .performance import track_performance
 from crm.utils import get_dynamic_linked_docs, get_linked_docs, is_frappe_version
 
 COUNT_NAME = (
@@ -37,9 +36,9 @@ def sort_options(doctype: str):
 
 	standard_fields = [
 		{"label": "Name", "fieldname": "name"},
-		{"label": "Created On", "fieldname": "creation"},
-		{"label": "Last Modified", "fieldname": "modified"},
-		{"label": "Modified By", "fieldname": "modified_by"},
+		{"label": "Created on", "fieldname": "creation"},
+		{"label": "Last modified", "fieldname": "modified"},
+		{"label": "Modified by", "fieldname": "modified_by"},
 		{"label": "Owner", "fieldname": "owner"},
 	]
 
@@ -91,19 +90,19 @@ def get_filterable_fields(doctype: str):
 	# append standard fields (getting error when using frappe.model.std_fields)
 	standard_fields = [
 		{"fieldname": "name", "fieldtype": "Link", "label": "ID", "options": doctype},
-		{"fieldname": "owner", "fieldtype": "Link", "label": "Created By", "options": "User"},
+		{"fieldname": "owner", "fieldtype": "Link", "label": "Created by", "options": "User"},
 		{
 			"fieldname": "modified_by",
 			"fieldtype": "Link",
-			"label": "Last Updated By",
+			"label": "Last updated by",
 			"options": "User",
 		},
 		{"fieldname": "_user_tags", "fieldtype": "Data", "label": "Tags"},
 		{"fieldname": "_liked_by", "fieldtype": "Data", "label": "Like"},
 		{"fieldname": "_comments", "fieldtype": "Text", "label": "Comments"},
-		{"fieldname": "_assign", "fieldtype": "Text", "label": "Assigned To"},
-		{"fieldname": "creation", "fieldtype": "Datetime", "label": "Created On"},
-		{"fieldname": "modified", "fieldtype": "Datetime", "label": "Last Updated On"},
+		{"fieldname": "_assign", "fieldtype": "Text", "label": "Assigned to"},
+		{"fieldname": "creation", "fieldtype": "Datetime", "label": "Created on"},
+		{"fieldname": "modified", "fieldtype": "Datetime", "label": "Last updated on"},
 	]
 	for field in standard_fields:
 		if field.get("fieldname") not in restricted_fields and field.get("fieldtype") in allowed_fieldtypes:
@@ -150,15 +149,15 @@ def get_group_by_fields(doctype: str):
 
 	standard_fields = [
 		{"label": "Name", "fieldname": "name"},
-		{"label": "Created On", "fieldname": "creation"},
-		{"label": "Last Modified", "fieldname": "modified"},
-		{"label": "Modified By", "fieldname": "modified_by"},
+		{"label": "Created on", "fieldname": "creation"},
+		{"label": "Last modified", "fieldname": "modified"},
+		{"label": "Modified by", "fieldname": "modified_by"},
 		{"label": "Owner", "fieldname": "owner"},
-		{"label": "Liked By", "fieldname": "_liked_by"},
-		{"label": "Assigned To", "fieldname": "_assign"},
+		{"label": "Liked by", "fieldname": "_liked_by"},
+		{"label": "Assigned to", "fieldname": "_assign"},
 		{"label": "Comments", "fieldname": "_comments"},
-		{"label": "Created On", "fieldname": "creation"},
-		{"label": "Modified On", "fieldname": "modified"},
+		{"label": "Created on", "fieldname": "creation"},
+		{"label": "Modified on", "fieldname": "modified"},
 	]
 
 	for field in standard_fields:
@@ -201,8 +200,6 @@ def get_quick_filters(doctype: str, cached: bool = True):
 		for filter in _quick_filters:
 			if filter == "name":
 				fields.append({"label": "Name", "fieldname": "name", "fieldtype": "Data"})
-			elif filter == "_assign":
-				fields.append({"label": "Assigned To", "fieldname": "_assign", "fieldtype": "Text"})
 			else:
 				field = next((f for f in meta.fields if f.fieldname == filter), None)
 				if field:
@@ -211,13 +208,11 @@ def get_quick_filters(doctype: str, cached: bool = True):
 	else:
 		fields = [field for field in meta.fields if field.in_standard_filter]
 
-
-
 	for field in fields:
 		options = field.get("options")
 		if field.get("fieldtype") == "Select" and options and isinstance(options, str):
 			options = options.split("\n")
-			options = [{"label": _(option), "value": option} for option in options]
+			options = [{"label": option, "value": option} for option in options]
 			if not any([not option.get("value") for option in options]):
 				options.insert(0, {"label": "", "value": ""})
 		quick_filters.append(
@@ -255,6 +250,18 @@ def update_quick_filters(quick_filters: str, old_filters: str, doctype: str):
 		update_in_standard_filter(filter, doctype, 1)
 
 
+def create_update_global_settings(doctype, quick_filters):
+	if global_settings := frappe.db.exists("CRM Global Settings", {"dt": doctype, "type": "Quick Filters"}):
+		frappe.db.set_value("CRM Global Settings", global_settings, "json", json.dumps(quick_filters))
+	else:
+		# create CRM Global Settings doc
+		doc = frappe.new_doc("CRM Global Settings")
+		doc.dt = doctype
+		doc.type = "Quick Filters"
+		doc.json = json.dumps(quick_filters)
+		doc.insert()
+
+
 def clear_quick_filters_cache(doctype):
 	"""Clear the quick filters cache for a specific doctype"""
 	frappe.cache().delete_key(['Quick Filters', doctype])
@@ -275,28 +282,9 @@ def update_in_standard_filter(fieldname, doctype, value):
 			"Check",
 			validate_fields_for_doctype=False,
 		)
-	
-	# Clear cache after updating standard filter
-	clear_quick_filters_cache(doctype)
-
-
-def create_update_global_settings(doctype, quick_filters):
-	if global_settings := frappe.db.exists("CRM Global Settings", {"dt": doctype, "type": "Quick Filters"}):
-		frappe.db.set_value("CRM Global Settings", global_settings, "json", json.dumps(quick_filters))
-	else:
-		# create CRM Global Settings doc
-		doc = frappe.new_doc("CRM Global Settings")
-		doc.dt = doctype
-		doc.type = "Quick Filters"
-		doc.json = json.dumps(quick_filters)
-		doc.insert()
-	
-	# Clear cache after updating global settings
-	clear_quick_filters_cache(doctype)
 
 
 @frappe.whitelist()
-@track_performance
 def get_data(
 	doctype: str,
 	filters: dict,
@@ -332,13 +320,6 @@ def get_data(
 				index = [i for i, v in enumerate(value) if v == "%@me%"]
 				for i in index:
 					value[i] = "%" + frappe.session.user + "%"
-			# Handle _assign field filtering
-			elif key == "_assign" and len(value) == 2 and value[0] == "assigned_user":
-				# Get user email by name
-				user_email = frappe.db.get_value("User", value[1], "email")
-				if user_email:
-					# Convert to LIKE filter for JSON field
-					filters[key] = ["LIKE", f"%{user_email}%"]
 		elif value == "@me":
 			filters[key] = frappe.session.user
 
@@ -364,8 +345,8 @@ def get_data(
 
 		if not columns:
 			columns = [
-				{"label": _("Name"), "type": "Data", "key": "name", "width": "16rem"},
-				{"label": _("Last Modified"), "type": "Datetime", "key": "modified", "width": "8rem"},
+				{"label": "Name", "type": "Data", "key": "name", "width": "16rem"},
+				{"label": "Last modified", "type": "Datetime", "key": "modified", "width": "8rem"},
 			]
 
 		if not rows:
@@ -426,13 +407,11 @@ def get_data(
 			if field_meta.fieldtype == "Link":
 				kanban_columns = frappe.get_all(
 					field_meta.options,
-					fields=["name", "position"],
-					order_by="position asc",
+					fields=["name"],
+					order_by="modified asc",
 				)
-			elif field_meta and field_meta.fieldtype == "Select":
+			elif field_meta.fieldtype == "Select":
 				kanban_columns = [{"name": option} for option in field_meta.options.split("\n")]
-			else:
-				kanban_columns = []
 
 		if not title_field:
 			title_field = "name"
@@ -515,15 +494,15 @@ def get_data(
 
 	std_fields = [
 		{"label": "Name", "fieldtype": "Data", "fieldname": "name"},
-		{"label": "Created On", "fieldtype": "Datetime", "fieldname": "creation"},
-		{"label": "Last Modified", "fieldtype": "Datetime", "fieldname": "modified"},
+		{"label": "Created on", "fieldtype": "Datetime", "fieldname": "creation"},
+		{"label": "Last modified", "fieldtype": "Datetime", "fieldname": "modified"},
 		{
-			"label": "Modified By",
+			"label": "Modified by",
 			"fieldtype": "Link",
 			"fieldname": "modified_by",
 			"options": "User",
 		},
-		{"label": "Assigned To", "fieldtype": "Text", "fieldname": "_assign"},
+		{"label": "Assigned to", "fieldtype": "Text", "fieldname": "_assign"},
 		{"label": "Owner", "fieldtype": "Link", "fieldname": "owner", "options": "User"},
 		{"label": "Like", "fieldtype": "Data", "fieldname": "_liked_by"},
 	]
@@ -656,19 +635,19 @@ def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False, only_re
 
 	standard_fields = [
 		{"fieldname": "name", "fieldtype": "Link", "label": "ID", "options": doctype},
-		{"fieldname": "owner", "fieldtype": "Link", "label": "Created By", "options": "User"},
+		{"fieldname": "owner", "fieldtype": "Link", "label": "Created by", "options": "User"},
 		{
 			"fieldname": "modified_by",
 			"fieldtype": "Link",
-			"label": "Last Updated By",
+			"label": "Last updated by",
 			"options": "User",
 		},
 		{"fieldname": "_user_tags", "fieldtype": "Data", "label": "Tags"},
 		{"fieldname": "_liked_by", "fieldtype": "Data", "label": "Like"},
 		{"fieldname": "_comments", "fieldtype": "Text", "label": "Comments"},
-		{"fieldname": "_assign", "fieldtype": "Text", "label": "Assigned To"},
-		{"fieldname": "creation", "fieldtype": "Datetime", "label": "Created On"},
-		{"fieldname": "modified", "fieldtype": "Datetime", "label": "Last Updated On"},
+		{"fieldname": "_assign", "fieldtype": "Text", "label": "Assigned to"},
+		{"fieldname": "creation", "fieldtype": "Datetime", "label": "Created on"},
+		{"fieldname": "modified", "fieldtype": "Datetime", "label": "Last updated on"},
 	]
 
 	for field in standard_fields:
@@ -692,36 +671,21 @@ def get_fields_meta(doctype, restricted_fieldtypes=None, as_array=False, only_re
 
 
 @frappe.whitelist()
-def remove_assignments(doctype, name, assignees, ignore_permissions=False, retry_count=3):
+def remove_assignments(doctype, name, assignees, ignore_permissions=False):
 	assignees = frappe.parse_json(assignees)
 
 	if not assignees:
 		return
 
 	for assign_to in assignees:
-		for attempt in range(retry_count):
-			try:
-				set_status(
-					doctype,
-					name,
-					todo=None,
-					assign_to=assign_to,
-					status="Cancelled",
-					ignore_permissions=ignore_permissions,
-				)
-				break  # Break inner loop if successful
-			except Exception as e:
-				error_message = str(e)
-				is_deadlock = "Deadlock found when trying to get lock" in error_message
-
-				if is_deadlock and attempt < retry_count - 1:
-					frappe.log_error(_("Deadlock detected in unassignment, retrying... (Attempt {0}/{1})").format(attempt + 1, retry_count))
-					continue
-				else:
-					frappe.log_error(_("Error in unassignment: {0}").format(error_message))
-					frappe.throw(_("Error while unassigning: {0}").format(error_message))
-		else:
-			frappe.throw(_("Failed to unassign after multiple attempts"))
+		set_status(
+			doctype,
+			name,
+			todo=None,
+			assign_to=assign_to,
+			status="Cancelled",
+			ignore_permissions=ignore_permissions,
+		)
 
 
 @frappe.whitelist()
@@ -794,69 +758,38 @@ def getCounts(d, doctype):
 	return d
 
 
-def get_changed_fields(doc):
-	"""Get fields that were changed in the document"""
-	if not doc._doc_before_save:
-		return {}
-		
-	changed = {}
-	for key, value in doc.as_dict().items():
-		if (
-			key not in ['modified', 'creation'] and 
-			doc._doc_before_save.get(key) != value
-		):
-			changed[key] = value
-			
-	return changed
-
-
-@frappe.whitelist()
-def subscribe_doc(doctype, name):
-	"""Subscribe to document updates"""
-	if not frappe.has_permission(doctype, "read", name):
-		frappe.throw(_("Not permitted"))
-		
-	# Add to session subscriptions
-	if not hasattr(frappe.local, 'document_subscriptions'):
-		frappe.local.document_subscriptions = set()
-	
-	frappe.local.document_subscriptions.add(f"{doctype}:{name}")
-	return True
-
-
-@frappe.whitelist()
-def unsubscribe_doc(doctype, name):
-	"""Unsubscribe from document updates"""
-	if hasattr(frappe.local, 'document_subscriptions'):
-		frappe.local.document_subscriptions.remove(f"{doctype}:{name}")
-	return True
-
-
 def on_doc_update(doc, method=None):
-	"""Publish updates to subscribed clients"""
-	# Handle CRM Lead, CRM Deal and CRM Task
-	if doc.doctype not in ['CRM Lead', 'CRM Deal', 'CRM Task']:
+	"""Publish CRM document events to subscribed clients.
+
+	This is used for realtime updates in the CRM frontend (e.g. kanбан‑доски)
+	for doctypes `CRM Lead`, `CRM Deal` и `CRM Task`.
+	"""
+
+	# Only handle CRM doctypes that use realtime updates
+	if doc.doctype not in ["CRM Lead", "CRM Deal", "CRM Task"]:
 		return
-		
-	# Determine event type based on method
-	event = 'modified'
-	if method == 'after_insert':
-		event = 'created'
-	elif method == 'on_trash':
-		event = 'deleted'
-		
-	# Send document identifier and event type
+
+	# Map Frappe hook name to a simple event type for the frontend
+	event = "modified"
+	if method == "after_insert":
+		event = "created"
+	elif method == "on_trash":
+		event = "deleted"
+
+	# Publish a compact payload that matches what the CRM socket client expects
 	frappe.publish_realtime(
-		'doc_update',
+		"doc_update",
 		{
-			'doctype': doc.doctype,
-			'name': doc.name,
-			'data': {
-				'event': event  # Signal the type of document event
-			}
+			"doctype": doc.doctype,
+			"name": doc.name,
+			"data": {
+				"event": event,
+			},
 		},
-		after_commit=True
+		after_commit=True,
 	)
+
+
 @frappe.whitelist()
 def get_linked_docs_of_document(doctype, docname):
 	try:
@@ -916,6 +849,7 @@ def remove_doc_link(doctype, docname):
 				"reference_doctype": "",
 				"reference_name": "",
 			}
+
 			if linked_doc_data.get("notification_type_doctype") == linked_doc_data.get("reference_doctype"):
 				delete_references.update(delete_notification_type)
 
@@ -962,7 +896,8 @@ def remove_linked_doc_reference(items, remove_contact=None, delete=False):
 			if remove_contact:
 				remove_contact_link(item["doctype"], item["docname"])
 			else:
-				universal_remove_doc_link(item["doctype"], item["docname"])
+				remove_doc_link(item["doctype"], item["docname"])
+
 			if delete:
 				frappe.delete_doc(item["doctype"], item["docname"])
 		except (frappe.DoesNotExistError, frappe.ValidationError):
@@ -976,88 +911,42 @@ def remove_linked_doc_reference(items, remove_contact=None, delete=False):
 def delete_bulk_docs(doctype, items, delete_linked=False):
 	from frappe.desk.reportview import delete_bulk
 
-	try:
-		if not doctype:
-			frappe.throw("Doctype is required")
+	if not doctype:
+		frappe.throw("Doctype is required")
 
-		if not items:
-			frappe.throw("Items are required")
+	if not items:
+		frappe.throw("Items are required")
 
-		items = frappe.parse_json(items)
-		if not isinstance(items, list):
-			frappe.throw("Items must be a list")
-		
-		# Process linked documents for each item
-		for doc in items:
-			try:
-				if not frappe.db.exists(doctype, doc):
-					frappe.log_error(f"Document {doctype} {doc} does not exist", "Bulk Delete Error")
-					continue
+	items = frappe.parse_json(items)
+	if not isinstance(items, list):
+		frappe.throw("Items must be a list")
 
-				linked_docs = get_linked_docs_of_document(doctype, doc)
-				
-				# If there are linked documents, handle them according to delete_linked flag
-				for linked_doc in linked_docs:
-					if not linked_doc.get("reference_doctype") or not linked_doc.get("reference_docname"):
-						continue
-
-					try:
-						remove_linked_doc_reference(
-							[
-								{
-									"doctype": linked_doc["reference_doctype"],
-									"docname": linked_doc["reference_docname"],
-								}
-							],
-							remove_contact=doctype == "Contact",
-							delete=delete_linked,
-						)
-					except Exception as e:
-						frappe.log_error(f"Error handling linked doc {linked_doc['reference_docname']}: {str(e)}")
-						# Continue with other linked documents
-						continue
-			except Exception as e:
-				frappe.log_error(f"Error processing linked documents for {doc}: {str(e)}")
-				# Continue with other documents
+	for doc in items:
+		try:
+			if not frappe.db.exists(doctype, doc):
+				frappe.log_error(f"Document {doctype} {doc} does not exist", "Bulk Delete Error")
 				continue
 
-		# Delete the main documents
-		try:
-			if len(items) > 10:
-				frappe.enqueue("frappe.desk.reportview.delete_bulk", doctype=doctype, items=items)
-			else:
-				delete_bulk(doctype, items)
+			linked_docs = get_linked_docs_of_document(doctype, doc)
+			for linked_doc in linked_docs:
+				if not linked_doc.get("reference_doctype") or not linked_doc.get("reference_docname"):
+					continue
+
+				remove_linked_doc_reference(
+					[
+						{
+							"doctype": linked_doc["reference_doctype"],
+							"docname": linked_doc["reference_docname"],
+						}
+					],
+					remove_contact=doctype == "Contact",
+					delete=delete_linked,
+				)
 		except Exception as e:
-			frappe.log_error(f"Error in bulk delete: {str(e)}")
-			raise
-			
-		return "success"
-	except Exception as e:
-		frappe.log_error(f"Error in delete_bulk_docs: {str(e)}")
-		frappe.throw(f"Error in bulk delete operation: {str(e)}")
+			frappe.log_error(f"Error processing linked docs for {doctype} {doc}: {e!s}", "Bulk Delete Error")
 
-
-# --- UNIVERSAL UNLINK FUNCTION FOR FORK SUPPORT ---
-def universal_remove_doc_link(doctype, docname):
-	"""
-	Universally unlinks a document from its parent for any DocType
-	that uses reference_doctype/reference_name or reference_docname fields.
-	Clears all Link fields to DocType and all Dynamic Link fields that use them as options.
-	"""
-	doc = frappe.get_doc(doctype, docname)
-	meta = frappe.get_meta(doctype)
-	# Find all Link fields to DocType
-	link_fields = [f.fieldname for f in meta.fields if f.fieldtype == "Link" and f.options == "DocType"]
-	# Find all Dynamic Link fields that use these Link fields as options
-	dynlink_fields = [
-		f.fieldname
-		for f in meta.fields
-		if f.fieldtype == "Dynamic Link" and f.options in link_fields
-	]
-	# Clear all found fields
-	for lf in link_fields:
-		doc.set(lf, None)
-	for dlf in dynlink_fields:
-		doc.set(dlf, None)
-	doc.save(ignore_permissions=True)
-# --- END UNIVERSAL UNLINK FUNCTION ---
+	if len(items) > 10:
+		frappe.enqueue("frappe.desk.reportview.delete_bulk", doctype=doctype, items=items)
+	else:
+		delete_bulk(doctype, items)
+	return "success"

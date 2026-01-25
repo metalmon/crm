@@ -58,7 +58,6 @@
   </Dialog>
 </template>
 <script setup>
-import { Tooltip } from 'frappe-ui'
 import CRMLogo from '@/components/Icons/CRMLogo.vue'
 import LucideGlobe from '~icons/lucide/globe'
 import LucideGitHub from '~icons/lucide/github'
@@ -77,7 +76,7 @@ let links = [
     icon: LucideGlobe,
   },
   {
-    label: __('GitHub Repository'),
+    label: __('GitHub repository'),
     url: 'https://github.com/metalmon/crm',
     icon: LucideGitHub,
   },
@@ -87,17 +86,17 @@ let links = [
     icon: LucideBookOpen,
   },
   {
-    label: __('Telegram Channel'),
+    label: __('Telegram channel'),
     url: 'https://t.me/frappecrm',
     icon: TelegramIcon,
   },
   {
-    label: __('Report an Issue'),
+    label: __('Report an issue'),
     url: 'https://github.com/metalmon/crm/issues',
     icon: LucideBug,
   },
   {
-    label: __('Contact Support'),
+    label: __('Contact support'),
     url: 'https://t.me/metalmonkey',
     icon: LucideHeadset,
   },

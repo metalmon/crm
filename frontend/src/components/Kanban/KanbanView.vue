@@ -114,7 +114,7 @@
                         {{ fields[titleField] }}
                       </div>
                       <div class="text-ink-gray-4" v-else>
-                        {{ __('No Title') }}
+                        {{ __('No title') }}
                       </div>
                     </div>
                   </slot>
@@ -137,12 +137,14 @@
                     </template>
                   </div>
                   <div class="border-b h-px mt-2.5 mb-2" />
-                  <slot name="actions" v-bind="{ itemName: fields.name }">
-                    <div class="flex gap-2 items-center justify-between">
-                      <div></div>
-                      <Button icon="plus" variant="ghost" @click.stop.prevent />
-                    </div>
-                  </slot>
+                  <div @click.stop>
+                    <slot name="actions" v-bind="{ itemName: fields.name }">
+                      <div class="flex gap-2 items-center justify-between">
+                        <div></div>
+                        <Button icon="plus" variant="ghost" @click.stop.prevent />
+                      </div>
+                    </slot>
+                  </div>
                 </component>
               </template>
             </Draggable>
@@ -151,7 +153,7 @@
               class="flex items-center justify-center"
             >
               <Button
-                :label="__('Load More')"
+                :label="__('Load more')"
                 @click="emit('loadMore', column.column.name)"
               />
             </div>
@@ -168,7 +170,7 @@
         <template #target="{ togglePopover }">
           <Button
             class="w-full mt-2.5 mb-1 mr-5"
-            :label="__('Add Column')"
+            :label="__('Add column')"
             iconLeft="plus"
             @click="togglePopover()"
           />

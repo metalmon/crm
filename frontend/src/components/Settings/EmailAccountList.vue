@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col h-full">
     <!-- header -->
-    <div class="flex justify-between text-ink-gray-8 gap-4">
-      <div class="flex flex-col gap-1 flex-1 min-w-0">
+    <div class="flex justify-between text-ink-gray-8">
+      <div class="flex flex-col gap-1 w-9/12">
         <h2 class="flex gap-2 text-xl font-semibold leading-none h-5">
           {{ __('Email accounts') }}
         </h2>
-        <p class="text-p-base text-ink-gray-6 break-words">
+        <p class="text-p-base text-ink-gray-6">
           {{
             __(
               'Manage your email accounts to send and receive emails directly from CRM. You can add multiple accounts and set one as default for incoming and outgoing emails.',
@@ -14,9 +14,9 @@
           }}
         </p>
       </div>
-      <div class="flex item-center space-x-2 flex-shrink-0">
+      <div class="flex item-center space-x-2 w-3/12 justify-end">
         <Button
-          :label="__('Add Account')"
+          :label="__('Add account')"
           theme="gray"
           variant="solid"
           icon-left="plus"
@@ -28,7 +28,7 @@
     <!-- list accounts -->
     <div
       v-if="!emailAccounts.loading && Boolean(emailAccounts.data?.length)"
-      class="mt-4 flex-1 overflow-y-auto dark-scrollbar"
+      class="mt-4"
     >
       <div
         v-for="(emailAccount, i) in emailAccounts.data"
@@ -45,15 +45,20 @@
       </div>
     </div>
     <!-- fallback if no email accounts -->
-    <div v-else class="flex items-center justify-center h-64 text-ink-gray-4 flex-1">
-      {{ __('Please add an email account to continue.') }}
-    </div>
+    <EmptyState
+      v-else
+      name="email accounts"
+      description="Add one to get started."
+      :icon="Email2Icon"
+    />
   </div>
 </template>
 
 <script setup>
-import { createListResource } from 'frappe-ui'
+import Email2Icon from '@/components/Icons/Email2Icon.vue'
+import EmptyState from '../ListViews/EmptyState.vue'
 import EmailAccountCard from './EmailAccountCard.vue'
+import { createListResource } from 'frappe-ui'
 
 const emit = defineEmits(['update:step'])
 

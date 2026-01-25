@@ -1,7 +1,7 @@
 {
-  "commit": "803298db",
+  "commit": "44bc886a",
   "branch": "develop",
-  "commit_message": "refactor: remove unnecessary props from CallLogModal and related components\n\n- Remove showTaskModal and showNoteModal props from CallLogModal\n- Remove showTaskModal and showNoteModal props from AllModals CallLogModal usage\n- Remove showTaskModal, showNoteModal, and reload props from CallArea CallLogDetailModal\n- Simplify modal closing logic in CallLogModal\n- Align with original implementation from frappe/develop",
+  "commit_message": "chore: update translation files",
   "commit_date": "2026-01-23",
   "tag": "v1.57.11"
 }

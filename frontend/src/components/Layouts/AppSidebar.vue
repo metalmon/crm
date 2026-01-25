@@ -6,15 +6,15 @@
     <div class="p-2">
       <UserDropdown :isCollapsed="isSidebarCollapsed" />
     </div>
-    <div class="flex-1 overflow-y-auto dark-scrollbar">
-      <div class="mb-3 flex flex-col">
+    <div class="flex-1 overflow-y-auto">
+      <div class="flex flex-col">
         <SidebarLink
           id="notifications-btn"
           :label="__('Notifications')"
           :icon="NotificationsIcon"
           :isCollapsed="isSidebarCollapsed"
           @click="() => toggleNotificationPanel()"
-          class="relative mx-2 my-0.5"
+          class="relative mx-2 my-[1.5px]"
         >
           <template #right>
             <Badge
@@ -24,16 +24,13 @@
             />
             <div
               v-else-if="unreadNotificationsCount"
-              class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-red-500 ring-1 ring-white"
+              class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-surface-gray-6 ring-1 ring-white"
             />
           </template>
         </SidebarLink>
       </div>
       <div v-for="view in allViews" :key="view.label">
-        <div
-          v-if="!view.hideLabel && isSidebarCollapsed && view.views?.length"
-          class="mx-2 my-2 h-1 border-b"
-        />
+        <div class="border-t mx-2 my-1.5" />
         <CollapsibleSection
           :label="view.name"
           :hideLabel="view.hideLabel"
@@ -42,11 +39,11 @@
           <template #header="{ opened, hide, toggle }">
             <div
               v-if="!hide"
-              class="flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+              class="flex items-center cursor-pointer gap-1.5 text-base text-ink-gray-5 transition-all duration-300 ease-in-out"
               :class="
                 isSidebarCollapsed
-                  ? 'ml-0 h-0 overflow-hidden opacity-0'
-                  : 'ml-2 mt-4 h-7 w-auto opacity-100'
+                  ? 'h-0 overflow-hidden opacity-0'
+                  : 'px-4 pt-[11px] pb-2.5 w-auto opacity-100'
               "
               @click="toggle()"
             >
@@ -62,10 +59,10 @@
             <SidebarLink
               v-for="link in view.views"
               :icon="link.icon"
-              :label="__(link.label)"
+              :label="link.label"
               :to="link.to"
               :isCollapsed="isSidebarCollapsed"
-              class="mx-2 my-0.5"
+              class="mx-2 my-[1.5px]"
             />
           </nav>
         </CollapsibleSection>
@@ -175,20 +172,16 @@ import { sessionStore } from '@/stores/session'
 import { showSettings, activeSettingsPage } from '@/composables/settings'
 import { showChangePasswordModal } from '@/composables/modals'
 import { FeatherIcon, call } from 'frappe-ui'
-import {
-  SignupBanner,
-  TrialBanner,
-} from 'frappe-ui/frappe'
-import GettingStartedBanner from '../custom-ui/onboarding/GettingStartedBanner.vue'
-import HelpModal from '../custom-ui/onboarding/HelpModal.vue'
-import { useOnboarding } from '../custom-ui/onboarding/onboarding'
-import { showHelpModal, minimize } from '../custom-ui/onboarding/help'
-import IntermediateStepModal from '../custom-ui/onboarding/IntermediateStepModal.vue'
+import { SignupBanner, TrialBanner } from 'frappe-ui/frappe'
+import GettingStartedBanner from '@/components/custom-ui/onboarding/GettingStartedBanner.vue'
+import HelpModal from '@/components/custom-ui/onboarding/HelpModal.vue'
+import IntermediateStepModal from '@/components/custom-ui/onboarding/IntermediateStepModal.vue'
+import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
+import { showHelpModal, minimize } from '@/components/custom-ui/onboarding/help'
 import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'
-import { ref, reactive, computed, h, markRaw, onMounted, watch } from 'vue'
-import { callEnabled } from '@/composables/settings'
+import { ref, reactive, computed, markRaw, onMounted } from 'vue'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
@@ -198,68 +191,61 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const isFCSite = ref(window.is_fc_site)
 const isDemoSite = ref(window.is_demo_site)
 
-// Navigation links with translations
-const navigationLinks = [
+const links = [
   {
-    label: __('Dashboard', null, 'Sidebar'),
+    label: __('Dashboard', [], 'menu item'),
     icon: LucideLayoutDashboard,
     to: 'Dashboard',
-    condition: () => isManager(),
   },
   {
-    label: __('Leads', null, 'Sidebar'),
+    label: __('Leads', [], 'menu item'),
     icon: LeadsIcon,
     to: 'Leads',
   },
   {
-    label: __('Deals', null, 'Sidebar'),
+    label: __('Deals', [], 'menu item'),
     icon: DealsIcon,
     to: 'Deals',
   },
   {
-    label: __('Contacts', null, 'Sidebar'),
+    label: __('Contacts', [], 'menu item'),
     icon: ContactsIcon,
     to: 'Contacts',
   },
   {
-    label: __('Organizations', null, 'Sidebar'),
+    label: __('Organizations', [], 'menu item'),
     icon: OrganizationsIcon,
     to: 'Organizations',
   },
   {
-    label: __('Notes', null, 'Sidebar'),
+    label: __('Notes', [], 'menu item'),
     icon: NoteIcon,
     to: 'Notes',
   },
   {
-    label: __('Tasks', null, 'Sidebar'),
+    label: __('Tasks', [], 'menu item'),
     icon: TaskIcon,
     to: 'Tasks',
   },
   {
-    label: __('Calendar', null, 'Sidebar'),
+    label: __('Calendar', [], 'menu item'),
     icon: CalendarIcon,
     to: 'Calendar',
   },
   {
-    label: __('Call Logs', null, 'Sidebar'),
+    label: __('Call Logs', [], 'menu item'),
     icon: PhoneIcon,
     to: 'Call Logs',
   },
 ]
 
-// View section names with translations
-const ALL_VIEWS_LABEL = __('All Views', null, 'Sidebar')
-const PUBLIC_VIEWS_LABEL = __('Public views', null, 'Sidebar')
-const PINNED_VIEWS_LABEL = __('Pinned views', null, 'Sidebar')
-
 const allViews = computed(() => {
   let _views = [
     {
-      name: ALL_VIEWS_LABEL,
+      name: 'All Views',
       hideLabel: true,
       opened: true,
-      views: navigationLinks.filter((link) => {
+      views: links.filter((link) => {
         if (link.condition) {
           return link.condition()
         }
@@ -269,7 +255,7 @@ const allViews = computed(() => {
   ]
   if (getPublicViews().length) {
     _views.push({
-      name: PUBLIC_VIEWS_LABEL,
+      name: 'Public views',
       opened: true,
       views: parseView(getPublicViews()),
     })
@@ -277,7 +263,7 @@ const allViews = computed(() => {
 
   if (getPinnedViews().length) {
     _views.push({
-      name: PINNED_VIEWS_LABEL,
+      name: 'Pinned views',
       opened: true,
       views: parseView(getPinnedViews()),
     })
@@ -300,7 +286,7 @@ function parseView(views) {
 }
 
 function getIcon(routeName, icon) {
-  if (icon) return h('div', { class: 'size-auto' }, icon)
+  if (icon) return icon
 
   switch (routeName) {
     case 'Leads':
@@ -313,8 +299,6 @@ function getIcon(routeName, icon) {
       return OrganizationsIcon
     case 'Notes':
       return NoteIcon
-    case 'Calendar':
-      return CalendarIcon
     case 'Call Logs':
       return PhoneIcon
     default:
@@ -350,8 +334,7 @@ const steps = reactive([
     completed: false,
     onClick: () => {
       minimize.value = true
-      showSettings.value = true
-      activeSettingsPage.value = 'Profile'
+      showChangePasswordModal.value = true
     },
   },
   {
@@ -467,7 +450,7 @@ const steps = reactive([
   },
   {
     name: 'send_first_email',
-    title: __('Send email', null, 'onboarding_step'),
+    title: __('Send email'),
     icon: markRaw(EmailIcon),
     completed: false,
     dependsOn: 'create_first_lead',

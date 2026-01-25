@@ -4,33 +4,18 @@
       <ViewBreadcrumbs v-model="viewControls" routeName="Contacts" />
     </template>
     <template #right-header>
-      <div class="flex items-center gap-4">
-        <SmartFilterField
-          v-if="!isMobileView"
-          ref="desktopSmartFilter"
-          doctype="Contact"
-          @update:filters="handleSmartFilter"
-        />
-        <CustomActions
-          v-if="contactsListView?.customListActions"
-          :actions="contactsListView.customListActions"
-        />
-        <Button
-          variant="solid"
-          :label="__('Create')"
-          iconLeft="plus"
-          @click="showContactModal = true"
-        />
-      </div>
+      <CustomActions
+        v-if="contactsListView?.customListActions"
+        :actions="contactsListView.customListActions"
+      />
+      <Button
+        variant="solid"
+        :label="__('Create')"
+        iconLeft="plus"
+        @click="showContactModal = true"
+      />
     </template>
   </LayoutHeader>
-  <div v-if="isMobileView" class="px-3 py-2 border-b">
-    <SmartFilterField
-      ref="mobileSmartFilter"
-      doctype="Contact"
-      @update:filters="handleSmartFilter"
-    />
-  </div>
   <ViewControls
     ref="viewControls"
     v-model="contacts"
@@ -45,7 +30,7 @@
     v-model="contacts.data.page_length_count"
     v-model:list="contacts"
     :rows="rows"
-    :columns="contacts.data.columns"
+    :columns="columns"
     :options="{
       showTooltip: false,
       resizeColumn: true,
@@ -62,22 +47,11 @@
       (selections) => viewControls.updateSelections(selections)
     "
   />
-  <div
-    v-else-if="contacts.data"
-    class="flex h-full items-center justify-center"
-  >
-    <div
-      class="flex flex-col items-center gap-3 text-xl font-medium text-ink-gray-4"
-    >
-      <ContactsIcon class="h-10 w-10" />
-      <span>{{ __('No Contacts Found') }}</span>
-      <Button
-        :label="__('Create')"
-        iconLeft="plus"
-        @click="showContactModal = true"
-      />
-    </div>
-  </div>
+  <EmptyState
+    v-else-if="contacts.data && !rows.length"
+    name="contacts"
+    :icon="ContactsIcon"
+  />
   <ContactModal
     v-if="showContactModal"
     v-model="showContactModal"
@@ -92,14 +66,12 @@ import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
 import ContactsListView from '@/components/ListViews/ContactsListView.vue'
+import EmptyState from '@/components/ListViews/EmptyState.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import { getMeta } from '@/stores/meta'
 import { organizationsStore } from '@/stores/organizations.js'
 import { formatDate, timeAgo } from '@/utils'
-import { call } from 'frappe-ui'
-import { ref, computed, watch } from 'vue'
-import { isMobileView } from '@/composables/settings'
-import SmartFilterField from '@/components/SmartFilterField.vue'
+import { ref, computed } from 'vue'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('Contact')
@@ -165,7 +137,7 @@ const rows = computed(() => {
       } else if (['modified', 'creation'].includes(row)) {
         _rows[row] = {
           label: formatDate(contact[row]),
-          timeAgo: timeAgo(contact[row]),
+          timeAgo: __(timeAgo(contact[row])),
         }
       }
     })
@@ -173,45 +145,19 @@ const rows = computed(() => {
   })
 })
 
-const desktopSmartFilter = ref(null)
-const mobileSmartFilter = ref(null)
-const isResettingFilters = ref(false)
+const columns = computed(() => {
+  let _columns = contacts.value?.data?.columns || []
 
-watch(() => contacts.value?.params?.filters, (newFilters) => {
-  if (isResettingFilters.value) return;
-  
-  if (!newFilters || Object.keys(newFilters).length === 0) {
-    isResettingFilters.value = true;
-    desktopSmartFilter.value?.clearSearch();
-    mobileSmartFilter.value?.clearSearch();
-    isResettingFilters.value = false;
+  // Set align right for last column
+  if (_columns.length) {
+    _columns = _columns.map((col, index) => {
+      if (index === _columns.length - 1) {
+        return { ...col, align: 'right' }
+      }
+      return col
+    })
   }
-}, { deep: true })
 
-function handleSmartFilter(filters) {
-  if (!viewControls.value || !filters) return;
-  if (isResettingFilters.value) return;
-  if (!contacts.value || !contacts.value.params) return;
-
-  // Get current filters
-  const currentFilters = contacts.value.params.filters || {};
-  
-  // Preserve standard filters (name, id) but replace smart filter fields
-  const standardFilters = {};
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    // Keep filters that aren't handled by smart filter
-    if (!['mobile_no', 'email_id', 'company_name'].includes(key)) {
-      standardFilters[key] = value;
-    }
-  });
-
-  // Merge standard filters with new smart filters
-  contacts.value.params.filters = {
-    ...standardFilters,
-    ...filters
-  };
-  
-  contacts.value.reload();
-}
-
+  return _columns
+})
 </script>

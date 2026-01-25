@@ -309,7 +309,7 @@
         v-else
         class="flex flex-col items-center rounded p-5 text-sm text-ink-gray-5"
       >
-        {{ __('No Data') }}
+        {{ __('No data') }}
       </div>
     </div>
 
@@ -321,7 +321,7 @@
         theme="red"
         @click="deleteRows"
       />
-      <Button :label="__('Add Row')" @click="addRow" />
+      <Button :label="__('Add row')" @click="addRow" />
     </div>
     <GridRowFieldsModal
       v-if="showGridRowFieldsModal"

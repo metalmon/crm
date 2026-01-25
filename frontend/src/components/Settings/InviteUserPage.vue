@@ -15,7 +15,7 @@
       </div>
       <div class="flex item-center space-x-2 w-3/12 justify-end">
         <Button
-          :label="__('Send Invites')"
+          :label="__('Send invites')"
           variant="solid"
           :disabled="!invitees.length"
           @click="inviteByEmail.submit()"
@@ -27,7 +27,7 @@
       <div>
         <FormControl
           type="textarea"
-          :label="__('Invite by email')"
+          label="Invite by email"
           placeholder="user1@example.com, user2@example.com, ..."
           @input="updateInvitees($event.target.value)"
           :debounce="100"
@@ -58,7 +58,7 @@
           <div
             class="flex items-center justify-between text-base font-semibold"
           >
-            <div>{{ __('Pending Invites') }}</div>
+            <div>{{ __('Pending invites') }}</div>
           </div>
           <ul class="flex flex-col gap-1">
             <li
@@ -98,6 +98,7 @@
 import { validateEmail, convertArrayToString } from '@/utils'
 import { usersStore } from '@/stores/users'
 import { createListResource, createResource, FormControl } from 'frappe-ui'
+import { useTelemetry } from 'frappe-ui/frappe'
 import { useOnboarding } from '@/components/custom-ui/onboarding/onboarding'
 import { ref, computed } from 'vue'
 
@@ -107,6 +108,7 @@ const { users, isAdmin, isManager } = usersStore()
 const invitees = ref([])
 const role = ref('Sales User')
 const error = ref(null)
+const $telemetry = useTelemetry()
 
 const userExistMessage = computed(() => {
   const inviteesSet = new Set(invitees.value)
@@ -116,10 +118,12 @@ const userExistMessage = computed(() => {
   const existingEmails = users.data.crmUsers.map((user) => user.name)
   const existingUsersSet = new Set(existingEmails)
 
-  const existingInvitees = new Set([...inviteesSet].filter(x => existingUsersSet.has(x)))
+  const existingInvitees = inviteesSet.intersection(existingUsersSet)
   if (existingInvitees.size === 0) return null
 
-  return __('User with email {0} already exists', [Array.from(existingInvitees).join(', ')])
+  return __('User with email {0} already exists', [
+    Array.from(existingInvitees).join(', '),
+  ])
 })
 
 const inviteeExistMessage = computed(() => {
@@ -130,10 +134,12 @@ const inviteeExistMessage = computed(() => {
   const existingEmails = pendingInvitations.data.map((user) => user.email)
   const existingUsersSet = new Set(existingEmails)
 
-  const existingInvitees = new Set([...inviteesSet].filter(x => existingUsersSet.has(x)))
+  const existingInvitees = inviteesSet.intersection(existingUsersSet)
   if (existingInvitees.size === 0) return null
 
-  return __('User with email {0} already invited', [Array.from(existingInvitees).join(', ')])
+  return __('User with email {0} already invited', [
+    Array.from(existingInvitees).join(', '),
+  ])
 })
 
 const description = computed(() => {
@@ -149,14 +155,14 @@ const description = computed(() => {
 
 const roleOptions = computed(() => {
   return [
-    { value: 'Sales User', label: __('Sales User') },
+    { value: 'Sales User', label: __('Sales user') },
     ...(isManager() ? [{ value: 'Sales Manager', label: __('Manager') }] : []),
     ...(isAdmin() ? [{ value: 'System Manager', label: __('Admin') }] : []),
   ]
 })
 
 const roleMap = {
-  'Sales User': __('Sales User'),
+  'Sales User': __('Sales user'),
   'Sales Manager': __('Manager'),
   'System Manager': __('Admin'),
 }
@@ -171,7 +177,9 @@ const inviteByEmail = createResource({
   },
   onSuccess(data) {
     if (data?.existing_invites?.length) {
-      error.value = __('User with email {0} already exists', [data.existing_invites.join(', ')])
+      error.value = __('User with email {0} already exists', [
+        data.existing_invites.join(', '),
+      ])
     } else {
       role.value = 'Sales User'
       error.value = null
@@ -180,6 +188,7 @@ const inviteByEmail = createResource({
     invitees.value = []
     pendingInvitations.reload()
     updateOnboardingStep('invite_your_team')
+    $telemetry.capture('user_invited', true)
   },
   onError(err) {
     error.value = err?.messages?.[0]

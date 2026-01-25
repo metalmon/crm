@@ -77,8 +77,10 @@ function editValues(selections, unselectAll) {
 
 function convertToDeal(selections, unselectAll) {
   $dialog({
-    title: __('Convert to Deal'),
-    message: __('Are you sure you want to convert {0} Lead(s) to Deal(s)?', [selections.size]),
+    title: __('Convert to deal'),
+    message: __('Are you sure you want to convert {0} lead(s) to deal(s)?', [
+      selections.size,
+    ]),
     variant: 'solid',
     theme: 'blue',
     actions: [
@@ -131,13 +133,15 @@ function assignValues(selections, unselectAll) {
 
 function clearAssignemnts(selections, unselectAll) {
   $dialog({
-    title: __('Clear Assignment'),
-    message: __('Are you sure you want to clear assignment for {0} item(s)?', [selections.size]),
+    title: __('Clear assignment'),
+    message: __('Are you sure you want to clear assignment for {0} item(s)?', [
+      selections.size,
+    ]),
     variant: 'solid',
     theme: 'red',
     actions: [
       {
-        label: __('Clear Assignment'),
+        label: __('Clear assignment'),
         variant: 'solid',
         theme: 'red',
         onClick: (close) => {
@@ -179,18 +183,18 @@ function bulkActions(selections, unselectAll) {
 
   if (!props.options.hideAssign) {
     actions.push({
-      label: __('Assign To'),
+      label: __('Assign to'),
       onClick: () => assignValues(selections, unselectAll),
     })
     actions.push({
-      label: __('Clear Assignment'),
+      label: __('Clear assignment'),
       onClick: () => clearAssignemnts(selections, unselectAll),
     })
   }
 
   if (props.doctype === 'CRM Lead') {
     actions.push({
-      label: __('Convert to Deal'),
+      label: __('Convert to deal'),
       onClick: () => convertToDeal(selections, unselectAll),
     })
   }
@@ -215,11 +219,6 @@ function bulkActions(selections, unselectAll) {
 }
 
 function reload(unselectAll) {
-  // Use the right method to clear selections
-  if (list.value && list.value.selections) {
-    list.value.selections.clear()
-  }
-  
   showDeleteDocModal.value = {
     showLinkedDocsModal: false,
     showDeleteModal: false,
@@ -228,8 +227,6 @@ function reload(unselectAll) {
 
   unselectAllAction.value?.()
   unselectAll?.()
-  
-  // Finally, reload the data
   list.value?.reload()
 }
 
