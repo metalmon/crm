@@ -1,6 +1,6 @@
 from frappe import _
 app_name = "crm"
-app_title = _("EXP CRM")
+app_title = _("CRM")
 app_publisher = _("EXP Omniverse")
 app_description = _("Kick-ass Open Source CRM")
 app_email = ""
